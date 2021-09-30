@@ -19,13 +19,22 @@
 ************************************************************************************/
 
 #include "particle.h"
+#include "vector_math.h"
+#ifndef __CUDACC__
+#include <cmath>
+#endif
+
+static __forceinline__  __host__ __device__ void operator+=(float3 &a, const float &b)
+{
+	a.x=a.y=a.z=b;
+}
 
 namespace SPH {
 
 inline Particle::Particle(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0,bool Fixed)
 {
 	ct = 0;
-	a = 0.0;
+
     x = x0;
 
     Cs		= 0.0;
@@ -34,11 +43,8 @@ inline Particle::Particle(int Tag, float3 const & x0, float3 const & v0, double 
     Alpha	= 0.0;
     Beta	= 0.0;
 
-    va = 0.0;
-    vb = 0.0;
-    NSv = 0.0;
     v = v0;
-    VXSPH = 0.0;
+
     TI		= 0.0;
     TIn		= 4.0;
     TIInitDist  = 0.0;
@@ -95,24 +101,24 @@ inline Particle::Particle(int Tag, float3 const & x0, float3 const & v0, double 
 	
 	Nb=0;
 	
-	Displacement = 0;
 
-    set_to_zero(Strainb);
-    set_to_zero(Strain);
-    set_to_zero(Sigmab);
-    set_to_zero(Sigma);
 
-    set_to_zero(Sigmaa);
-    set_to_zero(ShearStress);
-    set_to_zero(ShearStressb);
-    set_to_zero(TIR);
-    set_to_zero(StrainRate);
-    set_to_zero(RotationRate);
+    // set_to_zero(Strainb);
+    // set_to_zero(Strain);
+    // set_to_zero(Sigmab);
+    // set_to_zero(Sigma);
+
+    // set_to_zero(Sigmaa);
+    // set_to_zero(ShearStress);
+    // set_to_zero(ShearStressb);
+    // set_to_zero(TIR);
+    // set_to_zero(StrainRate);
+    // set_to_zero(RotationRate);
     
 
 }
 
-inline void Particle::Move(double dt, float3 Domainsize, float3 domainmax, float3 domainmin, size_t Scheme, Mat3_t I)
+inline void Particle::Move(double dt, float3 Domainsize, float3 domainmax, float3 domainmin, size_t Scheme, symtensor3 I)
 {
 	if (Scheme == 0)
 		Move_MVerlet(I, dt);
@@ -124,25 +130,25 @@ inline void Particle::Move(double dt, float3 Domainsize, float3 domainmax, float
 		Move_Euler(I, dt);
 
 	//Periodic BC particle position update
-	if (Domainsize(0)>0.0)
-	{
-		(x(0)>(domainmax(0))) ? x(0) -= Domainsize(0) : x(0);
-		(x(0)<(domainmin(0))) ? x(0) += Domainsize(0) : x(0);
-	}
-	if (Domainsize(1)>0.0)
-	{
-		(x(1)>(domainmax(1))) ? x(1) -= Domainsize(1) : x(1);
-		(x(1)<(domainmin(1))) ? x(1) += Domainsize(1) : x(1);
-	}
-	if (Domainsize(2)>0.0)
-	{
-		(x(2)>(domainmax(2))) ? x(2) -= Domainsize(2) : x(2);
-		(x(2)<(domainmin(2))) ? x(2) += Domainsize(2) : x(2);
-	}
+	// if (Domainsize(0)>0.0)
+	// {
+		// (x(0)>(domainmax(0))) ? x(0) -= Domainsize(0) : x(0);
+		// (x(0)<(domainmin(0))) ? x(0) += Domainsize(0) : x(0);
+	// }
+	// if (Domainsize(1)>0.0)
+	// {
+		// (x(1)>(domainmax(1))) ? x(1) -= Domainsize(1) : x(1);
+		// (x(1)<(domainmin(1))) ? x(1) += Domainsize(1) : x(1);
+	// }
+	// if (Domainsize(2)>0.0)
+	// {
+		// (x(2)>(domainmax(2))) ? x(2) -= Domainsize(2) : x(2);
+		// (x(2)<(domainmin(2))) ? x(2) += Domainsize(2) : x(2);
+	// }
 
 }
 
-inline void Particle::Move_MVerlet (Mat3_t I, double dt)
+inline void Particle::Move_MVerlet (symtensor3 I, double dt)
 {
 	if (FirstStep) {
 		ct = 30;
@@ -210,7 +216,7 @@ inline void Particle::Mat2Euler(double dt) {
 	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
 
 	// Jaumann rate terms
-	Mat3_t RotationRateT, Stress,SRT,RS;
+	symtensor3 RotationRateT, Stress,SRT,RS;
 	Trans(RotationRate,RotationRateT);
 	Mult(ShearStress,RotationRateT,SRT);
 	Mult(RotationRate,ShearStress,RS);
@@ -251,7 +257,7 @@ inline void Particle::Mat2Verlet(double dt) {
 	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
 
 	// Jaumann rate terms
-	Mat3_t RotationRateT, Stress,SRT,RS;
+	symtensor3 RotationRateT, Stress,SRT,RS;
 	Trans(RotationRate,RotationRateT);
 	Mult(ShearStress,RotationRateT,SRT);
 	Mult(RotationRate,ShearStress,RS);
@@ -294,7 +300,7 @@ inline void Particle::Mat2MVerlet(double dt) {
 	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
 
 	// Jaumann rate terms
-	Mat3_t RotationRateT, Stress,SRT,RS;
+	symtensor3 RotationRateT, Stress,SRT,RS;
 	Trans(RotationRate,RotationRateT);
 	Mult(ShearStress,RotationRateT,SRT);
 	Mult(RotationRate,ShearStress,RS);
@@ -349,7 +355,7 @@ inline void Particle::Mat2MVerlet(double dt) {
 }
 
 //LUCIANO
-inline void Particle::Move_Verlet (Mat3_t I, double dt) {
+inline void Particle::Move_Verlet (symtensor3 I, double dt) {
 
 	if (FirstStep) {
 		Densityb		= Density;
@@ -373,7 +379,7 @@ inline void Particle::Move_Verlet (Mat3_t I, double dt) {
     Mat2Verlet(dt);	//This uses the same as modified verlet as ct always is != 30
 }
 
-inline void Particle::Move_Euler (Mat3_t I, double dt) {
+inline void Particle::Move_Euler (symtensor3 I, double dt) {
 
 	if (FirstStep) {
 		Densityb		= Density;
@@ -398,7 +404,7 @@ inline void Particle::Move_Euler (Mat3_t I, double dt) {
 }
 
 
-inline void Particle::Move_Leapfrog(Mat3_t I, double dt)
+inline void Particle::Move_Leapfrog(symtensor3 I, double dt)
 {
 	if (FirstStep) {
 		Densitya = Density - dt/2.0*dDensity;
@@ -458,7 +464,7 @@ inline void Particle::Mat2Leapfrog(double dt) {
 	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
 
 	// Jaumann rate terms
-	Mat3_t RotationRateT,SRT,RS;
+	symtensor3 RotationRateT,SRT,RS;
 	Trans(RotationRate,RotationRateT);
 	Mult(ShearStress,RotationRateT,SRT);
 	Mult(RotationRate,ShearStress,RS);
