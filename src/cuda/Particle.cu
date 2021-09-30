@@ -18,11 +18,11 @@
 * PersianSPH; if not, see <http://www.gnu.org/licenses/>                           *
 ************************************************************************************/
 
-#include "Particle.h"
+#include "particle.h"
 
 namespace SPH {
 
-inline Particle::Particle(int Tag, Vec3_t const & x0, Vec3_t const & v0, double Mass0, double Density0, double h0,bool Fixed)
+inline Particle::Particle(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0,bool Fixed)
 {
 	ct = 0;
 	a = 0.0;
@@ -101,18 +101,18 @@ inline Particle::Particle(int Tag, Vec3_t const & x0, Vec3_t const & v0, double 
     set_to_zero(Strain);
     set_to_zero(Sigmab);
     set_to_zero(Sigma);
-//    set_to_zero(FSISigma);
+
     set_to_zero(Sigmaa);
     set_to_zero(ShearStress);
     set_to_zero(ShearStressb);
     set_to_zero(TIR);
     set_to_zero(StrainRate);
     set_to_zero(RotationRate);
-    omp_init_lock(&my_lock);
+    
 
 }
 
-inline void Particle::Move(double dt, Vec3_t Domainsize, Vec3_t domainmax, Vec3_t domainmin, size_t Scheme, Mat3_t I)
+inline void Particle::Move(double dt, float3 Domainsize, float3 domainmax, float3 domainmin, size_t Scheme, Mat3_t I)
 {
 	if (Scheme == 0)
 		Move_MVerlet(I, dt);
@@ -149,7 +149,7 @@ inline void Particle::Move_MVerlet (Mat3_t I, double dt)
 		FirstStep = false;
 	}
 	
-	Vec3_t du = dt*(v+VXSPH) + 0.5*dt*dt*a;
+	float3 du = dt*(v+VXSPH) + 0.5*dt*dt*a;
 	Displacement += du;
 	x += du;
 
@@ -194,7 +194,7 @@ inline void Particle::Move_MVerlet (Mat3_t I, double dt)
 			Densityb	= dens;
 		}
 
-		Vec3_t temp;
+		float3 temp;
 		temp	= v;
 		v		= vb + 2*dt*a;
 		vb		= temp;
@@ -357,7 +357,7 @@ inline void Particle::Move_Verlet (Mat3_t I, double dt) {
 		FirstStep = false;
 	}
 
-	Vec3_t du = dt*(v+VXSPH) + 0.5*dt*dt*a;
+	float3 du = dt*(v+VXSPH) + 0.5*dt*dt*a;
 	Displacement += du;
 	x += du;
 
@@ -365,7 +365,7 @@ inline void Particle::Move_Verlet (Mat3_t I, double dt) {
 	Density		= Densityb + 2.0*dt*dDensity;
 	Densityb	= dens;		
 
-	Vec3_t temp;
+	float3 temp;
 	temp	= v;
 	v		= vb + 2*dt*a;
 	vb		= temp;	
@@ -381,7 +381,7 @@ inline void Particle::Move_Euler (Mat3_t I, double dt) {
 		FirstStep = false;
 	}
 
-	Vec3_t du = dt*(v+VXSPH) + 0.5*dt*dt*a;
+	float3 du = dt*(v+VXSPH) + 0.5*dt*dt*a;
 	Displacement += du;
 	x += du;
 
@@ -389,7 +389,7 @@ inline void Particle::Move_Euler (Mat3_t I, double dt) {
 	Density		= Densityb + dt*dDensity;
 	Densityb	= dens;		
 
-	Vec3_t temp;
+	float3 temp;
 	temp	= v;
 	v		= vb + dt*a;
 	vb		= temp;	
@@ -504,12 +504,12 @@ inline void Particle::Mat2Leapfrog(double dt) {
 
 
 
-inline void Particle::translate(double dt, Vec3_t Domainsize, Vec3_t domainmax, Vec3_t domainmin)
+inline void Particle::translate(double dt, float3 Domainsize, float3 domainmax, float3 domainmin)
 {
 	x = x + dt*v + 0.5*dt*dt*a;
 
 	// Evolve velocity
-	Vec3_t temp;
+	float3 temp;
 	temp = v;
 	v = vb + 2*dt*a;
 	vb = temp;

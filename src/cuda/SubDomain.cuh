@@ -127,8 +127,8 @@ class Domain
 	
 	
     // // Data
-    // Array <Particle*>				Particles; 	///< Array of particles
-    // double					R;		///< Particle Radius in addrandombox
+    std::vector <Particle*>				Particles; 	///< Array of particles
+    // double											R;		///< Particle Radius in addrandombox
 
 		// double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
 
@@ -140,21 +140,11 @@ class Domain
 
     // Vec3_t					Gravity;       	///< Gravity acceleration
 
+	// double 					hmax;		///< Max of h for the cell size  determination
+	// Vec3_t                 			DomSize;	///< Each component of the vector is the domain size in that direction if periodic boundary condition is defined in that direction as well
+	// double					rhomax;
 
-    // Vec3_t                 			TRPR;		///< Top right-hand point at rear of the domain as a cube
-    // Vec3_t                  			BLPF;           ///< Bottom left-hand point at front of the domain as a cube
-    // Vec3_t                  			CellSize;      	///< Calculated cell size according to (cell size >= 2h)
-    // int		                		CellNo[3];      ///< No. of cells for linked list
-    // double 					hmax;		///< Max of h for the cell size  determination
-    // Vec3_t                 			DomSize;	///< Each component of the vector is the domain size in that direction if periodic boundary condition is defined in that direction as well
-    // double					rhomax;
-
-    // int						*** HOC;	///< Array of "Head of Chain" for each cell
-
-    // bool					FSI;			///< Selecting variable to choose Fluid-Structure Interaction
-	
-	// // BONET KERNEL CORRECTION
-	// bool 					gradKernelCorr;	
+	// bool 					gradKernelCorr;	//BONET CORRECTION
 	
     // double 					XSPH;		///< Velocity correction factor
     // double 					InitialDist;	///< Initial distance of particles for Inflow BC
@@ -162,11 +152,6 @@ class Domain
     // double					AvgVelocity;	///< Average velocity of the last two column for x periodic constant velocity
 	// double 					getCellfac(){return Cellfac;}
 
-	// #ifdef __GNUC__
-    // size_t					Nproc;		///< No of threads which are going to use in parallel calculation
-	// #else
-	// int						Nproc;
-	// #endif
 	// omp_lock_t 					dom_lock;	///< Open MP lock to lock Interactions array
     // Boundary					BC;
     // PtOut					UserOutput;

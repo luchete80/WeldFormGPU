@@ -21,8 +21,9 @@
 #ifndef SPH_PARTICLE_H
 #define SPH_PARTICLE_H
 
-#include "matvec.h"
-#include "Functions.h"
+#include "tensor.h"
+//#include "matvec.h"
+//#include "Functions.h"
 
 #define TH_BC_NONE			0
 #define TH_BC_CONVECTION	1
@@ -47,16 +48,16 @@ namespace SPH {
 		bool   	NoSlip;		///< No-Slip BC
 
 		int    	ID;		///< an Integer value to identify the particle set
-		int 	Thermal_BC;
+		int 		Thermal_BC;
 		int    	Material;	///< an Integer value to identify the particle material type: 1 = Fluid, 2 = Solid, 3 = Soil
 
-		Vec3_t	x;		///< Position of the particle n
-		Vec3_t	vb;		///< Velocity of the particle n-1 (Modified Verlet)
-		Vec3_t	va;		///< Velocity of the particle n+1/2 (Leapfrog)
-		Vec3_t	v;		///< Velocity of the particle n+1
-		Vec3_t	NSv;		///< Velocity of the fixed particle for no-slip BC
-		Vec3_t	VXSPH;		///< Mean Velocity of neighbor particles for updating the particle position (XSPH)
-		Vec3_t	a;		///< Acceleration of the particle n
+		float3	x;		///< Position of the particle n
+		float3	vb;		///< Velocity of the particle n-1 (Modified Verlet)
+		float3	va;		///< Velocity of the particle n+1/2 (Leapfrog)
+		float3	v;		///< Velocity of the particle n+1
+		float3	NSv;		///< Velocity of the fixed particle for no-slip BC
+		float3	VXSPH;		///< Mean Velocity of neighbor particles for updating the particle position (XSPH)
+		float3	a;		///< Acceleration of the particle n
 		
 
 		size_t	PresEq;		///< Selecting variable to choose an equation of state
@@ -71,37 +72,37 @@ namespace SPH {
 		double 	RefDensity;	///< Reference Density of Particle
 		double 	FPMassC;	///< Mass coefficient for fixed particles to avoid leaving particles
 		double 	Mass;		///< Mass of the particle
-		Vec3_t	Displacement;	///< Density of the particle n+1
+		float3	Displacement;	///< Density of the particle n+1
 
-		Mat3_t	StrainRate;	///< Global shear Strain rate tensor n
-		Mat3_t	RotationRate;	///< Global rotation tensor n
+		symtensor3	StrainRate;	///< Global shear Strain rate tensor n //WHEN is not symm??
+		symtensor3	RotationRate;	///< Global rotation tensor n
 		double	ShearRate;	///< Global shear rate for fluids
 		double	SBar;		///< shear component for LES
 
-		Mat3_t	ShearStress;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n+1
-		Mat3_t	ShearStressa;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n+1/2 (Leapfrog)
-		Mat3_t	ShearStressb;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n-1 (Modified Verlet)
+		symtensor3	ShearStress;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n+1
+		symtensor3	ShearStressa;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n+1/2 (Leapfrog)
+		symtensor3	ShearStressb;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n-1 (Modified Verlet)
 
-		Mat3_t	Sigma;		///< Cauchy stress tensor (Total Stress) n+1
+		symtensor3	Sigma;		///< Cauchy stress tensor (Total Stress) n+1
 
-		Mat3_t	Sigmaa;		///< Cauchy stress tensor (Total Stress) n+1/2 (Leapfrog)
-		Mat3_t	Sigmab;		///< Cauchy stress tensor (Total Stress) n-1 (Modified Verlet)
+		symtensor3	Sigmaa;		///< Cauchy stress tensor (Total Stress) n+1/2 (Leapfrog)
+		symtensor3	Sigmab;		///< Cauchy stress tensor (Total Stress) n-1 (Modified Verlet)
 		
 		double Sigma_eq;	//Von Mises
 		
 		////////////////// PLASTIC THINGS
-		Mat3_t	Strain;		///< Total Strain n+1
-		Mat3_t	Straina;	///< Total Strain n+1/2 (Leapfrog)
-		Mat3_t	Strainb;	///< Total Strain n-1 (Modified Verlet)
-		Mat3_t  Strain_pl;	//// Plastic Strain
+		symtensor3	Strain;		///< Total Strain n+1
+		symtensor3	Straina;	///< Total Strain n+1/2 (Leapfrog)
+		symtensor3	Strainb;	///< Total Strain n-1 (Modified Verlet)
+		symtensor3  Strain_pl;	//// Plastic Strain
 		
 		
 		double 	pl_strain,delta_pl_strain;	//Accum and incremental Effective (Von Mises) plastic strain 
 		
 		// BONET GRADIENT CORRECTION MATRIX
-		Mat3_t	gradCorrM;
+		symtensor3	gradCorrM;
 
-		Mat3_t	TIR;		///< Tensile Instability stress tensor R
+		symtensor3	TIR;		///< Tensile Instability stress tensor R
 		double	TI;		///< Tensile instability factor
 		double	TIn;		///< Tensile instability power
 		double 	TIInitDist;	///< Initial distance of particles for calculation of tensile instability
@@ -140,18 +141,18 @@ namespace SPH {
 		double q_plheat;				//Plastic Work Heat generation
 		int 	Nb;
 		
-		omp_lock_t my_lock;		///< Open MP lock
+		//omp_lock_t my_lock;		///< Open MP lock
 
 
 		// Constructor
-		Particle						(int Tag, Vec3_t const & x0, Vec3_t const & v0, double Mass0, double Density0, double h0, bool Fixed=false);
+		Particle						(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0, bool Fixed=false);
 
 		// Methods
-		void Move						(double dt, Vec3_t Domainsize, Vec3_t domainmax, Vec3_t domainmin,size_t Scheme, Mat3_t I);	///< Update the important quantities of a particle
-		void Move_MVerlet		(Mat3_t I, double dt);										///< Update the important quantities of a particle
-		void Move_Verlet		(Mat3_t I, double dt);		//LUCIANO
-		void Move_Leapfrog	(Mat3_t I, double dt);										///< Update the important quantities of a particle
-		void translate			(double dt, Vec3_t Domainsize, Vec3_t domainmax, Vec3_t domainmin);
+		void Move						(double dt, float3 Domainsize, float3 domainmax, float3 domainmin,size_t Scheme, symtensor3 I);	///< Update the important quantities of a particle
+		void Move_MVerlet		(symtensor3 I, double dt);										///< Update the important quantities of a particle
+		void Move_Verlet		(symtensor3 I, double dt);		//LUCIANO
+		void Move_Leapfrog	(symtensor3 I, double dt);										///< Update the important quantities of a particle
+		void translate			(double dt, float3 Domainsize, float3 domainmax, float3 domainmin);
 		void Mat2Verlet			(double dt);
 		void Mat2MVerlet		(double dt);
 		void TempCalcLeapfrog	(double dt);
@@ -159,13 +160,13 @@ namespace SPH {
 		void PlasticHeatTest	();
 		void CalcPlasticWorkHeat();
 		void CalculateEquivalentStress();
-		void Move_Euler (Mat3_t I, double dt);
+		void Move_Euler (symtensor3 I, double dt);
 		void Mat2Euler(double dt);
 		
 
 	};
 }; // namespace SPH
 
-#include "Particle.cpp"
+//#include "Particle.cpp"
 
 #endif //SPH_PARTICLE_H
