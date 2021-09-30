@@ -136,7 +136,7 @@ class Domain
 
     // double					MuMax;		///< Max Dynamic viscosity for calculating the timestep
     // double					CsMax;		///< Max speed of sound for calculating the timestep
-	// double 					Vol;		///LUCIANO
+	double 				Vol;		///LUCIANO
 
     // Vec3_t					Gravity;       	///< Gravity acceleration
 
@@ -150,13 +150,11 @@ class Domain
     // double					rhomax;
 
     // int						*** HOC;	///< Array of "Head of Chain" for each cell
-
-    // bool					FSI;			///< Selecting variable to choose Fluid-Structure Interaction
 	
 	// // BONET KERNEL CORRECTION
 	// bool 					gradKernelCorr;	
 	
-    // double 					XSPH;		///< Velocity correction factor
+    double 					XSPH;		///< Velocity correction factor
     // double 					InitialDist;	///< Initial distance of particles for Inflow BC
 
     // double					AvgVelocity;	///< Average velocity of the last two column for x periodic constant velocity

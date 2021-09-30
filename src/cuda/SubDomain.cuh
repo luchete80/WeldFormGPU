@@ -48,7 +48,7 @@ enum Gradient_Type { Squared_density=0, Multiplied_density=1 };
 
 namespace SPH {
 
-class Domain
+class SubDomain
 {
 	
 	cuNSearch::NeighborhoodSearch neib;
@@ -144,7 +144,13 @@ class Domain
 	// Vec3_t                 			DomSize;	///< Each component of the vector is the domain size in that direction if periodic boundary condition is defined in that direction as well
 	// double					rhomax;
 
-	// bool 					gradKernelCorr;	//BONET CORRECTION
+
+
+    // int						*** HOC;	///< Array of "Head of Chain" for each cell
+
+	// // BONET KERNEL CORRECTION
+	// bool 					gradKernelCorr;	
+
 	
     // double 					XSPH;		///< Velocity correction factor
     // double 					InitialDist;	///< Initial distance of particles for Inflow BC
@@ -194,8 +200,8 @@ class Domain
 		// size_t					GradientType;		//Choose a Gradient approach 1/Rho i^2 + 1/Rho j^2 or 1/(Rho i * Rho j)
 		// double 					Cellfac;				//Define the compact support of a kernel
 
-		// double					Time;    				//Current time of simulation at each solving step
-		// double					deltat;					//Time Step
+	double					Time;    				//Current time of simulation at each solving step
+	double					deltat;					//Time Step
     // double					deltatmin;			//Minimum Time Step
     // double					deltatint;			//Initial Time Step
 
