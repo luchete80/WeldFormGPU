@@ -69,7 +69,7 @@ FOREACH(var ${EXES})
 
 	#"${CMAKE_SOURCE_DIR}/Source/CompactNSearch/CompactNSearch.cpp"
 	)
-    TARGET_LINK_LIBRARIES (${var} ${LIBS} blitz)
+    TARGET_LINK_LIBRARIES (${var} ${LIBS} )
     SET_TARGET_PROPERTIES (${var} PROPERTIES COMPILE_FLAGS "${FLAGS}" LINK_FLAGS "${LFLAGS}")
 ENDFOREACH(var)
 

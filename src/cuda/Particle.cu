@@ -18,7 +18,7 @@
 * PersianSPH; if not, see <http://www.gnu.org/licenses/>                           *
 ************************************************************************************/
 
-#include "particle.h"
+#include "Particle.h"
 #include "vector_math.h"
 #ifndef __CUDACC__
 #include <cmath>

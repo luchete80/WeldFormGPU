@@ -1,3 +1,4 @@
 add_library (cuda 
-							particle.cu
+							Functions.cu
+							Particle.cu
 							tensor.cu)
