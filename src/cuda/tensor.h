@@ -49,4 +49,13 @@ typedef struct {
 	float ww;
 } symtensor4 ;
 
+
+class tensor3 {
+	public:
+	float* data;
+	tensor3();
+	tensor3 operator+(const tensor3 &b);
+	float& operator[](const int &);
+};
+
 #endif

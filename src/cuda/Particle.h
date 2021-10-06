@@ -75,13 +75,13 @@ namespace SPH {
 		float3		Displacement;	///< Density of the particle n+1
 
 		symtensor3	StrainRate;	///< Global shear Strain rate tensor n //WHEN is not symm??
-		symtensor3	RotationRate;	///< Global rotation tensor n
+		float*	RotationRate;	///< Global rotation tensor n
 		double	ShearRate;	///< Global shear rate for fluids
 		double	SBar;		///< shear component for LES
 
-		symtensor3	ShearStress;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n+1
-		symtensor3	ShearStressa;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n+1/2 (Leapfrog)
-		symtensor3	ShearStressb;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n-1 (Modified Verlet)
+		tensor3		ShearStress;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n+1
+		tensor3		ShearStressa;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n+1/2 (Leapfrog)
+		tensor3		ShearStressb;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n-1 (Modified Verlet)
 
 		symtensor3	Sigma;		///< Cauchy stress tensor (Total Stress) n+1
 

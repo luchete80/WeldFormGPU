@@ -26,10 +26,10 @@
 
 #include "Functions.h"
 
-static __forceinline__  __host__ __device__ void operator+=(float3 &a, const float &b)
-{
+static __forceinline__  __host__ __device__ void operator+=(float3 &a, const float &b) {
 	a.x=a.y=a.z=b;
 }
+
 
 namespace SPH {
 
@@ -122,292 +122,35 @@ inline Particle::Particle(int Tag, float3 const & x0, float3 const & v0, double 
 
 inline void Particle::Move(double dt, float3 Domainsize, float3 domainmax, float3 domainmin, size_t Scheme, symtensor3 I)
 {
-	if (Scheme == 0)
-		Move_MVerlet(I, dt);
-	else if (Scheme == 1)
+//	if (Scheme == 0)
+//		Move_MVerlet(I, dt);
+//	else if (Scheme == 1)
 		Move_Leapfrog(I, dt);
-	else if (Scheme == 2)
-		Move_Verlet(I, dt);
-	else if (Scheme == 3)
-		Move_Euler(I, dt);
+//	else if (Scheme == 2)
+//		Move_Verlet(I, dt);
+//	else if (Scheme == 3)
+//		Move_Euler(I, dt);
 
 	//Periodic BC particle position update
 	// if (Domainsize(0)>0.0)
 	// {
-		// (x(0)>(domainmax(0))) ? x(0) -= Domainsize(0) : x(0);
-		// (x(0)<(domainmin(0))) ? x(0) += Domainsize(0) : x(0);
+		// (x.x>(domainmax.x)) ? x.x -= Domainsize(0) : x.x;
+		// (x.x<(domainmin(0))) ? x.x += Domainsize(0) : x.x;
 	// }
-	// if (Domainsize(1)>0.0)
+	// if (Domainsize.y>0.0)
 	// {
-		// (x(1)>(domainmax(1))) ? x(1) -= Domainsize(1) : x(1);
-		// (x(1)<(domainmin(1))) ? x(1) += Domainsize(1) : x(1);
+		// (x.y>(domainmax.y)) ? x.y -= Domainsize.y : x.y;
+		// (x.y<(domainmin.y)) ? x.y += Domainsize.y : x.y;
 	// }
-	// if (Domainsize(2)>0.0)
+	// if (Domainsize.z>0.0)
 	// {
-		// (x(2)>(domainmax(2))) ? x(2) -= Domainsize(2) : x(2);
-		// (x(2)<(domainmin(2))) ? x(2) += Domainsize(2) : x(2);
+		// (x.z>(domainmax.z)) ? x.z -= Domainsize.z : x.z;
+		// (x.z<(domainmin.z)) ? x.z += Domainsize.z : x.z;
 	// }
 
 }
 
-inline void Particle::Move_MVerlet (symtensor3 I, double dt)
-{
-	if (FirstStep) {
-		ct = 30;
-		FirstStep = false;
-	}
-	
-	float3 du = dt*(v+VXSPH) + 0.5*dt*dt*a;
-	Displacement += du;
-	x += du;
-
-	if (ct == 30) {
-		if (Shepard && ShepardCounter == ShepardStep) {
-			if (ZWab>0.6) {
-				Densityb	= SumDen/ZWab;
-//				Densityb	= Density;
-				Density		= SumDen/ZWab;
-			}
-			else {
-				Densityb	= Density;
-				Density		+=dt*dDensity;
-			}
-		}
-		else {
-			Densityb		= Density;
-			Density			+=dt*dDensity;
-		}
-
-		vb	= v;
-		v	+=dt*a;
-	} else { // (ct!=30)
-		
-		if (Shepard && ShepardCounter == ShepardStep) {
-			if (ZWab>0.6) {
-				Densityb	= SumDen/ZWab;
-//				Densityb	= Density;
-				Density		= SumDen/ZWab;
-			}
-			else
-			{
-				double dens	= Density;
-				Density		= Densityb + 2.0*dt*dDensity;
-				Densityb	= dens;
-			}
-		}
-		else
-		{
-			double dens	= Density;
-			Density		= Densityb + 2.0*dt*dDensity;
-			Densityb	= dens;
-		}
-
-		float3 temp;
-		temp	= v;
-		v		= vb + 2*dt*a;
-		vb		= temp;
-	}
-
-    Mat2MVerlet(dt);
-
-	if (ct == 30) ct = 0; else ct++;
-	if (ShepardCounter == ShepardStep) ShepardCounter = 0; else ShepardCounter++;
-}
-
-inline void Particle::Mat2Euler(double dt) {
-	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
-
-	// Jaumann rate terms
-	symtensor3 RotationRateT, Stress,SRT,RS;
-	Trans(RotationRate,RotationRateT);
-	Mult(ShearStress,RotationRateT,SRT);
-	Mult(RotationRate,ShearStress,RS);
-
-	// Elastic prediction step (ShearStress_e n+1)
-	Stress			= ShearStress;
-	ShearStress	= dt*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStressb;
-	ShearStressb	= Stress;
-
-	if (Fail == 1) {
-		double J2	= 0.5*(ShearStress(0,0)*ShearStress(0,0) + 2.0*ShearStress(0,1)*ShearStress(1,0) +
-						2.0*ShearStress(0,2)*ShearStress(2,0) + ShearStress(1,1)*ShearStress(1,1) +
-						2.0*ShearStress(1,2)*ShearStress(2,1) + ShearStress(2,2)*ShearStress(2,2));
-		//Scale back, Fraser Eqn 3-53
-		double sig_trial = sqrt(3.0*J2);
-		ShearStress	= std::min((Sigmay/sig_trial),1.0)*ShearStress;
-		if ( sig_trial > Sigmay) {
-			double dep=( sig_trial - Sigmay)/ (3.*G + Ep);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
-			pl_strain += dep;
-			Sigmay += dep*Ep;
-
-		}
-	}
-
-	Sigma			= -Pressure * OrthoSys::I + ShearStress;	//Fraser, eq 3.32
-
-	Stress	= Strain;
-	Strain	= dt*StrainRate + Strainb;
-	Strainb	= Stress;
-
-	if (Fail > 1) {
-		std::cout<<"Undefined failure criteria for solids"<<std::endl;
-		abort();
-	}
-}
-
-inline void Particle::Mat2Verlet(double dt) {
-	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
-
-	// Jaumann rate terms
-	symtensor3 RotationRateT, Stress,SRT,RS;
-	Trans(RotationRate,RotationRateT);
-	Mult(ShearStress,RotationRateT,SRT);
-	Mult(RotationRate,ShearStress,RS);
-
-	double dep = 0.;
-
-	// Elastic prediction step (ShearStress_e n+1)
-	Stress			= ShearStress;
-	ShearStress		= 2.0*dt*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStressb;
-	ShearStressb	= Stress;
-
-	if (Fail == 1) {
-		double J2	= 0.5*(ShearStress(0,0)*ShearStress(0,0) + 2.0*ShearStress(0,1)*ShearStress(1,0) +
-						2.0*ShearStress(0,2)*ShearStress(2,0) + ShearStress(1,1)*ShearStress(1,1) +
-						2.0*ShearStress(1,2)*ShearStress(2,1) + ShearStress(2,2)*ShearStress(2,2));
-		//Scale back, Fraser Eqn 3-53
-		double sig_trial = sqrt(3.0*J2);
-		ShearStress	= std::min((Sigmay/sig_trial),1.0)*ShearStress;
-		if ( sig_trial > Sigmay) {
-			dep=( sig_trial - Sigmay)/ (3.*G + Ep);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
-			pl_strain += dep;
-			Sigmay += dep*Ep;
-		}
-	}
-
-	Sigma			= -Pressure * OrthoSys::I + ShearStress;	//Fraser, eq 3.32
-
-	Stress	= Strain;
-	Strain	= 2.0*dt*StrainRate + Strainb;
-	Strainb	= Stress;
-
-
-	if (Fail > 1) {
-		std::cout<<"Undefined failure criteria for solids"<<std::endl;
-		abort();
-	}
-}
-
-inline void Particle::Mat2MVerlet(double dt) {
-	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
-
-	// Jaumann rate terms
-	symtensor3 RotationRateT, Stress,SRT,RS;
-	Trans(RotationRate,RotationRateT);
-	Mult(ShearStress,RotationRateT,SRT);
-	Mult(RotationRate,ShearStress,RS);
-
-	double dep = 0.;
-
-	// Elastic prediction step (ShearStress_e n+1)
-	Stress			= ShearStress;
-	if (ct == 30)
-		ShearStress	= dt*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStress;
-	else
-		ShearStress	= 2.0*dt*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStressb;
-	ShearStressb	= Stress;
-
-	if (Fail == 1) {
-		double J2	= 0.5*(ShearStress(0,0)*ShearStress(0,0) + 2.0*ShearStress(0,1)*ShearStress(1,0) +
-						2.0*ShearStress(0,2)*ShearStress(2,0) + ShearStress(1,1)*ShearStress(1,1) +
-						2.0*ShearStress(1,2)*ShearStress(2,1) + ShearStress(2,2)*ShearStress(2,2));
-		//Scale back, Fraser Eqn 3-53
-		double sig_trial = sqrt(3.0*J2);
-		ShearStress	= std::min((Sigmay/sig_trial),1.0)*ShearStress;
-		if ( sig_trial > Sigmay) {
-			dep=( sig_trial - Sigmay)/ (3.*G + Ep);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
-			pl_strain += dep;
-			Sigmay += dep*Ep;
-		}
-	}
-
-	Sigma			= -Pressure * OrthoSys::I + ShearStress;	//Fraser, eq 3.32
-	
-	if ( dep > 0.0 ) {
-		Strain_pl(0,0)= 1./Sigmay*(Sigma(0,0)-0.5*(Sigma(1,1) + Sigma(2,2) ));
-		Strain_pl(1,1)= 1./Sigmay*(Sigma(1,1)-0.5*(Sigma(0,0) + Sigma(2,2) ));
-		Strain_pl(1,1)= 1./Sigmay*(Sigma(2,2)-0.5*(Sigma(0,0) + Sigma(1,1) ));
-		Strain_pl(0,1)= 1./Sigmay*(Sigma(0,1));
-		Strain_pl(0,2)= 1./Sigmay*(Sigma(0,2));
-		Strain_pl(1,2)= 1./Sigmay*(Sigma(1,2));
-	}
-	Stress	= Strain;
-	if (ct == 30)
-		Strain	= dt*StrainRate + Strain;
-	else
-		Strain	= 2.0*dt*StrainRate + Strainb;
-	Strainb	= Stress;
-
-
-	if (Fail > 1)
-	{
-		std::cout<<"Undefined failure criteria for solids"<<std::endl;
-		abort();
-	}
-}
-
-//LUCIANO
-inline void Particle::Move_Verlet (symtensor3 I, double dt) {
-
-	if (FirstStep) {
-		Densityb		= Density;
-		Density			+=dt*dDensity;
-		FirstStep = false;
-	}
-
-	float3 du = dt*(v+VXSPH) + 0.5*dt*dt*a;
-	Displacement += du;
-	x += du;
-
-	double dens	= Density;
-	Density		= Densityb + 2.0*dt*dDensity;
-	Densityb	= dens;		
-
-	float3 temp;
-	temp	= v;
-	v		= vb + 2*dt*a;
-	vb		= temp;	
-	
-    Mat2Verlet(dt);	//This uses the same as modified verlet as ct always is != 30
-}
-
-inline void Particle::Move_Euler (symtensor3 I, double dt) {
-
-	if (FirstStep) {
-		Densityb		= Density;
-		Density			+=dt*dDensity;
-		FirstStep = false;
-	}
-
-	float3 du = dt*(v+VXSPH) + 0.5*dt*dt*a;
-	Displacement += du;
-	x += du;
-
-	double dens	= Density;
-	Density		= Densityb + dt*dDensity;
-	Densityb	= dens;		
-
-	float3 temp;
-	temp	= v;
-	v		= vb + dt*a;
-	vb		= temp;	
-	
-    Mat2Euler(dt);	//This uses the same as modified verlet as ct always is != 30
-}
-
-
-inline void Particle::Move_Leapfrog(symtensor3 I, double dt)
-{
+inline void Particle::Move_Leapfrog(symtensor3 I, double dt) {
 	if (FirstStep) {
 		Densitya = Density - dt/2.0*dDensity;
 		va = v - dt/2.0*a;
@@ -427,37 +170,14 @@ inline void Particle::Move_Leapfrog(symtensor3 I, double dt)
 
 }
 
-void Particle::TempCalcLeapfrog	(double dt){
-	
-		if (FirstStep) {
-		//Densitya = T - dt/2.0*dDensity;
-		//va = v - dt/2.0*a;
-		//Tb=T;
-		Ta = T - dt/2.0*dTdt;
-		
-		FirstStep = false;
-	}
-	// Densityb = Densitya;
-	// Densitya += dt*dDensity;
-	// Density = (Densitya+Densityb)/2.0;
-	// vb = va;
-	// va += dt*a;
-	// v = (va + vb)/2.0;
-	// x += dt*va;
-	Tb  = Ta;
-	Ta += dTdt * dt;
-	T = ( Ta + Tb ) / 2.;
-	
-}
-
 inline void Particle::CalculateEquivalentStress () {
 	// Sigma_eq	= sqrt ( Sigma(0,0)*Sigma(0,0) + Sigma(1,1)*Sigma(1,1) + Sigma(2,2)*Sigma(2,2) -
 						// ( Sigma(0,0)*Sigma(1,1) + Sigma(1,1)*Sigma(2,2) + Sigma(0,0)*Sigma(2,2) ) + 
 					// 3.0*(Sigma(0,1)*Sigma(0,1) + Sigma(1,2)*Sigma(1,2) + Sigma(0,2)*Sigma(0,2)));
 
-	double J2	= 0.5*(ShearStress(0,0)*ShearStress(0,0) + 2.0*ShearStress(0,1)*ShearStress(1,0) +
-						2.0*ShearStress(0,2)*ShearStress(2,0) + ShearStress(1,1)*ShearStress(1,1) +
-						2.0*ShearStress(1,2)*ShearStress(2,1) + ShearStress(2,2)*ShearStress(2,2));
+	double J2	= 0.5*(ShearStress[0]*ShearStress[0] + 2.0*ShearStress[1]*ShearStress[3] +
+						2.0*ShearStress[2]*ShearStress[6] + ShearStress[4]*ShearStress[4] +
+						2.0*ShearStress[5]*ShearStress[7] + ShearStress[8]*ShearStress[8]);
 	
 	Sigma_eq = sqrt(3.0*J2);	
 }
@@ -466,7 +186,7 @@ inline void Particle::Mat2Leapfrog(double dt) {
 	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
 
 	// Jaumann rate terms
-	symtensor3 RotationRateT,SRT,RS;
+	float *RotationRateT,*SRT,*RS;
 	Trans(RotationRate,RotationRateT);
 	Mult(ShearStress,RotationRateT,SRT);
 	Mult(RotationRate,ShearStress,RS);
@@ -499,13 +219,14 @@ inline void Particle::Mat2Leapfrog(double dt) {
 
 	if (FirstStep)
 		Straina	= -dt/2.0*StrainRate + Strain;
+	
 	Strainb	= Straina;
 	Straina	= dt*StrainRate + Straina;
 	Strain	= 1.0/2.0*(Straina+Strainb);
 
 
 	if (Fail > 1){
-		std::cout<<"Undefined failure criteria for solids"<<std::endl;
+		//std::cout<<"Undefined failure criteria for solids"<<std::endl;
 		abort();
 	}
 }
@@ -523,32 +244,32 @@ inline void Particle::translate(double dt, float3 Domainsize, float3 domainmax, 
 	vb = temp;
 
 	//Periodic BC particle position update
-	if (Domainsize(0)>0.0)
+	if (Domainsize.x > 0.0)
 	{
-		(x(0)>(domainmax(0))) ? x(0) -= Domainsize(0) : x(0);
-		(x(0)<(domainmin(0))) ? x(0) += Domainsize(0) : x(0);
+		(x.x>(domainmax.x)) ? x.x -= Domainsize.x : x.x;
+		(x.x<(domainmin.x)) ? x.x += Domainsize.x : x.x;
 	}
-	if (Domainsize(1)>0.0)
+	if (Domainsize.y > 0.0)
 	{
-		(x(1)>(domainmax(1))) ? x(1) -= Domainsize(1) : x(1);
-		(x(1)<(domainmin(1))) ? x(1) += Domainsize(1) : x(1);
+		(x.y>(domainmax.y)) ? x.y -= Domainsize.y : x.y;
+		(x.y<(domainmin.y)) ? x.y += Domainsize.y : x.y;
 	}
-	if (Domainsize(2)>0.0)
+	if (Domainsize.z > 0.0)
 	{
-		(x(2)>(domainmax(2))) ? x(2) -= Domainsize(2) : x(2);
-		(x(2)<(domainmin(2))) ? x(2) += Domainsize(2) : x(2);
+		(x.z>(domainmax.z)) ? x.z -= Domainsize.z : x.z;
+		(x.z<(domainmin.z)) ? x.z += Domainsize.z : x.z;
 	}
 }
 
-inline void Particle::CalcPlasticWorkHeat(){
-	
-	q_plheat 	= 	0.5*(
-					Sigma(0,0)*StrainRate(0,0) + 
-					2.0*Sigma(0,1)*StrainRate(1,0) + 2.0*Sigma(0,2)*StrainRate(2,0) + 
-					Sigma(1,1)*StrainRate(1,1) +
-					2.0*Sigma(1,2)*StrainRate(2,1) + 
-					Sigma(2,2)*StrainRate(2,2)
-					);
-}
+//inline void Particle::CalcPlasticWorkHeat(){
+//	
+//	q_plheat 	= 	0.5*(
+//					Sigma(0,0)*StrainRate(0,0) + 
+//					2.0*Sigma(0,1)*StrainRate(1,0) + 2.0*Sigma(0,2)*StrainRate(2,0) + 
+//					Sigma(1,1)*StrainRate(1,1) +
+//					2.0*Sigma(1,2)*StrainRate(2,1) + 
+//					Sigma(2,2)*StrainRate(2,2)
+//					);
+//}
 
 }; // namespace SPH

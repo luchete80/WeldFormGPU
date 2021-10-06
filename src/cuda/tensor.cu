@@ -344,6 +344,22 @@ void storeTau(symtensor3 const& tau, uint i,
 	tau2[i] = make_float2(tau.yz, tau.zz);
 }
 
+__device__ tensor3::tensor3(){
+	data = new float[3];
+}
+
+__device__ tensor3 tensor3::operator+(const tensor3 &b){
+	tensor3 ret;
+	for (int i=0;i<9;i++)
+		ret.data[i]=data[i]+b.data[i];
+	
+	return ret;
+}
+
+__device__ float& tensor3::operator[](const int &i){
+
+	return data[i];
+}
 
 
 #endif
