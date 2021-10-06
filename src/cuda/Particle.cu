@@ -24,6 +24,8 @@
 #include <cmath>
 #endif
 
+#include "Functions.h"
+
 static __forceinline__  __host__ __device__ void operator+=(float3 &a, const float &b)
 {
 	a.x=a.y=a.z=b;

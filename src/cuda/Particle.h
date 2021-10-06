@@ -65,14 +65,14 @@ namespace SPH {
 		double	P0;		///< background pressure for equation of state
 		double 	Pressure;	///< Pressure of the particle n+1
 
-		double	Density;	///< Density of the particle n+1
+		double		Density;	///< Density of the particle n+1
 		double 	Densitya;	///< Density of the particle n+1/2 (Leapfrog)
 		double 	Densityb;	///< Density of the particle n-1 (Modified Verlet)
 		double 	dDensity;	///< Rate of density change in time based on state equations n
 		double 	RefDensity;	///< Reference Density of Particle
 		double 	FPMassC;	///< Mass coefficient for fixed particles to avoid leaving particles
 		double 	Mass;		///< Mass of the particle
-		float3	Displacement;	///< Density of the particle n+1
+		float3		Displacement;	///< Density of the particle n+1
 
 		symtensor3	StrainRate;	///< Global shear Strain rate tensor n //WHEN is not symm??
 		symtensor3	RotationRate;	///< Global rotation tensor n
@@ -145,19 +145,19 @@ namespace SPH {
 
 
 		// Constructor
-		Particle						(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0, bool Fixed=false);
+		Particle			(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0, bool Fixed=false);
 
 		// Methods
-		void Move						(double dt, float3 Domainsize, float3 domainmax, float3 domainmin,size_t Scheme, symtensor3 I);	///< Update the important quantities of a particle
+		void Move			(double dt, float3 Domainsize, float3 domainmax, float3 domainmin,size_t Scheme, symtensor3 I);	///< Update the important quantities of a particle
 		void Move_MVerlet		(symtensor3 I, double dt);										///< Update the important quantities of a particle
 		void Move_Verlet		(symtensor3 I, double dt);		//LUCIANO
 		void Move_Leapfrog	(symtensor3 I, double dt);										///< Update the important quantities of a particle
 		void translate			(double dt, float3 Domainsize, float3 domainmax, float3 domainmin);
 		void Mat2Verlet			(double dt);
 		void Mat2MVerlet		(double dt);
-		void TempCalcLeapfrog	(double dt);
+		void TempCalcLeapfrog		(double dt);
 		void Mat2Leapfrog		(double dt);
-		void PlasticHeatTest	();
+		void PlasticHeatTest		();
 		void CalcPlasticWorkHeat();
 		void CalculateEquivalentStress();
 		void Move_Euler (symtensor3 I, double dt);
