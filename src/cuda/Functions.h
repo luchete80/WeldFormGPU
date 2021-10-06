@@ -23,7 +23,6 @@
 
 //#include "matvec.h"
 
-
 namespace SPH {
 
 	double Kernel								(size_t const & Dim, size_t const & KT, double const & q, double const & h);

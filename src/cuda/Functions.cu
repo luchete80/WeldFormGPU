@@ -19,6 +19,7 @@
 ************************************************************************************/
 
 #include "Functions.h"
+#include "vector_math.h"
 
 namespace SPH {
 
@@ -311,6 +312,27 @@ namespace SPH {
 	}
 	
 	// THIS IS FROM GPUSPH, euler_kernel.cu
+
+	/// Apply rotation to a given vector
+	/*! Apply the rotation given by the matrix rot to the vector relPos.
+	 *  The change in the relPos vector due to the rotation is computed
+	 *  and added to the pos vector.
+	 *
+	 *	\param[in] rot : rotation matrix
+	 *	\param[in] relPos: position with respect to center of gravity
+	 *	\param[in] pos: position with respect to the local cell center
+	 *
+	 *	\return local postion rotated according to rot
+	 */
+	__device__ __forceinline__ void
+	applyrot(const float* rot, const float3 & relPos, float4 & pos)
+	{
+		// Applying rotation
+		pos.x += (rot[0] - 1.0f)*relPos.x + rot[1]*relPos.y + rot[2]*relPos.z;
+		pos.y += rot[3]*relPos.x + (rot[4] - 1.0f)*relPos.y + rot[5]*relPos.z;
+		pos.z += rot[6]*relPos.x + rot[7]*relPos.y + (rot[8] - 1.0f)*relPos.z;
+	}
+
 	/// Apply counter rotation to a given vector
 	/*! Apply the inverse rotation given by the matrix rot to the vector relPos.
 	 *  The change in the relPos vector due to the rotation is computed
@@ -349,27 +371,20 @@ namespace SPH {
 
 	inline void Rotation (float* Input, float* & Vectors, float* & VectorsT, float* & Values)
 	{
-		float3 Val,V0,V1,V2;
-		Eig(Input,Val,V0,V1,V2,true,false);
+	//	float3 Val,V0,V1,V2;
+	//	Eig(Input,Val,V0,V1,V2,true,false);
+	//
+	//	float* V;
+	//	Vectors	=	V0(0), V1(0), V2(0),
+	//						V0(1), V1(1), V2(1),
+	//						V0(2), V1(2), V2(2);
 
-		float* V;
-		Vectors	=	V0(0), V1(0), V2(0),
-							V0(1), V1(1), V2(1),
-							V0(2), V1(2), V2(2);
-
-		Trans(Vectors,VectorsT);
-		Values	= 	Val(0), 0.0   , 0.0   ,
-								0.0   , Val(1), 0.0   ,
-								0.0   , 0.0   , Val(2);
+	//	Trans(Vectors,VectorsT);
+	//	Values	= 	Val(0), 0.0   , 0.0   ,
+	//							0.0   , Val(1), 0.0   ,
+	//							0.0   , 0.0   , Val(2);
 	}
 
-	inline float* abab (float* const & A, float* const & B)
-	{
-		float* M;
-		M(0,0)=A(0,0)*B(0,0);  M(0,1)=A(0,1)*B(0,1);  M(0,2)=A(0,2)*B(0,2);
-		M(1,0)=A(1,0)*B(1,0);  M(1,1)=A(1,1)*B(1,1);  M(1,2)=A(1,2)*B(1,2);
-		M(2,0)=A(2,0)*B(2,0);  M(2,1)=A(2,1)*B(2,1);  M(2,2)=A(2,2)*B(2,2);
-		return M;
-	}
+
 
 }; // namespace SPH
