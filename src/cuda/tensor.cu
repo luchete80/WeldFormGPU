@@ -27,7 +27,7 @@
 #ifndef TENSOR_IMPL
 #define TENSOR_IMPL
 
-#include "tensor.h"
+#include "tensor.cuh"
 #include "vector_math.h"
 #define __spec __device__ __forceinline__
 
@@ -441,6 +441,19 @@ __device__ tensor3 Identity(){
 	//ret[1][1]=ret[2][2]=1.;
 	
 	return ret;
+}
+
+/*__spec*/
+__device__
+float3
+dot(tensor3 const& T, float3 const& v)
+{
+	return make_float3(
+			T(0,0)*v.x + T(0,1)*v.y +T(0,2)*v.z,
+			T(1,0)*v.x + T(1,1)*v.y +T(1,2)*v.z,			
+			T(2,0)*v.x + T(2,1)*v.y +T(2,2)*v.z
+			);
+
 }
 
 #endif

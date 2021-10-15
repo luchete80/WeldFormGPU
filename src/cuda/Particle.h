@@ -21,7 +21,7 @@
 #ifndef SPH_PARTICLE_H
 #define SPH_PARTICLE_H
 
-#include "tensor.h"
+#include "tensor.cuh"
 //#include "matvec.h"
 //#include "Functions.h"
 

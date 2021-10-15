@@ -1502,4 +1502,6 @@ static __device__ __forceinline__ __host__ uint3 clamp(const uint3 &v, const uin
 	return make_uint3(clamp(v.x, a.x, b.x), clamp(v.y, a.y, b.y), clamp(v.z, a.z, b.z));
 }
 
+
+
 #endif

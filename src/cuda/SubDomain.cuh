@@ -28,7 +28,7 @@
 // #include <omp.h>
 
 #include "Particle.h"
-// // #include "Functions.h"
+#include "Functions.h"
 // // #include "Boundary_Condition.h"
 
 // //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
@@ -132,7 +132,7 @@ class SubDomain
 
 		// double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
 
-    // int 					Dimension;    	///< Dimension of the problem
+    int 					Dimension;    	///< Dimension of the problem
 
     // double					MuMax;		///< Max Dynamic viscosity for calculating the timestep
     // double					CsMax;		///< Max speed of sound for calculating the timestep
@@ -152,11 +152,11 @@ class SubDomain
 	// bool 					gradKernelCorr;	
 
 	
-    // double 					XSPH;		///< Velocity correction factor
+    double 					XSPH;		///< Velocity correction factor
     // double 					InitialDist;	///< Initial distance of particles for Inflow BC
 
     // double					AvgVelocity;	///< Average velocity of the last two column for x periodic constant velocity
-	// double 					getCellfac(){return Cellfac;}
+	double 					getCellfac(){return Cellfac;}
 
 	// omp_lock_t 					dom_lock;	///< Open MP lock to lock Interactions array
     // Boundary					BC;
@@ -196,9 +196,9 @@ class SubDomain
 		// void TimestepCheck	();		//Checks the user time step with CFL approach
 
 		// size_t					VisEq;					//Choose viscosity Eq based on different SPH discretisation
-		// size_t					KernelType;			//Choose a kernel
-		// size_t					GradientType;		//Choose a Gradient approach 1/Rho i^2 + 1/Rho j^2 or 1/(Rho i * Rho j)
-		// double 					Cellfac;				//Define the compact support of a kernel
+	int					KernelType;			//Choose a kernel
+	int					GradientType;		//Choose a Gradient approach 1/Rho i^2 + 1/Rho j^2 or 1/(Rho i * Rho j)
+	double 					Cellfac;				//Define the compact support of a kernel
 
 	double					Time;    				//Current time of simulation at each solving step
 	double					deltat;					//Time Step
