@@ -21,37 +21,37 @@
 #ifndef SPH_SUBDOMAIN_CUH
 #define SPH_SUBDOMAIN_CUH
 
-#include <stdio.h>    // for NULL
-#include <algorithm>  // for min,max
+// #include <stdio.h>    // for NULL
+// #include <algorithm>  // for min,max
 
 
-#include <omp.h>
+// #include <omp.h>
 
-// #include "Particle.h"
-// #include "Functions.h"
-// #include "Boundary_Condition.h"
+#include "Particle.h"
+// // #include "Functions.h"
+// // #include "Boundary_Condition.h"
 
-//#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
-#include <sstream>
-//#endif
-#include <sstream>
-#include <string>
-#include <cmath>
-#include "tensor.h"
+// //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
+// #include <sstream>
+// //#endif
+// #include <sstream>
+// #include <string>
+// #include <cmath>
+// #include "tensor.h"
 
 //C++ Enum used for easiness of coding in the input files
 enum Kernels_Type { Qubic_Spline=0, Quintic=1, Quintic_Spline=2 ,Hyperbolic_Spline=3};
 enum Viscosity_Eq_Type { Morris=0, Shao=1, Incompressible_Full=2, Takeda=3 };
 enum Gradient_Type { Squared_density=0, Multiplied_density=1 };
 
-#include <cuNSearch.h>
+//#include <cuNSearch.h>
 
 namespace SPH {
 
 class SubDomain
 {
 	
-	cuNSearch::NeighborhoodSearch neib;
+	//cuNSearch::NeighborhoodSearch neib;
 	// public:
 	// typedef void (*PtVel) (Vec3_t & position, Vec3_t & Vel, double & Den, Boundary & bdry);
 	// typedef void (*PtOut) (Particle * Particles, double & Prop1, double & Prop2,  double & Prop3);
@@ -89,7 +89,7 @@ class SubDomain
     // void StartAcceleration					(Vec3_t const & a = Vec3_t(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
     // void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
     // void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
-    // void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
+    void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
     // void Move						(double dt);										//Move particles
 
     // void Solve					(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function
@@ -127,7 +127,7 @@ class SubDomain
 	
 	
     // // Data
-    std::vector <Particle*>				Particles; 	///< Array of particles
+    Particle**				Particles; 	///< Array of particles
     // double											R;		///< Particle Radius in addrandombox
 
 		// double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)

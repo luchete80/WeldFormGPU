@@ -396,7 +396,25 @@ __device__ tensor3 tensor3:: operator+ (const tensor3 &b){
 	tensor3 ret;
 	for (int i=0;i<3;i++)
 		for (int j=0;j<3;j++)
-				ret.m_data[i][j]=m_data[i][j]*b.m_data[i][j];
+				ret.m_data[i][j]=m_data[i][j]+b(i,j);
+	
+	return ret;
+}
+
+__device__ tensor3 tensor3:: operator- (const tensor3 &b){
+	tensor3 ret;
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+				ret.m_data[i][j]=m_data[i][j]-b.m_data[i][j];
+	
+	return ret;
+}
+
+__device__ tensor3 tensor3:: operator- (const float &f){
+	tensor3 ret;
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+				ret(i,j)=m_data[i][j]-f;
 	
 	return ret;
 }

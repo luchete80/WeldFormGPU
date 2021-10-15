@@ -186,22 +186,20 @@ inline void Particle::Mat2Leapfrog(double dt) {
 	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
 
 	// Jaumann rate terms
-	//float *RotationRateT,*SRT,*RS;
 	tensor3 RotationRateT,SRT,RS;
-	//Trans(RotationRate,RotationRateT);
+
 	RotationRateT = RotationRate.Trans();
-	//Mult(ShearStress,RotationRateT,SRT);
 	SRT = ShearStress*RotationRateT;
-	//Mult(RotationRate,ShearStress,RS);
+
 
 	// Elastic prediction step (ShearStress_e n+1)
-	// if (FirstStep)
-		// ShearStressa	= -dt/2.0*(2.0*G*(StrainRate-1.0/3.0*
-															// (StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*
-																// OrthoSys::I)+SRT+RS) + ShearStress;
+	if (FirstStep)
+		ShearStressa	= -dt/2.0*(2.0*G*(StrainRate-1.0/3.0*
+															(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*
+																Identity())+SRT+RS) + ShearStress;
 
 	ShearStressb	= ShearStressa;
-	//ShearStressa	= dt*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStressa;
+	ShearStressa	= dt*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*Identity())+SRT+RS) + ShearStressa;
 
 	if (Fail == 1) {
 		double J2	= 0.5*(ShearStressa(0,0)*ShearStressa(0,0) + 2.0*ShearStressa(0,1)*ShearStressa(1,0) +

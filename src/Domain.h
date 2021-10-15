@@ -21,22 +21,22 @@
 #ifndef SPH_DOMAIN_H
 #define SPH_DOMAIN_H
 
-#include <stdio.h>    // for NULL
-#include <algorithm>  // for min,max
+// #include <stdio.h>    // for NULL
+// #include <algorithm>  // for min,max
 
 
-#include <omp.h>
+// #include <omp.h>
 
-// #include "Particle.h"
-// #include "Functions.h"
-// #include "Boundary_Condition.h"
+// // #include "Particle.h"
+// // #include "Functions.h"
+// // #include "Boundary_Condition.h"
 
-//#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
-#include <sstream>
-//#endif
-#include <sstream>
-#include <string>
-#include <cmath>
+// //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
+// //#include <sstream>
+// //#endif
+// //#include <sstream>
+// //#include <string>
+// #include <cmath>
 
 
 //C++ Enum used for easiness of coding in the input files

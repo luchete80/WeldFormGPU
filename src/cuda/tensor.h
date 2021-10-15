@@ -62,7 +62,9 @@ public:
     void operator()();
 		void Set(const int &i, const int &j);
 		tensor3 operator+ (const tensor3 &b);
+		tensor3 operator- (const tensor3 &b);
 		tensor3 operator* (const tensor3 &b);
+		tensor3 operator- (const float &f);
 		//tensor3 operator* (const float &f);
 		tensor3 Trans ();
 };
