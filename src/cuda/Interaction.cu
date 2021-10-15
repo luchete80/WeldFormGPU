@@ -19,6 +19,7 @@
 ************************************************************************************/
 
 #include "SubDomain.cuh"
+#include "vector_math.h" //float3 operations
 
 namespace SPH {
 	
