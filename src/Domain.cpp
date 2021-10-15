@@ -30,34 +30,34 @@
 using namespace std;
 
 namespace SPH {
-void General(Domain & dom)
-{
-}
+// void General(Domain & dom)
+// {
+// }
 
-void OutPut(Particle * Particles, double & Prop1, double & Prop2,  double & Prop3)
-{
-	Prop1 = 0.0;
-	Prop2 = 0.0;
-	Prop3 = 0.0;
-}
+// void OutPut(Particle * Particles, double & Prop1, double & Prop2,  double & Prop3)
+// {
+	// Prop1 = 0.0;
+	// Prop2 = 0.0;
+	// Prop3 = 0.0;
+// }
 
-void InFlowCon(Vec3_t & position, Vec3_t & Vel, double & Den, Boundary & bdry)
-{
-	Vel = bdry.inv;
-	Den = bdry.inDensity;
-}
+// void InFlowCon(Vector & position, Vector & Vel, double & Den, Boundary & bdry)
+// {
+	// Vel = bdry.inv;
+	// Den = bdry.inDensity;
+// }
 
-void OutFlowCon(Vec3_t & position, Vec3_t & Vel, double & Den, Boundary & bdry)
-{
-	Vel = bdry.outv;
-	Den = bdry.outDensity;
-}
+// void OutFlowCon(Vector & position, Vector & Vel, double & Den, Boundary & bdry)
+// {
+	// Vel = bdry.outv;
+	// Den = bdry.outDensity;
+// }
 
-void AllFlowCon(Vec3_t & position, Vec3_t & Vel, double & Den, Boundary & bdry)
-{
-	Vel = bdry.allv;
-	Den = bdry.allDensity;
-}
+// void AllFlowCon(Vector & position, Vector & Vel, double & Den, Boundary & bdry)
+// {
+	// Vel = bdry.allv;
+	// Den = bdry.allDensity;
+// }
 
 // Constructor
 inline Domain::Domain ()
@@ -85,7 +85,7 @@ inline Domain::Domain ()
     AvgVelocity = 0.0;
     hmax	= 0.0;
 
-    omp_init_lock (&dom_lock);
+    //omp_init_lock (&dom_lock);
     Nproc	= 1;
 
     deltat	= 0.0;
@@ -105,7 +105,7 @@ inline Domain::Domain ()
 
     DomMax = -100000000000.0;
     DomMin = 100000000000.0;
-    I = OrthoSys::I;
+    //I = OrthoSys::I;
 	
 	Vol=0.;
 		auto_ts = true;
@@ -120,56 +120,56 @@ inline Domain::~Domain ()
 	for (size_t i=1; i<=Max; i++)  Particles.DelItem(Max-i);
 }
 
-inline void Domain::Periodic_X_Correction(Vec3_t & x, double const & h, Particle * P1, Particle * P2)
-{
-	if (DomSize(0)>0.0) {if (x(0)>2*Cellfac*h || x(0)<-2*Cellfac*h) {(P1->CC[0]>P2->CC[0]) ? x(0) -= DomSize(0) : x(0) += DomSize(0);}}
-	if (DomSize(1)>0.0) {if (x(1)>2*Cellfac*h || x(1)<-2*Cellfac*h) {(P1->CC[1]>P2->CC[1]) ? x(1) -= DomSize(1) : x(1) += DomSize(1);}}
-	if (DomSize(2)>0.0) {if (x(2)>2*Cellfac*h || x(2)<-2*Cellfac*h) {(P1->CC[2]>P2->CC[2]) ? x(2) -= DomSize(2) : x(2) += DomSize(2);}}
-}
+// inline void Domain::Periodic_X_Correction(Vector & x, double const & h, Particle * P1, Particle * P2)
+// {
+	// if (DomSize(0)>0.0) {if (x(0)>2*Cellfac*h || x(0)<-2*Cellfac*h) {(P1->CC[0]>P2->CC[0]) ? x(0) -= DomSize(0) : x(0) += DomSize(0);}}
+	// if (DomSize(1)>0.0) {if (x(1)>2*Cellfac*h || x(1)<-2*Cellfac*h) {(P1->CC[1]>P2->CC[1]) ? x(1) -= DomSize(1) : x(1) += DomSize(1);}}
+	// if (DomSize(2)>0.0) {if (x(2)>2*Cellfac*h || x(2)<-2*Cellfac*h) {(P1->CC[2]>P2->CC[2]) ? x(2) -= DomSize(2) : x(2) += DomSize(2);}}
+// }
 
-inline void Domain::Kernel_Set(Kernels_Type const & KT)
-{
-	KernelType = KT;
-	if (KernelType==2) Cellfac = 3.0; else Cellfac = 2.0;
-}
+// inline void Domain::Kernel_Set(Kernels_Type const & KT)
+// {
+	// KernelType = KT;
+	// if (KernelType==2) Cellfac = 3.0; else Cellfac = 2.0;
+// }
 
-inline void Domain::Viscosity_Eq_Set(Viscosity_Eq_Type const & VQ)
-{
-	VisEq = VQ;
-}
+// inline void Domain::Viscosity_Eq_Set(Viscosity_Eq_Type const & VQ)
+// {
+	// VisEq = VQ;
+// }
 
-inline void Domain::Gradient_Approach_Set(Gradient_Type const & GT)
-{
-	GradientType = GT;
-}
+// inline void Domain::Gradient_Approach_Set(Gradient_Type const & GT)
+// {
+	// GradientType = GT;
+// }
 
-inline void Domain::AdaptiveTimeStep()
-{
-	if (deltatint>deltatmin)
-	{
-		if (deltat<deltatmin)
-			deltat		= 2.0*deltat*deltatmin/(deltat+deltatmin);
-		else
-			deltat		= deltatmin;
-	}
-	else
-	{
-		if (deltatint!=deltat)
-			deltat		= 2.0*deltat*deltatint/(deltat+deltatint);
-		else
-			deltat		= deltatint;
-	}
+// inline void Domain::AdaptiveTimeStep()
+// {
+	// if (deltatint>deltatmin)
+	// {
+		// if (deltat<deltatmin)
+			// deltat		= 2.0*deltat*deltatmin/(deltat+deltatmin);
+		// else
+			// deltat		= deltatmin;
+	// }
+	// else
+	// {
+		// if (deltatint!=deltat)
+			// deltat		= 2.0*deltat*deltatint/(deltat+deltatint);
+		// else
+			// deltat		= deltatint;
+	// }
 
-	if (deltat<(deltatint/1.0e5))
-		throw new Fatal("Too small time step, please choose a smaller time step initially to make the simulation more stable");
-}
+	// if (deltat<(deltatint/1.0e5))
+		// throw new Fatal("Too small time step, please choose a smaller time step initially to make the simulation more stable");
+// }
 
-inline void Domain::AddSingleParticle(int tag, Vec3_t const & x, double Mass, double Density, double h, bool Fixed)
-{
-   	Particles.Push(new Particle(tag,x,Vec3_t(0,0,0),Mass,Density,h,Fixed));
-}
+// inline void Domain::AddSingleParticle(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed)
+// {
+   	// Particles.Push(new Particle(tag,x,Vector(0,0,0),Mass,Density,h,Fixed));
+// }
 
-inline void Domain::AddBoxLength(int tag, Vec3_t const & V, double Lx, double Ly, double Lz, 
+inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly, double Lz, 
 									double r, double Density, double h, int type, int rotation, bool random, bool Fixed) {
     if ( !(type == 0 || type == 1) ) {
 	   	std::cout << "Packing Type is out of range. Please correct it and run again" << std::endl;
@@ -224,8 +224,8 @@ inline void Domain::AddBoxLength(int tag, Vec3_t const & V, double Lx, double Ly
 						if ((k%2!=0) && (j%2!=0)) x = V(0) + (2*i+(j%2)+(k%2)-1)*r; else x = V(0) + (2*i+(j%2)+(k%2)+1)*r;
 						y = V(1) + (sqrt(3.0)*(j+(1.0/3.0)*(k%2))+1)*r;
 						z = V(2) + ((2*sqrt(6.0)/3)*k+1)*r;
-						if (random) Particles.Push(new Particle(tag,Vec3_t((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vec3_t(0,0,0),0.0,Density,h,Fixed));
-						else    	Particles.Push(new Particle(tag,Vec3_t(x,y,z),Vec3_t(0,0,0),0.0,Density,h,Fixed));
+						if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
+						else    	Particles.Push(new Particle(tag,Vector(x,y,z),Vector(0,0,0),0.0,Density,h,Fixed));
 						i++;
 						if ((k%2!=0) && (j%2!=0)) xp = V(0) + (2*i+(j%2)+(k%2)-1)*r; else xp = V(0) + (2*i+(j%2)+(k%2)+1)*r;
 					}
@@ -256,8 +256,8 @@ inline void Domain::AddBoxLength(int tag, Vec3_t const & V, double Lx, double Ly
 						x = V(0) + (2.0*i+1)*r;
 						y = V(1) + (2.0*j+1)*r;
 						z = V(2) + (2.0*k+1)*r;
-						if (random) Particles.Push(new Particle(tag,Vec3_t((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vec3_t(0,0,0),0.0,Density,h,Fixed));
-							else    Particles.Push(new Particle(tag,Vec3_t(x,y,z),Vec3_t(0,0,0),0.0,Density,h,Fixed));
+						if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
+							else    Particles.Push(new Particle(tag,Vector(x,y,z),Vector(0,0,0),0.0,Density,h,Fixed));
 						i++;
 						xp = V(0) + (2*i+1)*r; //COMMENTED BY LUCIANO
 						//cout << "X: "<<xp<<endl;
@@ -272,7 +272,7 @@ inline void Domain::AddBoxLength(int tag, Vec3_t const & V, double Lx, double Ly
     	}
 
         //Calculate particles' mass in 3D
-        Vec3_t temp, Max=V;
+        Vector temp, Max=V;
 		for (size_t i=PrePS; i<Particles.Size(); i++) {
 			if (Particles[i]->x(0) > Max(0)) Max(0) = Particles[i]->x(0);
 			if (Particles[i]->x(1) > Max(1)) Max(1) = Particles[i]->x(1);
@@ -311,8 +311,8 @@ inline void Domain::AddBoxLength(int tag, Vec3_t const & V, double Lx, double Ly
 					{
 						x = V(0) + (2*i+(j%2)+1)*r;
 						y = V(1) + (sqrt(3.0)*j+1)*r;
-						if (random) Particles.Push(new Particle(tag,Vec3_t((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vec3_t(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
-							else    Particles.Push(new Particle(tag,Vec3_t(x,y,0.0),Vec3_t(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+						if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+							else    Particles.Push(new Particle(tag,Vector(x,y,0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
 						i++;
 						xp = V(0) + (2*i+(j%2)+1)*r;
 					}
@@ -333,8 +333,8 @@ inline void Domain::AddBoxLength(int tag, Vec3_t const & V, double Lx, double Ly
 					{
 						x = V(0) + (sqrt(3.0)*i+1)*r;
 						y = V(1) + (2*j+(i%2)+1)*r;
-						if (random) Particles.Push(new Particle(tag,Vec3_t((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vec3_t(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
-							else    Particles.Push(new Particle(tag,Vec3_t(x,y,0.0),Vec3_t(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+						if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+							else    Particles.Push(new Particle(tag,Vector(x,y,0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
 						j++;
 						yp = V(1) + (2*j+(i%2)+1)*r;
 					}
@@ -357,8 +357,8 @@ inline void Domain::AddBoxLength(int tag, Vec3_t const & V, double Lx, double Ly
 				{
 					x = V(0) + (2*i+1)*r;
 					y = V(1) + (2*j+1)*r;
-					if (random) Particles.Push(new Particle(tag,Vec3_t((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vec3_t(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
-						else    Particles.Push(new Particle(tag,Vec3_t(x,y,0.0),Vec3_t(0,0,0),2.0*r*2.0*r*Density,Density,h,Fixed));
+					if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+						else    Particles.Push(new Particle(tag,Vector(x,y,0.0),Vector(0,0,0),2.0*r*2.0*r*Density,Density,h,Fixed));
 					i++;
 					xp = V(0) + (2*i+1)*r;
 				}
@@ -374,7 +374,7 @@ inline void Domain::AddBoxLength(int tag, Vec3_t const & V, double Lx, double Ly
 	R = r;
 }
 
-inline void Domain::Add3DCubicBoxParticles(int tag, Vec3_t const & V, double Lx, double Ly, double Lz, 
+inline void Domain::Add3DCubicBoxParticles(int tag, Vector const & V, double Lx, double Ly, double Lz, 
 									double r, double Density, double h) {
 //	Util::Stopwatch stopwatch;
     std::cout << "\n--------------Generating particles by AddBoxLength with defined length of particles-----------" << std::endl;
@@ -403,7 +403,7 @@ inline void Domain::Add3DCubicBoxParticles(int tag, Vec3_t const & V, double Lx,
 					x = V(0) + (2.0*i+1)*r;
 					y = V(1) + (2.0*j+1)*r;
 					z = V(2) + (2.0*k+1)*r;
-					Particles.Push(new Particle(tag,Vec3_t(x,y,z),Vec3_t(0,0,0),0.0,Density,h,false));
+					Particles.Push(new Particle(tag,Vector(x,y,z),Vector(0,0,0),0.0,Density,h,false));
 					i++;
 					xp = V(0) + (2*i+1)*r; //COMMENTED BY LUCIANO
 					//cout << "X: "<<xp<<endl;
@@ -416,7 +416,7 @@ inline void Domain::Add3DCubicBoxParticles(int tag, Vec3_t const & V, double Lx,
 			zp = V(2) + (2.0*k+1)*r;//COMMENTED BY LUCIANO
 		}
     	//Vol+=(Lx*Ly*Lz);
-        Vec3_t temp, Max=V;
+        Vector temp, Max=V;
 		for (size_t i=PrePS; i<Particles.Size(); i++) {
 			if (Particles[i]->x(0) > Max(0)) Max(0) = Particles[i]->x(0);
 			if (Particles[i]->x(1) > Max(1)) Max(1) = Particles[i]->x(1);
@@ -464,7 +464,7 @@ int calcHalfPartCount(const double &r, const double &R, const int xinc){
 	return ypartcount;
 }
 
-inline void Domain::AddCylinderLength(int tag, Vec3_t const & V, double Rxy, double Lz, 
+inline void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
 									double r, double Density, double h, bool Fixed) {
 
 //	Util::Stopwatch stopwatch;
@@ -512,9 +512,9 @@ inline void Domain::AddCylinderLength(int tag, Vec3_t const & V, double Rxy, dou
 				//cout << "xpart: "<< numxpart<<endl;
 				xp = V(0) - r - (2.*r*(numxpart - 1) ); //First increment is radius, following ones are 2r
 				for (i=0; i<2*numxpart;i++) {
-					//if (random) Particles.Push(new Particle(tag,Vec3_t((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vec3_t(0,0,0),0.0,Density,h,Fixed));
+					//if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
 					//	else    
-					Particles.Push(new Particle(tag,Vec3_t(xp,yp,zp),Vec3_t(0,0,0),0.0,Density,h,Fixed));
+					Particles.Push(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));
 					xp += 2.*r;
 				}
 				yp += 2.*r;
@@ -528,7 +528,7 @@ inline void Domain::AddCylinderLength(int tag, Vec3_t const & V, double Rxy, dou
 			zp = V(2) + (2.0*k+1)*r;
 		}
 		///////Calculate particles' mass in 3D
-		// Vec3_t temp, Max=V;
+		// Vector temp, Max=V;
 		// for (size_t i=PrePS; i<Particles.Size(); i++) {
 			// if (Particles[i]->x(0) > Max(0)) Max(0) = Particles[i]->x(0);
 			// if (Particles[i]->x(1) > Max(1)) Max(1) = Particles[i]->x(1);
@@ -559,7 +559,7 @@ inline void Domain::AddCylinderLength(int tag, Vec3_t const & V, double Rxy, dou
 	R = r;
 }
 
-inline void Domain::AddTractionProbeLength(int tag, Vec3_t const & V, double Rxy, double Lz_side,
+inline void Domain::AddTractionProbeLength(int tag, Vector const & V, double Rxy, double Lz_side,
 											double Lz_neckmin,double Lz_necktot,double Rxy_center,
 											double r, double Density, double h, bool Fixed) {
 
@@ -622,9 +622,9 @@ inline void Domain::AddTractionProbeLength(int tag, Vec3_t const & V, double Rxy
 				//cout << "xpart: "<< numxpart<<endl;
 				xp = V(0) - r - (2.*r*(numxpart - 1) ); //First increment is radius, following ones are 2r
 				for (i=0; i<2*numxpart;i++) {
-					//if (random) Particles.Push(new Particle(tag,Vec3_t((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vec3_t(0,0,0),0.0,Density,h,Fixed));
+					//if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
 					//	else    
-					Particles.Push(new Particle(tag,Vec3_t(xp,yp,zp),Vec3_t(0,0,0),0.0,Density,h,Fixed));
+					Particles.Push(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));
 					xp += 2.*r;
 				}
 				yp += 2.*r;
@@ -644,7 +644,7 @@ inline void Domain::AddTractionProbeLength(int tag, Vec3_t const & V, double Rxy
 											// double r, double Density, double h, bool Fixed) {
 												
 		//Calculate particles' mass in 3D
-		// Vec3_t temp, Max=V;
+		// Vector temp, Max=V;
 		// for (size_t i=PrePS; i<Particles.Size(); i++) {
 			// if (Particles[i]->x(0) > Max(0)) Max(0) = Particles[i]->x(0);
 			// if (Particles[i]->x(1) > Max(1)) Max(1) = Particles[i]->x(1);
@@ -690,9 +690,9 @@ inline void Domain::DelParticles (int const & Tags)
     {
         if (Particles[i]->ID==Tags)
 		{
-			omp_set_lock(&dom_lock);
+			//omp_set_lock(&dom_lock);
         	idxs.Push(i);
-			omp_unset_lock(&dom_lock);
+			//omp_unset_lock(&dom_lock);
 		}
     }
     if (idxs.Size()<1) throw new Fatal("Domain::DelParticles: Could not find any particles to delete");
@@ -757,7 +757,7 @@ inline void Domain::CellInitiate ()
 
 		CellNo[2] = 1;
 
-		CellSize  = Vec3_t ((TRPR(0)-BLPF(0))/CellNo[0],(TRPR(1)-BLPF(1))/CellNo[1],0.0);
+		CellSize  = Vector ((TRPR(0)-BLPF(0))/CellNo[0],(TRPR(1)-BLPF(1))/CellNo[1],0.0);
 		break;
 
 	case 3:
@@ -776,7 +776,7 @@ inline void Domain::CellInitiate ()
 		else
 			CellNo[2] = int(floor((TRPR(2)-BLPF(2))/(Cellfac*hmax)));
 
-		CellSize  = Vec3_t ((TRPR(0)-BLPF(0))/CellNo[0],(TRPR(1)-BLPF(1))/CellNo[1],(TRPR(2)-BLPF(2))/CellNo[2]);
+		CellSize  = Vector ((TRPR(0)-BLPF(0))/CellNo[0],(TRPR(1)-BLPF(1))/CellNo[1],(TRPR(2)-BLPF(2))/CellNo[2]);
 		break;
 
 	default:
@@ -1083,7 +1083,7 @@ inline void Domain::YZPlaneCellsNeighbourSearch(int q1) {
 	}
 }
 
-inline void Domain::StartAcceleration (Vec3_t const & a) {
+inline void Domain::StartAcceleration (Vector const & a) {
 
 	#pragma omp parallel for schedule(static) num_threads(Nproc)
 	#ifdef __GNUC__
@@ -1170,7 +1170,7 @@ inline void Domain::PrimaryComputeAcceleration () {
 	
 	{
 		size_t P1,P2;
-		Vec3_t xij;
+		Vector xij;
 		double h,K;
 		// Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
 		for (size_t a=0; a<FSMPairs[k].Size();a++) {
@@ -1183,19 +1183,19 @@ inline void Domain::PrimaryComputeAcceleration () {
 
 			K	= Kernel(Dimension, KernelType, norm(xij)/h, h);
 			if ( !Particles[P1]->IsFree ) {
-				omp_set_lock(&Particles[P1]->my_lock);
+				//omp_set_lock(&Particles[P1]->my_lock);
 										Particles[P1]->SumKernel+= K;
 					Particles[P1]->Pressure	+= Particles[P2]->Pressure * K + dot(Gravity,xij)*Particles[P2]->Density*K;
 					Particles[P1]->Sigma 	 = Particles[P1]->Sigma + K * Particles[P2]->Sigma;
 					if (Particles[P1]->NoSlip)		Particles[P1]->NSv 	+= Particles[P2]->v * K;
-				omp_unset_lock(&Particles[P1]->my_lock);
+				//omp_unset_lock(&Particles[P1]->my_lock);
 			} else {
-				omp_set_lock(&Particles[P2]->my_lock);
+				//omp_set_lock(&Particles[P2]->my_lock);
 										Particles[P2]->SumKernel+= K;
 					Particles[P2]->Pressure	+= Particles[P1]->Pressure * K + dot(Gravity,xij)*Particles[P1]->Density*K;
 					Particles[P2]->Sigma	 = Particles[P2]->Sigma + K * Particles[P1]->Sigma;
 					if (Particles[P2]->NoSlip)		Particles[P2]->NSv 	+= Particles[P1]->v * K;
-				omp_unset_lock(&Particles[P2]->my_lock);
+				//omp_unset_lock(&Particles[P2]->my_lock);
 			}
 		}
 	}
@@ -1283,9 +1283,9 @@ inline void Domain::LastComputeAcceleration ()
 				test = sqrt(Particles[i]->h/norm(Particles[i]->a));
 				if (deltatmin > (sqrt_h_a*test))
 				{
-					omp_set_lock(&dom_lock);
+					//omp_set_lock(&dom_lock);
 						deltatmin = sqrt_h_a*test;
-					omp_unset_lock(&dom_lock);
+					//omp_unset_lock(&dom_lock);
 				}
 			}
 		}
@@ -1301,7 +1301,7 @@ inline void Domain::CalcGradCorrMatrix () {
 	//#pragma omp parallel for schedule (static) num_threads(Nproc) //LUCIANO: THIS IS DONE SAME AS PrimaryComputeAcceleration
 	for ( size_t k = 0; k < Nproc ; k++) {
 		Particle *P1,*P2;
-		Vec3_t xij;
+		Vector xij;
 		double h,GK;
 		//TODO: DO THE LOCK PARALLEL THING
 		for (size_t a=0; a<SMPairs[k].Size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
@@ -1315,9 +1315,9 @@ inline void Domain::CalcGradCorrMatrix () {
 			di = P1->Density; mi = P1->Mass;
 			dj = P2->Density; mj = P2->Mass;
 		
-			Dyad (Vec3_t(GK*xij),xij,m);
+			Dyad (Vector(GK*xij),xij,m);
 			mt = mj/dj * m;
-			//omp_set_lock(&P1->my_lock);
+			////omp_set_lock(&P1->my_lock);
 			temp[SMPairs[k][a].first] = temp[SMPairs[k][a].first]  + mt;
 			temp[SMPairs[k][a].second]= temp[SMPairs[k][a].second] - mt;
 		}
@@ -1357,7 +1357,7 @@ inline void Domain::Move (double dt) {
 inline void Domain::WholeVelocity() {
     //Apply a constant velocity to all particles in the initial time step
     if (norm(BC.allv)>0.0 || BC.allDensity>0.0) {
-    	Vec3_t vel = 0.0;
+    	Vector vel = 0.0;
     	double den = 0.0;
 
 	#pragma omp parallel for schedule (static) private(vel,den) num_threads(Nproc)

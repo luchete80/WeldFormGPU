@@ -9,7 +9,6 @@ include_directories(${PROJECT_SOURCE_DIR})
 include_directories(Source_cuda/CuNSearch/include)
 include_directories(${CUNSEARCH_SRC_DIR}/Utils)
 link_directories(${CUNSEARCH_LIB_DIR})
-# add_executable(gpuweldform example_gpu.cu) 
 # target_link_libraries (gpuweldform cuNSearch )
 
 endif()
@@ -61,6 +60,10 @@ SET(EXES
 	#Neighbour_Test_CNS
 	#"Source/WeldForm"
 )
+
+include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+
+add_executable(gpuweldform Domain.cpp) 
 
 add_subdirectory (cuda)
 

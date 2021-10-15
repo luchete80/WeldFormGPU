@@ -21,6 +21,8 @@
 #ifndef SPH_BOUNDARY_CONDITION_H
 #define SPH_BOUNDARY_CONDITION_H
 
+#include "Vector.h"
+
 namespace SPH {
 
   class Boundary
@@ -31,9 +33,9 @@ namespace SPH {
     double	outDensity;	///< Apply a certain density to outflow particles
     double	allDensity;	///< Apply a certain density to outflow particles
 
-    Vec3_t 	inv;		///< Apply a certain velocity to inflow particles
-    Vec3_t 	outv;		///< Apply a certain velocity to outflow particles
-    Vec3_t	allv;		///< Apply a certain velocity to all particle
+    Vector 	inv;		///< Apply a certain velocity to inflow particles
+    Vector 	outv;		///< Apply a certain velocity to outflow particles
+    Vector	allv;		///< Apply a certain velocity to all particle
 
     bool 	Periodic[3];	///< Considering periodic in all directions => 0=X, 1=Y, 2=Z
 
@@ -46,9 +48,12 @@ namespace SPH {
     int		inoutcounter;
     bool	MassConservation;
 
-    Array <int>	OutPart;
-    Array <int>	InPart;
+    // Array <int>	OutPart;
+    // Array <int>	InPart;
 
+    int *OutPart;
+    int *InPart;
+		
     Boundary();
   };
 }; // namespace SPH

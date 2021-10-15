@@ -27,9 +27,9 @@
 
 // #include <omp.h>
 
-// // #include "Particle.h"
+#include "Particle.h"
 // // #include "Functions.h"
-// // #include "Boundary_Condition.h"
+#include "Boundary_Condition.h"
 
 // //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
 // //#include <sstream>
@@ -54,9 +54,9 @@ class Domain
 	
 	cuNSearch::NeighborhoodSearch neib;
 	public:
-	// typedef void (*PtVel) (Vector & position, Vector & Vel, double & Den, Boundary & bdry);
-	// typedef void (*PtOut) (Particle * Particles, double & Prop1, double & Prop2,  double & Prop3);
-	// typedef void (*PtDom) (Domain & dom);
+	typedef void (*PtVel) (Vector & position, Vector & Vel, double & Den, Boundary & bdry);
+	typedef void (*PtOut) (Particle * Particles, double & Prop1, double & Prop2,  double & Prop3);
+	typedef void (*PtDom) (Domain & dom);
     // Constructor
     Domain();
 
@@ -90,7 +90,7 @@ class Domain
     void StartAcceleration					(Vector const & a = Vector(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
     void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
     void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
-    void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
+    //void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
     void Move						(double dt);										//Move particles
 
     void Solve					(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function
@@ -128,7 +128,7 @@ class Domain
 	
 	
     // Data
-    Array <Particle*>				Particles; 	///< Array of particles
+    Particle**			Particles; 	///< Array of particles
     double					R;		///< Particle Radius in addrandombox
 
 		double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
@@ -166,27 +166,28 @@ class Domain
 	#else
 	int						Nproc;
 	#endif
-	omp_lock_t 					dom_lock;	///< Open MP lock to lock Interactions array
-    Boundary					BC;
-    PtOut					UserOutput;
-    PtVel 					InCon;
-    PtVel 					OutCon;
-    PtVel 					AllCon;
-    Vector					DomMax;
-    Vector					DomMin;
-    PtDom					GeneralBefore;	///< Pointer to a function: to modify particles properties before CalcForce function
-    PtDom					GeneralAfter;	///< Pointer to a function: to modify particles properties after CalcForce function
-    size_t					Scheme;		///< Integration scheme: 0 = Modified Verlet, 1 = Leapfrog
+	//omp_lock_t 					dom_lock;	///< Open MP lock to lock Interactions array
+  
+  Boundary					BC;
+	PtOut					UserOutput;
+	PtVel 					InCon;
+	PtVel 					OutCon;
+	PtVel 					AllCon;
+	Vector					DomMax;
+	Vector					DomMin;
+	PtDom					GeneralBefore;	///< Pointer to a function: to modify particles properties before CalcForce function
+	PtDom					GeneralAfter;	///< Pointer to a function: to modify particles properties after CalcForce function
+	size_t					Scheme;		///< Integration scheme: 0 = Modified Verlet, 1 = Leapfrog
 
-    Array<Array<std::pair<size_t,size_t> > >	SMPairs;
-    Array<Array<std::pair<size_t,size_t> > >	NSMPairs;
-    Array<Array<std::pair<size_t,size_t> > >	FSMPairs;
-    Array< size_t > 				FixedParticles;
-    Array< size_t >				FreeFSIParticles;
+    // Array<Array<std::pair<size_t,size_t> > >	SMPairs;
+    // Array<Array<std::pair<size_t,size_t> > >	NSMPairs;
+    // Array<Array<std::pair<size_t,size_t> > >	FSMPairs;
+    // Array< int > 				FixedParticles;
+
 	double 	& getTime (){return Time;}		//LUCIANO
 
     Array<std::pair<size_t,size_t> >		Initial;
-    Mat3_t I;
+
     String					OutputName[3];
 	double T_inf;			//LUCIANO: IN CASE OF ONLY ONE CONVECTION TEMPERAURE
 	
@@ -219,7 +220,7 @@ class Domain
 }; // namespace SPH
 
 // #include "Interaction.cpp"
-#include "Domain.cpp"
+// #include "Domain.cpp"
 // #include "Output.cpp"
 // #include "InOutFlow.cpp"
 // #include "Thermal.cpp"
