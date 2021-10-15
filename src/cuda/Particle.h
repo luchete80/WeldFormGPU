@@ -63,7 +63,7 @@ namespace SPH {
 		size_t	PresEq;		///< Selecting variable to choose an equation of state
 		double	Cs;		///< Speed of sound
 		double	P0;		///< background pressure for equation of state
-		double 	Pressure;	///< Pressure of the particle n+1
+		float 	Pressure;	///< Pressure of the particle n+1
 
 		double		Density;	///< Density of the particle n+1
 		double 	Densitya;	///< Density of the particle n+1/2 (Leapfrog)
@@ -74,8 +74,8 @@ namespace SPH {
 		double 	Mass;		///< Mass of the particle
 		float3		Displacement;	///< Density of the particle n+1
 
-		symtensor3	StrainRate;	///< Global shear Strain rate tensor n //WHEN is not symm??
-		float*	RotationRate;	///< Global rotation tensor n
+		tensor3	StrainRate;	///< Global shear Strain rate tensor n //WHEN is not symm??
+		tensor3			RotationRate;	///< Global rotation tensor n
 		double	ShearRate;	///< Global shear rate for fluids
 		double	SBar;		///< shear component for LES
 
@@ -83,26 +83,26 @@ namespace SPH {
 		tensor3		ShearStressa;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n+1/2 (Leapfrog)
 		tensor3		ShearStressb;	///< Deviatoric shear stress tensor (deviatoric part of the Cauchy stress tensor) n-1 (Modified Verlet)
 
-		symtensor3	Sigma;		///< Cauchy stress tensor (Total Stress) n+1
+		tensor3	Sigma;		///< Cauchy stress tensor (Total Stress) n+1
 
-		symtensor3	Sigmaa;		///< Cauchy stress tensor (Total Stress) n+1/2 (Leapfrog)
-		symtensor3	Sigmab;		///< Cauchy stress tensor (Total Stress) n-1 (Modified Verlet)
+		tensor3	Sigmaa;		///< Cauchy stress tensor (Total Stress) n+1/2 (Leapfrog)
+		tensor3	Sigmab;		///< Cauchy stress tensor (Total Stress) n-1 (Modified Verlet)
 		
 		double Sigma_eq;	//Von Mises
 		
 		////////////////// PLASTIC THINGS
-		symtensor3	Strain;		///< Total Strain n+1
-		symtensor3	Straina;	///< Total Strain n+1/2 (Leapfrog)
-		symtensor3	Strainb;	///< Total Strain n-1 (Modified Verlet)
-		symtensor3  Strain_pl;	//// Plastic Strain
+		tensor3	Strain;		///< Total Strain n+1
+		tensor3	Straina;	///< Total Strain n+1/2 (Leapfrog)
+		tensor3	Strainb;	///< Total Strain n-1 (Modified Verlet)
+		tensor3  Strain_pl;	//// Plastic Strain
 		
 		
 		double 	pl_strain,delta_pl_strain;	//Accum and incremental Effective (Von Mises) plastic strain 
 		
 		// BONET GRADIENT CORRECTION MATRIX
-		symtensor3	gradCorrM;
+		tensor3	gradCorrM;
 
-		symtensor3	TIR;		///< Tensile Instability stress tensor R
+		tensor3	TIR;		///< Tensile Instability stress tensor R
 		double	TI;		///< Tensile instability factor
 		double	TIn;		///< Tensile instability power
 		double 	TIInitDist;	///< Initial distance of particles for calculation of tensile instability

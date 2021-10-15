@@ -175,9 +175,9 @@ inline void Particle::CalculateEquivalentStress () {
 						// ( Sigma(0,0)*Sigma(1,1) + Sigma(1,1)*Sigma(2,2) + Sigma(0,0)*Sigma(2,2) ) + 
 					// 3.0*(Sigma(0,1)*Sigma(0,1) + Sigma(1,2)*Sigma(1,2) + Sigma(0,2)*Sigma(0,2)));
 
-	double J2	= 0.5*(ShearStress[0]*ShearStress[0] + 2.0*ShearStress[1]*ShearStress[3] +
-						2.0*ShearStress[2]*ShearStress[6] + ShearStress[4]*ShearStress[4] +
-						2.0*ShearStress[5]*ShearStress[7] + ShearStress[8]*ShearStress[8]);
+		double J2	= 0.5*(ShearStress(0,0)*ShearStress(0,0) + 2.0*ShearStress(0,1)*ShearStress(1,0) +
+						2.0*ShearStress(0,2)*ShearStress(2,0) + ShearStress(1,1)*ShearStress(1,1) +
+						2.0*ShearStress(1,2)*ShearStress(2,1) + ShearStress(2,2)*ShearStress(2,2));
 	
 	Sigma_eq = sqrt(3.0*J2);	
 }
@@ -186,24 +186,33 @@ inline void Particle::Mat2Leapfrog(double dt) {
 	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
 
 	// Jaumann rate terms
-	float *RotationRateT,*SRT,*RS;
-	Trans(RotationRate,RotationRateT);
-	Mult(ShearStress,RotationRateT,SRT);
-	Mult(RotationRate,ShearStress,RS);
+	//float *RotationRateT,*SRT,*RS;
+	tensor3 RotationRateT,SRT,RS;
+	//Trans(RotationRate,RotationRateT);
+	RotationRateT = RotationRate.Trans();
+	//Mult(ShearStress,RotationRateT,SRT);
+	SRT = ShearStress*RotationRateT;
+	//Mult(RotationRate,ShearStress,RS);
 
 	// Elastic prediction step (ShearStress_e n+1)
-	if (FirstStep)
-		ShearStressa	= -dt/2.0*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStress;
+	// if (FirstStep)
+		// ShearStressa	= -dt/2.0*(2.0*G*(StrainRate-1.0/3.0*
+															// (StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*
+																// OrthoSys::I)+SRT+RS) + ShearStress;
 
 	ShearStressb	= ShearStressa;
-	ShearStressa	= dt*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStressa;
+	//ShearStressa	= dt*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStressa;
 
 	if (Fail == 1) {
 		double J2	= 0.5*(ShearStressa(0,0)*ShearStressa(0,0) + 2.0*ShearStressa(0,1)*ShearStressa(1,0) +
 						2.0*ShearStressa(0,2)*ShearStressa(2,0) + ShearStressa(1,1)*ShearStressa(1,1) +
 						2.0*ShearStressa(1,2)*ShearStressa(2,1) + ShearStressa(2,2)*ShearStressa(2,2));
 		//Scale back, Fraser Eqn 3-53
-		ShearStressa= std::min((Sigmay/sqrt(3.0*J2)),1.0)*ShearStressa;
+		float f =1.;
+		if ( Sigmay/sqrt(3.0*J2) > 1. )
+			f = Sigmay/sqrt(3.0*J2);
+		
+		ShearStressa = f * ShearStressa;
 		
 		double sig_trial = sqrt(3.0*J2);
 		if ( sig_trial > Sigmay) {
@@ -215,7 +224,8 @@ inline void Particle::Mat2Leapfrog(double dt) {
 	}
 	ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
 	
-	Sigma = -Pressure * OrthoSys::I + ShearStress;	//Fraser, eq 3.32
+	Sigma = -Pressure * Identity() + 
+	ShearStress;	//Fraser, eq 3.32
 
 	if (FirstStep)
 		Straina	= -dt/2.0*StrainRate + Strain;

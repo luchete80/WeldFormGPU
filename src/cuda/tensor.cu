@@ -269,7 +269,7 @@ ddot(symtensor4 const& T, float4 const& v)
 			(T.xz*v.x + T.zw*v.w)*v.z);
 }
 
-// First row of the adjugate of a given matrix
+// First row of the adjugate of a given tensor3
 __spec
 float4
 adjugate_row1(symtensor4 const& T)
@@ -344,22 +344,85 @@ void storeTau(symtensor3 const& tau, uint i,
 	tau2[i] = make_float2(tau.yz, tau.zz);
 }
 
-__device__ tensor3::tensor3(){
-	data = new float[3];
+
+__device__ float& tensor3::operator()(int row, int col)
+{
+    // assert(col >= 0 && col < 4);
+    // assert(row >= 0 && row < 4);
+
+    return m_data[row][col];
 }
 
-__device__ tensor3 tensor3::operator+(const tensor3 &b){
+ __device__ float  tensor3::operator()(int row, int col) const
+{
+    // assert(col >= 0 && col < 4);
+    // assert(row >= 0 && row < 4);
+
+    return m_data[row][col];
+}
+
+__device__ void tensor3::operator()() {
+    // reset all elements of the tensor3 to 0.0
+    for (int row{ 0 }; row < 4; ++row) {
+        for (int col{ 0 }; col < 4; ++col) {
+            m_data[row][col] = 0.0;
+        }
+    }
+}
+
+// __device__ tensor3::tensor3(){
+	// data = new float[3];
+	// for (int i=0;i<9;i++) data[i] = 0.;
+// }
+
+
+
+__device__ float& tensor3::operator[](const int &i){
+
+	//return m_data[3*i];
+}
+
+__device__ tensor3 tensor3:: operator* (const tensor3 &b){
 	tensor3 ret;
-	for (int i=0;i<9;i++)
-		ret.data[i]=data[i]+b.data[i];
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+			for (int k=0;k<3;k++)
+				ret.m_data[i][j]+=m_data[i][k]*b.m_data[k][j];
 	
 	return ret;
 }
 
-__device__ float& tensor3::operator[](const int &i){
-
-	return data[i];
+__device__ tensor3 tensor3:: operator+ (const tensor3 &b){
+	tensor3 ret;
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+				ret.m_data[i][j]=m_data[i][j]*b.m_data[i][j];
+	
+	return ret;
 }
 
+__device__ tensor3 tensor3:: Trans (){
+	tensor3 ret;
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+			ret.m_data[i][j] = m_data[j][i];
+	
+	return ret;
+}
+
+__device__ tensor3 operator* (const float &f, const tensor3 &b){
+	tensor3 ret;
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+			ret(i,j) = b(i,j)*f;	
+}
+
+__device__ tensor3 Identity(){
+	tensor3 ret;
+	ret(0,0) = ret(1,1) = ret(2,2) = 1.;
+	//ret[1][1]=ret[2][2]=1.;
+	
+	return ret;
+}
 
 #endif

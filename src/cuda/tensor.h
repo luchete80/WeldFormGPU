@@ -50,12 +50,25 @@ typedef struct {
 } symtensor4 ;
 
 
-class tensor3 {
-	public:
-	float* data;
-	tensor3();
-	tensor3 operator+(const tensor3 &b);
-	float& operator[](const int &);
+class tensor3
+{
+private:
+		float m_data[4][4]{};    
+public:
+
+    float& operator()(int row, int col);
+    float& operator[](const int &i);	//0 to 8
+    float operator()(int row, int col) const;
+    void operator()();
+		void Set(const int &i, const int &j);
+		tensor3 operator+ (const tensor3 &b);
+		tensor3 operator* (const tensor3 &b);
+		//tensor3 operator* (const float &f);
+		tensor3 Trans ();
 };
+
+tensor3 operator* (const float &f, const tensor3 &b);
+
+tensor3 Identity();
 
 #endif
