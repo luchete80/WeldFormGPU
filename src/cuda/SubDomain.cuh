@@ -21,6 +21,8 @@
 #ifndef SPH_SUBDOMAIN_CUH
 #define SPH_SUBDOMAIN_CUH
 
+#include "Vector.h"
+
 // #include <stdio.h>    // for NULL
 // #include <algorithm>  // for min,max
 

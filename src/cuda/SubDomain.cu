@@ -2,7 +2,7 @@
 
 namespace SPH {
 	
-inline void Domain::DelParticles (int const & Tags)
+inline void SubDomain::DelParticles (int const & Tags)
 {
     // Array<int> idxs; // indices to be deleted
 
