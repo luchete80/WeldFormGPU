@@ -68,7 +68,7 @@ inline Domain::Domain ()
     Time    = 0.0;
 
     Dimension = 2;
-    Domsize	= 0.0,0.0,0.0;
+    DomSize	= 0.0;
 
     Gravity	= 0.0,0.0,0.0;
 
@@ -117,7 +117,11 @@ inline Domain::Domain ()
 inline Domain::~Domain ()
 {
 	size_t Max = Particles.size();
-	for (size_t i=1; i<=Max; i++)  Particles.DelItem(Max-i);
+	for (size_t i=1; i<=Max; i++)  {//Particles.DelItem(Max-i);
+	//Particles.
+	
+	}
+	Particles.clear();
 }
 
 // inline void Domain::Periodic_X_Correction(Vector & x, double const & h, Particle * P1, Particle * P2)
@@ -166,7 +170,7 @@ inline Domain::~Domain ()
 
 // inline void Domain::AddSingleParticle(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed)
 // {
-   	// Particles.Push(new Particle(tag,x,Vector(0,0,0),Mass,Density,h,Fixed));
+   	// Particles.push_back(new Particle(tag,x,Vector(0,0,0),Mass,Density,h,Fixed));
 // }
 
 inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly, double Lz, 
@@ -224,8 +228,8 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 						if ((k%2!=0) && (j%2!=0)) x = V(0) + (2*i+(j%2)+(k%2)-1)*r; else x = V(0) + (2*i+(j%2)+(k%2)+1)*r;
 						y = V(1) + (sqrt(3.0)*(j+(1.0/3.0)*(k%2))+1)*r;
 						z = V(2) + ((2*sqrt(6.0)/3)*k+1)*r;
-						if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
-						else    	Particles.Push(new Particle(tag,Vector(x,y,z),Vector(0,0,0),0.0,Density,h,Fixed));
+						if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
+						else    	Particles.push_back(new Particle(tag,Vector(x,y,z),Vector(0,0,0),0.0,Density,h,Fixed));
 						i++;
 						if ((k%2!=0) && (j%2!=0)) xp = V(0) + (2*i+(j%2)+(k%2)-1)*r; else xp = V(0) + (2*i+(j%2)+(k%2)+1)*r;
 					}
@@ -311,8 +315,8 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 					{
 						x = V(0) + (2*i+(j%2)+1)*r;
 						y = V(1) + (sqrt(3.0)*j+1)*r;
-						if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
-							else    Particles.Push(new Particle(tag,Vector(x,y,0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+						if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+							else    Particles.push_back(new Particle(tag,Vector(x,y,0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
 						i++;
 						xp = V(0) + (2*i+(j%2)+1)*r;
 					}
@@ -333,8 +337,8 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 					{
 						x = V(0) + (sqrt(3.0)*i+1)*r;
 						y = V(1) + (2*j+(i%2)+1)*r;
-						if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
-							else    Particles.Push(new Particle(tag,Vector(x,y,0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+						if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+							else    Particles.push_back(new Particle(tag,Vector(x,y,0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
 						j++;
 						yp = V(1) + (2*j+(i%2)+1)*r;
 					}
@@ -357,8 +361,8 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 				{
 					x = V(0) + (2*i+1)*r;
 					y = V(1) + (2*j+1)*r;
-					if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
-						else    Particles.Push(new Particle(tag,Vector(x,y,0.0),Vector(0,0,0),2.0*r*2.0*r*Density,Density,h,Fixed));
+					if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),0.0),Vector(0,0,0),(sqrt(3.0)*r*r)*Density,Density,h,Fixed));
+						else    Particles.push_back(new Particle(tag,Vector(x,y,0.0),Vector(0,0,0),2.0*r*2.0*r*Density,Density,h,Fixed));
 					i++;
 					xp = V(0) + (2*i+1)*r;
 				}
@@ -403,7 +407,7 @@ inline void Domain::Add3DCubicBoxParticles(int tag, Vector const & V, double Lx,
 					x = V(0) + (2.0*i+1)*r;
 					y = V(1) + (2.0*j+1)*r;
 					z = V(2) + (2.0*k+1)*r;
-					Particles.Push(new Particle(tag,Vector(x,y,z),Vector(0,0,0),0.0,Density,h,false));
+					Particles.push_back(new Particle(tag,Vector(x,y,z),Vector(0,0,0),0.0,Density,h,false));
 					i++;
 					xp = V(0) + (2*i+1)*r; //COMMENTED BY LUCIANO
 					//cout << "X: "<<xp<<endl;
@@ -512,9 +516,9 @@ inline void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, dou
 				//cout << "xpart: "<< numxpart<<endl;
 				xp = V(0) - r - (2.*r*(numxpart - 1) ); //First increment is radius, following ones are 2r
 				for (i=0; i<2*numxpart;i++) {
-					//if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
+					//if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
 					//	else    
-					Particles.Push(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));
+					Particles.push_back(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));
 					xp += 2.*r;
 				}
 				yp += 2.*r;
@@ -622,9 +626,9 @@ inline void Domain::AddTractionProbeLength(int tag, Vector const & V, double Rxy
 				//cout << "xpart: "<< numxpart<<endl;
 				xp = V(0) - r - (2.*r*(numxpart - 1) ); //First increment is radius, following ones are 2r
 				for (i=0; i<2*numxpart;i++) {
-					//if (random) Particles.Push(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
+					//if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
 					//	else    
-					Particles.Push(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));
+					Particles.push_back(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));
 					xp += 2.*r;
 				}
 				yp += 2.*r;

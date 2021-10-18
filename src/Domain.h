@@ -192,6 +192,10 @@ private:
 	void Periodic_X_Correction	(Vector & x, double const & h, Particle * P1, Particle * P2);		//Corrects xij for the periodic boundary condition
 	void AdaptiveTimeStep				();		//Uses the minimum time step to smoothly vary the time step
 
+	void StartAcceleration					(Vector const & a = Vector(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
+	void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
+	void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
+		
 	void PrintInput			(char const * FileKey);		//Print out some initial parameters as a file
 	void InitialChecks	();		//Checks some parameter before proceeding to the solution
 	void TimestepCheck	();		//Checks the user time step with CFL approach
