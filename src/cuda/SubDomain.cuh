@@ -21,8 +21,6 @@
 #ifndef SPH_SUBDOMAIN_CUH
 #define SPH_SUBDOMAIN_CUH
 
-#include "Vector.h"
-
 // #include <stdio.h>    // for NULL
 // #include <algorithm>  // for min,max
 
@@ -83,13 +81,14 @@ class SubDomain
 
     // void AddBoxNo						(int tag, Vec3_t const &V, size_t nx, size_t ny, size_t nz,double r, double Density,
 																	// double h,int type, int rotation, bool random, bool Fixed);									//Add a cube of particles with a defined numbers
-    // void DelParticles				(int const & Tags);					//Delete particles by tag
+    void DelParticles				(int const & Tags);					//Delete particles by tag
     // void CheckParticleLeave	();													//Check if any particles leave the domain, they will be deleted
 
     // void YZPlaneCellsNeighbourSearch(int q1);						//Create pairs of particles in cells of XZ plan
     // void MainNeighbourSearch				();									//Create pairs of particles in the whole domain
     // void StartAcceleration					(Vec3_t const & a = Vec3_t(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
-    // void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
+		void StartAcceleration					(float3 const & a);
+		void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
     // void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
     void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
     // void Move						(double dt);										//Move particles
@@ -190,7 +189,6 @@ class SubDomain
 	
 	
 private:
-		inline void StartAcceleration (Vector const & a);
 		// void Periodic_X_Correction	(Vec3_t & x, double const & h, Particle * P1, Particle * P2);		//Corrects xij for the periodic boundary condition
 		// void AdaptiveTimeStep				();		//Uses the minimum time step to smoothly vary the time step
 

@@ -28,7 +28,7 @@ inline void SubDomain::DelParticles (int const & Tags)
 
 
 
-inline void SubDomain::StartAcceleration (Vector const & a) {
+inline void SubDomain::StartAcceleration (float3 const & a) {
 
 	#pragma omp parallel for schedule(static) num_threads(Nproc)
 	#ifdef __GNUC__
@@ -105,7 +105,7 @@ inline void SubDomain::StartAcceleration (Vector const & a) {
 	}
 }
 
-inline void Domain::PrimaryComputeAcceleration () {
+inline void SubDomain::PrimaryComputeAcceleration () {
 	#pragma omp parallel for schedule (static) num_threads(Nproc)
 	#ifdef __GNUC__
 	for (size_t k=0; k<Nproc;k++) 
@@ -237,61 +237,61 @@ inline void Domain::LastComputeAcceleration ()
 }
 
 //New, for Bonet gradient correction
-inline void Domain::CalcGradCorrMatrix () {
-	double di=0.0,dj=0.0,mi=0.0,mj=0.0;
+// inline void Domain::CalcGradCorrMatrix () {
+	// double di=0.0,dj=0.0,mi=0.0,mj=0.0;
 	
-	std::vector < Mat3_t> temp(Particles.Size());
-	Mat3_t m,mt;
+	// std::vector < Mat3_t> temp(Particles.Size());
+	// Mat3_t m,mt;
 
-	//#pragma omp parallel for schedule (static) num_threads(Nproc) //LUCIANO: THIS IS DONE SAME AS PrimaryComputeAcceleration
-	for ( size_t k = 0; k < Nproc ; k++) {
-		Particle *P1,*P2;
-		Vector xij;
-		double h,GK;
-		//TODO: DO THE LOCK PARALLEL THING
-		for (size_t a=0; a<SMPairs[k].Size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
-			//cout << "a: " << a << "p1: " << SMPairs[k][a].first << ", p2: "<< SMPairs[k][a].second<<endl;
-			P1	= Particles[SMPairs[k][a].first];
-			P2	= Particles[SMPairs[k][a].second];
-			xij	= P1->x - P2->x;
-			h	= (P1->h+P2->h)/2.0;
-			GK	= GradKernel(Dimension, KernelType, norm(xij)/h, h);	
+	// //#pragma omp parallel for schedule (static) num_threads(Nproc) //LUCIANO: THIS IS DONE SAME AS PrimaryComputeAcceleration
+	// for ( size_t k = 0; k < Nproc ; k++) {
+		// Particle *P1,*P2;
+		// Vector xij;
+		// double h,GK;
+		// //TODO: DO THE LOCK PARALLEL THING
+		// for (size_t a=0; a<SMPairs[k].Size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
+			// //cout << "a: " << a << "p1: " << SMPairs[k][a].first << ", p2: "<< SMPairs[k][a].second<<endl;
+			// P1	= Particles[SMPairs[k][a].first];
+			// P2	= Particles[SMPairs[k][a].second];
+			// xij	= P1->x - P2->x;
+			// h	= (P1->h+P2->h)/2.0;
+			// GK	= GradKernel(Dimension, KernelType, norm(xij)/h, h);	
 			
-			di = P1->Density; mi = P1->Mass;
-			dj = P2->Density; mj = P2->Mass;
+			// di = P1->Density; mi = P1->Mass;
+			// dj = P2->Density; mj = P2->Mass;
 		
-			Dyad (Vector(GK*xij),xij,m);
-			mt = mj/dj * m;
-			////omp_set_lock(&P1->my_lock);
-			temp[SMPairs[k][a].first] = temp[SMPairs[k][a].first]  + mt;
-			temp[SMPairs[k][a].second]= temp[SMPairs[k][a].second] - mt;
-		}
-	}//Nproc
+			// Dyad (Vector(GK*xij),xij,m);
+			// mt = mj/dj * m;
+			// ////omp_set_lock(&P1->my_lock);
+			// temp[SMPairs[k][a].first] = temp[SMPairs[k][a].first]  + mt;
+			// temp[SMPairs[k][a].second]= temp[SMPairs[k][a].second] - mt;
+		// }
+	// }//Nproc
 
-	#pragma omp parallel for schedule (static) num_threads(Nproc)	//LUCIANO//LIKE IN DOMAIN->MOVE
-	for (int i=0; i<Particles.Size(); i++){
-		//cout << "temp "<<temp[i]<<endl;
-		/** Inverse.*/
-		//inline void Inv (Mat3_t const & M, Mat3_t & Mi, double Tol=1.0e-10)}	
-		Inv(temp[i],m);		
-		Particles[i] ->gradCorrM = m;
-	}
+	// #pragma omp parallel for schedule (static) num_threads(Nproc)	//LUCIANO//LIKE IN DOMAIN->MOVE
+	// for (int i=0; i<Particles.Size(); i++){
+		// //cout << "temp "<<temp[i]<<endl;
+		// /** Inverse.*/
+		// //inline void Inv (Mat3_t const & M, Mat3_t & Mi, double Tol=1.0e-10)}	
+		// Inv(temp[i],m);		
+		// Particles[i] ->gradCorrM = m;
+	// }
 	
-}
+// }
 
-inline void Domain::ClearNbData(){
+// inline void SubDomain::ClearNbData(){
 	
-	for (int i=0 ; i<Nproc ; i++) { //In the original version this was calculated after
-		SMPairs[i].Clear();
-		FSMPairs[i].Clear();
-		NSMPairs[i].Clear();
-	}
-	CellReset();
-	ListGenerate();
-	m_isNbDataCleared = true;
-}
+	// for (int i=0 ; i<Nproc ; i++) { //In the original version this was calculated after
+		// SMPairs[i].Clear();
+		// FSMPairs[i].Clear();
+		// NSMPairs[i].Clear();
+	// }
+	// CellReset();
+	// ListGenerate();
+	// m_isNbDataCleared = true;
+// }
 
-inline void Domain::WholeVelocity() {
+inline void SubDomain::WholeVelocity() {
     //Apply a constant velocity to all particles in the initial time step
     if (norm(BC.allv)>0.0 || BC.allDensity>0.0) {
     	Vector vel = 0.0;
