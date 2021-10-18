@@ -54,15 +54,15 @@ class Vector {
 
 	public:
 		//Vector(const Point &, const Point &);
-		Vector(const Vector &);
-		Vector(double xx = 0, double yy = 0, double zz = 0);
-		Vector(const float3 &);
-		Vector(const double3 &);
-		Vector(const float4 &);
-		Vector(const double4 &);
-		Vector(const float *);
-		Vector(const double *);
-		~Vector(void) {};
+		__host__ __device__ Vector(const Vector &);
+		__host__ __device__ Vector(double xx = 0, double yy = 0, double zz = 0);
+		__host__ __device__ Vector(const float3 &);
+		__host__ __device__ Vector(const double3 &);
+		__host__ __device__ Vector(const float4 &);
+		__host__ __device__ Vector(const double4 &);
+		__host__ __device__ Vector(const float *);
+		__host__ __device__ Vector(const double *);
+		__host__ __device__ ~Vector(void) {};
 
 		/*! Return the norm of vector */
 		double norm(void) const;
@@ -85,6 +85,7 @@ class Vector {
 		Vector &operator*=(double);
 		Vector &operator/=(double);
 		Vector &operator=(const Vector &);
+		Vector &operator=(const float &);
 		double &operator()(int);
 		double operator()(int) const;
 		//\}

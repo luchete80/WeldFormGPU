@@ -23,7 +23,7 @@
 
 // #include <stdio.h>    // for NULL
 // #include <algorithm>  // for min,max
-
+#include <vector>
 
 // #include <omp.h>
 
@@ -35,7 +35,7 @@
 // //#include <sstream>
 // //#endif
 // //#include <sstream>
-// //#include <string>
+#include <string>
 // #include <cmath>
 
 #include "Vector.h"
@@ -51,124 +51,116 @@ namespace SPH {
 
 class Domain
 {
-	
-	cuNSearch::NeighborhoodSearch neib;
+
+	//cuNSearch::NeighborhoodSearch neib;
 	public:
 	typedef void (*PtVel) (Vector & position, Vector & Vel, double & Den, Boundary & bdry);
 	typedef void (*PtOut) (Particle * Particles, double & Prop1, double & Prop2,  double & Prop3);
 	typedef void (*PtDom) (Domain & dom);
-    // Constructor
-    Domain();
+	// Constructor
+	Domain();
 
-    // Destructor
-    ~Domain();
+	// Destructor
+	~Domain();
 
-    // Domain Part
-    void AddSingleParticle	(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed);		//Add one particle
-    void AddBoxLength				(int tag, Vector const &V, double Lx, double Ly, double Lz,double r, double Density,
-																	double h,int type, int rotation, bool random, bool Fixed);									//Add a cube of particles with a defined dimensions
+	// Domain Part
+	void AddSingleParticle	(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed);		//Add one particle
+	void AddBoxLength				(int tag, Vector const &V, double Lx, double Ly, double Lz,double r, double Density,
+																double h,int type, int rotation, bool random, bool Fixed);									//Add a cube of particles with a defined dimensions
 
 	void AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
-									double r, double Density, double h, bool Fixed);
+								double r, double Density, double h, bool Fixed);
 
 	void AddTractionProbeLength(int tag, Vector const & V, double Rxy, double Lz_side,
-											double Lz_neckmin,double Lz_necktot,double Rxy_center,
-											double r, double Density, double h, bool Fixed);
-											
+										double Lz_neckmin,double Lz_necktot,double Rxy_center,
+										double r, double Density, double h, bool Fixed);
+										
 	void Calculate3DMass(double Density);
 	void Add3DCubicBoxParticles(int tag, Vector const & V, double Lx, double Ly, double Lz, 
-									double r, double Density, double h);
+								double r, double Density, double h);
 
 
-    void AddBoxNo						(int tag, Vector const &V, size_t nx, size_t ny, size_t nz,double r, double Density,
-																	double h,int type, int rotation, bool random, bool Fixed);									//Add a cube of particles with a defined numbers
-    void DelParticles				(int const & Tags);					//Delete particles by tag
-    void CheckParticleLeave	();													//Check if any particles leave the domain, they will be deleted
+	void AddBoxNo						(int tag, Vector const &V, size_t nx, size_t ny, size_t nz,double r, double Density,
+																double h,int type, int rotation, bool random, bool Fixed);									//Add a cube of particles with a defined numbers
+	void DelParticles				(int const & Tags);					//Delete particles by tag
+	void CheckParticleLeave	();													//Check if any particles leave the domain, they will be deleted
 
-    void YZPlaneCellsNeighbourSearch(int q1);						//Create pairs of particles in cells of XZ plan
-    void MainNeighbourSearch				();									//Create pairs of particles in the whole domain
-    void StartAcceleration					(Vector const & a = Vector(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
-    void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
-    void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
-    //void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
-    void Move						(double dt);										//Move particles
+	void YZPlaneCellsNeighbourSearch(int q1);						//Create pairs of particles in cells of XZ plan
+	void MainNeighbourSearch				();									//Create pairs of particles in the whole domain
 
-    void Solve					(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function
-    void Solve_orig 			(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx); 
-	void ThermalSolve			(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function
-	void ThermalSolve_wo_init	(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function
+	void Move						(double dt);										//Move particles
 
+	void Solve					(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function
 
-    void Solve_wo_init (double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function	
 	//void Step(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);
-	
-    void CellInitiate		();															//Find the size of the domain as a cube, make cells and HOCs
-    void ListGenerate		();															//Generate linked-list
-    void CellReset			();															//Reset HOCs and particles' LL to initial value of -1
-	
+
+	void CellInitiate		();															//Find the size of the domain as a cube, make cells and HOCs
+	void ListGenerate		();															//Generate linked-list
+	void CellReset			();															//Reset HOCs and particles' LL to initial value of -1
+
 	void ClearNbData();	
-	
-    void WriteXDMF			(char const * FileKey);					//Save a XDMF file for the visualization
+
+	void WriteXDMF			(char const * FileKey);					//Save a XDMF file for the visualization
 
 
-    void InFlowBCLeave	();
-    void InFlowBCFresh	();
-    void WholeVelocity	();
+	void InFlowBCLeave	();
+	void InFlowBCFresh	();
+	void WholeVelocity	();
 
 	void Kernel_Set									(Kernels_Type const & KT);
 	void Viscosity_Eq_Set						(Viscosity_Eq_Type const & VQ);
 	void Gradient_Approach_Set			(Gradient_Type const & GT);
-	
+
 	//Thermal Solver
 	void CalcTempInc 	(); 		//LUCIANO: Temperature increment
 	inline void CalcConvHeat ();
 	inline void CalcPlasticWorkHeat();
 	inline void CalcGradCorrMatrix();	//BONET GRADIENT CORRECTION
 
-	
-	
-    // Data
-    Particle**			Particles; 	///< Array of particles
-    double					R;		///< Particle Radius in addrandombox
 
-		double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
 
-    int 					Dimension;    	///< Dimension of the problem
+	// Data
+	std::vector<Particle*>			Particles; 	///< Array of particles
+	double					R;		///< Particle Radius in addrandombox
 
-    double					MuMax;		///< Max Dynamic viscosity for calculating the timestep
-    double					CsMax;		///< Max speed of sound for calculating the timestep
+	double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
+
+	int 					Dimension;    	///< Dimension of the problem
+
+	double					MuMax;		///< Max Dynamic viscosity for calculating the timestep
+	double					CsMax;		///< Max speed of sound for calculating the timestep
 	double 				Vol;		///LUCIANO
 
-    Vector					Gravity;       	///< Gravity acceleration
+	Vector					Gravity;       	///< Gravity acceleration
 
 
-    Vector                 			TRPR;		///< Top right-hand point at rear of the domain as a cube
-    Vector                  			BLPF;           ///< Bottom left-hand point at front of the domain as a cube
-    Vector                  			CellSize;      	///< Calculated cell size according to (cell size >= 2h)
-    int		                		CellNo[3];      ///< No. of cells for linked list
-    double 					hmax;		///< Max of h for the cell size  determination
-    Vector                 			DomSize;	///< Each component of the vector is the domain size in that direction if periodic boundary condition is defined in that direction as well
-    double					rhomax;
+	Vector                 			TRPR;		///< Top right-hand point at rear of the domain as a cube
+	Vector                  			BLPF;           ///< Bottom left-hand point at front of the domain as a cube
+	Vector          CellSize;      	///< Calculated cell size according to (cell size >= 2h)
+	int		          CellNo[3];      ///< No. of cells for linked list
+	double 					hmax;		///< Max of h for the cell size  determination
+	Vector                 			DomSize;	///< Each component of the vector is the domain size in that direction if periodic boundary condition is defined in that direction as well
+	double					rhomax;
 
-    int						*** HOC;	///< Array of "Head of Chain" for each cell
-	
+	int						*** HOC;	///< Array of "Head of Chain" for each cell
+
 	// BONET KERNEL CORRECTION
 	bool 					gradKernelCorr;	
-	
-    double 					XSPH;		///< Velocity correction factor
-    double 					InitialDist;	///< Initial distance of particles for Inflow BC
 
-    double					AvgVelocity;	///< Average velocity of the last two column for x periodic constant velocity
+	double 					XSPH;		///< Velocity correction factor
+	double 					InitialDist;	///< Initial distance of particles for Inflow BC
+
+	double					AvgVelocity;	///< Average velocity of the last two column for x periodic constant velocity
 	double 					getCellfac(){return Cellfac;}
 
 	#ifdef __GNUC__
-    size_t					Nproc;		///< No of threads which are going to use in parallel calculation
+	size_t					Nproc;		///< No of threads which are going to use in parallel calculation
 	#else
 	int						Nproc;
 	#endif
 	//omp_lock_t 					dom_lock;	///< Open MP lock to lock Interactions array
-  
-  Boundary					BC;
+
+	Boundary					BC;
 	PtOut					UserOutput;
 	PtVel 					InCon;
 	PtVel 					OutCon;
@@ -179,40 +171,40 @@ class Domain
 	PtDom					GeneralAfter;	///< Pointer to a function: to modify particles properties after CalcForce function
 	size_t					Scheme;		///< Integration scheme: 0 = Modified Verlet, 1 = Leapfrog
 
-    // Array<Array<std::pair<size_t,size_t> > >	SMPairs;
-    // Array<Array<std::pair<size_t,size_t> > >	NSMPairs;
-    // Array<Array<std::pair<size_t,size_t> > >	FSMPairs;
-    // Array< int > 				FixedParticles;
+	// Array<Array<std::pair<size_t,size_t> > >	SMPairs;
+	// Array<Array<std::pair<size_t,size_t> > >	NSMPairs;
+	// Array<Array<std::pair<size_t,size_t> > >	FSMPairs;
+	// Array< int > 				FixedParticles;
 
 	double 	& getTime (){return Time;}		//LUCIANO
 
-    Array<std::pair<size_t,size_t> >		Initial;
+	//Array<std::pair<size_t,size_t> >		Initial;
 
-    String					OutputName[3];
+	//String					OutputName[3];
 	double T_inf;			//LUCIANO: IN CASE OF ONLY ONE CONVECTION TEMPERAURE
-	
-	iKernel m_kernel;
+
+	//iKernel m_kernel;
 	bool					m_isNbDataCleared;
 	bool						auto_ts;				//LUCIANO: Auto Time Stepping
-	
-	
-	private:
-		void Periodic_X_Correction	(Vector & x, double const & h, Particle * P1, Particle * P2);		//Corrects xij for the periodic boundary condition
-		void AdaptiveTimeStep				();		//Uses the minimum time step to smoothly vary the time step
 
-		void PrintInput			(char const * FileKey);		//Print out some initial parameters as a file
-		void InitialChecks	();		//Checks some parameter before proceeding to the solution
-		void TimestepCheck	();		//Checks the user time step with CFL approach
 
-		size_t					VisEq;					//Choose viscosity Eq based on different SPH discretisation
-		size_t					KernelType;			//Choose a kernel
-		size_t					GradientType;		//Choose a Gradient approach 1/Rho i^2 + 1/Rho j^2 or 1/(Rho i * Rho j)
-		double 					Cellfac;				//Define the compact support of a kernel
+private:
+	void Periodic_X_Correction	(Vector & x, double const & h, Particle * P1, Particle * P2);		//Corrects xij for the periodic boundary condition
+	void AdaptiveTimeStep				();		//Uses the minimum time step to smoothly vary the time step
 
-		double					Time;    				//Current time of simulation at each solving step
-		double					deltat;					//Time Step
-    double					deltatmin;			//Minimum Time Step
-    double					deltatint;			//Initial Time Step
+	void PrintInput			(char const * FileKey);		//Print out some initial parameters as a file
+	void InitialChecks	();		//Checks some parameter before proceeding to the solution
+	void TimestepCheck	();		//Checks the user time step with CFL approach
+
+	size_t					VisEq;					//Choose viscosity Eq based on different SPH discretisation
+	size_t					KernelType;			//Choose a kernel
+	size_t					GradientType;		//Choose a Gradient approach 1/Rho i^2 + 1/Rho j^2 or 1/(Rho i * Rho j)
+	double 					Cellfac;				//Define the compact support of a kernel
+
+	double					Time;    				//Current time of simulation at each solving step
+	double					deltat;					//Time Step
+	double					deltatmin;			//Minimum Time Step
+	double					deltatint;			//Initial Time Step
 
 
 };

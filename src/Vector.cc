@@ -255,6 +255,14 @@ Vector &Vector::operator=(const Vector &source)
 	return *this;
 }
 
+Vector &Vector::operator=(const float &source)
+{
+	x[0] = source;
+	x[1] = source;
+	x[2] = source;
+	return *this;
+}
+
 
 /// Define the Vector2D+=Vector2D operator
 /*!	\param vect : vector
