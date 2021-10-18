@@ -812,19 +812,19 @@ inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheF
 		}
 		
 		// NEIGHBOUR SETS
-		// std::vector <int> nb(Particles.size());
-		// std::vector <int> nbcount(Particles.size());
-		// for ( size_t k = 0; k < Nproc ; k++) {
-			// for (size_t a=0; a<SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
-			// //cout << "a: " << a << "p1: " << SMPairs[k][a].first << ", p2: "<< SMPairs[k][a].second<<endl;
-				// nb[SMPairs[k][a].first ]+=1;
-				// nb[SMPairs[k][a].second]+=1;
+		std::vector <int> nb(Particles.size());
+		std::vector <int> nbcount(Particles.size());
+		for ( size_t k = 0; k < Nproc ; k++) {
+			for (size_t a=0; a<SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
+			//cout << "a: " << a << "p1: " << SMPairs[k][a].first << ", p2: "<< SMPairs[k][a].second<<endl;
+				nb[SMPairs[k][a].first ]+=1;
+				nb[SMPairs[k][a].second]+=1;
 				
-			// }
-		// }	
-			// for (int p=0;p<Particles.size();p++){
-			// Particles[p]->Nb=nb[p];
-		// }
+			}
+		}	
+			for (int p=0;p<Particles.size();p++){
+			Particles[p]->Nb=nb[p];
+		}
 
 		auto end_task = std::chrono::system_clock::now();
 		 neighbour_time = /*std::chrono::duration_cast<std::chrono::seconds>*/ (end_task- start_task);

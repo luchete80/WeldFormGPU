@@ -63,7 +63,7 @@ SET(EXES
 
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
-add_executable(gpuweldform Domain.cpp) 
+add_executable(gpuweldform Domain.cpp NbSearch.cpp) 
 
 add_subdirectory (cuda)
 

@@ -101,9 +101,9 @@ class SubDomain
     // void Solve_wo_init (double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function	
 	// //void Step(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);
 	
-    // void CellInitiate		();															//Find the size of the domain as a cube, make cells and HOCs
-    // void ListGenerate		();															//Generate linked-list
-    // void CellReset			();															//Reset HOCs and particles' LL to initial value of -1
+    __device__ void CellInitiate		();															//Find the size of the domain as a cube, make cells and HOCs
+    void ListGenerate		();															//Generate linked-list
+    void CellReset			();															//Reset HOCs and particles' LL to initial value of -1
 	
 	// void ClearNbData();	
 	
@@ -128,7 +128,7 @@ class SubDomain
 	
     // // Data
     Particle**				Particles; 	///< Array of particles
-    // double											R;		///< Particle Radius in addrandombox
+    // double					R;		///< Particle Radius in addrandombox
 
 		// double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
 
@@ -187,7 +187,8 @@ class SubDomain
 	// bool						auto_ts;				//LUCIANO: Auto Time Stepping
 	
 	
-	// private:
+private:
+		inline void StartAcceleration (Vector const & a);
 		// void Periodic_X_Correction	(Vec3_t & x, double const & h, Particle * P1, Particle * P2);		//Corrects xij for the periodic boundary condition
 		// void AdaptiveTimeStep				();		//Uses the minimum time step to smoothly vary the time step
 

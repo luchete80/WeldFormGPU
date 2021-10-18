@@ -25,7 +25,7 @@
 // #include <algorithm>  // for min,max
 #include <vector>
 
-// #include <omp.h>
+#include <omp.h>
 
 #include "Particle.h"
 // // #include "Functions.h"
@@ -138,11 +138,12 @@ class Domain
 	Vector                  			BLPF;           ///< Bottom left-hand point at front of the domain as a cube
 	Vector          CellSize;      	///< Calculated cell size according to (cell size >= 2h)
 	int		          CellNo[3];      ///< No. of cells for linked list
-	double 					hmax;		///< Max of h for the cell size  determination
-	Vector                 			DomSize;	///< Each component of the vector is the domain size in that direction if periodic boundary condition is defined in that direction as well
+	double 					hmax;						///< Max of h for the cell size  determination
+	Vector          DomSize;				///< Each component of the vector is the domain size in that direction if periodic boundary condition is defined in that direction as well
+
 	double					rhomax;
 
-	int						*** HOC;	///< Array of "Head of Chain" for each cell
+	int						*** HOC;					///< Array of "Head of Chain" for each cell
 
 	// BONET KERNEL CORRECTION
 	bool 					gradKernelCorr;	
@@ -172,13 +173,20 @@ class Domain
 	size_t					Scheme;		///< Integration scheme: 0 = Modified Verlet, 1 = Leapfrog
 
 	// Array<Array<std::pair<size_t,size_t> > >	SMPairs;
+	std::vector< std:: vector<std::pair<int,int> > >  SMPairs;
+	std::vector< std:: vector<std::pair<int,int> > > FSMPairs;
+	std::vector< std:: vector<std::pair<int,int> > > NSMPairs;
+	
 	// Array<Array<std::pair<size_t,size_t> > >	NSMPairs;
 	// Array<Array<std::pair<size_t,size_t> > >	FSMPairs;
 	// Array< int > 				FixedParticles;
+	
+	 std::vector< int > 				FixedParticles;
 
 	double 	& getTime (){return Time;}		//LUCIANO
 
 	//Array<std::pair<size_t,size_t> >		Initial;
+	std::vector< std::pair<int,int> >			Initial;
 
 	//String					OutputName[3];
 	double T_inf;			//LUCIANO: IN CASE OF ONLY ONE CONVECTION TEMPERAURE

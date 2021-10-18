@@ -1,4 +1,7 @@
+#include "SubDomain.cuh"
 
+namespace SPH {
+	
 inline void Domain::DelParticles (int const & Tags)
 {
     // Array<int> idxs; // indices to be deleted
@@ -25,7 +28,7 @@ inline void Domain::DelParticles (int const & Tags)
 
 
 
-inline void Domain::StartAcceleration (Vector const & a) {
+inline void SubDomain::StartAcceleration (Vector const & a) {
 
 	#pragma omp parallel for schedule(static) num_threads(Nproc)
 	#ifdef __GNUC__
@@ -307,3 +310,5 @@ inline void Domain::WholeVelocity() {
     	}
     }
 }
+
+};//SPH

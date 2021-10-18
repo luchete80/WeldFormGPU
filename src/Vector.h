@@ -65,7 +65,7 @@ class Vector {
 		__host__ __device__ ~Vector(void) {};
 
 		/*! Return the norm of vector */
-		double norm(void) const;
+		__host__ __device__ double norm(void) const;
 		void normalize(void);
 		double normSquared(void) const;
 		/*! Return a normal vector of vector */
