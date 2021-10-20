@@ -1,16 +1,17 @@
 #include "SubDomain.cuh"
+#include "vector_math.h"
 
 namespace SPH {
-	
+
 inline void SubDomain::DelParticles (int const & Tags)
 {
     // Array<int> idxs; // indices to be deleted
 
 	// #pragma omp parallel for schedule(static) num_threads(Nproc)
 	// #ifdef __GNUC__
-	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
+	// for (size_t i=0; i<particlecount; i++)	//Like in Domain::Move
 	// #else
-	// for (int i=0; i<Particles.Size(); i++)//Like in Domain::Move
+	// for (int i=0; i<particlecount; i++)//Like in Domain::Move
 	// #endif
     // {
         // if (Particles[i]->ID==Tags)
@@ -28,15 +29,15 @@ inline void SubDomain::DelParticles (int const & Tags)
 
 
 
-inline void SubDomain::StartAcceleration (float3 const & a) {
+inline void __device__ SubDomain::StartAcceleration (float3 const & a) {
 
-	#pragma omp parallel for schedule(static) num_threads(Nproc)
-	#ifdef __GNUC__
-	for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
-	#else
-	for (int i=0; i<Particles.Size(); i++)//Like in Domain::Move
-	#endif
-	{
+	// #pragma omp parallel for schedule(static) num_threads(Nproc)
+	// #ifdef __GNUC__
+	// for (size_t i=0; i<particlecount; i++)	//Like in Domain::Move
+	// #else
+	// for (int i=0; i<particlecount; i++)//Like in Domain::Move
+	// #endif
+	for (int i=0; i<particlecount;i++) {
 	    if (Particles[i]->IsFree){
 			// Tensile Instability for all soil and solid particles
 			if (Particles[i]->TI > 0.0)
@@ -63,7 +64,7 @@ inline void SubDomain::StartAcceleration (float3 const & a) {
 				}
 				else
 				{
-					Mat3_t Vec,Val,VecT,temp;
+					tensor3 Vec,Val,VecT,temp;
 					double pc_ti_inv_d2=Particles[i]->TI/(Particles[i]->Density*Particles[i]->Density);//Precompute some values
 					Rotation(Particles[i]->Sigma,Vec,VecT,Val);
 					//Before
@@ -74,18 +75,21 @@ inline void SubDomain::StartAcceleration (float3 const & a) {
 					if (Val(1,1)>0) Val(1,1) = -pc_ti_inv_d2 * Val(1,1); else Val(1,1) = 0.0;
 					if (Val(2,2)>0) Val(2,2) = -pc_ti_inv_d2 * Val(2,2); else Val(2,2) = 0.0;
 
-					Mult(Vec,Val,temp);
-					Mult(temp,VecT,Particles[i]->TIR);
+					//Mult(Vec,Val,temp);
+					temp=Vec*Val;
+					//Mult(temp,VecT,Particles[i]->TIR);
+					Particles[i]->TIR = temp,VecT;
 				}
 			}
 	    	}
 	    	else
 	    	{
 	       		// Reset the pressure and the induced velocity for solid boundaries
-	    		Particles[i]->NSv = 0.0;
+	    		Particles[i]->NSv =make_float3(0.0,0.0,0.0);
 	    		Particles[i]->Pressure = 0.0;
-	        	set_to_zero(Particles[i]->Sigma);
-	        	set_to_zero(Particles[i]->ShearStress);
+				Particles[i]->Sigma = 0.;
+        	set_to_zero(Particles[i]->Sigma);
+        	set_to_zero(Particles[i]->ShearStress);
 	    	}
 
 
@@ -94,34 +98,28 @@ inline void SubDomain::StartAcceleration (float3 const & a) {
 		Particles[i]->a		= a;
 		Particles[i]->SatCheck	= false;
 		Particles[i]->dDensity	= 0.0;
-		Particles[i]->VXSPH	= 0.0;
+		Particles[i]->VXSPH	= make_float3(0.0);
 		Particles[i]->ZWab	= 0.0;
 		Particles[i]->SumDen	= 0.0;
 		Particles[i]->SumKernel	= 0.0;
 		if (Dimension == 2) Particles[i]->v(2) = 0.0;
-		set_to_zero(Particles[i]->StrainRate);
+		Particles[i]->StrainRate=0.0f;
 		set_to_zero(Particles[i]->RotationRate);
 		
 	}
 }
 
-inline void SubDomain::PrimaryComputeAcceleration () {
-	#pragma omp parallel for schedule (static) num_threads(Nproc)
-	#ifdef __GNUC__
-	for (size_t k=0; k<Nproc;k++) 
-	#else
-	for (int k=0; k<Nproc;k++) 
-	#endif
+inline __device__ void SubDomain::PrimaryComputeAcceleration () {
 	
 	{
 		size_t P1,P2;
-		Vector xij;
-		double h,K;
+		tensor3 xij;
+		float h,K;		//TODO: cHANGE Change to double
 		// Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
-		for (size_t a=0; a<FSMPairs[k].Size();a++) {
-			P1	= FSMPairs[k][a].first;
-			P2	= FSMPairs[k][a].second;
-			xij	= Particles[P1]->x-Particles[P2]->x;
+		for (size_t a=0; a<FSMPairscount;a++) {
+			P1	= FSMPairs[a][0];
+			P2	= FSMPairs[a][1];
+			xij	= make_float3(Particles[P1]->x-Particles[P2]->x);
 			h	= (Particles[P1]->h+Particles[P2]->h)/2.0;
 
 			Periodic_X_Correction(xij, h, Particles[P1], Particles[P2]);
@@ -130,28 +128,23 @@ inline void SubDomain::PrimaryComputeAcceleration () {
 			if ( !Particles[P1]->IsFree ) {
 				//omp_set_lock(&Particles[P1]->my_lock);
 										Particles[P1]->SumKernel+= K;
-					Particles[P1]->Pressure	+= Particles[P2]->Pressure * K + dot(Gravity,xij)*Particles[P2]->Density*K;
+					Particles[P1]->Pressure	+= Particles[P2]->Pressure * K /*+ dot(Gravity,xij)*Particles[P2]->Density*K*/;
 					Particles[P1]->Sigma 	 = Particles[P1]->Sigma + K * Particles[P2]->Sigma;
-					if (Particles[P1]->NoSlip)		Particles[P1]->NSv 	+= Particles[P2]->v * K;
+					if (Particles[P1]->NoSlip)		Particles[P1]->NSv 	+= K * Particles[P2]->v;
 				//omp_unset_lock(&Particles[P1]->my_lock);
 			} else {
 				//omp_set_lock(&Particles[P2]->my_lock);
 										Particles[P2]->SumKernel+= K;
-					Particles[P2]->Pressure	+= Particles[P1]->Pressure * K + dot(Gravity,xij)*Particles[P1]->Density*K;
+					Particles[P2]->Pressure	+= Particles[P1]->Pressure * K /*+ dot(Gravity,xij)*Particles[P1]->Density*K*/;
 					Particles[P2]->Sigma	 = Particles[P2]->Sigma + K * Particles[P1]->Sigma;
-					if (Particles[P2]->NoSlip)		Particles[P2]->NSv 	+= Particles[P1]->v * K;
+					if (Particles[P2]->NoSlip)		Particles[P2]->NSv 	+= K * Particles[P1]->v;
 				//omp_unset_lock(&Particles[P2]->my_lock);
 			}
 		}
 	}
 
 	// Calculateing the finala value of the smoothed pressure, velocity and stress for fixed particles
-	#pragma omp parallel for schedule (static) num_threads(Nproc)
-	#ifdef __GNUC__
-	for (size_t i=0; i<FixedParticles.Size(); i++)
-	#else
-	for (int i=0; i<FixedParticles.Size(); i++)
-	#endif
+	for (int i=0; i<Fixedparticlecount; i++){
 
 		if (Particles[FixedParticles[i]]->SumKernel!= 0.0) {
 			size_t a = FixedParticles[i];
@@ -181,7 +174,7 @@ inline void SubDomain::PrimaryComputeAcceleration () {
 					Particles[a]->TIR(0,1) = Particles[a]->TIR(1,0) = S*C*(Sigmaxx-Sigmayy);
 				}
 				else {
-					Mat3_t Vec,Val,VecT,temp;
+					tensor3 Vec,Val,VecT,temp;
 					Rotation(Particles[a]->Sigma,Vec,VecT,Val);
 					double pc_ti_inv_d2=Particles[a]->TI/(Particles[a]->Density*Particles[a]->Density);//Precompute some values
 					// if (Val(0,0)>0) Val(0,0) = -Particles[a]->TI * Val(0,0)/(Particles[a]->Density*Particles[a]->Density); else Val(0,0) = 0.0;
@@ -191,25 +184,24 @@ inline void SubDomain::PrimaryComputeAcceleration () {
 					if (Val(1,1)>0) Val(1,1) = -pc_ti_inv_d2 * Val(1,1); else Val(1,1) = 0.0;
 					if (Val(2,2)>0) Val(2,2) = -pc_ti_inv_d2 * Val(2,2); else Val(2,2) = 0.0;
 
-					Mult(Vec,Val,temp);
-					Mult(temp,VecT,Particles[a]->TIR);
+					// Mult(Vec,Val,temp);
+					// Mult(temp,VecT,Particles[a]->TIR);
+					temp=Vec*Val;
+					Particles[a]->TIR = temp * VecT;
 				}
 			}
 		}
-
+	}
 
 }
 
-inline void Domain::LastComputeAcceleration ()
-{
-	#pragma omp parallel for schedule (static) num_threads(Nproc)
-	for (int k=0; k<Nproc;k++) {
-		for (size_t i=0; i<SMPairs[k].Size();i++)
-			CalcForce2233(Particles[SMPairs[k][i].first],Particles[SMPairs[k][i].second]);
+inline void __device__ SubDomain::LastComputeAcceleration () {
+	for (int i=0; i<SMPairscount;i++)
+		CalcForce2233(Particles[SMPairs[i][0]],Particles[SMPairs[i][1]]);
 
-		for (int i=0; i<FSMPairs[k].Size();i++)
-			CalcForce2233(Particles[FSMPairs[k][i].first],Particles[FSMPairs[k][i].second]);
-	}
+	for (int i=0; i<FSMPairscount;i++)
+		CalcForce2233(Particles[FSMPairs[i][1]],Particles[FSMPairs[i][1]]);
+
 
 	//LUCIANO: THIS SHOULD BE PERFORMED OUTSIDE
 	// for (int i=0 ; i<Nproc ; i++)
@@ -219,34 +211,34 @@ inline void Domain::LastComputeAcceleration ()
 		// NSMPairs[i].Clear();
 	// }
 
-		//Min time step check based on the acceleration
-		double test	= 0.0;
-		deltatmin	= deltatint;
-		#pragma omp parallel for schedule (static) private(test) num_threads(Nproc)
-		for (int i=0; i<Particles.Size(); i++) {
-			if (Particles[i]->IsFree) {
-				test = sqrt(Particles[i]->h/norm(Particles[i]->a));
-				if (deltatmin > (sqrt_h_a*test))
-				{
-					//omp_set_lock(&dom_lock);
-						deltatmin = sqrt_h_a*test;
-					//omp_unset_lock(&dom_lock);
-				}
+	//Min time step check based on the acceleration
+	double test	= 0.0;
+	deltatmin	= deltatint;
+
+	for (int i=0; i<particlecount; i++) {
+		if (Particles[i]->IsFree) {
+			test = sqrt(Particles[i]->h/norm(Particles[i]->a));
+			if (deltatmin > (sqrt_h_a*test))
+			{
+				//omp_set_lock(&dom_lock);
+					deltatmin = sqrt_h_a*test;
+				//omp_unset_lock(&dom_lock);
 			}
 		}
+	}
 }
 
 //New, for Bonet gradient correction
 // inline void Domain::CalcGradCorrMatrix () {
 	// double di=0.0,dj=0.0,mi=0.0,mj=0.0;
 	
-	// std::vector < Mat3_t> temp(Particles.Size());
-	// Mat3_t m,mt;
+	// std::tensor3 < tensor3> temp(particlecount);
+	// tensor3 m,mt;
 
 	// //#pragma omp parallel for schedule (static) num_threads(Nproc) //LUCIANO: THIS IS DONE SAME AS PrimaryComputeAcceleration
 	// for ( size_t k = 0; k < Nproc ; k++) {
 		// Particle *P1,*P2;
-		// Vector xij;
+		// tensor3 xij;
 		// double h,GK;
 		// //TODO: DO THE LOCK PARALLEL THING
 		// for (size_t a=0; a<SMPairs[k].Size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
@@ -260,7 +252,7 @@ inline void Domain::LastComputeAcceleration ()
 			// di = P1->Density; mi = P1->Mass;
 			// dj = P2->Density; mj = P2->Mass;
 		
-			// Dyad (Vector(GK*xij),xij,m);
+			// Dyad (tensor3(GK*xij),xij,m);
 			// mt = mj/dj * m;
 			// ////omp_set_lock(&P1->my_lock);
 			// temp[SMPairs[k][a].first] = temp[SMPairs[k][a].first]  + mt;
@@ -269,10 +261,10 @@ inline void Domain::LastComputeAcceleration ()
 	// }//Nproc
 
 	// #pragma omp parallel for schedule (static) num_threads(Nproc)	//LUCIANO//LIKE IN DOMAIN->MOVE
-	// for (int i=0; i<Particles.Size(); i++){
+	// for (int i=0; i<particlecount; i++){
 		// //cout << "temp "<<temp[i]<<endl;
 		// /** Inverse.*/
-		// //inline void Inv (Mat3_t const & M, Mat3_t & Mi, double Tol=1.0e-10)}	
+		// //inline void Inv (tensor3 const & M, tensor3 & Mi, double Tol=1.0e-10)}	
 		// Inv(temp[i],m);		
 		// Particles[i] ->gradCorrM = m;
 	// }
@@ -291,14 +283,14 @@ inline void Domain::LastComputeAcceleration ()
 	// m_isNbDataCleared = true;
 // }
 
-inline void SubDomain::WholeVelocity() {
+inline void __device__ SubDomain::WholeVelocity() {
     //Apply a constant velocity to all particles in the initial time step
     if (norm(BC.allv)>0.0 || BC.allDensity>0.0) {
-    	Vector vel = 0.0;
+    	tensor3 vel = 0.0f;
     	double den = 0.0;
 
-	#pragma omp parallel for schedule (static) private(vel,den) num_threads(Nproc)
-    	for (int i=0 ; i<Particles.Size() ; i++) {
+	//#pragma omp parallel for schedule (static) private(vel,den) num_threads(Nproc)
+    	for (int i=0 ; i<particlecount ; i++) {
 		AllCon(Particles[i]->x,vel,den,BC);
     		if (Particles[i]->IsFree && norm(BC.allv)>0.0) {
 			Particles[i]->v		= vel;

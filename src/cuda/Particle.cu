@@ -33,7 +33,7 @@ static __forceinline__  __host__ __device__ void operator+=(float3 &a, const flo
 
 namespace SPH {
 
-inline Particle::Particle(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0,bool Fixed)
+inline __device__ Particle::Particle(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0,bool Fixed)
 {
 	ct = 0;
 
@@ -150,7 +150,7 @@ inline void Particle::Move(double dt, float3 Domainsize, float3 domainmax, float
 
 }
 
-inline void Particle::Move_Leapfrog(symtensor3 I, double dt) {
+inline void __device__ Particle::Move_Leapfrog(symtensor3 I, double dt) {
 	if (FirstStep) {
 		Densitya = Density - dt/2.0*dDensity;
 		va = v - dt/2.0*a;
@@ -182,7 +182,7 @@ inline void Particle::CalculateEquivalentStress () {
 	Sigma_eq = sqrt(3.0*J2);	
 }
 
-inline void Particle::Mat2Leapfrog(double dt) {
+inline void __device__ Particle::Mat2Leapfrog(double dt) {
 	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
 
 	// Jaumann rate terms

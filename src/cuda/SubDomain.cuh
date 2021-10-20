@@ -29,6 +29,7 @@
 
 #include "Particle.h"
 #include "Functions.h"
+#include "tensor.cuh"
 // // #include "Boundary_Condition.h"
 
 // //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
@@ -87,10 +88,10 @@ class SubDomain
     // void YZPlaneCellsNeighbourSearch(int q1);						//Create pairs of particles in cells of XZ plan
     // void MainNeighbourSearch				();									//Create pairs of particles in the whole domain
     // void StartAcceleration					(Vec3_t const & a = Vec3_t(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
-		void StartAcceleration					(float3 const & a);
-		void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
-    // void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
-    void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
+	inline __device__ void StartAcceleration					(float3 const & a);
+	inline __device__ void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
+    inline __device__ void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
+    inline __device__ void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
     // void Move						(double dt);										//Move particles
 
     // void Solve					(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function
@@ -113,7 +114,7 @@ class SubDomain
 
     // void InFlowBCLeave	();
     // void InFlowBCFresh	();
-    // void WholeVelocity	();
+    inline __device__ void WholeVelocity	();
 
 	// void Kernel_Set									(Kernels_Type const & KT);
 	// void Viscosity_Eq_Set						(Viscosity_Eq_Type const & VQ);
@@ -129,6 +130,7 @@ class SubDomain
 	
     // // Data
     Particle**				Particles; 	///< Array of particles
+	int particlecount;					//
     // double					R;		///< Particle Radius in addrandombox
 
 		// double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
@@ -171,11 +173,16 @@ class SubDomain
     // PtDom					GeneralAfter;	///< Pointer to a function: to modify particles properties after CalcForce function
     // size_t					Scheme;		///< Integration scheme: 0 = Modified Verlet, 1 = Leapfrog
 
-    // Array<Array<std::pair<size_t,size_t> > >	SMPairs;
-    // Array<Array<std::pair<size_t,size_t> > >	NSMPairs;
-    // Array<Array<std::pair<size_t,size_t> > >	FSMPairs;
+    int**	SMPairs;
+    int**	NSMPairs;
+    int**	FSMPairs;
+	
+	int SMPairscount,NSMPairscount,FSMPairscount,;
+	
+	
     // Array< size_t > 				FixedParticles;
     // Array< size_t >				FreeFSIParticles;
+	int FixedParticlescount;
 	// double 	& getTime (){return Time;}		//LUCIANO
 
     // Array<std::pair<size_t,size_t> >		Initial;

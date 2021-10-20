@@ -435,6 +435,15 @@ __device__ tensor3 operator* (const float &f, const tensor3 &b){
 			ret(i,j) = b(i,j)*f;	
 }
 
+__device__ tensor3 tensor3::operator= (const float &f){
+	tensor3 ret;
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+			m_data[i][j] = f;
+	return ret;
+}
+
+
 __device__ tensor3 Identity(){
 	tensor3 ret;
 	ret(0,0) = ret(1,1) = ret(2,2) = 1.;
@@ -454,6 +463,15 @@ dot(tensor3 const& T, float3 const& v)
 			T(2,0)*v.x + T(2,1)*v.y +T(2,2)*v.z
 			);
 
+}
+
+__device__ tensor3 operator/ (const tensor3 &b, const float &f){
+
+	tensor3 ret;
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+			ret(i,j) = b(i,j)/f;	
+			
 }
 
 #endif

@@ -130,7 +130,7 @@ namespace SPH {
 		int    	LL;		///< Linked-List variable to show the next particle in the list of a cell
 		int    	CC[3];		///< Current cell No for the particle (linked-list)
 		int		ct;		///< Correction step for the Modified Verlet Algorithm
-		double	SumKernel;	///< Summation of the kernel value for neighbour particles
+		float	SumKernel;	///< Summation of the kernel value for neighbour particles
 		bool	FirstStep;	///< to initialize the integration scheme
 		
 		//LUCIANO: THERMAL PROPERTIES
@@ -145,23 +145,23 @@ namespace SPH {
 
 
 		// Constructor
-		Particle			(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0, bool Fixed=false);
+		__device__ Particle			(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0, bool Fixed=false);
 
 		// Methods
-		void Move			(double dt, float3 Domainsize, float3 domainmax, float3 domainmin,size_t Scheme, symtensor3 I);	///< Update the important quantities of a particle
-		void Move_MVerlet		(symtensor3 I, double dt);										///< Update the important quantities of a particle
-		void Move_Verlet		(symtensor3 I, double dt);		//LUCIANO
+		__device__  void Move			(double dt, float3 Domainsize, float3 domainmax, float3 domainmin,size_t Scheme, symtensor3 I);	///< Update the important quantities of a particle
+		__device__  void Move_MVerlet		(symtensor3 I, double dt);										///< Update the important quantities of a particle
+		__device__ void Move_Verlet		(symtensor3 I, double dt);		//LUCIANO
 		void Move_Leapfrog	(symtensor3 I, double dt);										///< Update the important quantities of a particle
-		void translate			(double dt, float3 Domainsize, float3 domainmax, float3 domainmin);
-		void Mat2Verlet			(double dt);
-		void Mat2MVerlet		(double dt);
-		void TempCalcLeapfrog		(double dt);
-		void Mat2Leapfrog		(double dt);
-		void PlasticHeatTest		();
-		void CalcPlasticWorkHeat();
-		void CalculateEquivalentStress();
-		void Move_Euler (symtensor3 I, double dt);
-		void Mat2Euler(double dt);
+		__device__ void translate			(double dt, float3 Domainsize, float3 domainmax, float3 domainmin);
+		__device__ void Mat2Verlet			(double dt);
+		__device__ void Mat2MVerlet		(double dt);
+		__device__ void TempCalcLeapfrog		(double dt);
+		__device__ void __device__ Mat2Leapfrog		(double dt);
+		__device__ void PlasticHeatTest		();
+		__device__ void CalcPlasticWorkHeat();
+		__device__ void CalculateEquivalentStress();
+		__device__ void Move_Euler (symtensor3 I, double dt);
+		__device__ void Mat2Euler(double dt);
 		
 
 	};

@@ -65,12 +65,16 @@ public:
 		tensor3 operator- (const tensor3 &b);
 		tensor3 operator* (const tensor3 &b);
 		tensor3 operator- (const float &f);
+		tensor3 operator= (const float &f);
 		//tensor3 operator* (const float &f);
 		tensor3 Trans ();
 };
 
-tensor3 operator* (const float &f, const tensor3 &b);
+__device__ tensor3 operator* (const float &f, const tensor3 &b);
+__device__ tensor3 operator/ (const tensor3 &b, const float &f);
+
 float3 dot(tensor3 const& T, float3 const& v);
+
 tensor3 Identity();
 
 #endif
