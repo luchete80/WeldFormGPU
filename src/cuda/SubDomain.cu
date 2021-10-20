@@ -88,8 +88,8 @@ inline void __device__ SubDomain::StartAcceleration (float3 const & a) {
 	    		Particles[i]->NSv =make_float3(0.0,0.0,0.0);
 	    		Particles[i]->Pressure = 0.0;
 				Particles[i]->Sigma = 0.;
-        	set_to_zero(Particles[i]->Sigma);
-        	set_to_zero(Particles[i]->ShearStress);
+				Particles[i]->Sigma=0.0;
+				Particles[i]->ShearStress=0.0;
 	    	}
 
 
@@ -102,9 +102,9 @@ inline void __device__ SubDomain::StartAcceleration (float3 const & a) {
 		Particles[i]->ZWab	= 0.0;
 		Particles[i]->SumDen	= 0.0;
 		Particles[i]->SumKernel	= 0.0;
-		if (Dimension == 2) Particles[i]->v(2) = 0.0;
+		if (Dimension == 2) Particles[i]->v(2) = make_float3(0.0);
 		Particles[i]->StrainRate=0.0f;
-		set_to_zero(Particles[i]->RotationRate);
+		Particles[i]->RotationRate=0.0;
 		
 	}
 }
@@ -144,7 +144,7 @@ inline __device__ void SubDomain::PrimaryComputeAcceleration () {
 	}
 
 	// Calculateing the finala value of the smoothed pressure, velocity and stress for fixed particles
-	for (int i=0; i<Fixedparticlecount; i++){
+	for (int i=0; i<FixedParticlescount; i++){
 
 		if (Particles[FixedParticles[i]]->SumKernel!= 0.0) {
 			size_t a = FixedParticles[i];
@@ -194,6 +194,15 @@ inline __device__ void SubDomain::PrimaryComputeAcceleration () {
 	}
 
 }
+/*
+inline __device__ void SubDomain::Periodic_X_Correction(float3 & x, double const & h, Particle * P1, Particle * P2)
+{
+	if (Domsize(0)>0.0) {if (x(0)>2*Cellfac*h || x(0)<-2*Cellfac*h) {(P1->CC[0]>P2->CC[0]) ? x(0) -= Domsize(0) : x(0) += Domsize(0);}}
+	if (Domsize(1)>0.0) {if (x(1)>2*Cellfac*h || x(1)<-2*Cellfac*h) {(P1->CC[1]>P2->CC[1]) ? x(1) -= Domsize(1) : x(1) += Domsize(1);}}
+	if (Domsize(2)>0.0) {if (x(2)>2*Cellfac*h || x(2)<-2*Cellfac*h) {(P1->CC[2]>P2->CC[2]) ? x(2) -= Domsize(2) : x(2) += Domsize(2);}}
+}
+*/
+
 
 inline void __device__ SubDomain::LastComputeAcceleration () {
 	for (int i=0; i<SMPairscount;i++)
@@ -218,8 +227,7 @@ inline void __device__ SubDomain::LastComputeAcceleration () {
 	for (int i=0; i<particlecount; i++) {
 		if (Particles[i]->IsFree) {
 			test = sqrt(Particles[i]->h/norm(Particles[i]->a));
-			if (deltatmin > (sqrt_h_a*test))
-			{
+			if (deltatmin > (sqrt_h_a*test)) {
 				//omp_set_lock(&dom_lock);
 					deltatmin = sqrt_h_a*test;
 				//omp_unset_lock(&dom_lock);

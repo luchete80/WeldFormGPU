@@ -196,7 +196,7 @@ class SubDomain
 	
 	
 private:
-		// void Periodic_X_Correction	(Vec3_t & x, double const & h, Particle * P1, Particle * P2);		//Corrects xij for the periodic boundary condition
+		__device__ void Periodic_X_Correction	(float3 & x, double const & h, Particle * P1, Particle * P2);		//Corrects xij for the periodic boundary condition
 		// void AdaptiveTimeStep				();		//Uses the minimum time step to smoothly vary the time step
 
 		// void PrintInput			(char const * FileKey);		//Print out some initial parameters as a file
@@ -210,8 +210,8 @@ private:
 
 	double					Time;    				//Current time of simulation at each solving step
 	double					deltat;					//Time Step
-    // double					deltatmin;			//Minimum Time Step
-    // double					deltatint;			//Initial Time Step
+    double					deltatmin;			//Minimum Time Step
+    double					deltatint;			//Initial Time Step
 
 
 };
