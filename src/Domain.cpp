@@ -27,6 +27,10 @@
 
 #define MIN_PS_FOR_NBSEARCH		0.001	//TODO: MOVE TO CLASS MEMBER
 
+
+#include <thrust/device_vector.h>
+
+
 using namespace std;
 
 namespace SPH {

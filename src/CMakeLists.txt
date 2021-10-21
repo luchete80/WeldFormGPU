@@ -67,14 +67,14 @@ add_executable(gpuweldform main.cpp Domain.cpp NbSearch.cpp)
 
 add_subdirectory (cuda)
 
-FOREACH(var ${EXES})
-    ADD_EXECUTABLE        (${var} "${var}.cpp" 
-
-	#"${CMAKE_SOURCE_DIR}/Source/CompactNSearch/CompactNSearch.cpp"
-	)
-    TARGET_LINK_LIBRARIES (${var} ${LIBS} )
-    SET_TARGET_PROPERTIES (${var} PROPERTIES COMPILE_FLAGS "${FLAGS}" LINK_FLAGS "${LFLAGS}")
-ENDFOREACH(var)
+#FOREACH(var ${EXES})
+#    ADD_EXECUTABLE        (${var} "${var}.cpp" #
+#
+#	#"${CMAKE_SOURCE_DIR}/Source/CompactNSearch/CompactNSearch.cpp"
+#	)
+#    TARGET_LINK_LIBRARIES (${var} ${LIBS} )
+#    SET_TARGET_PROPERTIES (${var} PROPERTIES COMPILE_FLAGS "${FLAGS}" LINK_FLAGS "${LFLAGS}")
+#ENDFOREACH(var)
 
 if (NOT BUILD_GPU)
 else()

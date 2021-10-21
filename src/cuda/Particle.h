@@ -65,7 +65,7 @@ namespace SPH {
 		double	P0;		///< background pressure for equation of state
 		float 	Pressure;	///< Pressure of the particle n+1
 
-		double		Density;	///< Density of the particle n+1
+		double	Density;	///< Density of the particle n+1
 		double 	Densitya;	///< Density of the particle n+1/2 (Leapfrog)
 		double 	Densityb;	///< Density of the particle n-1 (Modified Verlet)
 		double 	dDensity;	///< Rate of density change in time based on state equations n
@@ -165,6 +165,14 @@ namespace SPH {
 		
 
 	};
+	
+	
+class ParticleSOA
+{
+public:
+		float3	*x;		///< Position of the particle n
+};
+	
 }; // namespace SPH
 
 //#include "Particle.cpp"
