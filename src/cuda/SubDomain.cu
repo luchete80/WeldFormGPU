@@ -110,38 +110,36 @@ inline void __device__ SubDomain::StartAcceleration (float3 const & a) {
 }
 
 inline __device__ void SubDomain::PrimaryComputeAcceleration () {
-	
-	{
-		size_t P1,P2;
-		tensor3 xij;
-		float h,K;		//TODO: cHANGE Change to double
-		// Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
-		for (size_t a=0; a<FSMPairscount;a++) {
-			P1	= FSMPairs[a][0];
-			P2	= FSMPairs[a][1];
-			xij	= make_float3(Particles[P1]->x-Particles[P2]->x);
-			h	= (Particles[P1]->h+Particles[P2]->h)/2.0;
+	size_t P1,P2;
+	tensor3 xij;
+	float h,K;		//TODO: cHANGE Change to double
+	// Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
+	for (size_t a=0; a<FSMPairscount;a++) {
+		P1	= FSMPairs[a][0];
+		P2	= FSMPairs[a][1];
+		xij	= make_float3(Particles[P1]->x-Particles[P2]->x);
+		h	= (Particles[P1]->h+Particles[P2]->h)/2.0;
 
-			Periodic_X_Correction(xij, h, Particles[P1], Particles[P2]);
+		Periodic_X_Correction(xij, h, Particles[P1], Particles[P2]);
 
-			K	= Kernel(Dimension, KernelType, norm(xij)/h, h);
-			if ( !Particles[P1]->IsFree ) {
-				//omp_set_lock(&Particles[P1]->my_lock);
-										Particles[P1]->SumKernel+= K;
-					Particles[P1]->Pressure	+= Particles[P2]->Pressure * K /*+ dot(Gravity,xij)*Particles[P2]->Density*K*/;
-					Particles[P1]->Sigma 	 = Particles[P1]->Sigma + K * Particles[P2]->Sigma;
-					if (Particles[P1]->NoSlip)		Particles[P1]->NSv 	+= K * Particles[P2]->v;
-				//omp_unset_lock(&Particles[P1]->my_lock);
-			} else {
-				//omp_set_lock(&Particles[P2]->my_lock);
-										Particles[P2]->SumKernel+= K;
-					Particles[P2]->Pressure	+= Particles[P1]->Pressure * K /*+ dot(Gravity,xij)*Particles[P1]->Density*K*/;
-					Particles[P2]->Sigma	 = Particles[P2]->Sigma + K * Particles[P1]->Sigma;
-					if (Particles[P2]->NoSlip)		Particles[P2]->NSv 	+= K * Particles[P1]->v;
-				//omp_unset_lock(&Particles[P2]->my_lock);
-			}
+		K	= Kernel(Dimension, KernelType, norm(xij)/h, h);
+		if ( !Particles[P1]->IsFree ) {
+			//omp_set_lock(&Particles[P1]->my_lock);
+									Particles[P1]->SumKernel+= K;
+				Particles[P1]->Pressure	+= Particles[P2]->Pressure * K /*+ dot(Gravity,xij)*Particles[P2]->Density*K*/;
+				Particles[P1]->Sigma 	 = Particles[P1]->Sigma + K * Particles[P2]->Sigma;
+				if (Particles[P1]->NoSlip)		Particles[P1]->NSv 	+= K * Particles[P2]->v;
+			//omp_unset_lock(&Particles[P1]->my_lock);
+		} else {
+			//omp_set_lock(&Particles[P2]->my_lock);
+									Particles[P2]->SumKernel+= K;
+				Particles[P2]->Pressure	+= Particles[P1]->Pressure * K /*+ dot(Gravity,xij)*Particles[P1]->Density*K*/;
+				Particles[P2]->Sigma	 = Particles[P2]->Sigma + K * Particles[P1]->Sigma;
+				if (Particles[P2]->NoSlip)		Particles[P2]->NSv 	+= K * Particles[P1]->v;
+			//omp_unset_lock(&Particles[P2]->my_lock);
 		}
 	}
+	
 
 	// Calculateing the finala value of the smoothed pressure, velocity and stress for fixed particles
 	for (int i=0; i<FixedParticlescount; i++){
