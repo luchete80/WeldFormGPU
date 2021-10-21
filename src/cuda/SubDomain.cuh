@@ -30,7 +30,7 @@
 #include "Particle.h"
 #include "Functions.h"
 #include "tensor.cuh"
-// // #include "Boundary_Condition.h"
+#include "Boundary_Condition.h"
 
 // //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
 // #include <sstream>
@@ -133,7 +133,7 @@ class SubDomain
 	int particlecount;					//
     // double					R;		///< Particle Radius in addrandombox
 
-		// double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
+  double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
 
     int 					Dimension;    	///< Dimension of the problem
 
@@ -162,7 +162,7 @@ class SubDomain
 	double 					getCellfac(){return Cellfac;}
 
 	// omp_lock_t 					dom_lock;	///< Open MP lock to lock Interactions array
-    // Boundary					BC;
+  Boundary					BC;
     // PtOut					UserOutput;
     // PtVel 					InCon;
     // PtVel 					OutCon;
@@ -173,16 +173,16 @@ class SubDomain
     // PtDom					GeneralAfter;	///< Pointer to a function: to modify particles properties after CalcForce function
     // size_t					Scheme;		///< Integration scheme: 0 = Modified Verlet, 1 = Leapfrog
 
-    int**	SMPairs;
-    int**	NSMPairs;
-    int**	FSMPairs;
+  int**	SMPairs;
+  int**	NSMPairs;
+  int**	FSMPairs;
 	
-	int SMPairscount,NSMPairscount,FSMPairscount,;
+	int SMPairscount,NSMPairscount,FSMPairscount;
 	
 	
-    // Array< size_t > 				FixedParticles;
+    int* 	FixedParticles;
     // Array< size_t >				FreeFSIParticles;
-	int FixedParticlescount;
+	  int FixedParticlescount;
 	// double 	& getTime (){return Time;}		//LUCIANO
 
     // Array<std::pair<size_t,size_t> >		Initial;

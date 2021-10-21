@@ -102,7 +102,7 @@ inline void __device__ SubDomain::StartAcceleration (float3 const & a) {
 		Particles[i]->ZWab	= 0.0;
 		Particles[i]->SumDen	= 0.0;
 		Particles[i]->SumKernel	= 0.0;
-		if (Dimension == 2) Particles[i]->v(2) = make_float3(0.0);
+		if (Dimension == 2) Particles[i]->v.z =0.0;
 		Particles[i]->StrainRate=0.0f;
 		Particles[i]->RotationRate=0.0;
 		
@@ -111,18 +111,18 @@ inline void __device__ SubDomain::StartAcceleration (float3 const & a) {
 
 inline __device__ void SubDomain::PrimaryComputeAcceleration () {
 	size_t P1,P2;
-	tensor3 xij;
+	float3 xij;
 	float h,K;		//TODO: cHANGE Change to double
 	// Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
 	for (size_t a=0; a<FSMPairscount;a++) {
 		P1	= FSMPairs[a][0];
 		P2	= FSMPairs[a][1];
-		xij	= make_float3(Particles[P1]->x-Particles[P2]->x);
+		xij	= Particles[P1]->x-Particles[P2]->x;
 		h	= (Particles[P1]->h+Particles[P2]->h)/2.0;
 
 		Periodic_X_Correction(xij, h, Particles[P1], Particles[P2]);
 
-		K	= Kernel(Dimension, KernelType, norm(xij)/h, h);
+		K	= Kernel(Dimension, KernelType, length(xij)/h, h);
 		if ( !Particles[P1]->IsFree ) {
 			//omp_set_lock(&Particles[P1]->my_lock);
 									Particles[P1]->SumKernel+= K;
@@ -224,7 +224,7 @@ inline void __device__ SubDomain::LastComputeAcceleration () {
 
 	for (int i=0; i<particlecount; i++) {
 		if (Particles[i]->IsFree) {
-			test = sqrt(Particles[i]->h/norm(Particles[i]->a));
+			test = sqrt(Particles[i]->h/length(Particles[i]->a));
 			if (deltatmin > (sqrt_h_a*test)) {
 				//omp_set_lock(&dom_lock);
 					deltatmin = sqrt_h_a*test;
@@ -292,7 +292,7 @@ inline void __device__ SubDomain::LastComputeAcceleration () {
 inline void __device__ SubDomain::WholeVelocity() {
     //Apply a constant velocity to all particles in the initial time step
     if (norm(BC.allv)>0.0 || BC.allDensity>0.0) {
-    	tensor3 vel = 0.0f;
+    	float3 vel = make_float3(0.0,0.0,0.0);
     	double den = 0.0;
 
 	//#pragma omp parallel for schedule (static) private(vel,den) num_threads(Nproc)
