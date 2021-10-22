@@ -806,7 +806,7 @@ inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheF
 	bool isyielding = false;
 	
 	while (Time<=tf && idx_out<=maxidx) {
-		StartAcceleration(Gravity);
+		StartAcceleration(Gravity); //TODO KERNEL
 		//if (BC.InOutFlow>0) InFlowBCFresh();
 		auto start_task = std::chrono::system_clock::now();
 		
@@ -917,38 +917,4 @@ inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheF
 
 }
 
-	
-// inline void Domain::Step(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx) {
-	
-	// deltat = deltatint = deltatmin	= dt;
-	
-	// //while (Time<tf && idx_out<=maxidx) {
-		// StartAcceleration(Gravity);
-		// if (BC.InOutFlow>0) InFlowBCFresh();
-		// MainNeighbourSearch();
-		// GeneralBefore(*this);
-		// PrimaryComputeAcceleration();
-		// LastComputeAcceleration();
-		// GeneralAfter(*this);
-		// steps++;
-
-		// // output
-		// if (Time>=tout){
-			// if (TheFileKey!=NULL) {
-				// String fn;
-				// fn.Printf    ("%s_%04d", TheFileKey, idx_out);
-				// WriteXDMF    (fn.CStr());
-
-			// }
-			// idx_out++;
-			// tout += dtOut;
-			// std::cout << "\nOutput No. " << idx_out << " at " << Time << " has been generated" << std::endl;
-		// }
-
-		// AdaptiveTimeStep();
-		// Move(deltat);
-		// Time += deltat;
-		// if (BC.InOutFlow>0) InFlowBCLeave(); else CheckParticleLeave ();	
-	// //}
-// }
 }; // namespace SPH

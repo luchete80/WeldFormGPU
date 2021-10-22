@@ -289,24 +289,25 @@ inline void __device__ SubDomain::LastComputeAcceleration () {
 	// m_isNbDataCleared = true;
 // }
 
-inline void __device__ SubDomain::WholeVelocity() {
-    //Apply a constant velocity to all particles in the initial time step
-    if (norm(BC.allv)>0.0 || BC.allDensity>0.0) {
-    	float3 vel = make_float3(0.0,0.0,0.0);
-    	double den = 0.0;
+// FOR THE MOMENT IS SET IN CPU
+// inline void __device__ SubDomain::WholeVelocity() {
+    // //Apply a constant velocity to all particles in the initial time step
+    // if (BC.allv.norm()>0.0 || BC.allDensity>0.0) {
+    	// float3 vel = make_float3(0.0,0.0,0.0);
+    	// double den = 0.0;
 
-	//#pragma omp parallel for schedule (static) private(vel,den) num_threads(Nproc)
-    	for (int i=0 ; i<particlecount ; i++) {
-		AllCon(Particles[i]->x,vel,den,BC);
-    		if (Particles[i]->IsFree && norm(BC.allv)>0.0) {
-			Particles[i]->v		= vel;
- 		}
-    		if (Particles[i]->IsFree && BC.allDensity>0.0) {
-			Particles[i]->Density	= den;
-			Particles[i]->Pressure	= EOS(Particles[i]->PresEq, Particles[i]->Cs, Particles[i]->P0,Particles[i]->Density, Particles[i]->RefDensity);
-    		}
-    	}
-    }
-}
+	// //#pragma omp parallel for schedule (static) private(vel,den) num_threads(Nproc)
+    	// for (int i=0 ; i<particlecount ; i++) {
+		// AllCon(Particles[i]->x,vel,den,BC);
+    		// if (Particles[i]->IsFree && BC.allv.norm()>0.0) {
+			// Particles[i]->v		= vel;
+ 		// }
+    		// if (Particles[i]->IsFree && BC.allDensity>0.0) {
+			// Particles[i]->Density	= den;
+			// Particles[i]->Pressure	= EOS(Particles[i]->PresEq, Particles[i]->Cs, Particles[i]->P0,Particles[i]->Density, Particles[i]->RefDensity);
+    		// }
+    	// }
+    // }
+// }
 
 };//SPH

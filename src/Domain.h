@@ -103,8 +103,8 @@ class Domain
 	void WriteXDMF			(char const * FileKey);					//Save a XDMF file for the visualization
 
 
-	void InFlowBCLeave	();
-	void InFlowBCFresh	();
+//	void InFlowBCLeave	();
+//	void InFlowBCFresh	();
 	void WholeVelocity	();
 
 	void Kernel_Set									(Kernels_Type const & KT);
@@ -226,7 +226,7 @@ private:
 // #include "Interaction.cpp"
 #include "Domain.cpp"
 #include "NbSearch.cpp"
-//#include "Output.cpp"
+#include "Output.cpp"
 //#include "InOutFlow.cpp"
 // #include "Thermal.cpp"
 
