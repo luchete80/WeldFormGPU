@@ -27,7 +27,7 @@
 
 
 #include "Vector.h"
-#include "Point.h"
+//#include "Point.h"
 
 /// Constructor
 /*! Constructor from 2 points pnt1 and pnt2
@@ -35,12 +35,12 @@
 	\param pnt1 : point1
 	\param pnt2 : point2
 */
-Vector::Vector(const Point &pnt1, const Point &pnt2)
-{
-	x[0] = pnt2(0) - pnt1(0);
-	x[1] = pnt2(1) - pnt1(1);
-	x[2] = pnt2(2) - pnt1(2);
-}
+// Vector::Vector(const Point &pnt1, const Point &pnt2)
+// {
+	// x[0] = pnt2(0) - pnt1(0);
+	// x[1] = pnt2(1) - pnt1(1);
+	// x[2] = pnt2(2) - pnt1(2);
+// }
 
 
 /// Constructor
@@ -174,7 +174,7 @@ Vector::normSquared(void) const
 Vector
 Vector::Normal(void) const
 {
-	Point p1, p2;
+	//Point p1, p2;
 	Vector v;
 
 	if (x[2] != 0) {

@@ -63,9 +63,13 @@ SET(EXES
 
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
-add_executable(gpuweldform main.cpp Domain.cpp NbSearch.cpp) 
+add_executable(gpuweldform main.cpp 
+													#Domain.cpp NbSearch.cpp 
+													Vector.cpp) 
 
 add_subdirectory (cuda)
+
+TARGET_LINK_LIBRARIES (gpuweldform cuda)
 
 #FOREACH(var ${EXES})
 #    ADD_EXECUTABLE        (${var} "${var}.cpp" #

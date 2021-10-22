@@ -30,6 +30,7 @@
 
 #include <thrust/device_vector.h>
 
+#include "cuda/Functions.h"	//For EOS at Whole Vel
 
 using namespace std;
 
@@ -704,6 +705,26 @@ inline void Domain::Move (double dt) {
 			// }
 		// Particles[i]->Move(dt,Domsize,TRPR,BLPF,Scheme,I);
 		// }
+}
+
+inline void Domain::WholeVelocity() {
+    //Apply a constant velocity to all particles in the initial time step
+    if (BC.allv.norm()>0.0 || BC.allDensity>0.0) {
+    	Vector vel = 0.0;
+    	double den = 0.0;
+
+
+    for (int i=0 ; i<Particles.size() ; i++) {
+		AllCon(Particles[i]->x,vel,den,BC);
+    		if (Particles[i]->IsFree && BC.allv.norm()>0.0) {
+			Particles[i]->v		= vel;
+ 		}
+    		if (Particles[i]->IsFree && BC.allDensity>0.0) {
+			Particles[i]->Density	= den;
+			Particles[i]->Pressure	= EOS(Particles[i]->PresEq, Particles[i]->Cs, Particles[i]->P0,Particles[i]->Density, Particles[i]->RefDensity);
+    		}
+    	}
+    }
 }
 
 inline void Domain::InitialChecks() {

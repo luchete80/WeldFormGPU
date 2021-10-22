@@ -224,9 +224,10 @@ private:
 }; // namespace SPH
 
 // #include "Interaction.cpp"
-// #include "Domain.cpp"
-// #include "Output.cpp"
-// #include "InOutFlow.cpp"
+#include "Domain.cpp"
+#include "NbSearch.cpp"
+//#include "Output.cpp"
+//#include "InOutFlow.cpp"
 // #include "Thermal.cpp"
 
 #endif // SPH_DOMAIN_H
