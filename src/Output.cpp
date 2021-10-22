@@ -2,6 +2,15 @@
 #include "External/string_.h"
 #include <sstream>
 
+//template<typename Value_T>
+std::ostream & operator<< (std::ostream & os, //const LinAlg::Vector<Value_T> & V
+							const Vector&V)
+{
+    for (int i=0; i<3; ++i) os << V(i) << " ";
+    os << std::endl;
+    return os;
+}
+
 namespace SPH {
 	
 inline void Domain::PrintInput(char const * FileKey)
@@ -55,7 +64,7 @@ inline void Domain::PrintInput(char const * FileKey)
 	oss << "\nCell Size in XYZ Directions = " << CellSize <<" m\n";
 	oss << "No of Cells in XYZ Directions = ( " << CellNo[0] << " , " << CellNo[1] << " , " << CellNo[2] <<" )\n" ;
 
-	oss << "\nInitial No of Particles = " << Particles.Size() << "\n";
+	oss << "\nInitial No of Particles = " << Particles.size() << "\n";
 
 	oss << "\nInitial Time Step = "<<deltatint << " S\n";
 
@@ -69,9 +78,9 @@ inline void Domain::PrintInput(char const * FileKey)
 
 	fn = FileKey;
 	fn.append("_log.dat");
-	std::ofstream of(fn.CStr(), std::ios::out);
-	of << oss.str();
-	of.close();
+	//std::ofstream of(fn.CStr(), std::ios::out);
+	//of << oss.str();
+	//of.close();
 }
 
 inline void Domain::WriteXDMF (char const * FileKey)
