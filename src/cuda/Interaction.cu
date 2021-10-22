@@ -102,7 +102,7 @@ __device__ inline void SubDomain::CalcForce2233(Particle * P1, Particle * P2)
 		} else {
 			if (P1->NoSlip || P2->NoSlip) {
 				// No-Slip velocity correction
-				if (P1->IsFree)	vab = P1->v - (2.0*P2->v-P2->NSv); else vab = (2.0*P1->v-P1->NSv) - P2->v;
+				if (P1->IsFree)	vab = P1->v - (2.0f*P2->v-P2->NSv); else vab = (2.0f*P1->v-P1->NSv) - P2->v;
 			}
 			// Please check
 			if (!(P1->NoSlip || P2->NoSlip)) {
@@ -139,11 +139,13 @@ __device__ inline void SubDomain::CalcForce2233(Particle * P1, Particle * P2)
 		// XSPH Monaghan
 		if (XSPH != 0.0  && (P1->IsFree*P2->IsFree)) {
 			//omp_set_lock(&P1->my_lock);
-			P1->VXSPH += XSPH*mj/(0.5*(di+dj))*K*-vij;
+			P1->VXSPH += XSPH*mj/(0.5f*(di+dj))*K*-vij;
 			//omp_unset_lock(&P1->my_lock);
 
 			//omp_set_lock(&P2->my_lock);
-			P2->VXSPH += XSPH*mi/(0.5*(di+dj))*K*vij;
+			P2->VXSPH += XSPH*mi/
+			(0.5*(di+dj))*
+			K*vij;
 			//omp_unset_lock(&P2->my_lock);
 		}
 
