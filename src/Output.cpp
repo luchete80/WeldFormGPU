@@ -1,5 +1,6 @@
 #include "Domain.h"
-
+#include "External/string_.h"
+#include <sstream>
 
 namespace SPH {
 	
