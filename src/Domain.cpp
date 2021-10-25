@@ -34,6 +34,11 @@
 
 using namespace std;
 
+int iDivUp(int a, int b) // Round a / b to nearest higher integer value
+
+	{ return (a % b != 0) ? (a / b + 1) : (a / b); }
+	
+
 namespace SPH {
 // void General(Domain & dom)
 // {
@@ -136,11 +141,11 @@ inline Domain::~Domain ()
 	// if (Domsize(2)>0.0) {if (x(2)>2*Cellfac*h || x(2)<-2*Cellfac*h) {(P1->CC[2]>P2->CC[2]) ? x(2) -= Domsize(2) : x(2) += Domsize(2);}}
 // }
 
-// inline void Domain::Kernel_Set(Kernels_Type const & KT)
-// {
-	// KernelType = KT;
-	// if (KernelType==2) Cellfac = 3.0; else Cellfac = 2.0;
-// }
+/*inline*/ void Domain::Kernel_Set(Kernels_Type const & KT)
+{
+ KernelType = KT;
+ if (KernelType==2) Cellfac = 3.0; else Cellfac = 2.0;
+}
 
 // inline void Domain::Viscosity_Eq_Set(Viscosity_Eq_Type const & VQ)
 // {
@@ -152,26 +157,26 @@ inline Domain::~Domain ()
 	// GradientType = GT;
 // }
 
-// inline void Domain::AdaptiveTimeStep()
-// {
-	// if (deltatint>deltatmin)
-	// {
-		// if (deltat<deltatmin)
-			// deltat		= 2.0*deltat*deltatmin/(deltat+deltatmin);
-		// else
-			// deltat		= deltatmin;
-	// }
-	// else
-	// {
-		// if (deltatint!=deltat)
-			// deltat		= 2.0*deltat*deltatint/(deltat+deltatint);
-		// else
-			// deltat		= deltatint;
-	// }
+ inline void Domain::AdaptiveTimeStep()
+ {
+	 if (deltatint>deltatmin)
+	 {
+		 if (deltat<deltatmin)
+			 deltat		= 2.0*deltat*deltatmin/(deltat+deltatmin);
+		 else
+			 deltat		= deltatmin;
+	 }
+	 else
+	 {
+		 if (deltatint!=deltat)
+			 deltat		= 2.0*deltat*deltatint/(deltat+deltatint);
+		 else
+			 deltat		= deltatint;
+	 }
 
-	// if (deltat<(deltatint/1.0e5))
-		// throw new Fatal("Too small time step, please choose a smaller time step initially to make the simulation more stable");
-// }
+//	 if (deltat<(deltatint/1.0e5))
+//		 throw new Fatal("Too small time step, please choose a smaller time step initially to make the simulation more stable");
+ }
 
 // inline void Domain::AddSingleParticle(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed)
 // {
@@ -759,6 +764,17 @@ inline void Domain::TimestepCheck ()
 	// throw new Fatal("Please decrease the time step to the allowable range");
 }
 
+inline void Domain::ClearNbData(){
+	
+	for (int i=0 ; i<Nproc ; i++) { //In the original version this was calculated after
+		SMPairs[i].clear();
+		FSMPairs[i].clear();
+		NSMPairs[i].clear();
+	}
+	CellReset();
+	ListGenerate();
+	m_isNbDataCleared = true;
+}
 
 inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx) {
 	std::cout << "\n--------------Solving---------------------------------------------------------------" << std::endl;
@@ -804,9 +820,16 @@ inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheF
 
 	bool isfirst = true;
 	bool isyielding = false;
-	
+
+	const int N = 2048 * 2048 * 4;
+
+	//TimingGPU timerGPU;
+  #define BLOCKSIZE   1024
+  
+  SubDomain sd; //TEST
+    	
 	while (Time<=tf && idx_out<=maxidx) {
-		StartAcceleration(Gravity); //TODO KERNEL
+		StartAcceleration(sd); //TODO KERNEL
 		//if (BC.InOutFlow>0) InFlowBCFresh();
 		auto start_task = std::chrono::system_clock::now();
 		

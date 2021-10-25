@@ -234,6 +234,20 @@ inline void __device__ SubDomain::LastComputeAcceleration () {
 	}
 }
 
+
+
+__global__ void StartAccelerationKernel(SubDomain &sd){
+
+
+}
+
+
+/*inline */ __host__ void StartAcceleration (SubDomain &sd) {
+
+	StartAccelerationKernel<<<3,4 >>>(sd);
+
+}
+
 //New, for Bonet gradient correction
 // inline void Domain::CalcGradCorrMatrix () {
 	// double di=0.0,dj=0.0,mi=0.0,mj=0.0;

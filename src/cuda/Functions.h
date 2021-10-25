@@ -34,7 +34,7 @@ namespace SPH {
 
 	double SecDerivativeKernel	(size_t const & Dim, size_t const & KT, double const & q, double const & h);
 
-	__device__ __host__				double EOS									(size_t const & EQ, double const & Cs0, double const & P00, double const & Density, double const & Density0);
+	__device__ __host__			/*inline*/	double EOS									(size_t const & EQ, double const & Cs0, double const & P00, double const & Density, double const & Density0);
 
 	double SoundSpeed						(size_t const & EQ, double const & Cs0, double const & Density, double const & Density0);
 

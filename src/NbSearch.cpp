@@ -1,4 +1,5 @@
 #include "Domain.h"
+#include <omp.h>
 
 namespace SPH{
 

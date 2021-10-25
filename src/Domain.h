@@ -31,6 +31,8 @@
 // // #include "Functions.h"
 #include "Boundary_Condition.h"
 
+#include "cuda/SubDomain.cuh"
+
 // //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
 // //#include <sstream>
 // //#endif
@@ -200,7 +202,7 @@ private:
 	void Periodic_X_Correction	(Vector & x, double const & h, Particle * P1, Particle * P2);		//Corrects xij for the periodic boundary condition
 	void AdaptiveTimeStep				();		//Uses the minimum time step to smoothly vary the time step
 
-	void StartAcceleration					(Vector const & a = Vector(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
+	//void StartAcceleration					(Vector const & a = Vector(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
 	void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
 	void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
 		
