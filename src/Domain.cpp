@@ -879,10 +879,10 @@ inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheF
 		//std::cout << "neighbour_time (chrono, clock): " << clock_time_spent << ", " << neighbour_time.count()<<std::endl;
 		GeneralBefore(*this);
 		clock_beg = clock();
-		PrimaryComputeAcceleration();
+		PrimaryComputeAcceleration(sd);
 		pr_acc_time_spent += (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
 		clock_beg = clock();
-		LastComputeAcceleration();
+		LastComputeAcceleration(sd);
 		acc_time_spent += (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
 		GeneralAfter(*this);
 		steps++;

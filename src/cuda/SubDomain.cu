@@ -248,6 +248,23 @@ __global__ void StartAccelerationKernel(SubDomain &sd){
 
 }
 
+/*inline*/ __host__ void PrimaryComputeAcceleration(SubDomain &sd){
+
+}
+__global__ void PrimaryComputeAccelerationKernel(SubDomain &sd){
+
+}
+
+
+/*inline*/ __host__ void LastComputeAcceleration(SubDomain &sd){
+
+} 
+__global__ void LastComputeAccelerationKernel(SubDomain &sd){
+
+}
+
+
+
 //New, for Bonet gradient correction
 // inline void Domain::CalcGradCorrMatrix () {
 	// double di=0.0,dj=0.0,mi=0.0,mj=0.0;

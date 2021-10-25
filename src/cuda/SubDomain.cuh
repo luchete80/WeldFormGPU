@@ -220,6 +220,12 @@ private:
 /*inline*/ __host__ void StartAcceleration(SubDomain &sd); // This is the buffer function which calls the kernel
 __global__ void StartAccelerationKernel(SubDomain &sd);
 
+/*inline*/ __host__ void PrimaryComputeAcceleration(SubDomain &sd); // This is the buffer function which calls the kernel
+__global__ void PrimaryComputeAccelerationKernel(SubDomain &sd);
+
+/*inline*/ __host__ void LastComputeAcceleration(SubDomain &sd); // This is the buffer function which calls the kernel
+__global__ void LastComputeAccelerationKernel(SubDomain &sd);
+
 }; // namespace SPH
 
 // #include "Interaction.cpp"

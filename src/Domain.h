@@ -31,7 +31,7 @@
 // // #include "Functions.h"
 #include "Boundary_Condition.h"
 
-#include "cuda/SubDomain.cuh"
+#include "cuda/SubDomain.h"
 
 // //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
 // //#include <sstream>
