@@ -29,7 +29,7 @@ inline void SubDomain::DelParticles (int const & Tags)
 
 
 
-inline void __device__ SubDomain::StartAcceleration (float3 const & a) {
+inline void __device__ SubDomain::StartAcceleration (/*float3 const & a*/) {
 
 	// #pragma omp parallel for schedule(static) num_threads(Nproc)
 	// #ifdef __GNUC__
@@ -95,7 +95,8 @@ inline void __device__ SubDomain::StartAcceleration (float3 const & a) {
 
 
 		//Reset to zero for all particles
-		Particles[i]->a		= a;
+		//Particles[i]->a		= a;
+		Particles[i]->a		= make_float3(0.0);
 		Particles[i]->SatCheck	= false;
 		Particles[i]->dDensity	= 0.0;
 		Particles[i]->VXSPH	= make_float3(0.0);
@@ -238,7 +239,7 @@ inline void __device__ SubDomain::LastComputeAcceleration () {
 
 __global__ void StartAccelerationKernel(SubDomain &sd){
 
-
+  sd.StartAcceleration();
 }
 
 

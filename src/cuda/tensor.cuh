@@ -56,7 +56,7 @@ private:
 		float m_data[4][4]{};    
 public:
 
-    float& operator()(int row, int col);
+    __device__ float& operator()(int row, int col);
     float& operator[](const int &i);	//0 to 8
     float operator()(int row, int col) const;
     void operator()();

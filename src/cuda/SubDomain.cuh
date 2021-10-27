@@ -53,7 +53,7 @@ class SubDomain
 {
 	
 	//cuNSearch::NeighborhoodSearch neib;
-	// public:
+	public:
 	// typedef void (*PtVel) (Vec3_t & position, Vec3_t & Vel, double & Den, Boundary & bdry);
 	// typedef void (*PtOut) (Particle * Particles, double & Prop1, double & Prop2,  double & Prop3);
 	// typedef void (*PtDom) (Domain & dom);
@@ -88,7 +88,7 @@ class SubDomain
     // void YZPlaneCellsNeighbourSearch(int q1);						//Create pairs of particles in cells of XZ plan
     // void MainNeighbourSearch				();									//Create pairs of particles in the whole domain
     // void StartAcceleration					(Vec3_t const & a = Vec3_t(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
-	inline __device__ void StartAcceleration					(float3 const & a);
+	inline __device__ void StartAcceleration					();
 	inline __device__ void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
     inline __device__ void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
     inline __device__ void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
