@@ -40,7 +40,7 @@ namespace SPH {
 
 	double DensitySolid					(size_t const & EQ, double const & Cs0, double const & P00, double const & Pressure, double const & Density0);
 
-	void   Rotation							(tensor3 Input, tensor3 & Vectors, tensor3 & VectorsT, tensor3 & Values);
+	__device__ void   Rotation							(tensor3 Input, tensor3 & Vectors, tensor3 & VectorsT, tensor3 & Values);
 
 	tensor3 abab									(tensor3 const & A, tensor3 const & B);
 	

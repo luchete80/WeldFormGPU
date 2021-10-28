@@ -369,7 +369,7 @@ namespace SPH {
 		pos.z = new_relpos.z + cg.z;
 	}
 
-	inline void Rotation (float* Input, float* & Vectors, float* & VectorsT, float* & Values)
+	__device__ inline void Rotation (float* Input, float* & Vectors, float* & VectorsT, float* & Values)
 	{
 	//	float3 Val,V0,V1,V2;
 	//	Eig(Input,Val,V0,V1,V2,true,false);

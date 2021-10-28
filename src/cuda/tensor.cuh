@@ -55,17 +55,17 @@ class tensor3
 private:
 		float m_data[4][4]{};    
 public:
-
+    __device__ tensor3(){};
     __device__ float& operator()(int row, int col);
-    float& operator[](const int &i);	//0 to 8
-    float operator()(int row, int col) const;
-    void operator()();
-		void Set(const int &i, const int &j);
-		tensor3 operator+ (const tensor3 &b);
-		tensor3 operator- (const tensor3 &b);
-		tensor3 operator* (const tensor3 &b);
-		tensor3 operator- (const float &f);
-		tensor3 operator= (const float &f);
+    __device__ float& operator[](const int &i);	//0 to 8
+    __device__ float operator()(int row, int col) const;
+    __device__ void operator()();
+		__device__ void Set(const int &i, const int &j);
+		__device__ tensor3 operator+ (const tensor3 &b);
+		__device__ tensor3 operator- (const tensor3 &b);
+		__device__ tensor3 operator* (const tensor3 &b);
+		__device__ tensor3 operator- (const float &f);
+		__device__ tensor3 operator= (const float &f);
 		//tensor3 operator* (const float &f);
 		tensor3 Trans ();
 };
@@ -73,8 +73,8 @@ public:
 __device__ tensor3 operator* (const float &f, const tensor3 &b);
 __device__ tensor3 operator/ (const tensor3 &b, const float &f);
 
-float3 dot(tensor3 const& T, float3 const& v);
+__device__ float3 dot(tensor3 const& T, float3 const& v);
 
-tensor3 Identity();
+__device__ tensor3 Identity();
 
 #endif
