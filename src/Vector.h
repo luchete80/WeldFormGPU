@@ -36,7 +36,7 @@
 #ifndef _GEOMVECTOR_H
 #define _GEOMVECTOR_H
 
-#include "vector_math.h"
+//#include "vector_math.h"
 //#include "Point.h"
 
 //class Point;
@@ -96,7 +96,7 @@ class Vector {
 		//\{
 		friend Vector operator+(const Vector &, const Vector &);
 		friend Vector operator-(const Vector &, const Vector &);
-		friend Vector operator*(double, const Vector &);
+		friend __host__ Vector operator*(double, const Vector &);
 		friend Vector operator*(const Vector &, double);
 		friend double operator*(const Vector &, const Vector &);
 		friend Vector operator/(const Vector &, double);

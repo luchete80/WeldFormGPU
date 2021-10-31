@@ -139,7 +139,7 @@ __device__ inline void SubDomain::CalcForce2233(Particle * P1, Particle * P2)
 		// XSPH Monaghan
 		if (XSPH != 0.0  && (P1->IsFree*P2->IsFree)) {
 			//omp_set_lock(&P1->my_lock);
-			P1->VXSPH += XSPH*mj/(0.5f*(di+dj))*K*-vij;
+			P1->VXSPH += XSPH*mj/(0.5f*(di+dj))*K*(-vij);
 			//omp_unset_lock(&P1->my_lock);
 
 			//omp_set_lock(&P2->my_lock);
