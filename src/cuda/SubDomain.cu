@@ -1,5 +1,6 @@
 #include "SubDomain.cuh"
 #include "vector_math.h"
+#include "Boundary_Condition.h"
 
 namespace SPH {
 
