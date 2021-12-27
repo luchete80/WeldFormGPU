@@ -1,4 +1,6 @@
-persianGPU 
+WeldFormGPU is the GPU version of [WeldForm](https://github.com/luchete80/WeldForm)
+
+Work in progress.
 
 - replaces Vec3_t to Vector for CPU work
 - implements (via vector_math.h) 
