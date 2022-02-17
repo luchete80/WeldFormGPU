@@ -5,6 +5,12 @@ using namespace std;
 
 namespace SPH {
 
+__global__ calc_dTdt_kernel (Domain*){
+	
+	const int idx = blockIdx.x*blockDim.x + threadIdx.x;
+}
+
+
 //NON PARALLEL TEST VERSION
 inline void Domain::CalcTempInc () {
 	double di=0.0,dj=0.0,mi=0.0,mj=0.0;

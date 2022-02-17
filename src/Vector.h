@@ -37,7 +37,7 @@
 #define _GEOMVECTOR_H
 
 #include "cuda_runtime.h"
-	
+#include <math.h>
 //#include "vector_math.h"
 //#include "Point.h"
 

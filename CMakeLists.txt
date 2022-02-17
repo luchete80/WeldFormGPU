@@ -52,7 +52,7 @@ include_directories("External")
 
 endif()
 
-#add_subdirectory("src")
+add_subdirectory("src")
 add_subdirectory("cuda_tests")
 #add_subdirectory(lib/cuNSearch)
 

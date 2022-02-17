@@ -2,8 +2,10 @@ One option:
 Domain is __host__ and __device__
 
 Domain has a host member which calls the kernel
-__global__ calc_dTdt_kernel<<>>(){}
+__global__ calc_dTdt_kernel<<>>(Domain* ){}
 __host__ Domain::calc_dTdt(){
-calc_dTdt_kernel<<>>()
+calc_dTdt_kernel<<>>(this)
 
 }
+
+The another one is to pass only the required params
