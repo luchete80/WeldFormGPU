@@ -18,6 +18,8 @@
 * PersianSPH; if not, see <http://www.gnu.org/licenses/>                           *
 ************************************************************************************/
 
+
+#include "cuda/mech_kernels.cuh"
 #include "Domain.h"
 #include <chrono>
 //#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
@@ -183,7 +185,7 @@ inline Domain::~Domain ()
    	// Particles.push_back(new Particle(tag,x,Vector(0,0,0),Mass,Density,h,Fixed));
 // }
 
-inline void __host__ __device__ Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly, double Lz, 
+inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly, double Lz, 
 									double r, double Density, double h, int type, int rotation, bool random, bool Fixed) {
     if ( !(type == 0 || type == 1) ) {
 	   	//std::cout << "Packing Type is out of range. Please correct it and run again" << std::endl;
@@ -776,7 +778,12 @@ inline void Domain::ClearNbData(){
 	m_isNbDataCleared = true;
 }
 
-// inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx) {
+
+
+inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx) {
+	
+	double *a;
+	calc_interact_kernel <<<1,1>>>(a);
 	// //std::cout << "\n--------------Solving---------------------------------------------------------------" << std::endl;
 
 	// size_t idx_out = 1;
@@ -787,7 +794,7 @@ inline void Domain::ClearNbData(){
 	
 	// auto start_whole = std::chrono::steady_clock::now();
 
-	// InitialChecks();
+	InitialChecks();
 	// CellInitiate();
 	// ListGenerate();
 	// PrintInput(TheFileKey);
@@ -938,6 +945,6 @@ inline void Domain::ClearNbData(){
 
 	// //std::cout << "\n--------------Solving is finished---------------------------------------------------" << std::endl;
 
-// }
+}
 
 }; // namespace SPH

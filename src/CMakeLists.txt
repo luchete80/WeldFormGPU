@@ -70,6 +70,7 @@ include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 add_executable(gpuweldform main.cu
 													#Domain.cpp NbSearch.cpp 
+													
 													Vector.cpp
 													) 
 

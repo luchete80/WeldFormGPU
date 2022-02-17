@@ -1,33 +1,38 @@
-#include "Domain.h"
+//#include "Domain.h"
 #include <vector>
+#include "device_launch_parameters.h" //To blockidx and blockdim
 
 using namespace std;
 
 namespace SPH {
 
-__global__ calc_dTdt_kernel (Domain*){
+__global__ void calc_dTdt_kernel (Domain*){
 	
 	const int idx = blockIdx.x*blockDim.x + threadIdx.x;
 }
 
+//Another one, maybe faster???
+__global__ void calc_dTdt_kernel (double *dTdt){
+	
+}
 
 //NON PARALLEL TEST VERSION
 inline void Domain::CalcTempInc () {
 	double di=0.0,dj=0.0,mi=0.0,mj=0.0;
 	
-	std::vector < double> temp(Particles.Size());
+	std::vector < double> temp(Particles.size());
 	
 	//#pragma omp parallel for schedule (static) num_threads(Nproc) //LUCIANO: THIS IS DONE SAME AS PrimaryComputeAcceleration
 	for ( size_t k = 0; k < Nproc ; k++) {
 		Particle *P1,*P2;
-		Vec3_t xij;
+		Vector xij;
 		double h,GK;
 		//TODO: DO THE LOCK PARALLEL THING
 		// Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
 		//std::vector <double> temp()=0;
-		//cout << "fixed pair size: "<<FSMPairs[k].Size()<<endl;
-		//cout << "Particles size: " << Particles.Size()<<endl;
-		for (size_t a=0; a<SMPairs[k].Size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
+		//cout << "fixed pair size: "<<FSMPairs[k].size()<<endl;
+		//cout << "Particles size: " << Particles.size()<<endl;
+		for (size_t a=0; a<SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
 			//cout << "a: " << a << "p1: " << SMPairs[k][a].first << ", p2: "<< SMPairs[k][a].second<<endl;
 			P1	= Particles[SMPairs[k][a].first];
 			P2	= Particles[SMPairs[k][a].second];
@@ -49,7 +54,7 @@ inline void Domain::CalcTempInc () {
 				
 				//Left in vector form and multiply after??
 				for (int i=0;i<2;i++){
-					Vec3_t v;
+					Vector v;
 					Mult (GKc[i], xij, v);
 					mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
 				}				
@@ -69,7 +74,7 @@ inline void Domain::CalcTempInc () {
 	double max = 0;
 	int imax;
 	#pragma omp parallel for schedule (static) num_threads(Nproc)	//LUCIANO//LIKE IN DOMAIN->MOVE
-	for (int i=0; i<Particles.Size(); i++){
+	for (int i=0; i<Particles.size(); i++){
 		//cout << "temp "<<temp[i]<<endl;
 		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
 		if (Particles[i]->dTdt>max){
@@ -89,9 +94,9 @@ inline void Domain::CalcConvHeat (){ //TODO: Detect Free Surface Elements
 	#pragma omp parallel for schedule (static) num_threads(Nproc)
 	
 	#ifdef __GNUC__
-	for (size_t i=0; i<Particles.Size(); i++){	//Like in Domain::Move
+	for (size_t i=0; i<Particles.size(); i++){	//Like in Domain::Move
 	#else
-	for (int i=0; i<Particles.Size(); i++){//Like in Domain::Move
+	for (int i=0; i<Particles.size(); i++){//Like in Domain::Move
 	#endif
 
 	
@@ -120,9 +125,9 @@ inline void Domain::CalcPlasticWorkHeat (){ //TODO: Detect Free Surface Elements
 	#pragma omp parallel for schedule (static) num_threads(Nproc)
 
 	#ifdef __GNUC__
-	for (size_t i=0; i<Particles.Size(); i++){	//Like in Domain::Move
+	for (size_t i=0; i<Particles.size(); i++){	//Like in Domain::Move
 	#else
-	for (int i=0; i<Particles.Size(); i++){//Like in Domain::Move
+	for (int i=0; i<Particles.size(); i++){//Like in Domain::Move
 	#endif
 	
 			// //cout << "dS2" <<dS2<<endl;
@@ -183,18 +188,18 @@ inline void Domain::ThermalSolve (double tf, double dt, double dtOut, char const
 	if (gradKernelCorr)
 		CalcGradCorrMatrix();
 	for ( size_t k = 0; k < Nproc ; k++) 
-		cout << "Pares: " <<SMPairs[k].Size()<<endl;
+		cout << "Pares: " <<SMPairs[k].size()<<endl;
 
-	std::vector <int> nb(Particles.Size());
-	std::vector <int> nbcount(Particles.Size());
+	std::vector <int> nb(Particles.size());
+	std::vector <int> nbcount(Particles.size());
 	//#pragma omp parallel for schedule (static) num_threads(Nproc)
 	for ( int k = 0; k < Nproc ; k++) {
-		for (int a=0; a<SMPairs[k].Size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
+		for (int a=0; a<SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
 			nb[SMPairs[k][a].first ]+=1;
 			nb[SMPairs[k][a].second]+=1;
 		}
 	}	
-	for (int p=0;p<Particles.Size();p++){
+	for (int p=0;p<Particles.size();p++){
 		Particles[p]->Nb=nb[p];
 	}
 
@@ -222,7 +227,7 @@ inline void Domain::ThermalSolve (double tf, double dt, double dtOut, char const
 		// CalcTempInc();
 		//TODO Add 
 		double max=0,min=1000.;
-		for (size_t i=0; i<Particles.Size(); i++){
+		for (size_t i=0; i<Particles.size(); i++){
 			//Particles[i]->T+= dt*Particles[i]->dTdt;
 			Particles[i]->TempCalcLeapfrog(dt);
 			if (Particles[i]->T > max)
@@ -254,7 +259,7 @@ inline void Domain::ThermalSolve (double tf, double dt, double dtOut, char const
 			std::cout << "Max, Min, Avg temps: "<< max << ", " << min << ", " << (max+min)/2. <<std::endl;
 			
 			double max_flux = 0.;
-			for (size_t i=0; i<Particles.Size(); i++){
+			for (size_t i=0; i<Particles.size(); i++){
 				if (Particles[i]->dTdt > max_flux)
 					max_flux=Particles[i]->dTdt;
 			}
@@ -277,4 +282,4 @@ inline void Domain::ThermalSolve (double tf, double dt, double dtOut, char const
 }
 
 
-};
+}; //SPH
