@@ -1,6 +1,6 @@
 /***********************************************************************************
 * PersianSPH - A C++ library to simulate Mechanical Systems (solids, fluids        *
-*             and soils) using Smoothed Particle Hydrodynamics method              *
+*             and soils) using Smoothed Particle_d Hydrodynamics method              *
 * Copyright (C) 2013 Maziar Gholami Korzani and Sergio Galindo-Torres              *
 *                                                                                  *
 * This file is part of PersianSPH                                                  *
@@ -18,7 +18,7 @@
 * PersianSPH; if not, see <http://www.gnu.org/licenses/>                           *
 ************************************************************************************/
 
-#include "Particle.h"
+#include "Particle_d.cuh"
 #include "vector_math.h"
 #ifndef __CUDACC__
 #include <cmath>
@@ -33,7 +33,7 @@ static __forceinline__  __host__ __device__ void operator+=(float3 &a, const flo
 
 namespace SPH {
 
-inline __device__ Particle::Particle(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0,bool Fixed)
+inline __device__ Particle_d::Particle_d(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0,bool Fixed)
 {
 	ct = 0;
 
@@ -120,7 +120,7 @@ inline __device__ Particle::Particle(int Tag, float3 const & x0, float3 const & 
 
 }
 
-inline void Particle::Move(double dt, float3 Domainsize, float3 domainmax, float3 domainmin, size_t Scheme, symtensor3 I)
+inline void Particle_d::Move(double dt, float3 Domainsize, float3 domainmax, float3 domainmin, size_t Scheme, symtensor3 I)
 {
 //	if (Scheme == 0)
 //		Move_MVerlet(I, dt);
@@ -131,7 +131,7 @@ inline void Particle::Move(double dt, float3 Domainsize, float3 domainmax, float
 //	else if (Scheme == 3)
 //		Move_Euler(I, dt);
 
-	//Periodic BC particle position update
+	//Periodic BC Particle_d position update
 	// if (Domainsize(0)>0.0)
 	// {
 		// (x.x>(domainmax.x)) ? x.x -= Domainsize(0) : x.x;
@@ -150,7 +150,7 @@ inline void Particle::Move(double dt, float3 Domainsize, float3 domainmax, float
 
 }
 
-inline void __device__ Particle::Move_Leapfrog(symtensor3 I, double dt) {
+inline void __device__ Particle_d::Move_Leapfrog(symtensor3 I, double dt) {
 	if (FirstStep) {
 		Densitya = Density - dt/2.0*dDensity;
 		va = v - dt/2.0*a;
@@ -170,7 +170,7 @@ inline void __device__ Particle::Move_Leapfrog(symtensor3 I, double dt) {
 
 }
 
-inline void Particle::CalculateEquivalentStress () {
+inline void Particle_d::CalculateEquivalentStress () {
 	// Sigma_eq	= sqrt ( Sigma(0,0)*Sigma(0,0) + Sigma(1,1)*Sigma(1,1) + Sigma(2,2)*Sigma(2,2) -
 						// ( Sigma(0,0)*Sigma(1,1) + Sigma(1,1)*Sigma(2,2) + Sigma(0,0)*Sigma(2,2) ) + 
 					// 3.0*(Sigma(0,1)*Sigma(0,1) + Sigma(1,2)*Sigma(1,2) + Sigma(0,2)*Sigma(0,2)));
@@ -182,7 +182,7 @@ inline void Particle::CalculateEquivalentStress () {
 	Sigma_eq = sqrt(3.0*J2);	
 }
 
-inline void __device__ Particle::Mat2Leapfrog(double dt) {
+inline void __device__ Particle_d::Mat2Leapfrog(double dt) {
 	Pressure = EOS(PresEq, Cs, P0,Density, RefDensity);
 
 	// Jaumann rate terms
@@ -241,7 +241,7 @@ inline void __device__ Particle::Mat2Leapfrog(double dt) {
 
 
 
-inline void Particle::translate(double dt, float3 Domainsize, float3 domainmax, float3 domainmin)
+inline void Particle_d::translate(double dt, float3 Domainsize, float3 domainmax, float3 domainmin)
 {
 	x = x + dt*v + 0.5*dt*dt*a;
 
@@ -251,7 +251,7 @@ inline void Particle::translate(double dt, float3 Domainsize, float3 domainmax, 
 	v = vb + 2*dt*a;
 	vb = temp;
 
-	//Periodic BC particle position update
+	//Periodic BC Particle_d position update
 	if (Domainsize.x > 0.0)
 	{
 		(x.x>(domainmax.x)) ? x.x -= Domainsize.x : x.x;
@@ -269,7 +269,7 @@ inline void Particle::translate(double dt, float3 Domainsize, float3 domainmax, 
 	}
 }
 
-//inline void Particle::CalcPlasticWorkHeat(){
+//inline void Particle_d::CalcPlasticWorkHeat(){
 //	
 //	q_plheat 	= 	0.5*(
 //					Sigma(0,0)*StrainRate(0,0) + 

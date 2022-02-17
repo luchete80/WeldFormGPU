@@ -4,7 +4,7 @@
 
 namespace SPH {
 
-inline void Domain_d::DelParticles (int const & Tags)
+inline void Domain::DelParticles (int const & Tags)
 {
     // Array<int> idxs; // indices to be deleted
 
@@ -30,7 +30,7 @@ inline void Domain_d::DelParticles (int const & Tags)
 
 
 
-inline void __device__ Domain_d::StartAcceleration (/*float3 const & a*/) {
+inline void __device__ Domain::StartAcceleration (/*float3 const & a*/) {
 
 	// #pragma omp parallel for schedule(static) num_threads(Nproc)
 	// #ifdef __GNUC__

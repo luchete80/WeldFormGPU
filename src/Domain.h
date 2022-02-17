@@ -205,6 +205,12 @@ private:
 	//void StartAcceleration					(Vector const & a = Vector(0.0,0.0,0.0));	//Add a fixed acceleration such as the Gravity
 	//void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
 	//void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
+
+	inline __device__ void StartAcceleration					();
+	inline __device__ void PrimaryComputeAcceleration	();									//Compute the solid boundary properties
+    inline __device__ void LastComputeAcceleration		();									//Compute the acceleration due to the other particles
+    inline __device__ void CalcForce2233	(Particle * P1, Particle * P2);		//Calculates the contact force between soil-soil/solid-solid particles
+
 		
 	void PrintInput			(char const * FileKey);		//Print out some initial parameters as a file
 	void InitialChecks	();		//Checks some parameter before proceeding to the solution

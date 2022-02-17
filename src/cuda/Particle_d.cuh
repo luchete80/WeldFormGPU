@@ -31,7 +31,7 @@
 
 namespace SPH {
 
-	class Particle
+	class Particle_d
 	{
 	public:
 		// Shepard density correction
@@ -145,7 +145,7 @@ namespace SPH {
 
 
 		// Constructor
-		__device__ Particle			(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0, bool Fixed=false);
+		__device__ Particle_d			(int Tag, float3 const & x0, float3 const & v0, double Mass0, double Density0, double h0, bool Fixed=false);
 
 		// Methods
 		__device__  void Move			(double dt, float3 Domainsize, float3 domainmax, float3 domainmin,size_t Scheme, symtensor3 I);	///< Update the important quantities of a particle

@@ -27,7 +27,7 @@
 
 // #include <omp.h>
 
-#include "Particle.h"
+#include "Particle_d.cuh"
 #include "Functions.h"
 #include "tensor.cuh"
 //#include "Boundary_Condition.h"
@@ -133,8 +133,8 @@ class Domain_d
 	
 	
     // // Data
-    Particle**				Particles; 	///< Array of particles
-	int particlecount;					//
+    Particle_d**				Particles; 	///< Array of particles
+		int particlecount;					//
     // double					R;		///< Particle Radius in addrandombox
 
   double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)

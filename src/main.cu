@@ -20,7 +20,7 @@
 
 #include "Domain.h"
 
-//#include "Domain_d.h" 
+//#include "cuda/Domain_d.cuh" 
 
 #define TAU		0.005
 #define VMAX	1.0
@@ -68,95 +68,99 @@ void UserAcc(SPH::Domain & domi)
 using std::cout;
 using std::endl;
 
-__device__ 	Domain_d dom_d;
-__host__		Domain dom;
+//__host__		SPH::Domain dom;
 	
 int main(int argc, char **argv) //try
 {
-       SPH::Domain	dom;
+	SPH::Domain* dom_d;//Cannot be defined as _device
+	//OR cudamalloc((void**)&correctBool, sizeof(int));
+	cudaMallocManaged(&dom_d, sizeof(SPH::Domain));
+	new(dom_d) SPH::Domain();
 
-        dom.Dimension	= 3;
-        dom.Nproc	= 4;
-    	dom.Kernel_Set(Qubic_Spline);
-    	dom.Scheme	= 1;	//Mod Verlet
-	dom.XSPH	= 0.5; //Very important
+  //SPH::Domain	dom;
 
-        double dx,h,rho,K,G,Cs,Fy;
-    	double R,L,n;
-		double Lz_side,Lz_neckmin,Lz_necktot,Rxy_center;
+  dom_d->Dimension	= 3;
+        // dom.Nproc	= 4;
+    	// dom.Kernel_Set(Qubic_Spline);
+    	// dom.Scheme	= 1;	//Mod Verlet
+	// dom.XSPH	= 0.5; //Very important
+
+        // double dx,h,rho,K,G,Cs,Fy;
+    	// double R,L,n;
+		// double Lz_side,Lz_neckmin,Lz_necktot,Rxy_center;
 		
-    	R	= 0.075;
+    	// R	= 0.075;
 
-		Lz_side =0.2;
-		Lz_neckmin = 0.050;
-		Lz_necktot = 0.100;
-		Rxy_center = 0.050;
-		L = 2. * Lz_side + Lz_necktot;
+		// Lz_side =0.2;
+		// Lz_neckmin = 0.050;
+		// Lz_necktot = 0.100;
+		// Rxy_center = 0.050;
+		// L = 2. * Lz_side + Lz_necktot;
 		
-		double E  = 210.e9;
-		double nu = 0.3;
+		// double E  = 210.e9;
+		// double nu = 0.3;
 		
-    	rho	= 7850.0;
-		K= E / ( 3.*(1.-2*nu) );
-		G= E / (2.* (1.+nu));
-		Fy	= 350.e6;
+    	// rho	= 7850.0;
+		// K= E / ( 3.*(1.-2*nu) );
+		// G= E / (2.* (1.+nu));
+		// Fy	= 350.e6;
 
-		dx = 0.008;
-    	h	= dx*1.1; //Very important
-        Cs	= sqrt(K/rho);
+		// dx = 0.008;
+    	// h	= dx*1.1; //Very important
+        // Cs	= sqrt(K/rho);
 
-        double timestep;
-        //timestep = (0.2*h/(Cs));
+        // double timestep;
+        // //timestep = (0.2*h/(Cs));
 		
-		//timestep = 2.5e-6;
-		timestep = 5.e-7;
+		// //timestep = 2.5e-6;
+		// timestep = 5.e-7;
 
-        cout<<"t  = "<<timestep<<endl;
-        cout<<"Cs = "<<Cs<<endl;
-        cout<<"K  = "<<K<<endl;
-        cout<<"G  = "<<G<<endl;
-        cout<<"Fy = "<<Fy<<endl;
-    	dom.GeneralAfter = & UserAcc;
-        dom.DomMax(0) = L;
-        dom.DomMin(0) = -L;
-
-
-		// inline void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
-									// double r, double Density, double h, bool Fixed) {
-
-		dom.AddTractionProbeLength(1, Vector(0.,0.,-Lz_side/10.), R, Lz_side + Lz_side/10.,
-											Lz_neckmin,Lz_necktot,Rxy_center,
-											dx/2., rho, h, false);
+        // cout<<"t  = "<<timestep<<endl;
+        // cout<<"Cs = "<<Cs<<endl;
+        // cout<<"K  = "<<K<<endl;
+        // cout<<"G  = "<<G<<endl;
+        // cout<<"Fy = "<<Fy<<endl;
+    	// dom.GeneralAfter = & UserAcc;
+        // dom.DomMax(0) = L;
+        // dom.DomMin(0) = -L;
 
 
-		cout << "Particle count: "<<dom.Particles.size()<<endl;
+		// // inline void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
+									// // double r, double Density, double h, bool Fixed) {
 
-    	for (size_t a=0; a<dom.Particles.size(); a++)
-    	{
-    		dom.Particles[a]->G		= G;
-    		dom.Particles[a]->PresEq	= 0;
-    		dom.Particles[a]->Cs		= Cs;
-    		dom.Particles[a]->Shepard	= false;
-    		dom.Particles[a]->Material	= 2;
-    		dom.Particles[a]->Fail		= 1;
-    		dom.Particles[a]->Sigmay	= Fy;
-    		dom.Particles[a]->Alpha	= 1.0;
-    		dom.Particles[a]->TI		= 0.3;
-    		dom.Particles[a]->TIInitDist	= dx;
-    		double z = dom.Particles[a]->x(2);
-    		if ( z < 0 ){
-    			dom.Particles[a]->ID=2;
-    			dom.Particles[a]->IsFree=false;
-    			dom.Particles[a]->NoSlip=true;    		
-				}
-				if ( z > L )
-    			dom.Particles[a]->ID=3;
-    	}
-		dom.WriteXDMF("maz");
-//		dom.m_kernel = SPH::iKernel(dom.Dimension,h);	
+		// dom.AddTractionProbeLength(1, Vector(0.,0.,-Lz_side/10.), R, Lz_side + Lz_side/10.,
+											// Lz_neckmin,Lz_necktot,Rxy_center,
+											// dx/2., rho, h, false);
 
 
-    	dom.Solve(/*tf*/0.0105,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
+		// cout << "Particle count: "<<dom.Particles.size()<<endl;
+
+    	// for (size_t a=0; a<dom.Particles.size(); a++)
+    	// {
+    		// dom.Particles[a]->G		= G;
+    		// dom.Particles[a]->PresEq	= 0;
+    		// dom.Particles[a]->Cs		= Cs;
+    		// dom.Particles[a]->Shepard	= false;
+    		// dom.Particles[a]->Material	= 2;
+    		// dom.Particles[a]->Fail		= 1;
+    		// dom.Particles[a]->Sigmay	= Fy;
+    		// dom.Particles[a]->Alpha	= 1.0;
+    		// dom.Particles[a]->TI		= 0.3;
+    		// dom.Particles[a]->TIInitDist	= dx;
+    		// double z = dom.Particles[a]->x(2);
+    		// if ( z < 0 ){
+    			// dom.Particles[a]->ID=2;
+    			// dom.Particles[a]->IsFree=false;
+    			// dom.Particles[a]->NoSlip=true;    		
+				// }
+				// if ( z > L )
+    			// dom.Particles[a]->ID=3;
+    	// }
+		// dom.WriteXDMF("maz");
+// //		dom.m_kernel = SPH::iKernel(dom.Dimension,h);	
+
+
+    	// dom.Solve(/*tf*/0.0105,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
         return 0;
 }
 //MECHSYS_CATCH
