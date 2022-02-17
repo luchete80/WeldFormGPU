@@ -36,6 +36,8 @@
 #ifndef _GEOMVECTOR_H
 #define _GEOMVECTOR_H
 
+#include "cuda_runtime.h"
+	
 //#include "vector_math.h"
 //#include "Point.h"
 
@@ -84,10 +86,10 @@ class Vector {
 		Vector &operator-=(const Vector &);
 		Vector &operator*=(double);
 		Vector &operator/=(double);
-		Vector &operator=(const Vector &);
-		Vector &operator=(const float &);
-		double &operator()(int);
-		double operator()(int) const;
+		__host__ __device__  Vector &operator=(const Vector &);
+		__host__ __device__  Vector &operator=(const float &);
+		__host__ __device__  double &operator()(int);
+		__host__ __device__ double operator()(int) const;
 		//\}
 
 		/*! \name
