@@ -183,33 +183,33 @@ inline Domain::~Domain ()
    	// Particles.push_back(new Particle(tag,x,Vector(0,0,0),Mass,Density,h,Fixed));
 // }
 
-inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly, double Lz, 
+inline void __host__ __device__ Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly, double Lz, 
 									double r, double Density, double h, int type, int rotation, bool random, bool Fixed) {
     if ( !(type == 0 || type == 1) ) {
-	   	std::cout << "Packing Type is out of range. Please correct it and run again" << std::endl;
-		std::cout << "0 => Hexagonal Close Packing" << std::endl;
-		std::cout << "1 => Cubic Packing" << std::endl;
+	   	//std::cout << "Packing Type is out of range. Please correct it and run again" << std::endl;
+		//std::cout << "0 => Hexagonal Close Packing" << std::endl;
+		//std::cout << "1 => Cubic Packing" << std::endl;
 	    abort();
     }
 
     if (!(rotation==0 || rotation==90)) {
-	   	std::cout << "Packing Rotation Angle is out of range. Please correct it and run again" << std::endl;
-		std::cout << "0 => " << std::endl;
-		std::cout << "0 0 0 0" << std::endl;
-		std::cout << " 0 0 0 0" << std::endl;
-		std::cout << "0 0 0 0" << std::endl;
-		std::cout << " 0 0 0 0" << std::endl;
-		std::cout << std::endl;
-		std::cout << "90 => Cubic Close Packing" << std::endl;
-		std::cout << "  0   0" << std::endl;
-		std::cout << "0 0 0 0" << std::endl;
-		std::cout << "0 0 0 0" << std::endl;
-		std::cout << "0   0  " << std::endl;
+	   	//std::cout << "Packing Rotation Angle is out of range. Please correct it and run again" << std::endl;
+		//std::cout << "0 => " << std::endl;
+		//std::cout << "0 0 0 0" << std::endl;
+		//std::cout << " 0 0 0 0" << std::endl;
+		//std::cout << "0 0 0 0" << std::endl;
+		//std::cout << " 0 0 0 0" << std::endl;
+		//std::cout << std::endl;
+		//std::cout << "90 => Cubic Close Packing" << std::endl;
+		//std::cout << "  0   0" << std::endl;
+		//std::cout << "0 0 0 0" << std::endl;
+		//std::cout << "0 0 0 0" << std::endl;
+		//std::cout << "0   0  " << std::endl;
 		abort();
     }
 
 //	Util::Stopwatch stopwatch;
-    std::cout << "\n--------------Generating particles by AddBoxLength with defined length of particles-----------" << std::endl;
+    //std::cout << "\n--------------Generating particles by AddBoxLength with defined length of particles-----------" << std::endl;
 
     size_t PrePS = Particles.size();
 
@@ -248,7 +248,7 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 				}
 				k++;
 				zp = V(2) + ((2*sqrt(6.0)/3)*k+1)*r;
-				cout << "Z: "<<z<<endl;
+				//cout << "Z: "<<z<<endl;
 			}
     	}
     	else {
@@ -281,7 +281,7 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 				}
 				k++;
 				zp = V(2) + (2.0*k+1)*r;//COMMENTED BY LUCIANO
-				cout << "Z: "<<z<<endl;
+				//cout << "Z: "<<z<<endl;
 			}
     	}
 
@@ -294,10 +294,10 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 		}
 		Max +=r;
 		temp = Max-V;
-		cout << "BoxDimensions: "<<temp(0)<<", "<<temp(1)<<", "<<temp(2)<<", "<<endl;
+		//cout << "BoxDimensions: "<<temp(0)<<", "<<temp(1)<<", "<<temp(2)<<", "<<endl;
 		double Mass = temp(0)*temp(1)*temp(2)*Density/(Particles.size()-PrePS);
 		
-		cout << "Particle mass: " << Mass <<endl;
+		//cout << "Particle mass: " << Mass <<endl;
 		
 		#pragma omp parallel for num_threads(Nproc)
 		#ifdef __GNUC__
@@ -383,7 +383,7 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
     	}
     }
 		
-		cout << "Particle Count: "<<Particles.size()<< endl;
+		//cout << "Particle Count: "<<Particles.size()<< endl;
 
 	R = r;
 }
@@ -391,7 +391,7 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 inline void Domain::Add3DCubicBoxParticles(int tag, Vector const & V, double Lx, double Ly, double Lz, 
 									double r, double Density, double h) {
 //	Util::Stopwatch stopwatch;
-    std::cout << "\n--------------Generating particles by AddBoxLength with defined length of particles-----------" << std::endl;
+    //std::cout << "\n--------------Generating particles by AddBoxLength with defined length of particles-----------" << std::endl;
 
     double x,y,xp,yp;
     size_t i,j;
@@ -438,7 +438,7 @@ inline void Domain::Add3DCubicBoxParticles(int tag, Vector const & V, double Lx,
 		}
 		Max +=r;
 		temp = Max-V;
-		cout << "BoxDimensions: "<<temp(0)<<", "<<temp(1)<<", "<<temp(2)<<", "<<endl;
+		//cout << "BoxDimensions: "<<temp(0)<<", "<<temp(1)<<", "<<temp(2)<<", "<<endl;
 		Vol+=temp(0)*temp(1)*temp(2);
 		//double Mass = temp(0)*temp(1)*temp(2)
     }//Dimension
@@ -447,7 +447,7 @@ inline void Domain::Add3DCubicBoxParticles(int tag, Vector const & V, double Lx,
 // Calculate Mass for 3D particles
 inline void Domain::Calculate3DMass(double Density){
 	double Mass = Vol*Density/Particles.size();
-	cout << "Particle Mass: "<<Mass<<endl;
+	//cout << "Particle Mass: "<<Mass<<endl;
 	#pragma omp parallel for num_threads(Nproc)
 	#ifdef __GNUC__
 	for (size_t i=0; i<Particles.size(); i++)	//Like in Domain::Move
@@ -482,7 +482,7 @@ inline void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, dou
 									double r, double Density, double h, bool Fixed) {
 
 //	Util::Stopwatch stopwatch;
-    std::cout << "\n--------------Generating particles by CylinderBoxLength with defined length of particles-----------" << std::endl;
+    //std::cout << "\n--------------Generating particles by CylinderBoxLength with defined length of particles-----------" << std::endl;
 
     size_t PrePS = Particles.size();
 
@@ -578,7 +578,7 @@ inline void Domain::AddTractionProbeLength(int tag, Vector const & V, double Rxy
 											double r, double Density, double h, bool Fixed) {
 
 //	Util::Stopwatch stopwatch;
-    std::cout << "\n--------------Generating particles by CylinderBoxLength with defined length of particles-----------" << std::endl;
+    //std::cout << "\n--------------Generating particles by CylinderBoxLength with defined length of particles-----------" << std::endl;
 
     size_t PrePS = Particles.size();
 
@@ -674,7 +674,7 @@ inline void Domain::AddTractionProbeLength(int tag, Vector const & V, double Rxy
 							   2.0 * L_cone * M_PI * (Rxy_center * Rxy_center + Rxy * Rxy + Rxy * Rxy_center ) / 3.0 ; //Cones
 		double Mass = Vol * Density / (Particles.size()-PrePS);
 		
-		cout << "Particle mass: " << Mass <<endl;
+		//cout << "Particle mass: " << Mass <<endl;
 		
 		#pragma omp parallel for num_threads(Nproc)
 		#ifdef __GNUC__
@@ -737,7 +737,7 @@ inline void Domain::InitialChecks() {
 	// if (Dimension == 2) I(2,2) = 0;
 
 	// if (Dimension<=1 || Dimension>3) {
-		// std::cout << "Please correct the dimension (2=>2D or 3=>3D) and run again" << std::endl;
+		// //std::cout << "Please correct the dimension (2=>2D or 3=>3D) and run again" << std::endl;
 		// abort();
 	// }
 
@@ -757,8 +757,8 @@ inline void Domain::TimestepCheck ()
 	t1 = 0.25*hmax/(CsMax);
 	if (MuMax>0.0) t2 = 0.125*hmax*hmax*rhomax/MuMax; else t2 =1000000.0;
 
-	std::cout << "Max allowable time step using CFL = "<< std::min(t1,t2) << " S" << std::endl;
-	std::cout << "User Time Step = "<< deltatint  << " S" << std::endl;
+	//std::cout << "Max allowable time step using CFL = "<< std::min(t1,t2) << " S" << std::endl;
+	//std::cout << "User Time Step = "<< deltatint  << " S" << std::endl;
 
 	// if (deltatint > std::min(t1,t2))
 	// throw new Fatal("Please decrease the time step to the allowable range");
@@ -777,7 +777,7 @@ inline void Domain::ClearNbData(){
 }
 
 // inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx) {
-	// std::cout << "\n--------------Solving---------------------------------------------------------------" << std::endl;
+	// //std::cout << "\n--------------Solving---------------------------------------------------------------" << std::endl;
 
 	// size_t idx_out = 1;
 	// double tout = Time;
@@ -808,7 +808,7 @@ inline void Domain::ClearNbData(){
 		// //String fn;
 		// //fn.Printf    ("%s_Initial", TheFileKey);
 		// //WriteXDMF    (fn.CStr());
-		// //std::cout << "\nInitial Condition has been generated\n" << std::endl;
+		// ////std::cout << "\nInitial Condition has been generated\n" << std::endl;
 	// }
 	
 
@@ -876,7 +876,7 @@ inline void Domain::ClearNbData(){
 
 		// auto end_task = std::chrono::system_clock::now();
 		 // neighbour_time = /*std::chrono::duration_cast<std::chrono::seconds>*/ (end_task- start_task);
-		// //std::cout << "neighbour_time (chrono, clock): " << clock_time_spent << ", " << neighbour_time.count()<<std::endl;
+		// ////std::cout << "neighbour_time (chrono, clock): " << clock_time_spent << ", " << neighbour_time.count()<<std::endl;
 		// GeneralBefore(*this);
 		// clock_beg = clock();
 		// PrimaryComputeAcceleration(sd);
@@ -898,17 +898,17 @@ inline void Domain::ClearNbData(){
 			// idx_out++;
 			// tout += dtOut;
 			// total_time = std::chrono::steady_clock::now() - start_whole;
-			// std::cout << "\nOutput No. " << idx_out << " at " << Time << " has been generated" << std::endl;
-			// std::cout << "Current Time Step = " <<deltat<<std::endl;
+			// //std::cout << "\nOutput No. " << idx_out << " at " << Time << " has been generated" << std::endl;
+			// //std::cout << "Current Time Step = " <<deltat<<std::endl;
 			
 			// clock_time_spent += neigbour_time_spent_per_interval;
-			// std::cout << "Total CPU time: "<<total_time.count() << ", Neigbour search time: " << clock_time_spent << ", Pr Accel Calc time: " <<
+			// //std::cout << "Total CPU time: "<<total_time.count() << ", Neigbour search time: " << clock_time_spent << ", Pr Accel Calc time: " <<
 			// pr_acc_time_spent << "Las Acel Calc Time" << acc_time_spent<<
 			// std::endl;
 						
 			// cout << "Max plastic strain: " <<max<< "in particle" << imax << endl;
 			
-			// std::cout << "Steps count in this interval: "<<steps-first_step<<"Total Step count"<<steps<<endl;
+			// //std::cout << "Steps count in this interval: "<<steps-first_step<<"Total Step count"<<steps<<endl;
 			// cout << "Total Neighbour search time in this interval: " << neigbour_time_spent_per_interval;
 			// cout << "Average Neighbour search time in this interval: " << neigbour_time_spent_per_interval/(float)(steps-first_step);
 			// first_step=steps;
@@ -936,7 +936,7 @@ inline void Domain::ClearNbData(){
 	// }
 	
 
-	// std::cout << "\n--------------Solving is finished---------------------------------------------------" << std::endl;
+	// //std::cout << "\n--------------Solving is finished---------------------------------------------------" << std::endl;
 
 // }
 

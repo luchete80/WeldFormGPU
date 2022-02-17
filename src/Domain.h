@@ -24,6 +24,7 @@
 // #include <stdio.h>    // for NULL
 // #include <algorithm>  // for min,max
 #include <vector>
+#include <iostream>
 
 //#include <omp.h>
 
@@ -66,26 +67,26 @@ class Domain
 	~Domain();
 
 	// Domain Part
-	void AddSingleParticle	(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed);		//Add one particle
-	void AddBoxLength				(int tag, Vector const &V, double Lx, double Ly, double Lz,double r, double Density,
+	void __host__ __device__ AddSingleParticle	(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed);		//Add one particle
+	void __host__ __device__ AddBoxLength				(int tag, Vector const &V, double Lx, double Ly, double Lz,double r, double Density,
 																double h,int type, int rotation, bool random, bool Fixed);									//Add a cube of particles with a defined dimensions
 
-	void AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
+	void __host__ __device__ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
 								double r, double Density, double h, bool Fixed);
 
-	void AddTractionProbeLength(int tag, Vector const & V, double Rxy, double Lz_side,
+	void __host__ __device__ AddTractionProbeLength(int tag, Vector const & V, double Rxy, double Lz_side,
 										double Lz_neckmin,double Lz_necktot,double Rxy_center,
 										double r, double Density, double h, bool Fixed);
 										
-	void Calculate3DMass(double Density);
-	void Add3DCubicBoxParticles(int tag, Vector const & V, double Lx, double Ly, double Lz, 
+	void __host__ __device__ Calculate3DMass(double Density);
+	void __host__ __device__ Add3DCubicBoxParticles(int tag, Vector const & V, double Lx, double Ly, double Lz, 
 								double r, double Density, double h);
 
 
-	void AddBoxNo						(int tag, Vector const &V, size_t nx, size_t ny, size_t nz,double r, double Density,
+	void __host__ __device__ AddBoxNo						(int tag, Vector const &V, size_t nx, size_t ny, size_t nz,double r, double Density,
 																double h,int type, int rotation, bool random, bool Fixed);									//Add a cube of particles with a defined numbers
-	void DelParticles				(int const & Tags);					//Delete particles by tag
-	void CheckParticleLeave	();													//Check if any particles leave the domain, they will be deleted
+	void __host__ __device__ DelParticles				(int const & Tags);					//Delete particles by tag
+	void __host__ __device__ CheckParticleLeave	();													//Check if any particles leave the domain, they will be deleted
 
 	void YZPlaneCellsNeighbourSearch(int q1);						//Create pairs of particles in cells of XZ plan
 	void MainNeighbourSearch				();									//Create pairs of particles in the whole domain

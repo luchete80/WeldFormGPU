@@ -80,40 +80,23 @@ int main(int argc, char **argv) //try
   //SPH::Domain	dom;
 
   dom_d->Dimension	= 3;
-        // dom.Nproc	= 4;
-    	// dom.Kernel_Set(Qubic_Spline);
-    	// dom.Scheme	= 1;	//Mod Verlet
-	// dom.XSPH	= 0.5; //Very important
+  dom_d->Kernel_Set(Qubic_Spline);
 
-        // double dx,h,rho,K,G,Cs,Fy;
-    	// double R,L,n;
-		// double Lz_side,Lz_neckmin,Lz_necktot,Rxy_center;
-		
-    	// R	= 0.075;
+//  dom.Scheme	= 0;
+//     	dom.XSPH	= 0.5; //Very important
 
-		// Lz_side =0.2;
-		// Lz_neckmin = 0.050;
-		// Lz_necktot = 0.100;
-		// Rxy_center = 0.050;
-		// L = 2. * Lz_side + Lz_necktot;
-		
-		// double E  = 210.e9;
-		// double nu = 0.3;
-		
-    	// rho	= 7850.0;
-		// K= E / ( 3.*(1.-2*nu) );
-		// G= E / (2.* (1.+nu));
-		// Fy	= 350.e6;
+	double dx,h,rho,K,G,Cs,Fy;
+	double H,L,n;
 
-		// dx = 0.008;
-    	// h	= dx*1.1; //Very important
-        // Cs	= sqrt(K/rho);
+	H	= 1.;
+	n	= 15.0;
+
+	rho	= 1000.0;
+	dx	= H / n;
+	h	= dx*1.2; //Very important
+	Cs	= sqrt(K/rho);
 
         // double timestep;
-        // //timestep = (0.2*h/(Cs));
-		
-		// //timestep = 2.5e-6;
-		// timestep = 5.e-7;
 
         // cout<<"t  = "<<timestep<<endl;
         // cout<<"Cs = "<<Cs<<endl;
@@ -121,46 +104,39 @@ int main(int argc, char **argv) //try
         // cout<<"G  = "<<G<<endl;
         // cout<<"Fy = "<<Fy<<endl;
     	// dom.GeneralAfter = & UserAcc;
-        // dom.DomMax(0) = L;
-        // dom.DomMin(0) = -L;
+        // dom.DomMax(0) = H;
+        // dom.DomMin(0) = -H;
 
+  dom_d->AddBoxLength(1 ,Vector ( -H/2.0 -H/20., -H/2.0 -H/20., -H/2.0 -H/20. ), H + H/20., H +H/20.,  H + H/20. , dx/2.0 ,rho, h, 1 , 0 , false, false );
+		// std::cout << "Particle Number: "<< dom.Particles.size() << endl;
+     	// double x;
 
-		// // inline void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
-									// // double r, double Density, double h, bool Fixed) {
-
-		// dom.AddTractionProbeLength(1, Vector(0.,0.,-Lz_side/10.), R, Lz_side + Lz_side/10.,
-											// Lz_neckmin,Lz_necktot,Rxy_center,
-											// dx/2., rho, h, false);
-
-
-		// cout << "Particle count: "<<dom.Particles.size()<<endl;
-
-    	// for (size_t a=0; a<dom.Particles.size(); a++)
+    	// for (size_t a=0; a<dom.Particles.Size(); a++)
     	// {
-    		// dom.Particles[a]->G		= G;
-    		// dom.Particles[a]->PresEq	= 0;
-    		// dom.Particles[a]->Cs		= Cs;
-    		// dom.Particles[a]->Shepard	= false;
-    		// dom.Particles[a]->Material	= 2;
-    		// dom.Particles[a]->Fail		= 1;
-    		// dom.Particles[a]->Sigmay	= Fy;
-    		// dom.Particles[a]->Alpha	= 1.0;
-    		// dom.Particles[a]->TI		= 0.3;
-    		// dom.Particles[a]->TIInitDist	= dx;
-    		// double z = dom.Particles[a]->x(2);
-    		// if ( z < 0 ){
-    			// dom.Particles[a]->ID=2;
-    			// dom.Particles[a]->IsFree=false;
-    			// dom.Particles[a]->NoSlip=true;    		
-				// }
-				// if ( z > L )
-    			// dom.Particles[a]->ID=3;
+    		// x = dom.Particles[a]->x(0);
+			// dom.Particles[a]->k_T			=	3000.;
+			// dom.Particles[a]->cp_T			=	1.;
+			// dom.Particles[a]->h_conv		= 100.0; //W/m2-K
+			// dom.Particles[a]->T_inf 		= 500.;
+			// dom.Particles[a]->T				= 20.0;			
+    		// if ( x < -H/2.0 ) {
+    			// dom.Particles[a]->ID 			= 2;
+    			// dom.Particles[a]->Thermal_BC 	= TH_BC_CONVECTION;
+				// // cout << "Particle " << a << "is convection BC" <<endl;
+			// }
     	// }
-		// dom.WriteXDMF("maz");
-// //		dom.m_kernel = SPH::iKernel(dom.Dimension,h);	
 
+        // timestep = (0.3*h*h*rho*dom.Particles[0]->cp_T/dom.Particles[0]->k_T);	
+		// cout << "Time Step: "<<timestep<<endl;
+		// //timestep=1.e-6;
+		// //0.3 rho cp h^2/k
+	
+		
+// //    	dom.WriteXDMF("maz");
+// //    	dom.Solve(/*tf*/0.01,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
 
-    	// dom.Solve(/*tf*/0.0105,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
+		// dom.ThermalSolve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);
+		
         return 0;
 }
 //MECHSYS_CATCH
