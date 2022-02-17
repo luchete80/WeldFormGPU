@@ -6,14 +6,17 @@ else ()
 
 project (gpuweldform LANGUAGES CXX CUDA)
 include_directories(${PROJECT_SOURCE_DIR})
-include_directories(Source_cuda/CuNSearch/include)
-include_directories(${CUNSEARCH_SRC_DIR}/External)
+#include_directories(Source_cuda/CuNSearch/include)
+#include_directories(${CUNSEARCH_SRC_DIR}/External)
 include_directories(${CUNSEARCH_SRC_DIR}/Utils)
-link_directories(${CUNSEARCH_LIB_DIR})
+#link_directories(${CUNSEARCH_LIB_DIR})
 # target_link_libraries (gpuweldform cuNSearch )
 
-set (CMAKE_CXX_FLAGS "-fopenmp")
+#set (CMAKE_CXX_FLAGS "-fopenmp")
 endif()
+
+set(CMAKE_CXX_STANDARD 11) #LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 SET(EXES
 	#Ale
@@ -65,9 +68,10 @@ SET(EXES
 
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
-add_executable(gpuweldform Thermal.cu
+add_executable(gpuweldform main.cu
 													#Domain.cpp NbSearch.cpp 
-													Vector.cpp) 
+													#Vector.cpp
+													) 
 
 #add_subdirectory (cuda)
 

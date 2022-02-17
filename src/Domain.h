@@ -25,19 +25,19 @@
 // #include <algorithm>  // for min,max
 #include <vector>
 
-#include <omp.h>
+//#include <omp.h>
 
 #include "Particle.h"
 // // #include "Functions.h"
 #include "Boundary_Condition.h"
 
-#include "cuda/Domain_d.cuh"
+//#include "cuda/Domain_d.cuh"
 
 // //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
 // //#include <sstream>
 // //#endif
 // //#include <sstream>
-#include <string>
+//#include <string>
 // #include <cmath>
 
 #include "Vector.h"
@@ -227,8 +227,8 @@ private:
 
 // #include "Interaction.cpp"
 #include "Domain.cpp"
-#include "NbSearch.cpp"
-#include "Output.cpp"
+//#include "NbSearch.cpp"
+//#include "Output.cpp"
 //#include "InOutFlow.cpp"
 // #include "Thermal.cpp"
 
