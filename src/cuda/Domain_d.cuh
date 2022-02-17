@@ -18,8 +18,8 @@
 * PersianSPH; if not, see <http://www.gnu.org/licenses/>                           *
 ************************************************************************************/
 
-#ifndef SPH_SUBDOMAIN_CUH
-#define SPH_SUBDOMAIN_CUH
+#ifndef SPH_Domain_d_CUH
+#define SPH_Domain_d_CUH
 
 // #include <stdio.h>    // for NULL
 // #include <algorithm>  // for min,max
@@ -53,7 +53,7 @@ namespace SPH {
 
 class Boundary;
 
-class SubDomain
+class Domain_d
 {
 	
 	//cuNSearch::NeighborhoodSearch neib;
@@ -221,14 +221,14 @@ private:
 };
 
 
-/*inline*/ __host__ void StartAcceleration(SubDomain &sd); // This is the buffer function which calls the kernel
-__global__ void StartAccelerationKernel(SubDomain &sd);
+/*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
+__global__ void StartAccelerationKernel(Domain_d &sd);
 
-/*inline*/ __host__ void PrimaryComputeAcceleration(SubDomain &sd); // This is the buffer function which calls the kernel
-__global__ void PrimaryComputeAccelerationKernel(SubDomain &sd);
+/*inline*/ __host__ void PrimaryComputeAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
+__global__ void PrimaryComputeAccelerationKernel(Domain_d &sd);
 
-/*inline*/ __host__ void LastComputeAcceleration(SubDomain &sd); // This is the buffer function which calls the kernel
-__global__ void LastComputeAccelerationKernel(SubDomain &sd);
+/*inline*/ __host__ void LastComputeAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
+__global__ void LastComputeAccelerationKernel(Domain_d &sd);
 
 }; // namespace SPH
 

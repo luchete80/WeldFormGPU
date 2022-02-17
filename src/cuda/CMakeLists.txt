@@ -3,5 +3,5 @@ add_library (cuda
 							Interaction.cu
 							#NbSearch.cu
 							Particle.cu
-							SubDomain.cu
+							#Domain_d.cu
 							tensor.cu)

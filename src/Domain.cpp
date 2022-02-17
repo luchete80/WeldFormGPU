@@ -826,7 +826,7 @@ inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheF
 	//TimingGPU timerGPU;
   #define BLOCKSIZE   1024
   
-  SubDomain sd; //TEST
+  //SubDomain sd; //TEST
     	
 	while (Time<=tf && idx_out<=maxidx) {
 		StartAcceleration(sd); //TODO KERNEL

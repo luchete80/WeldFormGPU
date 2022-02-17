@@ -65,11 +65,11 @@ SET(EXES
 
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
-add_executable(gpuweldform main.cpp 
+add_executable(gpuweldform Thermal.cu
 													#Domain.cpp NbSearch.cpp 
 													Vector.cpp) 
 
-add_subdirectory (cuda)
+#add_subdirectory (cuda)
 
 TARGET_LINK_LIBRARIES (gpuweldform cuda)
 

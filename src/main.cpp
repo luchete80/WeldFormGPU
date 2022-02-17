@@ -20,6 +20,8 @@
 
 #include "Domain.h"
 
+#include "Domain_d.h"
+
 #define TAU		0.005
 #define VMAX	1.0
 
@@ -66,6 +68,8 @@ void UserAcc(SPH::Domain & domi)
 using std::cout;
 using std::endl;
 
+__device__ Domain_d dom_d;
+	
 int main(int argc, char **argv) //try
 {
        SPH::Domain	dom;

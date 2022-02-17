@@ -1,10 +1,10 @@
-#include "SubDomain.cuh"
+#include "Domain_d.cuh"
 #include "vector_math.h"
 //#include "Boundary_Condition.h" //DO NOT INCLUDE ORIGINAL BC! SINCE IT HAS VECTOR.H
 
 namespace SPH {
 
-inline void SubDomain::DelParticles (int const & Tags)
+inline void Domain_d::DelParticles (int const & Tags)
 {
     // Array<int> idxs; // indices to be deleted
 
@@ -30,7 +30,7 @@ inline void SubDomain::DelParticles (int const & Tags)
 
 
 
-inline void __device__ SubDomain::StartAcceleration (/*float3 const & a*/) {
+inline void __device__ Domain_d::StartAcceleration (/*float3 const & a*/) {
 
 	// #pragma omp parallel for schedule(static) num_threads(Nproc)
 	// #ifdef __GNUC__
@@ -111,7 +111,7 @@ inline void __device__ SubDomain::StartAcceleration (/*float3 const & a*/) {
 	}
 }
 
-inline __device__ void SubDomain::PrimaryComputeAcceleration () {
+inline __device__ void Domain_d::PrimaryComputeAcceleration () {
 	size_t P1,P2;
 	float3 xij;
 	float h,K;		//TODO: cHANGE Change to double
@@ -195,7 +195,7 @@ inline __device__ void SubDomain::PrimaryComputeAcceleration () {
 
 }
 /*
-inline __device__ void SubDomain::Periodic_X_Correction(float3 & x, double const & h, Particle * P1, Particle * P2)
+inline __device__ void Domain_d::Periodic_X_Correction(float3 & x, double const & h, Particle * P1, Particle * P2)
 {
 	if (Domsize(0)>0.0) {if (x(0)>2*Cellfac*h || x(0)<-2*Cellfac*h) {(P1->CC[0]>P2->CC[0]) ? x(0) -= Domsize(0) : x(0) += Domsize(0);}}
 	if (Domsize(1)>0.0) {if (x(1)>2*Cellfac*h || x(1)<-2*Cellfac*h) {(P1->CC[1]>P2->CC[1]) ? x(1) -= Domsize(1) : x(1) += Domsize(1);}}
@@ -204,7 +204,7 @@ inline __device__ void SubDomain::Periodic_X_Correction(float3 & x, double const
 */
 
 
-inline void __device__ SubDomain::LastComputeAcceleration () {
+inline void __device__ Domain_d::LastComputeAcceleration () {
 	for (int i=0; i<SMPairscount;i++)
 		CalcForce2233(Particles[SMPairs[i][0]],Particles[SMPairs[i][1]]);
 
@@ -238,30 +238,30 @@ inline void __device__ SubDomain::LastComputeAcceleration () {
 
 
 
-__global__ void StartAccelerationKernel(SubDomain &sd){
+__global__ void StartAccelerationKernel(Domain_d &sd){
 
   sd.StartAcceleration();
 }
 
 
-/*inline */ __host__ void StartAcceleration (SubDomain &sd) {
+/*inline */ __host__ void StartAcceleration (Domain_d &sd) {
 
 	StartAccelerationKernel<<<3,4 >>>(sd);
 
 }
 
-/*inline*/ __host__ void PrimaryComputeAcceleration(SubDomain &sd){
+/*inline*/ __host__ void PrimaryComputeAcceleration(Domain_d &sd){
 
 }
-__global__ void PrimaryComputeAccelerationKernel(SubDomain &sd){
+__global__ void PrimaryComputeAccelerationKernel(Domain_d &sd){
 
 }
 
 
-/*inline*/ __host__ void LastComputeAcceleration(SubDomain &sd){
+/*inline*/ __host__ void LastComputeAcceleration(Domain_d &sd){
 
 } 
-__global__ void LastComputeAccelerationKernel(SubDomain &sd){
+__global__ void LastComputeAccelerationKernel(Domain_d &sd){
 
 }
 
@@ -310,7 +310,7 @@ __global__ void LastComputeAccelerationKernel(SubDomain &sd){
 	
 // }
 
-// inline void SubDomain::ClearNbData(){
+// inline void Domain_d::ClearNbData(){
 	
 	// for (int i=0 ; i<Nproc ; i++) { //In the original version this was calculated after
 		// SMPairs[i].Clear();
@@ -323,7 +323,7 @@ __global__ void LastComputeAccelerationKernel(SubDomain &sd){
 // }
 
 // FOR THE MOMENT IS SET IN CPU
-// inline void __device__ SubDomain::WholeVelocity() {
+// inline void __device__ Domain_d::WholeVelocity() {
     // //Apply a constant velocity to all particles in the initial time step
     // if (BC.allv.norm()>0.0 || BC.allDensity>0.0) {
     	// float3 vel = make_float3(0.0,0.0,0.0);

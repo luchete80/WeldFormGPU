@@ -1,5 +1,6 @@
 #include "Domain.h"
 #include <vector>
+
 using namespace std;
 
 namespace SPH {
