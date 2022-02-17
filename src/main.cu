@@ -96,7 +96,7 @@ int main(int argc, char **argv) //try
 	h	= dx*1.2; //Very important
 	Cs	= sqrt(K/rho);
 
-        // double timestep;
+     double timestep;
 
         // cout<<"t  = "<<timestep<<endl;
         // cout<<"Cs = "<<Cs<<endl;
@@ -135,7 +135,7 @@ int main(int argc, char **argv) //try
 // //    	dom.WriteXDMF("maz");
 // //    	dom.Solve(/*tf*/0.01,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
 
-		// dom.ThermalSolve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);
+		dom_d->Solve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);
 		
         return 0;
 }
