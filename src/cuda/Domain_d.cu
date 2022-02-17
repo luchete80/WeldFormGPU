@@ -237,8 +237,10 @@ inline void __device__ Domain_d::LastComputeAcceleration () {
 }
 
 
+//Inputs: Sigmaxx
+//Modifies Particles[i]->TIR
 
-__global__ void StartAccelerationKernel(Domain_d &sd){
+__global__ void StartAccelerationKernel(double *Sigmaxx, double *TIR){
 
   sd.StartAcceleration();
 }
