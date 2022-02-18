@@ -413,5 +413,8 @@ inline void Domain::WriteCSV(char const * FileKey)
 	of.close();
 }
 
+__global__ void WriteCSV_kernel (Domain *d){
+	d->WriteCSV("test");
+}
 
 }; // namespace SPH

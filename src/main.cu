@@ -135,6 +135,8 @@ int main(int argc, char **argv) //try
 	
 		
 	dom_d->WriteCSV("maz");
+	
+	WriteCSV_kernel<<<1,1>>>(dom_d);
 // // //    	dom.Solve(/*tf*/0.01,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
 
 		// dom_d->Solve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);

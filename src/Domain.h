@@ -68,7 +68,7 @@ class Domain
 
 	// Domain Part
 	void __host__ __device__ AddSingleParticle	(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed);		//Add one particle
-	void __host__ __device__ AddBoxLength				(int tag, Vector const &V, double Lx, double Ly, double Lz,double r, double Density,
+	void __host__ /*__device__ */ AddBoxLength				(int tag, Vector const &V, double Lx, double Ly, double Lz,double r, double Density,
 																double h,int type, int rotation, bool random, bool Fixed);									//Add a cube of particles with a defined dimensions
 
 	void __host__ __device__ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
@@ -231,6 +231,11 @@ private:
 
 
 };
+
+__global__ void WriteCSV_kernel (Domain *d);
+/*{
+	d->WriteCSV("test");
+}*/
 
 }; // namespace SPH
 
