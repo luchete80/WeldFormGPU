@@ -12,7 +12,7 @@ include_directories(${CUNSEARCH_SRC_DIR}/Utils)
 #link_directories(${CUNSEARCH_LIB_DIR})
 # target_link_libraries (gpuweldform cuNSearch )
 
-#set (CMAKE_CXX_FLAGS "-fopenmp")
+set (CMAKE_CXX_FLAGS "-fopenmp")
 endif()
 
 set(CMAKE_CXX_STANDARD 11) #LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!

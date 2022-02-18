@@ -49,7 +49,7 @@
 
 //#include <cuNSearch.h>
 
-
+//#define neibs (i,j)	neibs[i*neibcount[i-1]+j]
 
 namespace SPH {
 
@@ -86,6 +86,7 @@ class Domain_d
 	//cuNSearch::NeighborhoodSearch neib;
 	//Structured in AOS
 	int **neib;	//array of lists
+	int **neibs;	//1D array, faster
 	int *neibcount;	//Useful??
 	
 	double *h;
@@ -93,9 +94,13 @@ class Domain_d
 	Vector* v;
 	Vector* a;
 	
+	//Time things
+	bool isfirst_step;
+	double deltat;
+	
 	double *rho, *m;	//Mass and density
 	//THERMAL
-	double *T, *dTdt;
+	double *T, *Ta, *Tb, *dTdt;
 	double *k_T, *cp_T,*h_conv, *T_inf;
 				// dom.Particles[a]->k_T			=	3000.;
 			// dom.Particles[a]->cp_T			=	1.;
@@ -105,7 +110,6 @@ class Domain_d
 	Domain_d(){};
 	Domain_d(const int &particle_count);
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
-	
 	__host__ void ThermalSolve();
 	~Domain_d();
 	
@@ -119,6 +123,12 @@ __global__ void ThermalSolveKernel(double *dTdt,
 																		int **neib, int *neibcount); //Idea is to pass minimum data as possible
 
 
+__global__ void TempCalcLeapfrogFirst(double *T,double *Ta, double *Tb, 
+																			double *dTdt, double dt);
+__global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb, 
+																			double *dTdt, double dt);
+	
+	
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
 // __global__ void StartAccelerationKernel(Domain_d &sd);

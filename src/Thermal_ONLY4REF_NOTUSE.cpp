@@ -182,7 +182,8 @@ inline void Domain::ThermalSolve (double tf, double dt, double dtOut, char const
 
 	std::vector <int> nb(Particles.size());
 	std::vector <int> nbcount(Particles.size());
-	//#pragma omp parallel for schedule (static) num_threads(Nproc)
+	
+	#pragma omp parallel for schedule (static) num_threads(Nproc)
 	for ( int k = 0; k < Nproc ; k++) {
 		for (int a=0; a<SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
 			nb[SMPairs[k][a].first ]+=1;

@@ -5,12 +5,28 @@ namespace SPH {
 void Domain_d::SetDimension(const int &particle_count){
 	//Allocae arrays (as Structure of arryays, SOA)
 
-	cudaMalloc((void **)&x, particle_count * sizeof (Vector));
+	cudaMalloc((void **)&x, particle_count * sizeof (double3));
 	cudaMalloc((void **)&v, particle_count * sizeof (Vector));
 	cudaMalloc((void **)&a, particle_count * sizeof (Vector));
 
+	cudaMalloc((void **)&h, 	particle_count * sizeof (double));
+	cudaMalloc((void **)&m, 	particle_count * sizeof (double));
+	cudaMalloc((void **)&rho, particle_count * sizeof (double));
+	
+	//THERMAL
+	cudaMalloc((void **)&k_T, particle_count * sizeof (Vector));
+	cudaMalloc((void **)&cp_T, particle_count * sizeof (Vector));
+		
 	cudaMalloc((void **)&T		, particle_count * sizeof (double));
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
+
+
+	
+	// cudaMalloc((void**)&ppArray_a, 10 * sizeof(int*));
+	// for(int i=0; i<10; i++) {
+		// cudaMalloc(&someHostArray[i], 100*sizeof(int)); /* Replace 100 with the dimension that u want */
+	// }
+
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
 }
@@ -30,29 +46,58 @@ void __global__ ThermalSolveKernel (double *dTdt,
 		double3 xij; 
 		xij = x[i] - x[j];
 		double h_ = (h[i] + h[j])/2.0;
+		double nxij = length(xij);
 		
-		double GK	= GradKernel(3, 0, length(xij)/h_, h_);
+		double GK	= GradKernel(3, 0, nxij/h_, h_);
 		//		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
 		//   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
-		dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j]));
+		dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij);
 	}
 	dTdt[i] *=1/(rho[i]*cp[i]);
 }
 
-void Domain_d::ThermalSolve(){
+__global__ void TempCalcLeapfrogFirst(double *T, double *Ta, double *Tb, //output
+																			double *dTdt, double dt){//input
+	int i = threadIdx.x+blockDim.x*blockIdx.x;
+
+	Ta[i] = T[i] - dt/2.0*dTdt[i];
+
+}
+__global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb,
+																		double *dTdt, double dt){
+	int i = threadIdx.x+blockDim.x*blockIdx.x;
 	
+	Tb[i]  = Ta[i];
+	Ta[i] += dTdt[i] * dt;
+	T [i] = ( Ta[i] + Tb[i] ) / 2.;
+}
+//Originally in Particle::TempCalcLeapfrog
+void Domain_d::ThermalSolve(){
+
 	ThermalSolveKernel<<<1,1>>>(dTdt,	
 																	x, h, //Vector has some problems
 																	m, rho, 
 																	T, k_T, cp_T,
 																	neib, neibcount);
+	
+	if (isfirst_step) {
+		TempCalcLeapfrogFirst<<< 1,1 >>>(T, Ta, Tb,
+																		 dTdt, deltat);		
+	} else {
+		TempCalcLeapfrog <<< 1,1 >>>(T, Ta, Tb,
+																		 dTdt, deltat);				
+	}
 }
 
 Domain_d::~Domain_d(){
 	
 		cudaFree(a);		
 		cudaFree(v);
-	
+
+		cudaFree(h);		
+		cudaFree(m);
+		cudaFree(rho);
+		
 }
 
 };//SPH
