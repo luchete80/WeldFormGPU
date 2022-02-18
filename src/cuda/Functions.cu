@@ -204,7 +204,7 @@ namespace SPH {
 		}
 	}
 
-	__device__ __host__  /*__forceinline__ inline*/ double EOS(size_t const & EQ, double const & Cs0, double const & P00, double const & Density, double const & Density0)
+	__device__ __forceinline__ double EOS(size_t const & EQ, double const & Cs0, double const & P00, double const & Density, double const & Density0)
 	{
 		switch (EQ)
 		{
@@ -282,34 +282,34 @@ namespace SPH {
 		}
 	}
 
-	//NEW
-	iKernel::iKernel(size_t const & Dim,double const & h){
+	// //NEW
+	// iKernel::iKernel(size_t const & Dim,double const & h){
 	
-	m_inv_h=1./h;
+	// m_inv_h=1./h;
 	
-	Dim ==2 ? m_w = 7.0/(478.0*h*h*M_PI) 		: m_w = 1.0/(120.0*h*h*h*M_PI);				//m_w
-	Dim ==2 ? m_gradw = 7.0/(478.0*h*h*h*M_PI) 	: m_gradw = 1.0/(120.0*h*h*h*h*M_PI);		//m_gradw
-	Dim ==2 ? m_lapw = 7.0/(478.0*h*h*h*h*M_PI) : m_lapw = 1.0/(120.0*h*h*h*h*h*M_PI);		//m_lapw
+	// Dim ==2 ? m_w = 7.0/(478.0*h*h*M_PI) 		: m_w = 1.0/(120.0*h*h*h*M_PI);				//m_w
+	// Dim ==2 ? m_gradw = 7.0/(478.0*h*h*h*M_PI) 	: m_gradw = 1.0/(120.0*h*h*h*h*M_PI);		//m_gradw
+	// Dim ==2 ? m_lapw = 7.0/(478.0*h*h*h*h*M_PI) : m_lapw = 1.0/(120.0*h*h*h*h*h*M_PI);		//m_lapw
 		
-	}
+	// }
 	
-	inline double iKernel::W( double const & q ) {
-		if		(q<1.0)	return m_w*(pow((3.0-q),5.0)-6.0*pow((2.0-q),5.0)+15.0*pow((1.0-q),5.0));
-		else if (q<2.0)	return m_w*(pow((3.0-q),5.0)-6.0*pow((2.0-q),5.0));
-		else if (q<3.0)	return m_w*(pow((3.0-q),5.0));
-		else			return 0.0;
+	// inline double iKernel::W( double const & q ) {
+		// if		(q<1.0)	return m_w*(pow((3.0-q),5.0)-6.0*pow((2.0-q),5.0)+15.0*pow((1.0-q),5.0));
+		// else if (q<2.0)	return m_w*(pow((3.0-q),5.0)-6.0*pow((2.0-q),5.0));
+		// else if (q<3.0)	return m_w*(pow((3.0-q),5.0));
+		// else			return 0.0;
 		
-	}
+	// }
 	
-	inline double iKernel::gradW( double const & q ) {
-		if		(q==0.0)	return m_gradw*m_inv_h*    (20.0*pow((3.0-q),3.0)-120.0*pow((2.0-q),3.0)+300.0*pow((1.0-q),3.0));
-		else if (q<1.0)		return m_gradw*m_inv_h/q *(-5.0*pow((3.0-q),4.0)+30.0*pow((2.0-q),4.0)-75.0*pow((1.0-q),4.0));
-		else if (q<2.0)		return m_gradw*m_inv_h/q *(-5.0*pow((3.0-q),4.0)+30.0*pow((2.0-q),4.0));
-		else if (q<3.0)		return m_gradw*m_inv_h/q *(-5.0*pow((3.0-q),4.0));
-		else							return 0.0;		
+	// inline double iKernel::gradW( double const & q ) {
+		// if		(q==0.0)	return m_gradw*m_inv_h*    (20.0*pow((3.0-q),3.0)-120.0*pow((2.0-q),3.0)+300.0*pow((1.0-q),3.0));
+		// else if (q<1.0)		return m_gradw*m_inv_h/q *(-5.0*pow((3.0-q),4.0)+30.0*pow((2.0-q),4.0)-75.0*pow((1.0-q),4.0));
+		// else if (q<2.0)		return m_gradw*m_inv_h/q *(-5.0*pow((3.0-q),4.0)+30.0*pow((2.0-q),4.0));
+		// else if (q<3.0)		return m_gradw*m_inv_h/q *(-5.0*pow((3.0-q),4.0));
+		// else							return 0.0;		
 		
 		
-	}
+	// }
 	
 	// THIS IS FROM GPUSPH, euler_kernel.cu
 

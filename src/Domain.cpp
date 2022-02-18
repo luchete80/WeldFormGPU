@@ -717,22 +717,22 @@ inline void Domain::Move (double dt) {
 
 inline void Domain::WholeVelocity() {
     //Apply a constant velocity to all particles in the initial time step
-    if (BC.allv.norm()>0.0 || BC.allDensity>0.0) {
-    	Vector vel = 0.0;
-    	double den = 0.0;
+    // if (BC.allv.norm()>0.0 || BC.allDensity>0.0) {
+    	// Vector vel = 0.0;
+    	// double den = 0.0;
 
 
-    for (int i=0 ; i<Particles.size() ; i++) {
-		AllCon(Particles[i]->x,vel,den,BC);
-    		if (Particles[i]->IsFree && BC.allv.norm()>0.0) {
-			Particles[i]->v		= vel;
- 		}
-    		if (Particles[i]->IsFree && BC.allDensity>0.0) {
-			Particles[i]->Density	= den;
-			Particles[i]->Pressure	= EOS(Particles[i]->PresEq, Particles[i]->Cs, Particles[i]->P0,Particles[i]->Density, Particles[i]->RefDensity);
-    		}
-    	}
-    }
+    // for (int i=0 ; i<Particles.size() ; i++) {
+		// AllCon(Particles[i]->x,vel,den,BC);
+    		// if (Particles[i]->IsFree && BC.allv.norm()>0.0) {
+			// Particles[i]->v		= vel;
+ 		// }
+    		// if (Particles[i]->IsFree && BC.allDensity>0.0) {
+			// Particles[i]->Density	= den;
+			// Particles[i]->Pressure	= EOS(Particles[i]->PresEq, Particles[i]->Cs, Particles[i]->P0,Particles[i]->Density, Particles[i]->RefDensity);
+    		// }
+    	// }
+    // }
 }
 
 inline void Domain::InitialChecks() {
@@ -748,9 +748,9 @@ inline void Domain::InitialChecks() {
 		// throw new Fatal("Periodic BC in the X direction cannot be used with In/Out-Flow BC simultaneously");
 
 
-	//#pragma omp parallel for schedule (static) num_threads(Nproc)
-	for (int i=0; i<Particles.size(); i++) //Initializing pressure of solid and fluid particles
-			Particles[i]->Pressure = EOS(Particles[i]->PresEq, Particles[i]->Cs, Particles[i]->P0,Particles[i]->Density, Particles[i]->RefDensity);
+	// //#pragma omp parallel for schedule (static) num_threads(Nproc)
+	// for (int i=0; i<Particles.size(); i++) //Initializing pressure of solid and fluid particles
+			// Particles[i]->Pressure = EOS(Particles[i]->PresEq, Particles[i]->Cs, Particles[i]->P0,Particles[i]->Density, Particles[i]->RefDensity);
 }
 
 inline void Domain::TimestepCheck ()

@@ -36,7 +36,7 @@ namespace SPH {
 
 	__device__ double SecDerivativeKernel	(size_t const & Dim, size_t const & KT, double const & q, double const & h);
 
-	__device__ __host__			/*inline*/	double EOS									(size_t const & EQ, double const & Cs0, double const & P00, double const & Density, double const & Density0);
+	__device__ __forceinline__ double EOS									(size_t const & EQ, double const & Cs0, double const & P00, double const & Density, double const & Density0);
 
 	double SoundSpeed						(size_t const & EQ, double const & Cs0, double const & Density, double const & Density0);
 
@@ -48,18 +48,18 @@ namespace SPH {
 	
 	
 	//NEW
-	class iKernel{
-		public: //Ok TODO: Move members to private
-		iKernel(size_t const & Dim,double const & h);
-		iKernel(){}
-		virtual ~iKernel(){}
-		double gradW(double const & q);
-		double W(double const & q);
+	// class iKernel{
+		// public: //Ok TODO: Move members to private
+		// iKernel(size_t const & Dim,double const & h);
+		// iKernel(){}
+		// virtual ~iKernel(){}
+		// double gradW(double const & q);
+		// double W(double const & q);
 		
-		double m_w,m_gradw,m_lapw,m_inv_h;	//Precomputed Kernel constants
+		// double m_w,m_gradw,m_lapw,m_inv_h;	//Precomputed Kernel constants
 
 		
-	};
+	// };
 
 }; // namespace SPH
 
