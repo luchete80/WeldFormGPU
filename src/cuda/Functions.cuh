@@ -24,15 +24,17 @@
 //#include "matvec.h"
 #include "tensor.cuh"
 
+//enum Kernels_Type_d { Qubic_Spline=0, Quintic=1, Quintic_Spline=2 ,Hyperbolic_Spline=3};
+	
 namespace SPH {
+	
+	__device__ double Kernel								(size_t const & Dim, size_t const & KT, double const & q, double const & h);
 
-	double Kernel								(size_t const & Dim, size_t const & KT, double const & q, double const & h);
+	__device__ inline double GradKernel						(size_t const & Dim, size_t const & KT, double const & q, double const & h);
 
-	double GradKernel						(size_t const & Dim, size_t const & KT, double const & q, double const & h);
+	__device__ double LaplaceKernel				(size_t const & Dim, size_t const & KT, double const & q, double const & h);
 
-	double LaplaceKernel				(size_t const & Dim, size_t const & KT, double const & q, double const & h);
-
-	double SecDerivativeKernel	(size_t const & Dim, size_t const & KT, double const & q, double const & h);
+	__device__ double SecDerivativeKernel	(size_t const & Dim, size_t const & KT, double const & q, double const & h);
 
 	__device__ __host__			/*inline*/	double EOS									(size_t const & EQ, double const & Cs0, double const & P00, double const & Density, double const & Density0);
 
@@ -61,6 +63,6 @@ namespace SPH {
 
 }; // namespace SPH
 
-//#include "Functions.cpp"
+#include "Functions.cu"
 
 #endif // SPH_SPECIAL_FUNCTIONS_H

@@ -82,13 +82,13 @@ class Vector {
 			Overloaded operators
 		*/
 		//\{
-		Vector &operator+=(const Vector &);
-		Vector &operator-=(const Vector &);
-		Vector &operator*=(double);
-		Vector &operator/=(double);
-		__host__ __device__  Vector &operator=(const Vector &);
-		__host__ __device__  Vector &operator=(const float &);
-		__host__ __device__  double &operator()(int);
+		__host__ __device__ Vector &operator+=(const Vector &);
+		__host__ __device__ Vector &operator-=(const Vector &);
+		__host__ __device__ Vector &operator*=(double);
+		__host__ __device__ Vector &operator/=(double);
+		__host__ __device__ Vector &operator=(const Vector &);
+		__host__ __device__ Vector &operator=(const float &);
+		__host__ __device__ double &operator()(int);
 		__host__ __device__ double operator()(int) const;
 		//\}
 
@@ -96,13 +96,13 @@ class Vector {
 			Overloaded friend operators
 		*/
 		//\{
-		friend Vector operator+(const Vector &, const Vector &);
-		friend Vector operator-(const Vector &, const Vector &);
-		friend __host__ Vector operator*(double, const Vector &);
-		friend Vector operator*(const Vector &, double);
-		friend double operator*(const Vector &, const Vector &);
-		friend Vector operator/(const Vector &, double);
-		friend Vector operator-(const Vector &);
+		__host__ __device__ friend Vector operator+(const Vector &, const Vector &);
+		__host__ __device__ friend Vector operator-(const Vector &, const Vector &);
+		__host__ __device__ friend Vector operator*(double, const Vector &);
+		__host__ __device__ friend Vector operator*(const Vector &, double);
+		__host__ __device__ friend double operator*(const Vector &, const Vector &);
+		__host__ __device__ friend Vector operator/(const Vector &, double);
+		__host__ __device__ friend Vector operator-(const Vector &);
 		//\}
 
 		// DEBUG

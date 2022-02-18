@@ -6,16 +6,6 @@ using namespace std;
 
 namespace SPH {
 
-__global__ void calc_dTdt_kernel (Domain*){
-	
-	const int idx = blockIdx.x*blockDim.x + threadIdx.x;
-}
-
-//Another one, maybe faster???
-__global__ void calc_dTdt_kernel (double *dTdt){
-	
-}
-
 //NON PARALLEL TEST VERSION
 inline void Domain::CalcTempInc () {
 	double di=0.0,dj=0.0,mi=0.0,mj=0.0;

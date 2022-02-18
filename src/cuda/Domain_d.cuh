@@ -40,9 +40,10 @@
 // #include <cmath>
 // #include "tensor.h"
 #include "Vector.h"
+#include "vector_math.h"
 
 //C++ Enum used for easiness of coding in the input files
-//enum Kernels_Type { Qubic_Spline=0, Quintic=1, Quintic_Spline=2 ,Hyperbolic_Spline=3};
+
 //enum Viscosity_Eq_Type { Morris=0, Shao=1, Incompressible_Full=2, Takeda=3 };
 //enum Gradient_Type { Squared_density=0, Multiplied_density=1 };
 
@@ -85,19 +86,37 @@ class Domain_d
 	//cuNSearch::NeighborhoodSearch neib;
 	//Structured in AOS
 	int **neib;	//array of lists
-	Vector* x; //Vector is double
+	int *neibcount;	//Useful??
+	
+	double *h;
+	double3* x; //Vector is double
 	Vector* v;
 	Vector* a;
 	
+	double *rho, *m;	//Mass and density
+	//THERMAL
 	double *T, *dTdt;
+	double *k_T, *cp_T,*h_conv, *T_inf;
+				// dom.Particles[a]->k_T			=	3000.;
+			// dom.Particles[a]->cp_T			=	1.;
+			// dom.Particles[a]->h_conv		= 100.0; //W/m2-K
+			// dom.Particles[a]->T_inf 		= 500.;
+			
 	Domain_d(){};
 	Domain_d(const int &particle_count);
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
+	
+	__host__ void ThermalSolve();
 	~Domain_d();
 	
 };
 
-
+//Called by Solve host function
+__global__ void ThermalSolveKernel(double *dTdt, 
+																		double3 *x, double *h,
+																		double *mass, double *rho, 
+																		double *T, double *k_T, double *cp_T, 
+																		int **neib, int *neibcount); //Idea is to pass minimum data as possible
 
 
 

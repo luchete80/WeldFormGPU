@@ -1,5 +1,5 @@
 add_library (cuda 
-							Functions.cu
+							#Functions.cu
 							#Interaction.cu
 							#NbSearch.cu
 							#Particle_d.cu

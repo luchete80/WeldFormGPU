@@ -82,15 +82,15 @@ int main(int argc, char **argv) //try
 	dom_d2.SetDimension(dom_d->Particles.size());
 
   //SPH::Domain	dom;
-	Vector *v =  (Vector *)malloc(dom_d->Particles.size());
+	Vector *T =  (Vector *)malloc(dom_d->Particles.size());
 	for (int i=0;i<dom_d->Particles.size();i++){
-		v[i] = dom_d->Particles[i]->v;
+		T[i] = dom_d->Particles[i]->T;
 	}
 	int size = dom_d->Particles.size() * sizeof(Vector);
-	cudaMemcpy(dom_d2.v, v, size, cudaMemcpyHostToDevice);
+	cudaMemcpy(dom_d2.T, T, size, cudaMemcpyHostToDevice);
 
   dom_d->Dimension	= 3;
-  dom_d->Kernel_Set(Qubic_Spline);
+  //dom_d->Kernel_Set(Qubic_Spline);
 
 //  dom.Scheme	= 0;
 //     	dom.XSPH	= 0.5; //Very important
