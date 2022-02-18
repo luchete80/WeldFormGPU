@@ -134,7 +134,7 @@ int main(int argc, char **argv) //try
 		// // //0.3 rho cp h^2/k
 	
 		
-// // //    	dom.WriteXDMF("maz");
+	dom_d->WriteCSV("maz");
 // // //    	dom.Solve(/*tf*/0.01,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
 
 		// dom_d->Solve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);

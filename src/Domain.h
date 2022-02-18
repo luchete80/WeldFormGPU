@@ -105,7 +105,7 @@ class Domain
 	void ClearNbData();	
 
 	void WriteXDMF			(char const * FileKey);					//Save a XDMF file for the visualization
-
+	__host__ __device__ inline void Domain::WriteCSV(char const * FileKey);
 
 //	void InFlowBCLeave	();
 //	void InFlowBCFresh	();
@@ -125,6 +125,7 @@ class Domain
 
 	// Data
 	std::vector<Particle*>			Particles; 	///< Array of particles
+	//Particle**			Particles; 	///< Array of particles
 	double					R;		///< Particle Radius in addrandombox
 
 	double					sqrt_h_a;				//Coefficient for determining Time Step based on acceleration (can be defined by user)
@@ -236,7 +237,7 @@ private:
 // #include "Interaction.cpp"
 #include "Domain.cpp"
 //#include "NbSearch.cpp"
-//#include "Output.cpp"
+#include "Output.cpp"
 //#include "InOutFlow.cpp"
 // #include "Thermal.cpp"
 

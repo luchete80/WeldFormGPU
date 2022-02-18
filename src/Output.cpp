@@ -1,7 +1,7 @@
 #include "Domain.h"
-#include "External/string_.h"
+//#include "External/string_.h"
 #include <sstream>
-
+#include <fstream> 
 //template<typename Value_T>
 std::ostream & operator<< (std::ostream & os, //const LinAlg::Vector<Value_T> & V
 							const Vector&V)
@@ -15,72 +15,72 @@ namespace SPH {
 	
 inline void Domain::PrintInput(char const * FileKey)
 {
-	//type definition to shorten coding
-	std::ostringstream oss;
+	// //type definition to shorten coding
+	// std::ostringstream oss;
 
-	//Writing Inputs in a Log file
-	String fn(FileKey);
+	// //Writing Inputs in a Log file
+	// String fn(FileKey);
 
-	oss << "Dimension = "<< Dimension << "D\n";
+	// oss << "Dimension = "<< Dimension << "D\n";
  
-	oss << "\nKernel Type = ";
-	switch (KernelType)
-	{
-		case 0:
-		oss << "Qubic Spline\n";
-		break;
-		case 1:
-		oss << "Quintic\n";
-		break;
-		case 2:
-		oss << "Quintic Spline\n";
-		break;
-	}
+	// oss << "\nKernel Type = ";
+	// switch (KernelType)
+	// {
+		// case 0:
+		// oss << "Qubic Spline\n";
+		// break;
+		// case 1:
+		// oss << "Quintic\n";
+		// break;
+		// case 2:
+		// oss << "Quintic Spline\n";
+		// break;
+	// }
 
-	oss << "\nViscosity Equation = ";
-	switch (VisEq)
-	{
-		case 0:
-			oss << "0 => Morris et al 1997\n";
-			break;
-		case 1:
-			oss << "1 => Shao et al 2003\n";
-			break;
-		case 2:
-			oss << "2 => Real viscosity for incompressible fluids\n";
-			break;
-		case 3:
-			oss << "3 => Takeda et al 1994 (Real viscosity for compressible fluids)\n";
-			break;
-	}
+	// oss << "\nViscosity Equation = ";
+	// switch (VisEq)
+	// {
+		// case 0:
+			// oss << "0 => Morris et al 1997\n";
+			// break;
+		// case 1:
+			// oss << "1 => Shao et al 2003\n";
+			// break;
+		// case 2:
+			// oss << "2 => Real viscosity for incompressible fluids\n";
+			// break;
+		// case 3:
+			// oss << "3 => Takeda et al 1994 (Real viscosity for compressible fluids)\n";
+			// break;
+	// }
 
-	oss << "\nComputational domain size\n";
-	oss << "Bottom Left-Corner Front = " << BLPF <<" m\n";
-	oss << "Top Right-Corner Rear    = " << TRPR <<" m\n";
+	// oss << "\nComputational domain size\n";
+	// oss << "Bottom Left-Corner Front = " << BLPF <<" m\n";
+	// oss << "Top Right-Corner Rear    = " << TRPR <<" m\n";
 
-	oss << "\nMax of the smoothing lengths, h = " << hmax << " m\n";
-	oss << "Cell factor in Linked List (based on kernels) = " << Cellfac << "\n";
+	// oss << "\nMax of the smoothing lengths, h = " << hmax << " m\n";
+	// oss << "Cell factor in Linked List (based on kernels) = " << Cellfac << "\n";
 
-	oss << "\nCell Size in XYZ Directions = " << CellSize <<" m\n";
-	oss << "No of Cells in XYZ Directions = ( " << CellNo[0] << " , " << CellNo[1] << " , " << CellNo[2] <<" )\n" ;
+	// oss << "\nCell Size in XYZ Directions = " << CellSize <<" m\n";
+	// oss << "No of Cells in XYZ Directions = ( " << CellNo[0] << " , " << CellNo[1] << " , " << CellNo[2] <<" )\n" ;
 
-	oss << "\nInitial No of Particles = " << Particles.size() << "\n";
+	// oss << "\nInitial No of Particles = " << Particles.size() << "\n";
 
-	oss << "\nInitial Time Step = "<<deltatint << " S\n";
+	// oss << "\nInitial Time Step = "<<deltatint << " S\n";
 
-	oss << "\nExternal Acceleration (Gravity enabled)= "<<Gravity<< " m/s2\n";
+	// oss << "\nExternal Acceleration (Gravity enabled)= "<<Gravity<< " m/s2\n";
 
-	oss << "\nNo of Threads = "<<Nproc<<"\n";
+	// oss << "\nNo of Threads = "<<Nproc<<"\n";
 
-	oss << "\nPeriodic Boundary Condition X dir= " << (BC.Periodic[0] ? "True" : "False") << "\n";
-	oss << "Periodic Boundary Condition Y dir= " << (BC.Periodic[1] ? "True" : "False") << "\n";
-	oss << "Periodic Boundary Condition Z dir= " << (BC.Periodic[2] ? "True" : "False") << "\n";
+	// oss << "\nPeriodic Boundary Condition X dir= " << (BC.Periodic[0] ? "True" : "False") << "\n";
+	// oss << "Periodic Boundary Condition Y dir= " << (BC.Periodic[1] ? "True" : "False") << "\n";
+	// oss << "Periodic Boundary Condition Z dir= " << (BC.Periodic[2] ? "True" : "False") << "\n";
 
-	fn = FileKey;
-	fn.append("_log.dat");
-	//std::ofstream of(fn.CStr(), std::ios::out);
-	//of << oss.str();
-	//of.close();
+	// fn = FileKey;
+	// fn.append("_log.dat");
+	// //std::ofstream of(fn.CStr(), std::ios::out);
+	// //of << oss.str();
+	// //of.close();
 }
 
 inline void Domain::WriteXDMF (char const * FileKey)
@@ -381,5 +381,37 @@ inline void Domain::WriteXDMF (char const * FileKey)
     // of << oss.str();
     // of.close();
 }
+
+inline void Domain::WriteCSV(char const * FileKey)
+{
+	//type definition to shorten coding
+	std::ostringstream oss;
+	//Writing in a Log file
+	//String fn(FileKey);
+	std::string fn(FileKey);
+	
+	oss << "X, Y, Z, Sigma_eq, Pl_Strain "<<endl;;
+	
+	//#pragma omp parallel for schedule(static) num_threads(Nproc)
+	// #ifdef __GNUC__
+	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
+	// #else
+	for (int i=0; i<Particles.size(); i++)//Like in Domain::Move
+	//#endif
+	{
+		for (int j=0;j<3;j++)
+			oss << Particles[i]->x(j)<<", ";
+		
+		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
+		oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;
+	}
+
+	// fn = FileKey;
+	// fn.append(".csv");	
+	std::ofstream of(fn.c_str(), std::ios::out);
+	of << oss.str();
+	of.close();
+}
+
 
 }; // namespace SPH
