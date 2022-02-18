@@ -396,6 +396,7 @@ inline void Domain::WriteCSV(char const * FileKey)
 	// #ifdef __GNUC__
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 	// #else
+	printf("Dimension: %d",Dimension);
 	for (int i=0; i<Particles.size(); i++)//Like in Domain::Move
 	//#endif
 	{
@@ -414,6 +415,7 @@ inline void Domain::WriteCSV(char const * FileKey)
 }
 
 __global__ void WriteCSV_kernel (Domain *d){
+	printf("Hi\n");
 	d->WriteCSV("test");
 }
 

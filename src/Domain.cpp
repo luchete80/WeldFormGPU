@@ -277,7 +277,7 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 							else    Particles.push_back(new Particle(tag,Vector(x,y,z),Vector(0,0,0),0.0,Density,h,Fixed));
 						i++;
 						xp = V(0) + (2*i+1)*r; //COMMENTED BY LUCIANO
-						printf("X: %f\n",xp);
+						//printf("X: %f\n",xp);
 					}
 					j++;
 					yp = V(1) + (2.0*j+1)*r;//COMMENTED BY LUCIANO
