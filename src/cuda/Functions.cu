@@ -18,7 +18,7 @@
 * PersianSPH; if not, see <http://www.gnu.org/licenses/>                           *
 ************************************************************************************/
 
-#include "Functions.h"
+#include "Functions.cuh"
 #include "vector_math.h"
 
 namespace SPH {

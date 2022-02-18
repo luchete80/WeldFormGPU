@@ -32,7 +32,7 @@
 
 #include <thrust/device_vector.h>
 
-#include "cuda/Functions.h"	//For EOS at Whole Vel
+#include "cuda/Functions.cuh"	//For EOS at Whole Vel
 
 using namespace std;
 
@@ -220,7 +220,8 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 
     double qin = 0.03;
     srand(100);
-
+	printf("Building domain...\n");
+	
     if (Dimension==3) {
     	if (type==0) {
     		//Hexagonal close packing
@@ -276,7 +277,7 @@ inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly
 							else    Particles.push_back(new Particle(tag,Vector(x,y,z),Vector(0,0,0),0.0,Density,h,Fixed));
 						i++;
 						xp = V(0) + (2*i+1)*r; //COMMENTED BY LUCIANO
-						//cout << "X: "<<xp<<endl;
+						printf("X: %f\n",xp);
 					}
 					j++;
 					yp = V(1) + (2.0*j+1)*r;//COMMENTED BY LUCIANO
@@ -795,7 +796,7 @@ inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheF
 	// auto start_whole = std::chrono::steady_clock::now();
 
 	InitialChecks();
-	// CellInitiate();
+	// CellInitiate(); //In NbSearch
 	// ListGenerate();
 	// PrintInput(TheFileKey);
 	// TimestepCheck();

@@ -72,8 +72,9 @@ using std::endl;
 	
 int main(int argc, char **argv) //try
 {
+	cout << "Initializing"<<endl;
 	SPH::Domain* dom_d;//Cannot be defined as _device
-	//OR cudamalloc((void**)&correctBool, sizeof(int));
+	// //OR cudamalloc((void**)&correctBool, sizeof(int));
 	cudaMallocManaged(&dom_d, sizeof(SPH::Domain));
 	new(dom_d) SPH::Domain();
 
@@ -98,45 +99,46 @@ int main(int argc, char **argv) //try
 
      double timestep;
 
-        // cout<<"t  = "<<timestep<<endl;
-        // cout<<"Cs = "<<Cs<<endl;
-        // cout<<"K  = "<<K<<endl;
-        // cout<<"G  = "<<G<<endl;
-        // cout<<"Fy = "<<Fy<<endl;
-    	// dom.GeneralAfter = & UserAcc;
-        // dom.DomMax(0) = H;
-        // dom.DomMin(0) = -H;
+	// cout<<"t  = "<<timestep<<endl;
+	// cout<<"Cs = "<<Cs<<endl;
+	// cout<<"K  = "<<K<<endl;
+	// cout<<"G  = "<<G<<endl;
+	// cout<<"Fy = "<<Fy<<endl;
+	
+	// dom_d->GeneralAfter = & UserAcc;
+	// dom_d->DomMax(0) = H;
+	// dom_d->DomMin(0) = -H;
+	cout << "Creating Domain"<<endl;
+	dom_d->AddBoxLength(1 ,Vector ( -H/2.0 -H/20., -H/2.0 -H/20., -H/2.0 -H/20. ), H + H/20., H +H/20.,  H + H/20. , dx/2.0 ,rho, h, 1 , 0 , false, false );
+		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
+     	// // double x;
 
-  dom_d->AddBoxLength(1 ,Vector ( -H/2.0 -H/20., -H/2.0 -H/20., -H/2.0 -H/20. ), H + H/20., H +H/20.,  H + H/20. , dx/2.0 ,rho, h, 1 , 0 , false, false );
-		// std::cout << "Particle Number: "<< dom.Particles.size() << endl;
-     	// double x;
+    	// // for (size_t a=0; a<dom.Particles.Size(); a++)
+    	// // {
+    		// // x = dom.Particles[a]->x(0);
+			// // dom.Particles[a]->k_T			=	3000.;
+			// // dom.Particles[a]->cp_T			=	1.;
+			// // dom.Particles[a]->h_conv		= 100.0; //W/m2-K
+			// // dom.Particles[a]->T_inf 		= 500.;
+			// // dom.Particles[a]->T				= 20.0;			
+    		// // if ( x < -H/2.0 ) {
+    			// // dom.Particles[a]->ID 			= 2;
+    			// // dom.Particles[a]->Thermal_BC 	= TH_BC_CONVECTION;
+				// // // cout << "Particle " << a << "is convection BC" <<endl;
+			// // }
+    	// // }
 
-    	// for (size_t a=0; a<dom.Particles.Size(); a++)
-    	// {
-    		// x = dom.Particles[a]->x(0);
-			// dom.Particles[a]->k_T			=	3000.;
-			// dom.Particles[a]->cp_T			=	1.;
-			// dom.Particles[a]->h_conv		= 100.0; //W/m2-K
-			// dom.Particles[a]->T_inf 		= 500.;
-			// dom.Particles[a]->T				= 20.0;			
-    		// if ( x < -H/2.0 ) {
-    			// dom.Particles[a]->ID 			= 2;
-    			// dom.Particles[a]->Thermal_BC 	= TH_BC_CONVECTION;
-				// // cout << "Particle " << a << "is convection BC" <<endl;
-			// }
-    	// }
-
-        // timestep = (0.3*h*h*rho*dom.Particles[0]->cp_T/dom.Particles[0]->k_T);	
-		// cout << "Time Step: "<<timestep<<endl;
-		// //timestep=1.e-6;
-		// //0.3 rho cp h^2/k
+        // // timestep = (0.3*h*h*rho*dom.Particles[0]->cp_T/dom.Particles[0]->k_T);	
+		// // cout << "Time Step: "<<timestep<<endl;
+		// // //timestep=1.e-6;
+		// // //0.3 rho cp h^2/k
 	
 		
-// //    	dom.WriteXDMF("maz");
-// //    	dom.Solve(/*tf*/0.01,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
+// // //    	dom.WriteXDMF("maz");
+// // //    	dom.Solve(/*tf*/0.01,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
 
-		dom_d->Solve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);
+		// dom_d->Solve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);
 		
-        return 0;
+        // return 0;
 }
 //MECHSYS_CATCH

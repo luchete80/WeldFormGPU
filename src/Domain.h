@@ -29,7 +29,7 @@
 //#include <omp.h>
 
 #include "Particle.h"
-// // #include "Functions.h"
+//#include "cuda/Functions.cuh"
 #include "Boundary_Condition.h"
 
 //#include "cuda/Domain_d.cuh"
@@ -92,7 +92,8 @@ class Domain
 	void MainNeighbourSearch				();									//Create pairs of particles in the whole domain
 
 	void Move						(double dt);										//Move particles
-
+	
+	//This should be host mode
 	void Solve					(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);		///< The solving function
 
 	//void Step(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);

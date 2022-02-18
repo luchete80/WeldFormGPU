@@ -18,13 +18,13 @@
 * PersianSPH; if not, see <http://www.gnu.org/licenses/>                           *
 ************************************************************************************/
 
-#include "SubDomain.cuh"
+#include "Domain.h"
 #include "vector_math.h" //float3 operations
 #include "tensor.cuh"
 
 namespace SPH {
 	
-__device__ inline void SubDomain::CalcForce2233(Particle * P1, Particle * P2)
+__device__ inline void Domain::CalcForce2233(Particle * P1, Particle * P2)
 {
 	double h	= (P1->h+P2->h)/2;
 	float3 xij	= P1->x - P2->x;

@@ -74,7 +74,7 @@ add_executable(gpuweldform main.cu
 													Vector.cpp
 													) 
 
-#add_subdirectory (cuda)
+add_subdirectory (cuda)
 
 TARGET_LINK_LIBRARIES (gpuweldform cuda)
 
