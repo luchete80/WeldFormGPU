@@ -77,8 +77,17 @@ int main(int argc, char **argv) //try
 	// //OR cudamalloc((void**)&correctBool, sizeof(int));
 	cudaMallocManaged(&dom_d, sizeof(SPH::Domain));
 	new(dom_d) SPH::Domain();
+	
+	SPH::Domain_d dom_d2;
+	dom_d2.SetDimension(dom_d->Particles.size());
 
   //SPH::Domain	dom;
+	Vector *v =  (Vector *)malloc(dom_d->Particles.size());
+	for (int i=0;i<dom_d->Particles.size();i++){
+		v[i] = dom_d->Particles[i]->v;
+	}
+	int size = dom_d->Particles.size() * sizeof(Vector);
+	cudaMemcpy(dom_d2.v, v, size, cudaMemcpyHostToDevice);
 
   dom_d->Dimension	= 3;
   dom_d->Kernel_Set(Qubic_Spline);

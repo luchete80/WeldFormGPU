@@ -92,7 +92,8 @@ class Domain_d
 	double *T, *dTdt;
 	Domain_d(){};
 	Domain_d(const int &particle_count);
-	void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
+	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
+	~Domain_d();
 	
 };
 
