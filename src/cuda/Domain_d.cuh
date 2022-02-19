@@ -112,7 +112,7 @@ class Domain_d
 	Domain_d(){};
 	Domain_d(const int &particle_count);
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
-	__host__ void ThermalSolve();
+	__host__ void ThermalSolve(const double &tf);
 	~Domain_d();
 	
 	__host__ void Domain_d::CopyData(const Domain &dom);

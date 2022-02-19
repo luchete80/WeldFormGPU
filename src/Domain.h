@@ -89,7 +89,7 @@ class Domain
 	void __host__ __device__ CheckParticleLeave	();													//Check if any particles leave the domain, they will be deleted
 
 	void YZPlaneCellsNeighbourSearch(int q1);						//Create pairs of particles in cells of XZ plan
-	void MainNeighbourSearch				();									//Create pairs of particles in the whole domain
+	inline void MainNeighbourSearch				();									//Create pairs of particles in the whole domain
 
 	void Move						(double dt);										//Move particles
 	
@@ -98,8 +98,8 @@ class Domain
 
 	//void Step(double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx);
 
-	void CellInitiate		();															//Find the size of the domain as a cube, make cells and HOCs
-	void ListGenerate		();															//Generate linked-list
+	inline void CellInitiate		();															//Find the size of the domain as a cube, make cells and HOCs
+	inline void ListGenerate		();															//Generate linked-list
 	void CellReset			();															//Reset HOCs and particles' LL to initial value of -1
 
 	void ClearNbData();	
@@ -241,7 +241,7 @@ __global__ void WriteCSV_kernel (Domain *d);
 
 // #include "Interaction.cpp"
 //#include "Domain.cpp"
-//#include "NbSearch.cpp"
+#include "NbSearch.cpp"
 //#include "Output.cpp"
 //#include "InOutFlow.cpp"
 // #include "Thermal.cpp"

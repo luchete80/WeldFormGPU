@@ -102,22 +102,26 @@ __global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb,
 	T [i] = ( Ta[i] + Tb[i] ) / 2.;
 }
 //Originally in Particle::TempCalcLeapfrog
-void Domain_d::ThermalSolve(){
+//Host function
+void Domain_d::ThermalSolve(const double &tf){
 
-	ThermalSolveKernel<<<1,1>>>(dTdt,	
-																	x, h, //Vector has some problems
-																	m, rho, 
-																	T, k_T, cp_T,
-																	neib, neibcount);
-	
-	if (isfirst_step) {
-		TempCalcLeapfrogFirst<<< 1,1 >>>(T, Ta, Tb,
-																		 dTdt, deltat);		
-	} else {
-		TempCalcLeapfrog <<< 1,1 >>>(T, Ta, Tb,
-																		 dTdt, deltat);				
-	}
-}
+	while (Time<tf) {
+		ThermalSolveKernel<<<1,1>>>(dTdt,	
+																		x, h, //Vector has some problems
+																		m, rho, 
+																		T, k_T, cp_T,
+																		neib, neibcount);
+		
+		if (isfirst_step) {
+			TempCalcLeapfrogFirst<<< 1,1 >>>(T, Ta, Tb,
+																			 dTdt, deltat);		
+		} else {
+			TempCalcLeapfrog <<< 1,1 >>>(T, Ta, Tb,
+																			 dTdt, deltat);				
+		}
+		Time += deltat;
+	}//main time while
+}//Thermal Solve
 
 Domain_d::~Domain_d(){
 	

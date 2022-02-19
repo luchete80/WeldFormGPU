@@ -83,6 +83,7 @@ int main(int argc, char **argv) //try
 	dom_d->SetDimension(dom.Particles.size());
 
   dom.Dimension	= 3;
+  dom.Nproc	= 4;
   //dom.Kernel_Set(Qubic_Spline);
 
 //  dom.Scheme	= 0;
@@ -122,6 +123,27 @@ int main(int argc, char **argv) //try
 	cout << "Copying to device..."<<endl;
 	cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
 	cout << "copied"<<endl;
+	
+	// //Temporary, NB Search in GPU
+	cout << "Cell Initiate..."<<endl; dom.CellInitiate();
+	// cout << "Generating List..."<<endl;	dom.ListGenerate();
+	
+	// cout << "Nb Searching..."<<endl;	dom.MainNeighbourSearch(); 
+	// cout << "Done"<<endl;
+	
+	// std::vector <int> nb(dom.Particles.size());
+	// //std::vector <int> nbcount(Particles.size());
+	
+	// #pragma omp parallel for schedule (static) num_threads(Nproc)
+	// for ( int k = 0; k < dom.Nproc ; k++) {
+		// for (int a=0; a<dom.SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
+			// nb[dom.SMPairs[k][a].first ]+=1;
+			// nb[dom.SMPairs[k][a].second]+=1;
+		// }
+	// }	
+	
+	// cout << "Nb count"<< nb[0]<<endl;
+		
 		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
      	// // double x;
 
@@ -146,13 +168,15 @@ int main(int argc, char **argv) //try
 		// // //0.3 rho cp h^2/k
 	
 		
-	dom.WriteCSV("maz");
+	// dom.WriteCSV("maz");
 	
-	WriteCSV_kernel<<<1,1>>>(&dom);
+	// WriteCSV_kernel<<<1,1>>>(&dom);
 // // //    	dom.Solve(/*tf*/0.01,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
 
 		// dom.Solve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);
 		
         // return 0;
+				
+	cudaFree(dom_d);
 }
 //MECHSYS_CATCH
