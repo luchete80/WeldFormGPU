@@ -64,6 +64,13 @@ void UserAcc(SPH::Domain & domi)
 	// }
 }
 
+void report_gpu_mem()
+{
+    size_t free, total;
+    cudaMemGetInfo(&free, &total);
+    std::cout << "Free = " << free << " Total = " << total <<std::endl;
+}
+
 
 using std::cout;
 using std::endl;
@@ -79,7 +86,9 @@ int main(int argc, char **argv) //try
 	// new(dom) SPH::Domain();
 	
 	SPH::Domain_d *dom_d;
+	report_gpu_mem();
 	cudaMallocManaged(&dom_d, sizeof(SPH::Domain));
+	report_gpu_mem();
 	dom_d->SetDimension(dom.Particles.size());
 
   dom.Dimension	= 3;
@@ -178,5 +187,6 @@ int main(int argc, char **argv) //try
         // return 0;
 				
 	cudaFree(dom_d);
+	report_gpu_mem();
 }
 //MECHSYS_CATCH
