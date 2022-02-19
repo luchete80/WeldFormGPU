@@ -256,7 +256,8 @@ inline void Domain::CellReset ()
 
     FixedParticles.clear();
 }
-
+#include <iostream>
+using namespace std;
 inline void Domain::MainNeighbourSearch() {
   int q1;
 
@@ -264,6 +265,7 @@ inline void Domain::MainNeighbourSearch() {
 	#pragma omp parallel for schedule (dynamic) num_threads(Nproc)
 	for (q1=1;q1<(CellNo[0]-1); q1++)	YZPlaneCellsNeighbourSearch(q1);
     } else {
+	cout << "Searching CellNo[0]: "<<CellNo[0]<<endl;
 	#pragma omp parallel for schedule (dynamic) num_threads(Nproc)
     	for (q1=0;q1<CellNo[0]; q1++)	YZPlaneCellsNeighbourSearch(q1);
     }
