@@ -72,7 +72,7 @@ namespace SPH {
 // }
 
 // Constructor
-inline Domain::Domain ()
+Domain::Domain ()
 {
     // OutputName[0] = "Property1";
     // OutputName[1] = "Property2";
@@ -126,7 +126,7 @@ inline Domain::Domain ()
 	gradKernelCorr = false;
 }
 
-inline Domain::~Domain ()
+Domain::~Domain ()
 {
 	size_t Max = Particles.size();
 	for (size_t i=1; i<=Max; i++)  {//Particles.DelItem(Max-i);
@@ -185,7 +185,7 @@ inline Domain::~Domain ()
    	// Particles.push_back(new Particle(tag,x,Vector(0,0,0),Mass,Density,h,Fixed));
 // }
 
-inline void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly, double Lz, 
+void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly, double Lz, 
 									double r, double Density, double h, int type, int rotation, bool random, bool Fixed) {
     if ( !(type == 0 || type == 1) ) {
 	   	//std::cout << "Packing Type is out of range. Please correct it and run again" << std::endl;
@@ -781,171 +781,171 @@ inline void Domain::ClearNbData(){
 
 
 
-inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx) {
+// inline void Domain::Solve (double tf, double dt, double dtOut, char const * TheFileKey, size_t maxidx) {
 	
-	double *a;
-	calc_interact_kernel <<<1,1>>>(a);
-	// //std::cout << "\n--------------Solving---------------------------------------------------------------" << std::endl;
+	// double *a;
+	// calc_interact_kernel <<<1,1>>>(a);
+	// // //std::cout << "\n--------------Solving---------------------------------------------------------------" << std::endl;
 
-	// size_t idx_out = 1;
-	// double tout = Time;
+	// // size_t idx_out = 1;
+	// // double tout = Time;
 
-	// //Initializing adaptive time step variables
-	// deltat = deltatint = deltatmin	= dt;
+	// // //Initializing adaptive time step variables
+	// // deltat = deltatint = deltatmin	= dt;
 	
-	// auto start_whole = std::chrono::steady_clock::now();
+	// // auto start_whole = std::chrono::steady_clock::now();
 
-	InitialChecks();
-	// CellInitiate(); //In NbSearch
-	// ListGenerate();
-	// PrintInput(TheFileKey);
-	// TimestepCheck();
-	// WholeVelocity();
+	// InitialChecks();
+	// // CellInitiate(); //In NbSearch
+	// // ListGenerate();
+	// // PrintInput(TheFileKey);
+	// // TimestepCheck();
+	// // WholeVelocity();
 	
-	// std::chrono::duration<double> total_time,neighbour_time;
+	// // std::chrono::duration<double> total_time,neighbour_time;
 	
-	// clock_t clock_beg;
-	// double clock_time_spent,pr_acc_time_spent,acc_time_spent;
-	// double neigbour_time_spent_per_interval=0.;
+	// // clock_t clock_beg;
+	// // double clock_time_spent,pr_acc_time_spent,acc_time_spent;
+	// // double neigbour_time_spent_per_interval=0.;
 	
-	// clock_time_spent=pr_acc_time_spent=acc_time_spent=0.;
+	// // clock_time_spent=pr_acc_time_spent=acc_time_spent=0.;
 
 
-	// //Initial model output
-	// if (TheFileKey!=NULL) {
-		// //String fn;
-		// //fn.Printf    ("%s_Initial", TheFileKey);
-		// //WriteXDMF    (fn.CStr());
-		// ////std::cout << "\nInitial Condition has been generated\n" << std::endl;
-	// }
+	// // //Initial model output
+	// // if (TheFileKey!=NULL) {
+		// // //String fn;
+		// // //fn.Printf    ("%s_Initial", TheFileKey);
+		// // //WriteXDMF    (fn.CStr());
+		// // ////std::cout << "\nInitial Condition has been generated\n" << std::endl;
+	// // }
 	
 
-	// unsigned long steps=0;
-	// unsigned int first_step;
+	// // unsigned long steps=0;
+	// // unsigned int first_step;
 	
-	// int ts_nb_inc=5;	// Always > 0
-	// int ts_i=0;
+	// // int ts_nb_inc=5;	// Always > 0
+	// // int ts_i=0;
 
-	// bool isfirst = true;
-	// bool isyielding = false;
+	// // bool isfirst = true;
+	// // bool isyielding = false;
 
-	// const int N = 2048 * 2048 * 4;
+	// // const int N = 2048 * 2048 * 4;
 
-	// //TimingGPU timerGPU;
-  // #define BLOCKSIZE   1024
+	// // //TimingGPU timerGPU;
+  // // #define BLOCKSIZE   1024
   
-  // //SubDomain sd; //TEST
+  // // //SubDomain sd; //TEST
     	
-	// while (Time<=tf && idx_out<=maxidx) {
-		// StartAcceleration(sd); //TODO KERNEL
-		// //if (BC.InOutFlow>0) InFlowBCFresh();
-		// auto start_task = std::chrono::system_clock::now();
+	// // while (Time<=tf && idx_out<=maxidx) {
+		// // StartAcceleration(sd); //TODO KERNEL
+		// // //if (BC.InOutFlow>0) InFlowBCFresh();
+		// // auto start_task = std::chrono::system_clock::now();
 		
 
-		// double max = 0;
-		// int imax;
-		// #pragma omp parallel for schedule (static) num_threads(Nproc)	//LUCIANO//LIKE IN DOMAIN->MOVE
-		// for (int i=0; i<Particles.size(); i++){
-			// if (Particles[i]->pl_strain>max){
-				// max= Particles[i]->pl_strain;
-				// imax=i;
-			// }
-		// }
-		
-		// if (max > MIN_PS_FOR_NBSEARCH && !isyielding){ //First time yielding, data has not been cleared from first search
-			// ClearNbData();
-			// MainNeighbourSearch();
-			// isyielding  = true ;
-		// }
-		// if ( max > MIN_PS_FOR_NBSEARCH || isfirst ){	//TO MODIFY: CHANGE
-			// if ( ts_i == 0 ){
-				// clock_beg = clock();
-				// if (m_isNbDataCleared)
-					// MainNeighbourSearch();
-				// neigbour_time_spent_per_interval += (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
-			// }
-			// isfirst = false;
-		// }
-		
-		// // NEIGHBOUR SETS
-		// std::vector <int> nb(Particles.size());
-		// std::vector <int> nbcount(Particles.size());
-		// for ( size_t k = 0; k < Nproc ; k++) {
-			// for (size_t a=0; a<SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
-			// //cout << "a: " << a << "p1: " << SMPairs[k][a].first << ", p2: "<< SMPairs[k][a].second<<endl;
-				// nb[SMPairs[k][a].first ]+=1;
-				// nb[SMPairs[k][a].second]+=1;
-				
-			// }
-		// }	
-			// for (int p=0;p<Particles.size();p++){
-			// Particles[p]->Nb=nb[p];
-		// }
-
-		// auto end_task = std::chrono::system_clock::now();
-		 // neighbour_time = /*std::chrono::duration_cast<std::chrono::seconds>*/ (end_task- start_task);
-		// ////std::cout << "neighbour_time (chrono, clock): " << clock_time_spent << ", " << neighbour_time.count()<<std::endl;
-		// GeneralBefore(*this);
-		// clock_beg = clock();
-		// PrimaryComputeAcceleration(sd);
-		// pr_acc_time_spent += (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
-		// clock_beg = clock();
-		// LastComputeAcceleration(sd);
-		// acc_time_spent += (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
-		// GeneralAfter(*this);
-		// steps++;
-		// //cout << "steps: "<<steps<<", time "<< Time<<", tout"<<tout<<endl;
-		// // output
-		// if (Time>=tout){
-			// // if (TheFileKey!=NULL) {
-				// // String fn;
-				// // fn.Printf    ("%s_%04d", TheFileKey, idx_out);
-				// // WriteXDMF    (fn.CStr());
-
+		// // double max = 0;
+		// // int imax;
+		// // #pragma omp parallel for schedule (static) num_threads(Nproc)	//LUCIANO//LIKE IN DOMAIN->MOVE
+		// // for (int i=0; i<Particles.size(); i++){
+			// // if (Particles[i]->pl_strain>max){
+				// // max= Particles[i]->pl_strain;
+				// // imax=i;
 			// // }
-			// idx_out++;
-			// tout += dtOut;
-			// total_time = std::chrono::steady_clock::now() - start_whole;
-			// //std::cout << "\nOutput No. " << idx_out << " at " << Time << " has been generated" << std::endl;
-			// //std::cout << "Current Time Step = " <<deltat<<std::endl;
+		// // }
+		
+		// // if (max > MIN_PS_FOR_NBSEARCH && !isyielding){ //First time yielding, data has not been cleared from first search
+			// // ClearNbData();
+			// // MainNeighbourSearch();
+			// // isyielding  = true ;
+		// // }
+		// // if ( max > MIN_PS_FOR_NBSEARCH || isfirst ){	//TO MODIFY: CHANGE
+			// // if ( ts_i == 0 ){
+				// // clock_beg = clock();
+				// // if (m_isNbDataCleared)
+					// // MainNeighbourSearch();
+				// // neigbour_time_spent_per_interval += (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
+			// // }
+			// // isfirst = false;
+		// // }
+		
+		// // // NEIGHBOUR SETS
+		// // std::vector <int> nb(Particles.size());
+		// // std::vector <int> nbcount(Particles.size());
+		// // for ( size_t k = 0; k < Nproc ; k++) {
+			// // for (size_t a=0; a<SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
+			// // //cout << "a: " << a << "p1: " << SMPairs[k][a].first << ", p2: "<< SMPairs[k][a].second<<endl;
+				// // nb[SMPairs[k][a].first ]+=1;
+				// // nb[SMPairs[k][a].second]+=1;
+				
+			// // }
+		// // }	
+			// // for (int p=0;p<Particles.size();p++){
+			// // Particles[p]->Nb=nb[p];
+		// // }
+
+		// // auto end_task = std::chrono::system_clock::now();
+		 // // neighbour_time = /*std::chrono::duration_cast<std::chrono::seconds>*/ (end_task- start_task);
+		// // ////std::cout << "neighbour_time (chrono, clock): " << clock_time_spent << ", " << neighbour_time.count()<<std::endl;
+		// // GeneralBefore(*this);
+		// // clock_beg = clock();
+		// // PrimaryComputeAcceleration(sd);
+		// // pr_acc_time_spent += (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
+		// // clock_beg = clock();
+		// // LastComputeAcceleration(sd);
+		// // acc_time_spent += (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
+		// // GeneralAfter(*this);
+		// // steps++;
+		// // //cout << "steps: "<<steps<<", time "<< Time<<", tout"<<tout<<endl;
+		// // // output
+		// // if (Time>=tout){
+			// // // if (TheFileKey!=NULL) {
+				// // // String fn;
+				// // // fn.Printf    ("%s_%04d", TheFileKey, idx_out);
+				// // // WriteXDMF    (fn.CStr());
+
+			// // // }
+			// // idx_out++;
+			// // tout += dtOut;
+			// // total_time = std::chrono::steady_clock::now() - start_whole;
+			// // //std::cout << "\nOutput No. " << idx_out << " at " << Time << " has been generated" << std::endl;
+			// // //std::cout << "Current Time Step = " <<deltat<<std::endl;
 			
-			// clock_time_spent += neigbour_time_spent_per_interval;
-			// //std::cout << "Total CPU time: "<<total_time.count() << ", Neigbour search time: " << clock_time_spent << ", Pr Accel Calc time: " <<
-			// pr_acc_time_spent << "Las Acel Calc Time" << acc_time_spent<<
-			// std::endl;
+			// // clock_time_spent += neigbour_time_spent_per_interval;
+			// // //std::cout << "Total CPU time: "<<total_time.count() << ", Neigbour search time: " << clock_time_spent << ", Pr Accel Calc time: " <<
+			// // pr_acc_time_spent << "Las Acel Calc Time" << acc_time_spent<<
+			// // std::endl;
 						
-			// cout << "Max plastic strain: " <<max<< "in particle" << imax << endl;
+			// // cout << "Max plastic strain: " <<max<< "in particle" << imax << endl;
 			
-			// //std::cout << "Steps count in this interval: "<<steps-first_step<<"Total Step count"<<steps<<endl;
-			// cout << "Total Neighbour search time in this interval: " << neigbour_time_spent_per_interval;
-			// cout << "Average Neighbour search time in this interval: " << neigbour_time_spent_per_interval/(float)(steps-first_step);
-			// first_step=steps;
-			// neigbour_time_spent_per_interval=0.;
-		// }
+			// // //std::cout << "Steps count in this interval: "<<steps-first_step<<"Total Step count"<<steps<<endl;
+			// // cout << "Total Neighbour search time in this interval: " << neigbour_time_spent_per_interval;
+			// // cout << "Average Neighbour search time in this interval: " << neigbour_time_spent_per_interval/(float)(steps-first_step);
+			// // first_step=steps;
+			// // neigbour_time_spent_per_interval=0.;
+		// // }
 		
-		// if (auto_ts)
-			// AdaptiveTimeStep();
-		// Move(deltat);
-		// Time += deltat;
-		// //if (BC.InOutFlow>0) InFlowBCLeave(); else CheckParticleLeave ();
+		// // if (auto_ts)
+			// // AdaptiveTimeStep();
+		// // Move(deltat);
+		// // Time += deltat;
+		// // //if (BC.InOutFlow>0) InFlowBCLeave(); else CheckParticleLeave ();
 		
-		// if (max>MIN_PS_FOR_NBSEARCH){	//TODO: CHANGE TO FIND NEIGHBOURS
-			// if ( ts_i == (ts_nb_inc - 1) ){
-				// ClearNbData();
-			// }
+		// // if (max>MIN_PS_FOR_NBSEARCH){	//TODO: CHANGE TO FIND NEIGHBOURS
+			// // if ( ts_i == (ts_nb_inc - 1) ){
+				// // ClearNbData();
+			// // }
 
-			// ts_i ++;
-			// if ( ts_i > (ts_nb_inc - 1) ) 
-				// ts_i = 0;
+			// // ts_i ++;
+			// // if ( ts_i > (ts_nb_inc - 1) ) 
+				// // ts_i = 0;
 		
-		// }
+		// // }
 		
 	
-	// }
+	// // }
 	
 
-	// //std::cout << "\n--------------Solving is finished---------------------------------------------------" << std::endl;
+	// // //std::cout << "\n--------------Solving is finished---------------------------------------------------" << std::endl;
 
-}
+// }
 
 }; // namespace SPH

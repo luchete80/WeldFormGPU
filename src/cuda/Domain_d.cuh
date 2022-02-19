@@ -79,6 +79,7 @@ class Boundary;
 
 // };
 
+class Domain;
 
 class Domain_d
 {
@@ -96,16 +97,17 @@ class Domain_d
 	
 	//Time things
 	bool isfirst_step;
-	double deltat;
+
+	double					Time;    				//Current time of simulation at each solving step
+	double					deltat;					//Time Step
+	double					deltatmin;			//Minimum Time Step
+	double					deltatint;			//Initial Time Step
+
 	
 	double *rho, *m;	//Mass and density
 	//THERMAL
 	double *T, *Ta, *Tb, *dTdt;
 	double *k_T, *cp_T,*h_conv, *T_inf;
-				// dom.Particles[a]->k_T			=	3000.;
-			// dom.Particles[a]->cp_T			=	1.;
-			// dom.Particles[a]->h_conv		= 100.0; //W/m2-K
-			// dom.Particles[a]->T_inf 		= 500.;
 			
 	Domain_d(){};
 	Domain_d(const int &particle_count);
@@ -113,6 +115,8 @@ class Domain_d
 	__host__ void ThermalSolve();
 	~Domain_d();
 	
+	__host__ void Domain_d::CopyData(const Domain &dom);
+
 };
 
 //Called by Solve host function
@@ -140,11 +144,5 @@ __global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb,
 // __global__ void LastComputeAccelerationKernel(Domain_d &sd);
 
 }; // namespace SPH
-
-// #include "Interaction.cpp"
-// #include "Domain.cpp"
-// #include "Output.cpp"
-// #include "InOutFlow.cpp"
-// #include "Thermal.cpp"
 
 #endif // SPH_DOMAIN_H

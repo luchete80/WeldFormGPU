@@ -31,7 +31,7 @@
 #include "Particle.h"
 //#include "cuda/Functions.cuh"
 #include "Boundary_Condition.h"
-
+#include "cuda_runtime.h"
 //#include "cuda/Domain_d.cuh"
 
 // //#ifdef _WIN32 /* __unix__ is usually defined by compilers targeting Unix systems */
@@ -240,9 +240,9 @@ __global__ void WriteCSV_kernel (Domain *d);
 }; // namespace SPH
 
 // #include "Interaction.cpp"
-#include "Domain.cpp"
+//#include "Domain.cpp"
 //#include "NbSearch.cpp"
-#include "Output.cpp"
+//#include "Output.cpp"
 //#include "InOutFlow.cpp"
 // #include "Thermal.cpp"
 

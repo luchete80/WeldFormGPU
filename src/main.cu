@@ -73,24 +73,17 @@ using std::endl;
 int main(int argc, char **argv) //try
 {
 	cout << "Initializing"<<endl;
-	SPH::Domain* dom_d;//Cannot be defined as _device
+	SPH::Domain dom;//Cannot be defined as _device
 	// //OR cudamalloc((void**)&correctBool, sizeof(int));
-	cudaMallocManaged(&dom_d, sizeof(SPH::Domain));
-	new(dom_d) SPH::Domain();
+	// cudaMallocManaged(&dom, sizeof(SPH::Domain));
+	// new(dom) SPH::Domain();
 	
-	SPH::Domain_d dom_d2;
-	dom_d2.SetDimension(dom_d->Particles.size());
+	SPH::Domain_d *dom_d;
+	cudaMallocManaged(&dom_d, sizeof(SPH::Domain));
+	dom_d->SetDimension(dom.Particles.size());
 
-  //SPH::Domain	dom;
-	Vector *T =  (Vector *)malloc(dom_d->Particles.size());
-	for (int i=0;i<dom_d->Particles.size();i++){
-		T[i] = dom_d->Particles[i]->T;
-	}
-	int size = dom_d->Particles.size() * sizeof(Vector);
-	cudaMemcpy(dom_d2.T, T, size, cudaMemcpyHostToDevice);
-
-  dom_d->Dimension	= 3;
-  //dom_d->Kernel_Set(Qubic_Spline);
+  dom.Dimension	= 3;
+  //dom.Kernel_Set(Qubic_Spline);
 
 //  dom.Scheme	= 0;
 //     	dom.XSPH	= 0.5; //Very important
@@ -106,7 +99,7 @@ int main(int argc, char **argv) //try
 	h	= dx*1.2; //Very important
 	Cs	= sqrt(K/rho);
 
-     double timestep;
+  double timestep;
 
 	// cout<<"t  = "<<timestep<<endl;
 	// cout<<"Cs = "<<Cs<<endl;
@@ -114,11 +107,21 @@ int main(int argc, char **argv) //try
 	// cout<<"G  = "<<G<<endl;
 	// cout<<"Fy = "<<Fy<<endl;
 	
-	// dom_d->GeneralAfter = & UserAcc;
-	// dom_d->DomMax(0) = H;
-	// dom_d->DomMin(0) = -H;
+	// dom.GeneralAfter = & UserAcc;
+	// dom.DomMax(0) = H;
+	// dom.DomMin(0) = -H;
 	cout << "Creating Domain"<<endl;
-	dom_d->AddBoxLength(1 ,Vector ( -H/2.0 -H/20., -H/2.0 -H/20., -H/2.0 -H/20. ), H + H/20., H +H/20.,  H + H/20. , dx/2.0 ,rho, h, 1 , 0 , false, false );
+	dom.AddBoxLength(1 ,Vector ( -H/2.0 -H/20., -H/2.0 -H/20., -H/2.0 -H/20. ), H + H/20., H +H/20.,  H + H/20. , dx/2.0 ,rho, h, 1 , 0 , false, false );
+
+  //SPH::Domain	dom;
+	double3 *x =  (double3 *)malloc(dom.Particles.size());
+	for (int i=0;i<dom.Particles.size();i++){
+		x[i] = make_double3(dom.Particles[i]->x);
+	}
+	int size = dom.Particles.size() * sizeof(double3);
+	cout << "Copying to device..."<<endl;
+	cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
+	cout << "copied"<<endl;
 		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
      	// // double x;
 
@@ -143,12 +146,12 @@ int main(int argc, char **argv) //try
 		// // //0.3 rho cp h^2/k
 	
 		
-	dom_d->WriteCSV("maz");
+	dom.WriteCSV("maz");
 	
-	WriteCSV_kernel<<<1,1>>>(dom_d);
+	WriteCSV_kernel<<<1,1>>>(&dom);
 // // //    	dom.Solve(/*tf*/0.01,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
 
-		// dom_d->Solve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);
+		// dom.Solve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);
 		
         // return 0;
 }

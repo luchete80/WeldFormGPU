@@ -69,8 +69,9 @@ SET(EXES
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 add_executable(gpuweldform main.cu
-													#Domain.cpp NbSearch.cpp 
-													
+													Domain.cpp 
+													#NbSearch.cpp 
+													Output.cpp
 													Vector.cpp
 													) 
 

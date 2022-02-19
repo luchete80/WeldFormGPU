@@ -1,5 +1,6 @@
 #include "Domain_d.cuh"
 #include "Functions.cuh"
+#include "Domain.h"
 //Allocating from host
 namespace SPH {
 void Domain_d::SetDimension(const int &particle_count){
@@ -29,6 +30,35 @@ void Domain_d::SetDimension(const int &particle_count){
 
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
+}
+
+// // Templatize data type, and host and device vars (of this type)
+// template <typename T> copydata (const Domain &d, T *var_h, T *var_d){
+	// T *var_h =  (Vector *)malloc(dom.Particles.size());
+	// for (int i=0;i<dom.Particles.size();i++){
+		// var_h[i] = dom.Particles[i]->T;
+	// }
+	// int size = dom.Particles.size() * sizeof(Vector);
+	// cudaMemcpy(this->T, T, size, cudaMemcpyHostToDevice);
+// }
+
+//TEMPORARY, UNTIL EVERYTHING WILL BE CREATED ON DEVICE
+void __host__ Domain_d::CopyData(const Domain& dom){
+	
+	//TODO TEMPLATIZE THIS!!
+	double *T =  (double *)malloc(dom.Particles.size());
+	for (int i=0;i<dom.Particles.size();i++){
+		T[i] = dom.Particles[i]->T;
+	}
+	int size = dom.Particles.size() * sizeof(double);
+	cudaMemcpy(this->T, T, size, cudaMemcpyHostToDevice);
+
+	// for (int i=0;i<dom.Particles.size();i++){
+		// T[i] = dom.Particles[i]->cp_T;
+	// }
+	// int size = dom.Particles.size() * sizeof(double);
+	// cudaMemcpy(this->cp_T, T, size, cudaMemcpyHostToDevice);
+	
 }
 
 //Thread per particle

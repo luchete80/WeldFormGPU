@@ -2,6 +2,7 @@
 //#include "External/string_.h"
 #include <sstream>
 #include <fstream> 
+#include <iostream>
 //template<typename Value_T>
 std::ostream & operator<< (std::ostream & os, //const LinAlg::Vector<Value_T> & V
 							const Vector&V)
@@ -11,6 +12,7 @@ std::ostream & operator<< (std::ostream & os, //const LinAlg::Vector<Value_T> & 
     return os;
 }
 
+using namespace std;
 namespace SPH {
 	
 inline void Domain::PrintInput(char const * FileKey)
