@@ -147,7 +147,7 @@ int main(int argc, char **argv) //try
 	
 	//Creating 2 arrays of nb (TODO: Which is faster 2D or flattened array?)
 	//First, counting size of all nbs
-	int MAXNB_PPART = 70;
+	int MAXNB_PPART = 500; //TO REDUCE
 	int** nb2d = new int*[dom.Particles.size()];
 	for(int i = 0; i < dom.Particles.size(); ++i)
 		nb2d[i] = new int[MAXNB_PPART];
@@ -160,8 +160,9 @@ int main(int argc, char **argv) //try
 		cout<< "pair size"<<dom.SMPairs[k].size()<<endl;
 		for (int a=0; a<dom.SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
 			//cout << "a,k: "<<a<<" "<<k<<endl;
-			//nb2d[dom.SMPairs[k][a].first] [nb[dom.SMPairs[k][a].first]]  = dom.SMPairs[k][a].second;
-			//nb2d[dom.SMPairs[k][a].second][nb[dom.SMPairs[k][a].second]] = dom.SMPairs[k][a].first;
+			nb2d[dom.SMPairs[k][a].first] [nb[dom.SMPairs[k][a].first]]  = dom.SMPairs[k][a].second;
+			nb2d[dom.SMPairs[k][a].second][nb[dom.SMPairs[k][a].second]] = dom.SMPairs[k][a].first;
+			//cout << dom.SMPairs[k][a].first<< ", "<<dom.SMPairs[k][a].second<<endl;
 			nb[dom.SMPairs[k][a].first]++;
 			nb[dom.SMPairs[k][a].second]++;
 			nbcount+=2; // Total nb count (for flattened array)
@@ -180,21 +181,22 @@ int main(int argc, char **argv) //try
 	
 	int i=0;
 	cout << "Creating flattened array..."<<endl;	
-	// for (int n=0; n<dom.Particles.size();n++) {
-		// for (int k=0; k< nb[n] ;k++) {
-			// nb_part[i] = nb2d[n][k];
-			// i++;		
-		// }
-		// nb_offs[n+1]=i;
-	// }
+	for (int n=0; n<dom.Particles.size();n++) {
+		for (int k=0; k< nb[n] ;k++) {
+			nb_part[i] = nb2d[n][k];
+			i++;		
+		}
+		nb_offs[n+1]=i;
+	}
   cout<< "done"<<endl;
 	
 	cout << "Allocating in device.."<<endl;
 	//Device side
-	//cudaMalloc((void **) dom_d->neib_part, 	(nbcount) * sizeof (int));
-	//cudaMemcpy(dom_d->neib_part, nb_part, nbcount * sizeof(int), cudaMemcpyHostToDevice);
+	cudaMalloc((void **) dom_d->neib_part, 	(nbcount) * sizeof (int));
+	report_gpu_mem();
+	cudaMemcpy(dom_d->neib_part, nb_part, nbcount * sizeof(int), cudaMemcpyHostToDevice);
 	//nb offset or count already initiated
-	//cudaMemcpy(dom_d->neib_offs, nb_offs, (dom.Particles.size()+1) * sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(dom_d->neib_offs, nb_offs, (dom.Particles.size()+1) * sizeof(int), cudaMemcpyHostToDevice);
 	
 	cout << "done"<<endl;
 	cout << "Setting values"<<endl;
@@ -232,7 +234,7 @@ int main(int argc, char **argv) //try
 	// WriteCSV_kernel<<<1,1>>>(&dom);
 
 
-	//dom_d->ThermalSolve(/*tf*/1.01);
+	dom_d->ThermalSolve(/*tf*/1.01);
 		
         // return 0;
 				
