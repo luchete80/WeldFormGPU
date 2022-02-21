@@ -197,7 +197,7 @@ int main(int argc, char **argv) //try
 	//cudaMemcpy(dom_d->neib_offs, nb_offs, (dom.Particles.size()+1) * sizeof(int), cudaMemcpyHostToDevice);
 	
 	cout << "done"<<endl;
-	cout << "Setting values"
+	cout << "Setting values"<<endl;
 	dom_d->SetConductivity(3000.);
 	dom_d->SetHeatCap(1.);
 	cout << "done."<<endl;
