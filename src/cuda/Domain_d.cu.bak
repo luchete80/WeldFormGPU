@@ -2,8 +2,14 @@
 #include "Functions.cuh"
 #include "Domain.h"
 
-#define NEIB(x, y) neib[]
+//#ifdef FIXED_NBSIZE //fixed nb per part
+#define MAXNB_PPART
+//#define NEIB(i, k) neib [ MAXNB_PPART * i + k]  
+//#else
+//#define NEIB(i, k) neib [ neibcount[i-1]  i + k]  
+//#endif
 
+//Else (offset)
 //Allocating from host
 namespace SPH {
 void Domain_d::SetDimension(const int &particle_count){

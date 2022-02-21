@@ -149,7 +149,7 @@ int main(int argc, char **argv) //try
 	
 	//Creating 2 arrays of nb (TODO: Which is faster 2D or flattened array?)
 	//First, counting size of all nbs
-	int MAX_NB = 70;
+	int MAXNB_PPART = 70;
 	int** nb2d = new int*[dom.Particles.size()];
 	for(int i = 0; i < dom.Particles.size(); ++i)
 		nb2d[i] = new int[MAX_NB];

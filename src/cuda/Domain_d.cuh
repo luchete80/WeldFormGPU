@@ -79,6 +79,13 @@ class Boundary;
 
 // };
 
+//#ifdef FIXED_NBSIZE //fixed nb per part
+#define MAXNB_PPART
+//#define NEIB(i, k) neib [ MAXNB_PPART * i + k]  
+//#else
+//#define NEIB(i, k) neib [ neibcount[i-1]  i + k]  
+//#endif
+
 class Domain;
 
 class Domain_d

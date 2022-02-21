@@ -2,9 +2,6 @@
 #include "Functions.cuh"
 #include "Domain.h"
 
-//If fixed
-//#define NEIB(x, y) neibcount neib[] + 
-
 //Else (offset)
 //Allocating from host
 namespace SPH {
