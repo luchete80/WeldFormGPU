@@ -123,7 +123,8 @@ int main(int argc, char **argv) //try
   dom.GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
 	dom.AddBoxLength(1 ,Vector ( -H/2.0 -H/20., -H/2.0 -H/20., -H/2.0 -H/20. ), H + H/20., H +H/20.,  H + H/20. , dx/2.0 ,rho, h, 1 , 0 , false, false );
-
+	cout << "Particle count:" <<dom.Particles.size()<<endl;
+	
   //SPH::Domain	dom;
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
 	double3 *x =  new double3 [dom.Particles.size()];
@@ -156,57 +157,69 @@ int main(int argc, char **argv) //try
 	for (int i = 0; i < dom.Particles.size(); ++i) nb[i] = 0;
 	//THIS WILL BE DONE IN SEARCH
 	for ( int k = 0; k < dom.Nproc ; k++) {
+		cout<< "pair size"<<dom.SMPairs[k].size()<<endl;
 		for (int a=0; a<dom.SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
-			nb2d[dom.SMPairs[k][a].first] [nb[dom.SMPairs[k][a].first]]  = dom.SMPairs[k][a].second;
-			nb2d[dom.SMPairs[k][a].second][nb[dom.SMPairs[k][a].second]] = dom.SMPairs[k][a].first;
+			//cout << "a,k: "<<a<<" "<<k<<endl;
+			//nb2d[dom.SMPairs[k][a].first] [nb[dom.SMPairs[k][a].first]]  = dom.SMPairs[k][a].second;
+			//nb2d[dom.SMPairs[k][a].second][nb[dom.SMPairs[k][a].second]] = dom.SMPairs[k][a].first;
 			nb[dom.SMPairs[k][a].first]++;
 			nb[dom.SMPairs[k][a].second]++;
 			nbcount+=2; // Total nb count (for flattened array)
 		}
 	}
+	cout << "NbCount[0] "<< nb[0]<<endl;
 	cout << "Done."<<endl;
 	
+	cout << "Allocating flattened array..."<<endl;
 	//FLATENED ARRAY
 	int *nb_part =  new int [nbcount]; //This could be sized only once with max nb count
 	int *nb_offs =  new int [dom.Particles.size()+1];
+	for (int n=0; n<dom.Particles.size();n++) 	nb_offs[n] = 0;
+	for (int n=0; n<nbcount;n++) 								nb_part[n] = 0;
+  cout << "Nb array size"<< nbcount<<endl;
+	
 	int i=0;
-	for (int n=0; n<dom.Particles.size();n++) { nb_part[n] = nb_offs[n] = 0;}
+	cout << "Creating flattened array..."<<endl;	
+	// for (int n=0; n<dom.Particles.size();n++) {
+		// for (int k=0; k< nb[n] ;k++) {
+			// nb_part[i] = nb2d[n][k];
+			// i++;		
+		// }
+		// nb_offs[n+1]=i;
+	// }
+  cout<< "done"<<endl;
 	
-	for (int n=0; n<dom.Particles.size();n++) {
-		for (int k=0; k< nb[n] ;k++) {
-			nb_part[i] = nb2d[n][k];
-			i++;		
-		}
-		nb_offs[n+1]=i;
-	}
-	cout << "Nb count"<< nb[0]<<endl;
-	
+	cout << "Allocating in device.."<<endl;
 	//Device side
-	cudaMalloc((void **) dom_d->neib_part, 	(nbcount) * sizeof (int));
-	cudaMemcpy(dom_d->neib_part, nb_part, nbcount * sizeof(int), cudaMemcpyHostToDevice);
+	//cudaMalloc((void **) dom_d->neib_part, 	(nbcount) * sizeof (int));
+	//cudaMemcpy(dom_d->neib_part, nb_part, nbcount * sizeof(int), cudaMemcpyHostToDevice);
 	//nb offset or count already initiated
-	cudaMemcpy(dom_d->neib_offs, nb_offs, (dom.Particles.size()+1) * sizeof(int), cudaMemcpyHostToDevice);
+	//cudaMemcpy(dom_d->neib_offs, nb_offs, (dom.Particles.size()+1) * sizeof(int), cudaMemcpyHostToDevice);
 	
+	cout << "done"<<endl;
+	cout << "Setting values"
 	dom_d->SetConductivity(3000.);
 	dom_d->SetHeatCap(1.);
+	cout << "done."<<endl;
 	
 		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
      	// // double x;
 
-    	// // for (size_t a=0; a<dom.Particles.Size(); a++)
-    	// // {
-    		// // x = dom.Particles[a]->x(0);
-			// // dom.Particles[a]->k_T			=	3000.;
-			// // dom.Particles[a]->cp_T			=	1.;
-			// // dom.Particles[a]->h_conv		= 100.0; //W/m2-K
-			// // dom.Particles[a]->T_inf 		= 500.;
-			// // dom.Particles[a]->T				= 20.0;			
-    		// // if ( x < -H/2.0 ) {
-    			// // dom.Particles[a]->ID 			= 2;
-    			// // dom.Particles[a]->Thermal_BC 	= TH_BC_CONVECTION;
-				// // // cout << "Particle " << a << "is convection BC" <<endl;
-			// // }
-    	// // }
+    	for (size_t a=0; a<dom.Particles.size(); a++)
+    	{
+    		// x = dom.Particles[a]->x(0);
+			// dom.Particles[a]->k_T			=	3000.;
+			// dom.Particles[a]->cp_T			=	1.;
+			// dom.Particles[a]->h_conv		= 100.0; //W/m2-K
+			// dom.Particles[a]->T_inf 		= 500.;
+			// dom.Particles[a]->T				= 20.0;		
+			dom.Particles[a]->IsFree	= true;		
+    		// if ( x < -H/2.0 ) {
+    			// dom.Particles[a]->ID 			= 2;
+    			// dom.Particles[a]->Thermal_BC 	= TH_BC_CONVECTION;
+				// // cout << "Particle " << a << "is convection BC" <<endl;
+			// }
+    	}
 
         // // timestep = (0.3*h*h*rho*dom.Particles[0]->cp_T/dom.Particles[0]->k_T);	
 		// // cout << "Time Step: "<<timestep<<endl;
@@ -217,9 +230,9 @@ int main(int argc, char **argv) //try
 	// dom.WriteCSV("maz");
 	
 	// WriteCSV_kernel<<<1,1>>>(&dom);
-// // //    	dom.Solve(/*tf*/0.01,/*dt*/timestep,/*dtOut*/0.001,"test06",999);
 
-		// dom.Solve(/*tf*/1.01,/*dt*/timestep,/*dtOut*/0.1,"test06",999);
+
+	//dom_d->ThermalSolve(/*tf*/1.01);
 		
         // return 0;
 				
