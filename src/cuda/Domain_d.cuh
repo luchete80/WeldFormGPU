@@ -49,7 +49,7 @@
 
 //#include <cuNSearch.h>
 
-//#define neibs (i,j)	neibs[i*neibcount[i-1]+j]
+
 
 namespace SPH {
 
@@ -79,13 +79,6 @@ class Boundary;
 
 // };
 
-//#ifdef FIXED_NBSIZE //fixed nb per part
-#define MAXNB_PPART
-//#define NEIB(i, k) neib [ MAXNB_PPART * i + k]  
-//#else
-//#define NEIB(i, k) neib [ neibcount[i-1]  i + k]  
-//#endif
-
 class Domain;
 
 class Domain_d
@@ -94,11 +87,12 @@ class Domain_d
 	//cuNSearch::NeighborhoodSearch neib;
 	//Structured in AOS
 	int **neib;	//array of lists
-	int *neib_idx;	//1D array, faster
 	int *neib_part;	//1D array, faster
+	int *neib_offs;	//Offset or count
 	
 	int *neib_count; //Optional
 	int *neibcount;	//Useful??
+	int particle_count;
 	
 	double *h;
 	double3* x; //Vector is double
@@ -123,13 +117,15 @@ class Domain_d
 	Domain_d(const int &particle_count);
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
 	__host__ void ThermalSolve(const double &tf);
+	__host__ void SetConductivity(const double &k);
+	__host__ void SetHeatCap(const double &);
 	~Domain_d();
 	
 	__host__ void Domain_d::CopyData(const Domain &dom);
 
 };
 
-PartData_d{
+class PartData_d{
 	
 	public:
 	//cuNSearch::NeighborhoodSearch neib;
@@ -152,7 +148,7 @@ __global__ void ThermalSolveKernel(double *dTdt,
 																		double3 *x, double *h,
 																		double *mass, double *rho, 
 																		double *T, double *k_T, double *cp_T, 
-																		int *neib, int *neibcount); //Idea is to pass minimum data as possible
+																		int *neib_part, int *neib_offs); //Idea is to pass minimum data as possible
 
 
 __global__ void TempCalcLeapfrogFirst(double *T,double *Ta, double *Tb, 

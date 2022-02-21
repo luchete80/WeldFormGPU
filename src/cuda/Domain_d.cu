@@ -6,6 +6,7 @@
 //Allocating from host
 namespace SPH {
 void Domain_d::SetDimension(const int &particle_count){
+	this->particle_count = particle_count;
 	//Allocae arrays (as Structure of arryays, SOA)
 
 	cudaMalloc((void **)&x, particle_count * sizeof (double3));
@@ -23,7 +24,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&T		, particle_count * sizeof (double));
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
 
-
+	//Nb data
+	cudaMalloc((void **)&neib_offs	, (particle_count + 1) * sizeof (int));
 	
 	// cudaMalloc((void**)&ppArray_a, 10 * sizeof(int*));
 	// for(int i=0; i<10; i++) {
@@ -32,6 +34,26 @@ void Domain_d::SetDimension(const int &particle_count){
 
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
+}
+
+void Domain_d::SetConductivity(const double &k){
+	double *k_ =  new double[particle_count];
+	for (int i=0;i<particle_count;i++){
+		k_[i] = k;
+	}
+	int size = particle_count * sizeof(double);
+	cudaMemcpy(this->k_T, k_, size, cudaMemcpyHostToDevice);
+	delete k_;
+}
+
+void Domain_d::SetHeatCap(const double &cp){
+	double *cp_ =  new double[particle_count];
+	for (int i=0;i<particle_count;i++){
+		cp_[i] = cp;
+	}
+	int size = particle_count * sizeof(double);
+	cudaMemcpy(this->cp_T, cp_, size, cudaMemcpyHostToDevice);
+	delete cp_;
 }
 
 // // Templatize data type, and host and device vars (of this type)
@@ -63,19 +85,35 @@ void __host__ Domain_d::CopyData(const Domain& dom){
 	
 }
 
+//#ifdef FIXED_NBSIZE //fixed nb per part (row), filled with zeroes
+//#define MAXNB_PPART
+//#define NEIB(i, k) neib_part [ MAXNB_PPART * i + k]  
+//#else
+#define NEIB(i, k) neib_part[neib_offs[i]+k]  //Just the right amount of indices, non filled with zeroes
+//#endif
+
 //Thread per particle
 //dTdt+=1/cp* (mass/dens^2)*4(k)
 void __global__ ThermalSolveKernel (double *dTdt,
 																		double3 *x, double *h,
 																		double *m, double *rho,
 																		double *T, double *k_T, double *cp, 
-																		int *neib, int *neibcount){
+																		int *neib_part, int *neib_offs/*orcount*/) {
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
 	dTdt[i] = 0.;
+	
+	int neibcount;
+	#ifdef FIXED_NBSIZE
+	neibcount = neib_offs[i];
+	#else
+	neibcount =	neib_offs[i+1] - neib_offs[i];
+	#endif
 
-	for (int k=0;k < neibcount[i];k++) { //Or size
+	for (int k=0;k < neibcount;k++) { //Or size
 		//if fixed size i = part * NB + k
-		int j = neib[i][k];
+		//int j = neib[i][k];
+		int j = NEIB(i,k);
+				
 		double3 xij; 
 		xij = x[i] - x[j];
 		double h_ = (h[i] + h[j])/2.0;
@@ -113,7 +151,7 @@ void Domain_d::ThermalSolve(const double &tf){
 																		x, h, //Vector has some problems
 																		m, rho, 
 																		T, k_T, cp_T,
-																		neib_idx, neib_offs);
+																		neib_part, neib_offs);
 		
 		if (isfirst_step) {
 			TempCalcLeapfrogFirst<<< 1,1 >>>(T, Ta, Tb,

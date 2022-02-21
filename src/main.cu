@@ -85,11 +85,11 @@ int main(int argc, char **argv) //try
 	// cudaMallocManaged(&dom, sizeof(SPH::Domain));
 	// new(dom) SPH::Domain();
 	
-	// SPH::Domain_d *dom_d;
-	// report_gpu_mem();
-	// cudaMallocManaged(&dom_d, sizeof(SPH::Domain));
-	// report_gpu_mem();
-	// dom_d->SetDimension(dom.Particles.size());
+	SPH::Domain_d *dom_d;
+	report_gpu_mem();
+	cudaMallocManaged(&dom_d, sizeof(SPH::Domain));
+	report_gpu_mem();
+	dom_d->SetDimension(dom.Particles.size());
 
   dom.Dimension	= 3;
   dom.Nproc	= 4;
@@ -128,7 +128,7 @@ int main(int argc, char **argv) //try
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
 	double3 *x =  new double3 [dom.Particles.size()];
 	for (int i=0;i<dom.Particles.size();i++){
-		cout <<"i; "<<i<<endl;
+		//cout <<"i; "<<i<<endl;
 		//x[i] = make_double3(dom.Particles[i]->x);
 		x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));
 	}
@@ -144,18 +144,15 @@ int main(int argc, char **argv) //try
 	cout << "Nb Searching..."<<endl;	dom.MainNeighbourSearch(); 
 	cout << "Done"<<endl;
 	
-	std::vector <int> nb(dom.Particles.size());
-	//std::vector <int> nbcount(Particles.size());
-	
 	//Creating 2 arrays of nb (TODO: Which is faster 2D or flattened array?)
 	//First, counting size of all nbs
 	int MAXNB_PPART = 70;
 	int** nb2d = new int*[dom.Particles.size()];
 	for(int i = 0; i < dom.Particles.size(); ++i)
-		nb2d[i] = new int[MAX_NB];
-
+		nb2d[i] = new int[MAXNB_PPART];
+	cout << "Creating 2d array..."<<endl;
 	int nbcount = 0;
-	int *nb;new int[dom.Particles.size()];
+	int *nb = new int[dom.Particles.size()]; //nb count of each particle
 	for (int i = 0; i < dom.Particles.size(); ++i) nb[i] = 0;
 	//THIS WILL BE DONE IN SEARCH
 	for ( int k = 0; k < dom.Nproc ; k++) {
@@ -167,10 +164,11 @@ int main(int argc, char **argv) //try
 			nbcount+=2; // Total nb count (for flattened array)
 		}
 	}
+	cout << "Done."<<endl;
 	
 	//FLATENED ARRAY
 	int *nb_part =  new int [nbcount]; //This could be sized only once with max nb count
-	int *nb_offs =  new int [dom.Particles.size()];
+	int *nb_offs =  new int [dom.Particles.size()+1];
 	int i=0;
 	for (int n=0; n<dom.Particles.size();n++) { nb_part[n] = nb_offs[n] = 0;}
 	
@@ -179,10 +177,19 @@ int main(int argc, char **argv) //try
 			nb_part[i] = nb2d[n][k];
 			i++;		
 		}
-		nb_offs+=i;
+		nb_offs[n+1]=i;
 	}
 	cout << "Nb count"<< nb[0]<<endl;
-		
+	
+	//Device side
+	cudaMalloc((void **) dom_d->neib_part, 	(nbcount) * sizeof (int));
+	cudaMemcpy(dom_d->neib_part, nb_part, nbcount * sizeof(int), cudaMemcpyHostToDevice);
+	//nb offset or count already initiated
+	cudaMemcpy(dom_d->neib_offs, nb_offs, (dom.Particles.size()+1) * sizeof(int), cudaMemcpyHostToDevice);
+	
+	dom_d->SetConductivity(3000.);
+	dom_d->SetHeatCap(1.);
+	
 		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
      	// // double x;
 
