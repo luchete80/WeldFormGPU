@@ -102,29 +102,29 @@ void __global__ ThermalSolveKernel (double *dTdt,
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
 	dTdt[i] = 0.;
 	
-	int neibcount;
-	#ifdef FIXED_NBSIZE
-	neibcount = neib_offs[i];
-	#else
-	neibcount =	neib_offs[i+1] - neib_offs[i];
-	#endif
-
-	for (int k=0;k < neibcount;k++) { //Or size
-		//if fixed size i = part * NB + k
-		//int j = neib[i][k];
-		int j = NEIB(i,k);
-				
-		double3 xij; 
-		xij = x[i] - x[j];
-		double h_ = (h[i] + h[j])/2.0;
-		double nxij = length(xij);
+	// int neibcount;
+	// #ifdef FIXED_NBSIZE
+	// neibcount = neib_offs[i];
+	// #else
+	// neibcount =	neib_offs[i+1] - neib_offs[i];
+	// #endif
+	// printf("Solving\n");
+	// for (int k=0;k < neibcount;k++) { //Or size
+		// //if fixed size i = part * NB + k
+		// //int j = neib[i][k];
+		// int j = NEIB(i,k);
+		// printf("i,j\n",i,j);
+		// double3 xij; 
+		// xij = x[i] - x[j];
+		// double h_ = (h[i] + h[j])/2.0;
+		// double nxij = length(xij);
 		
-		double GK	= GradKernel(3, 0, nxij/h_, h_);
-		//		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
-		//   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
-		dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij);
-	}
-	dTdt[i] *=1/(rho[i]*cp[i]);
+		// double GK	= GradKernel(3, 0, nxij/h_, h_);
+		// //		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
+		// //   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
+		// dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij);
+	// }
+	// dTdt[i] *=1/(rho[i]*cp[i]);
 }
 
 __global__ void TempCalcLeapfrogFirst(double *T, double *Ta, double *Tb, //output
@@ -149,21 +149,21 @@ void Domain_d::ThermalSolve(const double &tf){
 	int threadsPerBlock = 256;
 	int blocksPerGrid =
 	(N + threadsPerBlock - 1) / threadsPerBlock;
-
+  Time =0.;
 	while (Time<tf) {
-		ThermalSolveKernel<<<blocksPerGrid,threadsPerBlock>>>(dTdt,	
+		ThermalSolveKernel<<<1,1>>>(dTdt,	
 																		x, h, //Vector has some problems
 																		m, rho, 
 																		T, k_T, cp_T,
 																		neib_part, neib_offs);
 		
-		if (isfirst_step) {
-			TempCalcLeapfrogFirst<<< 1,1 >>>(T, Ta, Tb,
-																			 dTdt, deltat);		
-		} else {
-			TempCalcLeapfrog <<< 1,1 >>>(T, Ta, Tb,
-																			 dTdt, deltat);				
-		}
+		// if (isfirst_step) {
+			// TempCalcLeapfrogFirst<<< 1,1 >>>(T, Ta, Tb,
+																			 // dTdt, deltat);		
+		// } else {
+			// TempCalcLeapfrog <<< 1,1 >>>(T, Ta, Tb,
+																			 // dTdt, deltat);				
+		// }
 		Time += deltat;
 	}//main time while
 }//Thermal Solve
