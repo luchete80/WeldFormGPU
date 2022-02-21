@@ -233,7 +233,7 @@ int main(int argc, char **argv) //try
 	
 	// WriteCSV_kernel<<<1,1>>>(&dom);
 
-
+	cout << "Solving "<<endl;
 	dom_d->ThermalSolve(/*tf*/1.01);
 		
         // return 0;

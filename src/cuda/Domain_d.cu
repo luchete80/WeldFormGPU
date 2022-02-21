@@ -145,9 +145,13 @@ __global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb,
 //Originally in Particle::TempCalcLeapfrog
 //Host function
 void Domain_d::ThermalSolve(const double &tf){
+	int N = particle_count;
+	int threadsPerBlock = 256;
+	int blocksPerGrid =
+	(N + threadsPerBlock - 1) / threadsPerBlock;
 
 	while (Time<tf) {
-		ThermalSolveKernel<<<1,1>>>(dTdt,	
+		ThermalSolveKernel<<<blocksPerGrid,threadsPerBlock>>>(dTdt,	
 																		x, h, //Vector has some problems
 																		m, rho, 
 																		T, k_T, cp_T,
