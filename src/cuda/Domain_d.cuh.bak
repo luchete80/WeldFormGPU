@@ -145,7 +145,7 @@ __global__ void ThermalSolveKernel(double *dTdt,
 																		double3 *x, double *h,
 																		double *mass, double *rho, 
 																		double *T, double *k_T, double *cp_T, 
-																		int *neib, int *neibcount); //Idea is to pass minimum data as possible
+																		int **neib, int *neibcount); //Idea is to pass minimum data as possible
 
 
 __global__ void TempCalcLeapfrogFirst(double *T,double *Ta, double *Tb, 

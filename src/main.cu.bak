@@ -173,8 +173,7 @@ int main(int argc, char **argv) //try
 	int *nb_offs =  new int [dom.Particles.size()];
 	int i=0;
 	for (int n=0; n<dom.Particles.size();n++) { nb_part[n] = nb_offs[n] = 0;}
-	
-	for (int n=0; n<dom.Particles.size();n++) {
+		for (int n=0; n<dom.Particles.size();n++) {
 		for (int k=0; k< nb[n] ;k++) {
 			nb_part[i] = nb2d[n][k];
 			i++;		
