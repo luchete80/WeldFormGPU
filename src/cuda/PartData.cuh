@@ -1,6 +1,14 @@
 #ifndef SPH_PARTDATA_CUH
 #define SPH_PARTDATA_CUH
 
+namespace SPH{
+//#ifdef FIXED_NBSIZE //fixed nb per part (row), filled with zeroes
+//#define MAXNB_PPART
+//#define NEIB(i, k) neib_part [ MAXNB_PPART * i + k]  
+//#else
+#define NEIB(i, k) neib_part[neib_offs[i]+k]  //Just the right amount of indices, non filled with zeroes
+//#endif
+
 class PartData_d{
 	
 	public:
@@ -26,6 +34,18 @@ class PartData_d{
 	//Be in another class
 	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
 	
+	//TENSILE INSTABILITY
+	double	*TI;		///< Tensile instability factor
+	double	*TIn;		///< Tensile instability power
+	double 	*TIInitDist;	///< Initial distance of particles for calculation of tensile instability
+	
+	
+	__device__ inline void CalcForce2233();
+	
 };
 
+__global__ void CalcForce2233(PartData_d *partdata);
+
+
+};
 #endif

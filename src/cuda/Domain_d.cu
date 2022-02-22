@@ -102,13 +102,6 @@ void __host__ Domain_d::CopyData(const Domain& dom){
 	
 }
 
-//#ifdef FIXED_NBSIZE //fixed nb per part (row), filled with zeroes
-//#define MAXNB_PPART
-//#define NEIB(i, k) neib_part [ MAXNB_PPART * i + k]  
-//#else
-#define NEIB(i, k) neib_part[neib_offs[i]+k]  //Just the right amount of indices, non filled with zeroes
-//#endif
-
 //Thread per particle
 //dTdt+=1/cp* (mass/dens^2)*4(k)
 void __global__ ThermalSolveKernel (double *dTdt,
