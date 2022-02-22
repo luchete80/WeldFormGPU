@@ -99,6 +99,8 @@ class Domain_d
 	Vector* v;
 	Vector* a;
 	
+	PartData_d *partdata;
+	
 	//Time things
 	bool isfirst_step;
 
@@ -135,11 +137,18 @@ class PartData_d{
 	int *neib_offs;	//1D array, faster
 	int *neibcount;	//Useful??
 	
+	bool *isFree, *noSlip;
+	
 	//General
 	double *rho, *m;	//Mass and density
 	//THERMAL
 	double *T, *Ta, *Tb, *dTdt;
 	double *k_T, *cp_T,*h_conv, *T_inf;
+	
+	//Mechanical
+	double *p;
+	
+	double *sigma; //To convert after to tensor;
 	
 };
 
@@ -156,7 +165,8 @@ __global__ void TempCalcLeapfrogFirst(double *T,double *Ta, double *Tb,
 __global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb, 
 																			double *dTdt, double dt);
 	
-	
+
+void __global__ MechSolveKernel (double dt, PartData_d *partdata);
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
 // __global__ void StartAccelerationKernel(Domain_d &sd);
