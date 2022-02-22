@@ -72,6 +72,17 @@ void report_gpu_mem()
 }
 
 
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+//https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
+inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+{
+   if (code != cudaSuccess) 
+   {
+      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+      if (abort) exit(code);
+   }
+}
+
 using std::cout;
 using std::endl;
 
@@ -87,7 +98,7 @@ int main(int argc, char **argv) //try
 	
 	SPH::Domain_d *dom_d;
 	report_gpu_mem();
-	cudaMallocManaged(&dom_d, sizeof(SPH::Domain));
+	gpuErrchk(cudaMallocManaged(&dom_d, sizeof(SPH::Domain)) );
 	report_gpu_mem();
 	dom_d->SetDimension(dom.Particles.size());
 
