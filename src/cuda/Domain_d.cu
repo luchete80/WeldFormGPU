@@ -28,6 +28,10 @@ void Domain_d::SetDimension(const int &particle_count){
 	//Nb data
 	cudaMalloc((void **)&neib_offs	, (particle_count + 1) * sizeof (int));
 	
+	//cudaMalloc((void **)&partdata, sizeof(PartData_d));
+	
+	//cudaMalloc((void **)&partdata->dTdt,particle_count * sizeof (double)); //TODO, pass to PartData
+	
 	// cudaMalloc((void**)&ppArray_a, 10 * sizeof(int*));
 	// for(int i=0; i<10; i++) {
 		// cudaMalloc(&someHostArray[i], 100*sizeof(int)); /* Replace 100 with the dimension that u want */
@@ -35,6 +39,18 @@ void Domain_d::SetDimension(const int &particle_count){
 
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
+}
+
+void Domain_d::CheckData(){
+	printf("dTdt partdta: %d",sizeof(this->dTdt)/sizeof(double));
+	printf("dTdt[200] %f",dTdt[200]);
+	printf("neibpart %f",neib_offs[200]);
+	//dom->CheckData();
+}
+
+__global__ void CheckData(Domain_d *dom){
+	//printf("dTdt partdta: %d",sizeof(dom->partdata->dTdt)/sizeof(double));
+	dom->CheckData();
 }
 
 void Domain_d::SetConductivity(const double &k){
@@ -111,21 +127,22 @@ void __global__ ThermalSolveKernel (double *dTdt,
 	// #else
 	// neibcount =	neib_offs[i+1] - neib_offs[i];
 	// #endif
-	printf("Nb indexed,i:%d\n",i);
+	// printf("neibcount %d\n",neibcount);
+	// printf("Nb indexed,i:%d\n",i);
 	// for (int k=0;k < neibcount;k++) { //Or size
-		// //if fixed size i = part * NB + k
-		// //int j = neib[i][k];
+		// // //if fixed size i = part * NB + k
+		// // //int j = neib[i][k];
 		// int j = NEIB(i,k);
 		// printf("i,j\n",i,j);
-		// double3 xij; 
-		// xij = x[i] - x[j];
-		// double h_ = (h[i] + h[j])/2.0;
-		// double nxij = length(xij);
+		// // double3 xij; 
+		// // xij = x[i] - x[j];
+		// // double h_ = (h[i] + h[j])/2.0;
+		// // double nxij = length(xij);
 		
-		// double GK	= GradKernel(3, 0, nxij/h_, h_);
-		// //		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
-		// //   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
-		// dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij);
+		// // double GK	= GradKernel(3, 0, nxij/h_, h_);
+		// // //		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
+		// // //   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
+		// // dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij);
 	// }
 	//dTdt[i] *=1/(rho[i]*cp[i]);
 	//printf("dT: %f\n",dTdt[i]);

@@ -124,9 +124,11 @@ class Domain_d
 	~Domain_d();
 	
 	__host__ void Domain_d::CopyData(const Domain &dom);
+	__device__ void CheckData();
 
 };
 
+__global__ void CheckData(Domain_d *dom);
 
 //Called by Solve host function
 __global__ void ThermalSolveKernel(double *dTdt, 
