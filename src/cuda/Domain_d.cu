@@ -99,16 +99,18 @@ void __global__ ThermalSolveKernel (double *dTdt,
 																		double *m, double *rho,
 																		double *T, double *k_T, double *cp, 
 																		int *neib_part, int *neib_offs/*orcount*/) {
+
+	printf("searching nb..\n");	
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
-	dTdt[i] = 0.;
-	
+	// dTdt[i] = 0.;
+
 	// int neibcount;
 	// #ifdef FIXED_NBSIZE
 	// neibcount = neib_offs[i];
 	// #else
-	// neibcount =	neib_offs[i+1] - neib_offs[i];
-	// #endif
-	// printf("Solving\n");
+	//neibcount =	neib_offs[i+1] - neib_offs[i];
+	//#endif
+	printf("Nb indexed,i:\n",i);
 	// for (int k=0;k < neibcount;k++) { //Or size
 		// //if fixed size i = part * NB + k
 		// //int j = neib[i][k];
@@ -150,13 +152,16 @@ void Domain_d::ThermalSolve(const double &tf){
 	int blocksPerGrid =
 	(N + threadsPerBlock - 1) / threadsPerBlock;
   Time =0.;
-	while (Time<tf) {
-		ThermalSolveKernel<<<1,1>>>(dTdt,	
+	//	while (Time<tf) {
+	cout << "Callign Kernel"<<endl;
+	
+		ThermalSolveKernel<<<1,4>>>(dTdt,	
 																		x, h, //Vector has some problems
 																		m, rho, 
 																		T, k_T, cp_T,
 																		neib_part, neib_offs);
-		
+		cudaDeviceSynchronize(); //REQUIRED!!!!
+		cout << "Kernel called"<<endl;
 		// if (isfirst_step) {
 			// TempCalcLeapfrogFirst<<< 1,1 >>>(T, Ta, Tb,
 																			 // dTdt, deltat);		
@@ -165,7 +170,7 @@ void Domain_d::ThermalSolve(const double &tf){
 																			 // dTdt, deltat);				
 		// }
 		Time += deltat;
-	}//main time while
+	//}//main time while
 }//Thermal Solve
 
 Domain_d::~Domain_d(){

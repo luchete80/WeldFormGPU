@@ -41,7 +41,7 @@
 // #include "tensor.h"
 #include "Vector.h"
 #include "vector_math.h"
-
+#include "PartData.cuh"
 //C++ Enum used for easiness of coding in the input files
 
 //enum Viscosity_Eq_Type { Morris=0, Shao=1, Incompressible_Full=2, Takeda=3 };
@@ -127,32 +127,6 @@ class Domain_d
 
 };
 
-class PartData_d{
-	
-	public:
-	//cuNSearch::NeighborhoodSearch neib;
-	//Structured in AOS
-	int **neib;	//array of lists
-	int *neibs;	//1D array, faster
-	int *neib_offs;	//1D array, faster
-	int *neibcount;	//Useful??
-	
-	bool *isFree, *noSlip;
-	
-	//General
-	double *rho, *m;	//Mass and density
-	//THERMAL
-	double *T, *Ta, *Tb, *dTdt;
-	double *k_T, *cp_T,*h_conv, *T_inf;
-	
-	//Mechanical
-	double *p;
-	double *sigma; //To convert after to tensor;
-	
-	//Be in another class
-	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
-	
-};
 
 //Called by Solve host function
 __global__ void ThermalSolveKernel(double *dTdt, 

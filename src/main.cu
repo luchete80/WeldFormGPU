@@ -251,5 +251,6 @@ int main(int argc, char **argv) //try
 				
 	//cudaFree(dom_d);
 	report_gpu_mem();
+	cout << "Program ended."<<endl;
 }
 //MECHSYS_CATCH
