@@ -100,7 +100,6 @@ int main(int argc, char **argv) //try
 	report_gpu_mem();
 	gpuErrchk(cudaMallocManaged(&dom_d, sizeof(SPH::Domain)) );
 	report_gpu_mem();
-	dom_d->SetDimension(dom.Particles.size());
 
   dom.Dimension	= 3;
   dom.Nproc	= 4;
@@ -136,6 +135,7 @@ int main(int argc, char **argv) //try
 	dom.AddBoxLength(1 ,Vector ( -H/2.0 -H/20., -H/2.0 -H/20., -H/2.0 -H/20. ), H + H/20., H +H/20.,  H + H/20. , dx/2.0 ,rho, h, 1 , 0 , false, false );
 	cout << "Particle count:" <<dom.Particles.size()<<endl;
 	
+	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
   //SPH::Domain	dom;
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
 	double3 *x =  new double3 [dom.Particles.size()];

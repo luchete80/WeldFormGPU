@@ -23,6 +23,7 @@ void Domain_d::SetDimension(const int &particle_count){
 		
 	cudaMalloc((void **)&T		, particle_count * sizeof (double));
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
+	printf("Size of dTdt: %d, particle count %d\n",sizeof(dTdt)/sizeof (double),particle_count);
 
 	//Nb data
 	cudaMalloc((void **)&neib_offs	, (particle_count + 1) * sizeof (int));
@@ -108,9 +109,9 @@ void __global__ ThermalSolveKernel (double *dTdt,
 	// #ifdef FIXED_NBSIZE
 	// neibcount = neib_offs[i];
 	// #else
-	//neibcount =	neib_offs[i+1] - neib_offs[i];
-	//#endif
-	printf("Nb indexed,i:\n",i);
+	// neibcount =	neib_offs[i+1] - neib_offs[i];
+	// #endif
+	printf("Nb indexed,i:%d\n",i);
 	// for (int k=0;k < neibcount;k++) { //Or size
 		// //if fixed size i = part * NB + k
 		// //int j = neib[i][k];
@@ -126,7 +127,8 @@ void __global__ ThermalSolveKernel (double *dTdt,
 		// //   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
 		// dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij);
 	// }
-	// dTdt[i] *=1/(rho[i]*cp[i]);
+	//dTdt[i] *=1/(rho[i]*cp[i]);
+	//printf("dT: %f\n",dTdt[i]);
 }
 
 __global__ void TempCalcLeapfrogFirst(double *T, double *Ta, double *Tb, //output
