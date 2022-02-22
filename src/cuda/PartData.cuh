@@ -17,12 +17,17 @@ class PartData_d{
 	int **neib;	//array of lists
 	int *neibs;	//1D array, faster
 	int *neib_offs;	//1D array, faster
+	int *neib_part;	//1D array, faster
 	int *neibcount;	//Useful??
 	
 	bool *isFree, *noSlip;
 	
+	double3 *x,*v,*a;
 	//General
 	double *rho, *m;	//Mass and density
+
+	double 	rho_0;	///< Reference Density of Particle
+
 	//THERMAL
 	double *T, *Ta, *Tb, *dTdt;
 	double *k_T, *cp_T,*h_conv, *T_inf;
@@ -33,11 +38,20 @@ class PartData_d{
 	
 	//Be in another class
 	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
+		
+	//ARTIFFICIAL VISC	
+	double 	Alpha;		///< Dynamic viscosity coefficient of the fluid particle
+	double 	Beta;		///< Dynamic viscosity coefficient of the fluid particle
 	
 	//TENSILE INSTABILITY
 	double	*TI;		///< Tensile instability factor
 	double	*TIn;		///< Tensile instability power
 	double 	*TIInitDist;	///< Initial distance of particles for calculation of tensile instability
+	
+	double3 VXSPH;
+	
+	//BOUNDARY
+	bool *IsFree;
 	
 	
 	__device__ inline void CalcForce2233();

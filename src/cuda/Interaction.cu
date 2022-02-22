@@ -7,8 +7,16 @@ __global__ void CalcForce2233(PartData_d *partdata){
 	
 	partdata->CalcForce2233();
 }
+
+//TODO; COMPARE WITH ORIGINAL IN PARTDATA
+//This exludes thermal, 
+//__global__ void CalcForce2233(PartMassVolInfo
+																//PartMechData *pmd
+																//){
+	
 //Be a part data member???
 //CALLED BY GLOBAL
+//TODO; DIVIDE PARTDATA INTO DIFFERENT FIELDS
 __device__ inline void PartData_d::CalcForce2233()
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
@@ -25,7 +33,7 @@ __device__ inline void PartData_d::CalcForce2233()
 		//int j = neib[i][k];
 		int j = NEIB(i,k);
 		//double h	= partdata->h[i]+P2->h)/2;
-		double3 xij = x[i] - partdata->x[j];
+		double3 xij = x[i] - x[j];
 		double nxij = length(xij);
 		double di=0.0,dj=0.0,mi=0.0,mj=0.0;
 		
@@ -34,14 +42,14 @@ __device__ inline void PartData_d::CalcForce2233()
 		// double Beta	= (P1->Beta + P2->Beta)/2.0;
 		
 		if (!IsFree[i]) {
-			di = DensitySolid(PresEq[i], P2->Cs, P2->P0,p[i], P2->RefDensity);
+			di = DensitySolid(PresEq[i], P2->Cs, P2->P0,p[i], rho_0[j]);
 			mi = FPMassC[i] * m[j];
 		} else {
 			di = rho[i];
 			mi = m[i];
 		}
 		if (!IsFree[j]) {
-			dj = DensitySolid (PresEq[i], P1->Cs, P1->P0,p[j], P1->RefDensity);
+			dj = DensitySolid (PresEq[i], P1->Cs, P1->P0,p[j], rho_0[i]);
 			mj = P2->FPMassC * P1->Mass;
 		} else {
 			dj = rho[j];
@@ -64,8 +72,8 @@ __device__ inline void PartData_d::CalcForce2233()
 			double MUij = h*dot(vij,xij)/(rij*rij+0.01*h*h);					///<(2.75) Li, Liu Book
 			double Cij;
 			double Ci,Cj;
-			if (!IsFree[i]) Ci = SoundSpeed(PresEq[j], Cs[j], di, RefDensity[j]); else Ci = SoundSpeed(P1->PresEq, P1->Cs, di, P1->RefDensity);
-			if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, RefDensity[i]); else Cj = SoundSpeed(P2->PresEq, P2->Cs, dj, P2->RefDensity);
+			if (!IsFree[i]) Ci = SoundSpeed(PresEq[j], Cs[j], di, rho_0[j]); else Ci = SoundSpeed(PresEq[i], P1->Cs, di, rho_0[i]);
+			if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], P2->Cs, dj, rho_0[j]);
 			Cij = 0.5*(Ci+Cj);
 			
 			if (dot(vij,xij)<0) PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
@@ -137,13 +145,15 @@ __device__ inline void PartData_d::CalcForce2233()
 		// XSPH Monaghan
 		if (XSPH != 0.0  && (IsFree[i]*IsFree[j])) {
 			//omp_set_lock(&P1->my_lock);
-			P1->VXSPH += XSPH*mj/(0.5f*(di+dj))*K*(-vij);
+			VXSPH[i] += XSPH*mj/(0.5f*(di+dj))*K*(-vij);
 			//omp_unset_lock(&P1->my_lock);
-
+	
+		
+			//NOT WRITE IN THE OTHER PART!
 			//omp_set_lock(&P2->my_lock);
-			P2->VXSPH += XSPH*mi/
-			(0.5*(di+dj))*
-			K*vij;
+			// VXSPH[j] += XSPH*mi/
+			// (0.5*(di+dj))*
+			// K*vij;
 			//omp_unset_lock(&P2->my_lock);
 		}		
 		
