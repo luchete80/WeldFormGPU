@@ -144,9 +144,9 @@ int main(int argc, char **argv) //try
 		//x[i] = make_double3(dom.Particles[i]->x);
 		x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));
 	}
-	// int size = dom.Particles.size() * sizeof(double3);
+	int size = dom.Particles.size() * sizeof(double3);
 	cout << "Copying to device..."<<endl;
-	//cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
+	cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
 	cout << "copied"<<endl;
 	
 	// //Temporary, NB Search in GPU
@@ -211,28 +211,41 @@ int main(int argc, char **argv) //try
 	
 	cout << "done"<<endl;
 	cout << "Setting values"<<endl;
+	dom_d->SetDensity(1000.);
 	dom_d->SetConductivity(3000.);
 	dom_d->SetHeatCap(1.);
+	dom_d->Set_h(h);
 	cout << "done."<<endl;
 	
 		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
      	// // double x;
 
-    	for (size_t a=0; a<dom.Particles.size(); a++)
-    	{
-    		// x = dom.Particles[a]->x(0);
-			// dom.Particles[a]->k_T			=	3000.;
-			// dom.Particles[a]->cp_T			=	1.;
-			// dom.Particles[a]->h_conv		= 100.0; //W/m2-K
-			// dom.Particles[a]->T_inf 		= 500.;
-			// dom.Particles[a]->T				= 20.0;		
-			dom.Particles[a]->IsFree	= true;		
-    		// if ( x < -H/2.0 ) {
-    			// dom.Particles[a]->ID 			= 2;
-    			// dom.Particles[a]->Thermal_BC 	= TH_BC_CONVECTION;
-				// // cout << "Particle " << a << "is convection BC" <<endl;
-			// }
-    	}
+	//MODIFY
+	double *T =  new double [dom.Particles.size()];
+	for (size_t a=0; a<dom.Particles.size(); a++){
+		double xx = dom.Particles[a]->x(0);
+		T[a] = 20.;
+		if ( xx < -H/2.0 ) {
+			T[a] = 500.;
+		}
+	}		
+	//cudaMemcpy(dom_d->T, T, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);
+			
+	for (size_t a=0; a<dom.Particles.size(); a++)
+	{
+		// x = dom.Particles[a]->x(0);
+	// dom.Particles[a]->k_T			=	3000.;
+	// dom.Particles[a]->cp_T			=	1.;
+	// dom.Particles[a]->h_conv		= 100.0; //W/m2-K
+	// dom.Particles[a]->T_inf 		= 500.;
+	// dom.Particles[a]->T				= 20.0;		
+	dom.Particles[a]->IsFree	= true;		
+		// if ( x < -H/2.0 ) {
+			// dom.Particles[a]->ID 			= 2;
+			// dom.Particles[a]->Thermal_BC 	= TH_BC_CONVECTION;
+		// // cout << "Particle " << a << "is convection BC" <<endl;
+	// }
+	}
 
         // // timestep = (0.3*h*h*rho*dom.Particles[0]->cp_T/dom.Particles[0]->k_T);	
 		// // cout << "Time Step: "<<timestep<<endl;

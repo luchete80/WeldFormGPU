@@ -20,6 +20,7 @@
 
 #include "Functions.cuh"
 #include "vector_math.h"
+#include <stdio.h>
 
 namespace SPH {
 
@@ -80,7 +81,6 @@ namespace SPH {
 		{
 			case 0:	// Qubic Spline
 				Dim ==2 ? C = 10.0/(7.0*h*h*h*M_PI) : C = 1.0/(h*h*h*h*M_PI);
-
 				if 		(q==0.0)	return C/h    *(-3.0+(9.0/2.0)*q);
 				else if (q<1.0)		return C/(q*h)*(-3.0*q+(9.0/4.0)*q*q);
 				else if (q<2.0)		return C/(q*h)*((-3.0/4.0)*(2.0-q)*(2.0-q));
