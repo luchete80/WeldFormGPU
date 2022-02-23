@@ -222,14 +222,17 @@ int main(int argc, char **argv) //try
 
 	//MODIFY
 	double *T =  new double [dom.Particles.size()];
+	int bcpart = 0;
 	for (size_t a=0; a<dom.Particles.size(); a++){
 		double xx = dom.Particles[a]->x(0);
 		T[a] = 20.;
 		if ( xx < -H/2.0 ) {
 			T[a] = 500.;
+			bcpart++;
 		}
 	}		
-	//cudaMemcpy(dom_d->T, T, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);
+	cout << "BC particles"<<bcpart<<endl;
+	cudaMemcpy(dom_d->T, T, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);
 			
 	for (size_t a=0; a<dom.Particles.size(); a++)
 	{
