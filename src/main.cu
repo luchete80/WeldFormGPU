@@ -246,12 +246,14 @@ int main(int argc, char **argv) //try
 
 	cout << "Solving "<<endl;
 	CheckData<<<1,1>>>(dom_d);
+	cudaDeviceSynchronize(); //Crashes if not Sync!!!
+	
 	dom_d->ThermalSolve(/*tf*/1.01);
 		
         // return 0;
 				
 	cudaFree(dom_d);
-	report_gpu_mem();
+	//report_gpu_mem();
 	cout << "Program ended."<<endl;
 }
 //MECHSYS_CATCH
