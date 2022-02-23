@@ -27,6 +27,7 @@ void Domain_d::SetDimension(const int &particle_count){
 
 	//Nb data
 	cudaMalloc((void **)&neib_offs	, (particle_count + 1) * sizeof (int));
+	cudaMalloc((void **)&neib_part	, (particle_count * 400) * sizeof (int));
 	
 	//cudaMalloc((void **)&partdata, sizeof(PartData_d));
 	
@@ -44,7 +45,7 @@ void Domain_d::SetDimension(const int &particle_count){
 void Domain_d::CheckData(){
 	printf("dTdt partdta: %d",sizeof(this->dTdt)/sizeof(double));
 	printf("dTdt[200] %f",dTdt[200]);
-	printf("neibpart %f",neib_offs[200]);
+	printf("neibpart %f",neib_part[300000]);
 	//dom->CheckData();
 }
 
@@ -114,19 +115,19 @@ void __global__ ThermalSolveKernel (double *dTdt,
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
 	// dTdt[i] = 0.;
 
-	// int neibcount;
-	// #ifdef FIXED_NBSIZE
-	// neibcount = neib_offs[i];
-	// #else
-	// neibcount =	neib_offs[i+1] - neib_offs[i];
-	// #endif
-	// printf("neibcount %d\n",neibcount);
-	// printf("Nb indexed,i:%d\n",i);
-	// for (int k=0;k < neibcount;k++) { //Or size
+		// int neibcount;
+		// #ifdef FIXED_NBSIZE
+		// neibcount = neib_offs[i];
+		// #else
+		// neibcount =	neib_offs[i+1] - neib_offs[i];
+		// #endif
+		// printf("neibcount %d\n",neibcount);
+		printf("Nb indexed,i:%d\n",i);
+	//for (int k=0;k < neibcount;k++) { //Or size
 		// // //if fixed size i = part * NB + k
 		// // //int j = neib[i][k];
-		// int j = NEIB(i,k);
-		// printf("i,j\n",i,j);
+		//int j = NEIB(i,k);
+		//printf("i,j\n",i,j);
 		// // double3 xij; 
 		// // xij = x[i] - x[j];
 		// // double h_ = (h[i] + h[j])/2.0;
@@ -136,7 +137,7 @@ void __global__ ThermalSolveKernel (double *dTdt,
 		// // //		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
 		// // //   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
 		// // dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij);
-	// }
+	//}
 	//dTdt[i] *=1/(rho[i]*cp[i]);
 	//printf("dT: %f\n",dTdt[i]);
 }
@@ -167,7 +168,7 @@ void Domain_d::ThermalSolve(const double &tf){
 	//	while (Time<tf) {
 	cout << "Callign Kernel"<<endl;
 	
-		ThermalSolveKernel<<<1,4>>>(dTdt,	
+		ThermalSolveKernel<<<1,1>>>(dTdt,	
 																		x, h, //Vector has some problems
 																		m, rho, 
 																		T, k_T, cp_T,
@@ -193,7 +194,9 @@ Domain_d::~Domain_d(){
 		cudaFree(h);		
 		cudaFree(m);
 		cudaFree(rho);
-		
+
+		cudaFree(neib_offs);
+		cudaFree(neib_part);		
 }
 
 };//SPH

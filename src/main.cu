@@ -203,7 +203,7 @@ int main(int argc, char **argv) //try
 	
 	cout << "Allocating in device.."<<endl;
 	//Device side
-	cudaMalloc((void **) dom_d->neib_part, 	(nbcount) * sizeof (int));
+	//cudaMalloc((void **) dom_d->neib_part, 	(nbcount) * sizeof (int));
 	report_gpu_mem();
 	cudaMemcpy(dom_d->neib_part, nb_part, nbcount * sizeof(int), cudaMemcpyHostToDevice);
 	//nb offset or count already initiated
@@ -246,11 +246,11 @@ int main(int argc, char **argv) //try
 
 	cout << "Solving "<<endl;
 	CheckData<<<1,1>>>(dom_d);
-	//dom_d->ThermalSolve(/*tf*/1.01);
+	dom_d->ThermalSolve(/*tf*/1.01);
 		
         // return 0;
 				
-	//cudaFree(dom_d);
+	cudaFree(dom_d);
 	report_gpu_mem();
 	cout << "Program ended."<<endl;
 }
