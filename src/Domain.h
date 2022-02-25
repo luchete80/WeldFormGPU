@@ -90,7 +90,10 @@ class Domain
 
 	void YZPlaneCellsNeighbourSearch(int q1);						//Create pairs of particles in cells of XZ plan
 	inline void MainNeighbourSearch				();									//Create pairs of particles in the whole domain
-
+	inline void AllocateNbPair(const int &temp1, const int &temp2, const int &T);
+	
+	inline bool CheckRadius(Particle* P1, Particle *P2);
+	
 	void Move						(double dt);										//Move particles
 	
 	//This should be host mode
