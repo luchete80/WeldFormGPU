@@ -113,6 +113,8 @@ class Domain_d
 	double *rho, *m;	//Mass and density
 	//THERMAL
 	double *T, *Ta, *Tb, *dTdt;
+	double *T_h;	//host
+	
 	double *k_T, *cp_T,*h_conv, *T_inf;
 			
 	Domain_d(){isfirst_step=true;};

@@ -190,6 +190,14 @@ int main(int argc, char **argv) //try
 	for (int n=0; n<nbcount;n++) 								nb_part[n] = 0;
   cout << "Nb array size"<< nbcount<<endl;
 	
+	int nbsum =0;
+	for (int n=0; n<dom.Particles.size();n++){
+		nbsum+=nb[n];
+	}
+	nbsum /= dom.Particles.size();
+		
+	cout << "Avg Neighbour per particle"<<nbsum<<endl;
+		
 	int i=0;
 	cout << "Creating flattened array..."<<endl;	
 	for (int n=0; n<dom.Particles.size();n++) {

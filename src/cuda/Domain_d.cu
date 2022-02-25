@@ -25,6 +25,9 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&Ta		, particle_count * sizeof (double));
 	cudaMalloc((void **)&Tb		, particle_count * sizeof (double));
 	
+	//Host things
+	T_h =  new double [particle_count];
+	
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
 	printf("Size of dTdt: %d, particle count %d\n",sizeof(dTdt)/sizeof (double),particle_count);
 
@@ -167,7 +170,7 @@ void __global__ ThermalSolveKernel (double *dTdt,
 			//printf("i %d, j %d, nxij %f rho %f Gk %f dTdt %f\n",i,j, nxij, rho[j], GK, dTdt[i]);
 		}
 		//printf("i % dTdt %f\n",i, dTdt[i]);
-		//dTdt[i] *= 1./(rho[i]*cp[i]);
+		dTdt[i] *= 1./(rho[i]*cp[i]);
 		//printf("i %d rho %f cp %f den %f dTdt[i] %f\n",i,rho[i], cp[i], 1./(rho[i]*cp[i]),dTdt[i]);
 	}
 }
@@ -229,13 +232,15 @@ void Domain_d::ThermalSolve(const double &tf){
 		}
 		
 		Time += deltat;
-		
-		// double max=0;
-		// for (int i=0;i<particle_count;i++){
-			// if (dTdt[i]>max) max = T[i];
-		// }
-		// cout << "dTdt max"<<max<<endl;
 	//}//main time while
+	cout << "Copying to host"<<endl;
+	cudaMemcpy(T_h, T, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+	double max=0;
+	for (int i=0;i<particle_count;i++){
+		if (T_h[i]>max) max = T_h[i];
+	}
+	cout << "dTdt max"<<max<<endl;
+
 }//Thermal Solve
 
 
