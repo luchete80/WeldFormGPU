@@ -20,20 +20,26 @@ class PartData_d{
 	int *neib_part;	//1D array, faster
 	int *neibcount;	//Useful??
 	
-	bool *isFree, *noSlip;
+	bool *isFree, *NoSlip;
 	
 	double3 *x,*v,*a;
 	//General
 	double *rho, *m;	//Mass and density
+	
+	double *h;
 
-	double 	rho_0;	///< Reference Density of Particle
+	double *rho_0;	///< Reference Density of Particle
 
 	//THERMAL
 	double *T, *Ta, *Tb, *dTdt;
 	double *k_T, *cp_T,*h_conv, *T_inf;
 	
 	//Mechanical
-	double *p;
+	double *p,*PresEq;
+	double *Cs, *P0;
+	
+	
+	//
 	double *sigma; //To convert after to tensor;
 	
 	//Be in another class
@@ -51,8 +57,8 @@ class PartData_d{
 	double3 VXSPH;
 	
 	//BOUNDARY
-	bool *IsFree;
-	
+	bool 			*IsFree;
+	double3 	 NSv;	///< Velocity of the fixed particle for no-slip BC
 	
 	__device__ inline void CalcForce2233();
 	

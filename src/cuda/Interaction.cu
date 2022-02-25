@@ -17,10 +17,11 @@ __global__ void CalcForce2233(PartData_d *partdata){
 //Be a part data member???
 //CALLED BY GLOBAL
 //TODO; DIVIDE PARTDATA INTO DIFFERENT FIELDS
-__device__ inline void PartData_d::CalcForce2233()
+__device__ inline void PartData_d::CalcForce2233(/* const double &Dimension*/)
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
+	int Dimension = 3; //TODO, put in another 
 	int neibcount;
 	#ifdef FIXED_NBSIZE
 	neibcount = neib_offs[i];
@@ -34,7 +35,7 @@ __device__ inline void PartData_d::CalcForce2233()
 		int j = NEIB(i,k);
 		//double h	= partdata->h[i]+P2->h)/2;
 		double3 xij = x[i] - x[j];
-		double nxij = length(xij);
+		double rij = length(xij);
 		double di=0.0,dj=0.0,mi=0.0,mj=0.0;
 		
 		//Artifficial visc
@@ -42,15 +43,15 @@ __device__ inline void PartData_d::CalcForce2233()
 		// double Beta	= (P1->Beta + P2->Beta)/2.0;
 		
 		if (!IsFree[i]) {
-			di = DensitySolid(PresEq[i], P2->Cs, P2->P0,p[i], rho_0[j]);
+			di = DensitySolid(PresEq[i], Cs[j], P0[j],p[i], rho_0[j]);
 			mi = FPMassC[i] * m[j];
 		} else {
 			di = rho[i];
 			mi = m[i];
 		}
 		if (!IsFree[j]) {
-			dj = DensitySolid (PresEq[i], P1->Cs, P1->P0,p[j], rho_0[i]);
-			mj = P2->FPMassC * P1->Mass;
+			dj = DensitySolid (PresEq[i], Cs[i], P0[i],p[j], rho_0[i]);
+			mj = FPMassC[j] * m[i];
 		} else {
 			dj = rho[j];
 			mj = m[j];
@@ -58,10 +59,9 @@ __device__ inline void PartData_d::CalcForce2233()
 
 		double3 vij	= v[i] - v[j];
 		double h_ = (h[i] + h[j])/2.0;
-		double nxij = length(xij);
 			
 		//double GK	= GradKernel(Dimension, KernelType, rij/h, h);
-		double GK	= GradKernel(3, 0, nxij/h_, h_);
+		double GK	= GradKernel(3, 0, rij/h_, h_);
 		double K	= Kernel(3, 0, rij/h, h);
 		
 		////// Artificial Viscosity
@@ -72,8 +72,8 @@ __device__ inline void PartData_d::CalcForce2233()
 			double MUij = h*dot(vij,xij)/(rij*rij+0.01*h*h);					///<(2.75) Li, Liu Book
 			double Cij;
 			double Ci,Cj;
-			if (!IsFree[i]) Ci = SoundSpeed(PresEq[j], Cs[j], di, rho_0[j]); else Ci = SoundSpeed(PresEq[i], P1->Cs, di, rho_0[i]);
-			if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], P2->Cs, dj, rho_0[j]);
+			if (!IsFree[i]) Ci = SoundSpeed(PresEq[j], Cs[j], di, rho_0[j]); else Ci = SoundSpeed(PresEq[i], Cs[i], di, rho_0[i]);
+			if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], Cs[j], dj, rho_0[j]);
 			Cij = 0.5*(Ci+Cj);
 			
 			if (dot(vij,xij)<0) PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
@@ -96,21 +96,21 @@ __device__ inline void PartData_d::CalcForce2233()
 		tensor3 TIij;
 		//set_to_zero(TIij);
 		if (TI[i] > 0.0 || TI[j] > 0.0) 
-			TIij = pow((K/Kernel(Dimension, KernelType, (TIInitDist[i] + TIInitDist[j])/(2.0*h_), h_)),(P1->TIn+P2->TIn)/2.0)*(TIR[i]+TIR[j]);
+			TIij = pow((K/Kernel(Dimension, KernelType, (TIInitDist[i] + TIInitDist[j])/(2.0*h_), h_)),(TIn[i] + TIn[j])/2.0)*(TIR[i]+TIR[j]);
 			//TIij = pow((K/m_kernel.W((P1->TIInitDist + P2->TIInitDist)/(2.0*h))),(P1->TIn+P2->TIn)/2.0)*(P1->TIR+P2->TIR); //COMMENTED IN ORIGINAL CODE
 		
 		// NoSlip BC velocity correction 		////////////////////////////////
-		float3 vab = make_float3(0.0);
+		double3 vab = make_double3(0.0);
 		if (IsFree[i]*IsFree[j]) {
 			vab = vij;
 		} else {
-			if (P1->NoSlip || P2->NoSlip) {
+			if (NoSlip[i] || NoSlip[j] ) {
 				// No-Slip velocity correction
-				if (IsFree[i])	vab = v[i] - (2.0f*v[j]-P2->NSv); else vab = (2.0f*v[i]-P1->NSv) - v[j];
+				if (IsFree[i])	vab = v[i] - (2.0f*v[j]- NSv[j]); else vab = (2.0f*v[i]- NSv[i]) - v[j];
 			}
 			// Please check
-			if (!(P1->NoSlip || P2->NoSlip)) {
-				if (IsFree[i]) vab = v[i] - v[j]b; else vab = v[i] - v[j];
+			if (!(NoSlip[i] || NoSlip[j])) {
+				if (IsFree[i]) vab = v[i] - v[j]; else vab = v[i] - v[j];
 //				if (IsFree[i]) vab.x = v[i](0) + v[j]b(0); else vab.x = -v[i]b(0) - v[j](0);
 			}
 		} //Are not both fixed
