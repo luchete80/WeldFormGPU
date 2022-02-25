@@ -25,6 +25,10 @@
 #define TAU		0.005
 #define VMAX	1.0
 
+#include <sstream>
+#include <fstream> 
+#include <iostream>
+
 //#include "Vector.h"
 
 
@@ -87,7 +91,31 @@ using std::cout;
 using std::endl;
 
 //__host__		SPH::Domain dom;
+
+void WriteCSV(char const * FileKey, double3 *x, double *var, int count){
+	std::ostringstream oss;
+	std::string fn(FileKey);
 	
+	oss << "X, Y, Z, Sigma_eq, Pl_Strain "<<endl;;
+	
+	//#pragma omp parallel for schedule(static) num_threads(Nproc)
+	// #ifdef __GNUC__
+	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
+	// #else
+	for (int i=0; i<count; i++)//Like in Domain::Move
+	//#endif
+	{
+			oss << x[i].x<<", "<<x[i].y<<", "<<x[i].z<<", "<<var[i]<<endl;
+		
+		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
+		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;
+	}
+
+	std::ofstream of(fn.c_str(), std::ios::out);
+	of << oss.str();
+	of.close();
+}
+
 int main(int argc, char **argv) //try
 {
 	cout << "Initializing"<<endl;
@@ -278,9 +306,12 @@ int main(int argc, char **argv) //try
 	cudaDeviceSynchronize(); //Crashes if not Sync!!!
 	
 	dom_d->ThermalSolve(/*tf*/1.01);
-		
+
+	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
+	
         // return 0;
-				
+	WriteCSV("test.csv", x, T, dom.Particles.size());
+	
 	cudaFree(dom_d);
 	//report_gpu_mem();
 	cout << "Program ended."<<endl;

@@ -237,7 +237,7 @@ void Domain_d::ThermalSolve(const double &tf){
 		if (T_h[i]>max) max = T_h[i];
 	}
 	cout << "dTdt max"<<max<<endl;
-
+	
 }//Thermal Solve
 
 
