@@ -5,7 +5,7 @@
 namespace SPH {
 __global__ void CalcForce2233(PartData_d *partdata){
 	
-	partdata->CalcForce2233();
+	partdata->CalcForce2233(0,0.0);
 }
 
 //TODO; COMPARE WITH ORIGINAL IN PARTDATA
@@ -19,7 +19,8 @@ __global__ void CalcForce2233(PartData_d *partdata){
 //TODO; DIVIDE PARTDATA INTO DIFFERENT FIELDS
 __device__ inline void PartData_d::CalcForce2233(
 	/* const double &Dimension*/
-	/*const Kernel_Type*/)
+	const int & KernelType,
+	const float &XSPH)
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
@@ -63,7 +64,7 @@ __device__ inline void PartData_d::CalcForce2233(
 		double h_ = (h[i] + h[j])/2.0;
 			
 		//double GK	= GradKernel(Dimension, KernelType, rij/h, h);
-		double GK	= GradKernel(3, 0, rij/h_, h_);
+		double GK	= GradKernel(3, KernelType, rij/h_, h_);
 		double K	= Kernel(3, 0, rij/h_, h_);
 		
 		////// Artificial Viscosity
@@ -96,9 +97,11 @@ __device__ inline void PartData_d::CalcForce2233(
 		
 		// Tensile Instability //////////////////////
 		tensor3 TIij;
+		tensor3 TIRi, TIRj;
+		//TODO: CONVERT TIR FROM FLATTENED ARRAY TO TENSOR
 		//set_to_zero(TIij);
 		if (TI[i] > 0.0 || TI[j] > 0.0) 
-			TIij = pow((K/Kernel(Dimension, KernelType, (TIInitDist[i] + TIInitDist[j])/(2.0*h_), h_)),(TIn[i] + TIn[j])/2.0)*(TIR[i]+TIR[j]);
+			TIij = pow((K/Kernel(Dimension, KernelType, (TIInitDist[i] + TIInitDist[j])/(2.0*h_), h_)),(TIn[i] + TIn[j])/2.0)*(TIRi+TIRj);
 			//TIij = pow((K/m_kernel.W((P1->TIInitDist + P2->TIInitDist)/(2.0*h))),(P1->TIn+P2->TIn)/2.0)*(P1->TIR+P2->TIR); //COMMENTED IN ORIGINAL CODE
 		
 		// NoSlip BC velocity correction 		////////////////////////////////
