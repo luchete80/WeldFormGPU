@@ -29,7 +29,7 @@ void Domain_d::SetDimension(const int &particle_count){
 	T_h =  new double [particle_count];
 	
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
-	printf("Size of dTdt: %d, particle count %d\n",sizeof(dTdt)/sizeof (double),particle_count);
+	//printf("Size of dTdt: %d, particle count %d\n",sizeof(dTdt)/sizeof (double),particle_count);
 
 	//Nb data
 	cudaMalloc((void **)&neib_offs	, (particle_count + 1) * sizeof (int));
@@ -163,15 +163,12 @@ void __global__ ThermalSolveKernel (double *dTdt,
 			double nxij = length(xij);
 			
 			double GK	= GradKernel(3, 0, nxij/h_, h_);
-			printf("i, j, rho, GK, nxij,h: %d, %d, %f, %f, %f, %f\n",i, j, rho[j], GK,nxij,h_);
+			//printf("i, j, rho, GK, nxij,h: %d, %d, %f, %f, %f, %f\n",i, j, rho[j], GK,nxij,h_);
 			//		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
 			//   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
 			dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij); //Fraser, Eqn 3.99
-			//printf("i %d, j %d, nxij %f rho %f Gk %f dTdt %f\n",i,j, nxij, rho[j], GK, dTdt[i]);
 		}
-		//printf("i % dTdt %f\n",i, dTdt[i]);
 		dTdt[i] *= 1./(rho[i]*cp[i]);
-		//printf("i %d rho %f cp %f den %f dTdt[i] %f\n",i,rho[i], cp[i], 1./(rho[i]*cp[i]),dTdt[i]);
 	}
 }
 

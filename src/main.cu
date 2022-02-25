@@ -224,7 +224,12 @@ int main(int argc, char **argv) //try
 	dom_d->SetHeatCap(1.);
 	dom_d->Set_h(h);
 	cout << "done."<<endl;
-	
+
+	double *m =  new double [dom.Particles.size()];
+	for (size_t a=0; a<dom.Particles.size(); a++)
+		m[a] = dom.Particles[a]->Mass;
+	cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
+		
 		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
      	// // double x;
 
