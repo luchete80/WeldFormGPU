@@ -115,7 +115,7 @@ class Domain_d
 	double *T, *Ta, *Tb, *dTdt;
 	double *k_T, *cp_T,*h_conv, *T_inf;
 			
-	Domain_d(){};
+	Domain_d(){isfirst_step=true;};
 	Domain_d(const int &particle_count);
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
 	__host__ void Set_h(const double &);
@@ -133,11 +133,13 @@ class Domain_d
 __global__ void CheckData(Domain_d *dom);
 
 //Called by Solve host function
+//TODO: REMOVE; PASS ENTIRE CLASS
 __global__ void ThermalSolveKernel(double *dTdt, 
 																		double3 *x, double *h,
 																		double *mass, double *rho, 
 																		double *T, double *k_T, double *cp_T, 
-																		int *neib_part, int *neib_offs); //Idea is to pass minimum data as possible
+																		int *neib_part, int *neib_offs,
+																		int count); //Idea is to pass minimum data as possible
 
 
 __global__ void TempCalcLeapfrogFirst(double *T,double *Ta, double *Tb, 

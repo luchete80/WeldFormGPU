@@ -67,6 +67,7 @@ class PartData_d{
 	
 };
 
+//This calls partdata member function
 __global__ void CalcForce2233(PartData_d *partdata);
 
 

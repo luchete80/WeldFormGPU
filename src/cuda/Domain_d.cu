@@ -22,6 +22,9 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&cp_T, particle_count * sizeof (Vector));
 		
 	cudaMalloc((void **)&T		, particle_count * sizeof (double));
+	cudaMalloc((void **)&Ta		, particle_count * sizeof (double));
+	cudaMalloc((void **)&Tb		, particle_count * sizeof (double));
+	
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
 	printf("Size of dTdt: %d, particle count %d\n",sizeof(dTdt)/sizeof (double),particle_count);
 
@@ -129,39 +132,44 @@ void __global__ ThermalSolveKernel (double *dTdt,
 																		double3 *x, double *h,
 																		double *m, double *rho,
 																		double *T, double *k_T, double *cp, 
-																		int *neib_part, int *neib_offs/*orcount*/) {
+																		int *neib_part, int *neib_offs,/*orcount*/
+																		int count) {
 
 //	printf("searching nb..\n");	
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
-	dTdt[i] = 0.;
+	if ( i < count ) {
+		dTdt[i] = 0.;
 
-	int neibcount;
-	#ifdef FIXED_NBSIZE
-	neibcount = neib_offs[i];
-	#else
-	neibcount =	neib_offs[i+1] - neib_offs[i];
-	#endif
-	// printf("neibcount %d\n",neibcount);
-	// printf("Nb indexed,i:%d\n",i);
-	for (int k=0;k < neibcount;k++) { //Or size
-		// //if fixed size i = part * NB + k
-		// //int j = neib[i][k];
-		int j = NEIB(i,k);
-		//printf("i,j: %d,%d\n",i,j);
-		double3 xij; 
-		xij = x[i] - x[j];
-		//printf("xij: %f,%f,%f:\n",x[i].x,x[i].y,x[i].z);
-		double h_ = (h[i] + h[j])/2.0;
-		double nxij = length(xij);
-		
-		double GK	= GradKernel(3, 0, nxij/h_, h_);
-		//printf("i, rho, GK, nxij,h: %d, %f, %f, %f, %f\n",i, GK,nxij,rho[j],h_);
-		//		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
-		//   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
-		dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij);
+		int neibcount;
+		#ifdef FIXED_NBSIZE
+		neibcount = neib_offs[i];
+		#else
+		neibcount =	neib_offs[i+1] - neib_offs[i];
+		#endif
+		// printf("neibcount %d\n",neibcount);
+		// printf("Nb indexed,i:%d\n",i);
+		for (int k=0;k < neibcount;k++) { //Or size
+			// //if fixed size i = part * NB + k
+			// //int j = neib[i][k];
+			int j = NEIB(i,k);
+			//printf("i,j: %d,%d\n",i,j);
+			double3 xij; 
+			xij = x[i] - x[j];
+			//printf("xij: %f,%f,%f:\n",x[i].x,x[i].y,x[i].z);
+			double h_ = (h[i] + h[j])/2.0;
+			double nxij = length(xij);
+			
+			double GK	= GradKernel(3, 0, nxij/h_, h_);
+			printf("i, j, rho, GK, nxij,h: %d, %d, %f, %f, %f, %f\n",i, j, rho[j], GK,nxij,h_);
+			//		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
+			//   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
+			dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij); //Fraser, Eqn 3.99
+			//printf("i %d, j %d, nxij %f rho %f Gk %f dTdt %f\n",i,j, nxij, rho[j], GK, dTdt[i]);
+		}
+		//printf("i % dTdt %f\n",i, dTdt[i]);
+		//dTdt[i] *= 1./(rho[i]*cp[i]);
+		//printf("i %d rho %f cp %f den %f dTdt[i] %f\n",i,rho[i], cp[i], 1./(rho[i]*cp[i]),dTdt[i]);
 	}
-	dTdt[i] *=1/(rho[i]*cp[i]);
-	printf("dTdt: %f\n",dTdt[i]);
 }
 
 __global__ void TempCalcLeapfrogFirst(double *T, double *Ta, double *Tb, //output
@@ -169,7 +177,7 @@ __global__ void TempCalcLeapfrogFirst(double *T, double *Ta, double *Tb, //outpu
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
 
 	Ta[i] = T[i] - dt/2.0*dTdt[i];
-
+	
 }
 __global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb,
 																		double *dTdt, double dt){
@@ -187,29 +195,38 @@ void Domain_d::ThermalSolve(const double &tf){
 	int blocksPerGrid =				// Or gridsize
 	(N + threadsPerBlock - 1) / threadsPerBlock;
   Time =0.;
+	
+	isfirst_step =true;
+	
 	//	while (Time<tf) {
 	cout << "Callign Kernel"<<endl;
+	cout << "blocksPerGrid (Blocksize)"<<blocksPerGrid<<endl;
+	cout << "threads per block (grid size)"<<threadsPerBlock<<endl;
 	
 		ThermalSolveKernel<<<blocksPerGrid,threadsPerBlock>>>(dTdt,	
 																		x, h, //Vector has some problems
 																		m, rho, 
 																		T, k_T, cp_T,
-																		neib_part, neib_offs);
+																		neib_part, neib_offs,
+																		particle_count);
 		cudaDeviceSynchronize(); //REQUIRED!!!!
 		cout << "Kernel called"<<endl;
+		 if (isfirst_step) {
+			TempCalcLeapfrogFirst<<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
+																			 dTdt, deltat);	
+			isfirst_step = false;
+		} else {
+			TempCalcLeapfrog <<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
+																			 dTdt, deltat);		
+		}
+		cudaDeviceSynchronize();
+		Time += deltat;
+		
 		// double max=0;
 		// for (int i=0;i<particle_count;i++){
 			// if (dTdt[i]>max) max = T[i];
 		// }
-//		cout << "dTdt max"<<max<<endl;
-		 // if (isfirst_step) {
-			// TempCalcLeapfrogFirst<<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
-																			 // dTdt, deltat);		
-		// } else {
-			// TempCalcLeapfrog <<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
-																			 // dTdt, deltat);				
-		// }
-		Time += deltat;
+		// cout << "dTdt max"<<max<<endl;
 	//}//main time while
 }//Thermal Solve
 
