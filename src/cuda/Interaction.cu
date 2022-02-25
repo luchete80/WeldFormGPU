@@ -17,7 +17,9 @@ __global__ void CalcForce2233(PartData_d *partdata){
 //Be a part data member???
 //CALLED BY GLOBAL
 //TODO; DIVIDE PARTDATA INTO DIFFERENT FIELDS
-__device__ inline void PartData_d::CalcForce2233(/* const double &Dimension*/)
+__device__ inline void PartData_d::CalcForce2233(
+	/* const double &Dimension*/
+	/*const Kernel_Type*/)
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
@@ -62,14 +64,14 @@ __device__ inline void PartData_d::CalcForce2233(/* const double &Dimension*/)
 			
 		//double GK	= GradKernel(Dimension, KernelType, rij/h, h);
 		double GK	= GradKernel(3, 0, rij/h_, h_);
-		double K	= Kernel(3, 0, rij/h, h);
+		double K	= Kernel(3, 0, rij/h_, h_);
 		
 		////// Artificial Viscosity
 		tensor3 PIij;
 		//set_to_zero(PIij);
 		if (Alpha!=0.0 || Beta!=0.0)
 		{
-			double MUij = h*dot(vij,xij)/(rij*rij+0.01*h*h);					///<(2.75) Li, Liu Book
+			double MUij = h_*dot(vij,xij)/(rij*rij+0.01*h_*h_);					///<(2.75) Li, Liu Book
 			double Cij;
 			double Ci,Cj;
 			if (!IsFree[i]) Ci = SoundSpeed(PresEq[j], Cs[j], di, rho_0[j]); else Ci = SoundSpeed(PresEq[i], Cs[i], di, rho_0[i]);
