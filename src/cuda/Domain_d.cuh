@@ -141,11 +141,15 @@ __global__ void ThermalSolveKernel(double *dTdt,
 																		int *neib_part, int *neib_offs,
 																		int count); //Idea is to pass minimum data as possible
 
+//NEXT SOLVER
+void __global__ ThermalSolveKernel (double dt, PartData_d *partdata);
 
 __global__ void TempCalcLeapfrogFirst(double *T,double *Ta, double *Tb, 
-																			double *dTdt, double dt);
+																			double *dTdt, double dt,
+																			int count);
 __global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb, 
-																			double *dTdt, double dt);
+																			double *dTdt, double dt,
+																			int count);
 	
 
 void __global__ MechSolveKernel (double dt, PartData_d *partdata);

@@ -172,20 +172,26 @@ void __global__ ThermalSolveKernel (double *dTdt,
 	}
 }
 
-__global__ void TempCalcLeapfrogFirst(double *T, double *Ta, double *Tb, //output
-																			double *dTdt, double dt){//input
-	int i = threadIdx.x+blockDim.x*blockIdx.x;
-
-	Ta[i] = T[i] - dt/2.0*dTdt[i];
+//This is the future solver, ir order to not pass so much data
+void __global__ ThermalSolveKernel (double dt, PartData_d *partdata){
 	
 }
-__global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb,
-																		double *dTdt, double dt){
+
+__global__ void TempCalcLeapfrogFirst(double *T, double *Ta, double *Tb, //output
+																			double *dTdt, double dt, int count){//input
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
-	
+	if ( i < count ) {
+	Ta[i] = T[i] - dt/2.0*dTdt[i];
+	}
+}
+__global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb,
+																		double *dTdt, double dt, int count){
+	int i = threadIdx.x+blockDim.x*blockIdx.x;
+	if ( i < count ) {
 	Tb[i]  = Ta[i];
 	Ta[i] += dTdt[i] * dt;
 	T [i] = ( Ta[i] + Tb[i] ) / 2.;
+	}
 }
 //Originally in Particle::TempCalcLeapfrog
 //Host function
@@ -213,13 +219,15 @@ void Domain_d::ThermalSolve(const double &tf){
 		cout << "Kernel called"<<endl;
 		 if (isfirst_step) {
 			TempCalcLeapfrogFirst<<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
-																			 dTdt, deltat);	
+																			 dTdt, deltat, particle_count);	
+			cudaDeviceSynchronize(); //After ANY COMMAND!!!!
 			isfirst_step = false;
 		} else {
 			TempCalcLeapfrog <<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
-																			 dTdt, deltat);		
+																			 dTdt, deltat, particle_count);		
+			cudaDeviceSynchronize();
 		}
-		cudaDeviceSynchronize();
+		
 		Time += deltat;
 		
 		// double max=0;
@@ -229,6 +237,13 @@ void Domain_d::ThermalSolve(const double &tf){
 		// cout << "dTdt max"<<max<<endl;
 	//}//main time while
 }//Thermal Solve
+
+
+//NEXT SOLVER
+// void Domain_d::ThermalSolve(const double &tf){
+	
+	
+// }
 
 Domain_d::~Domain_d(){
 	
