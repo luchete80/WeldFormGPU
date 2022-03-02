@@ -2,6 +2,10 @@
 #include "Functions.cuh"
 #include "Domain.h"
 
+#include <chrono>
+//#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
+#include <ctime> //Clock
+
 //Else (offset)
 //Allocating from host
 namespace SPH {
@@ -240,6 +244,11 @@ void Domain_d::ThermalSolve(const double &tf){
 	isfirst_step =true;
 	
 	int step = 0;
+	
+	clock_t clock_beg;
+	double time_spent;
+	
+	clock_beg = clock();
 	while (Time<tf) {
 	// cout << "Callign Kernel"<<endl;
 	// cout << "blocksPerGrid (Blocksize)"<<blocksPerGrid<<endl;
@@ -252,6 +261,14 @@ void Domain_d::ThermalSolve(const double &tf){
 																		neib_part, neib_offs,
 																		particle_count);
 		cudaDeviceSynchronize(); //REQUIRED!!!!
+
+		// CalcConvHeatKernel (dTdt,
+												// m, rho, cp_T,
+												// T, T_inf,
+												// BC_T,
+												// h_conv);
+		// cudaDeviceSynchronize();
+												
 		//cout << "Kernel called"<<endl;
 		 if (isfirst_step) {
 			TempCalcLeapfrogFirst<<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
@@ -275,7 +292,10 @@ void Domain_d::ThermalSolve(const double &tf){
 		cout << "dTdt max\n"<<max<<endl;
 		step ++;
 	}//main time while
-	printf("Total steps: %d\n",step);
+	
+	time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
+	
+	printf("Total steps: %d, time spent %f\n",step, time_spent);
 	
 }//Thermal Solve
 
