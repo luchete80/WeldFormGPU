@@ -129,6 +129,11 @@ void __host__ Domain_d::CopyData(const Domain& dom){
 	
 }
 
+void __device__ Domain_d::CalcThermalTimeStep(){
+	deltat = 0.3*h[0]*h[0]*rho[0]*cp_T[0]/k_T[0];
+	printf("Time Step: %f\n",deltat);
+}
+
 //Thread per particle
 //dTdt+=1/cp* (mass/dens^2)*4(k)
 void __global__ ThermalSolveKernel (double *dTdt,
@@ -139,7 +144,9 @@ void __global__ ThermalSolveKernel (double *dTdt,
 																		int count) {
 
 //	printf("searching nb..\n");	
+	
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
+
 	if ( i < count ) {
 		dTdt[i] = 0.;
 
@@ -204,10 +211,11 @@ void Domain_d::ThermalSolve(const double &tf){
 	
 	isfirst_step =true;
 	
-	//	while (Time<tf) {
-	cout << "Callign Kernel"<<endl;
-	cout << "blocksPerGrid (Blocksize)"<<blocksPerGrid<<endl;
-	cout << "threads per block (grid size)"<<threadsPerBlock<<endl;
+	int step = 0;
+	while (Time<tf) {
+	// cout << "Callign Kernel"<<endl;
+	// cout << "blocksPerGrid (Blocksize)"<<blocksPerGrid<<endl;
+	// cout << "threads per block (grid size)"<<threadsPerBlock<<endl;
 	
 		ThermalSolveKernel<<<blocksPerGrid,threadsPerBlock>>>(dTdt,	
 																		x, h, //Vector has some problems
@@ -216,7 +224,7 @@ void Domain_d::ThermalSolve(const double &tf){
 																		neib_part, neib_offs,
 																		particle_count);
 		cudaDeviceSynchronize(); //REQUIRED!!!!
-		cout << "Kernel called"<<endl;
+		//cout << "Kernel called"<<endl;
 		 if (isfirst_step) {
 			TempCalcLeapfrogFirst<<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
 																			 dTdt, deltat, particle_count);	
@@ -229,14 +237,17 @@ void Domain_d::ThermalSolve(const double &tf){
 		}
 		
 		Time += deltat;
-	//}//main time while
-	cout << "Copying to host"<<endl;
-	cudaMemcpy(T_h, T, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
-	double max=0;
-	for (int i=0;i<particle_count;i++){
-		if (T_h[i]>max) max = T_h[i];
-	}
-	cout << "dTdt max"<<max<<endl;
+
+//		cout << "Copying to host"<<endl;
+		cudaMemcpy(T_h, T, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+		double max=0;
+		for (int i=0;i<particle_count;i++){
+			if (T_h[i]>max) max = T_h[i];
+		}
+		cout << "dTdt max\n"<<max<<endl;
+		step ++;
+	}//main time while
+	printf("Total steps: %d\n",step);
 	
 }//Thermal Solve
 

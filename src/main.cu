@@ -145,6 +145,8 @@ int main(int argc, char **argv) //try
 	rho	= 1000.0;
 	dx	= H / n;
 	h	= dx*1.2; //Very important
+	double cp = 1.;
+	double k = 3000.;
 	//Cs	= sqrt(K/rho);
 
   double timestep;
@@ -248,8 +250,8 @@ int main(int argc, char **argv) //try
 	cout << "done"<<endl;
 	cout << "Setting values"<<endl;
 	dom_d->SetDensity(1000.);
-	dom_d->SetConductivity(3000.);
-	dom_d->SetHeatCap(1.);
+	dom_d->SetConductivity(k);
+	dom_d->SetHeatCap(cp);
 	dom_d->Set_h(h);
 	cout << "done."<<endl;
 
@@ -305,6 +307,7 @@ int main(int argc, char **argv) //try
 	CheckData<<<1,1>>>(dom_d);
 	cudaDeviceSynchronize(); //Crashes if not Sync!!!
 	
+	dom_d->deltat = 0.3*h*h*rho*cp/k;
 	dom_d->ThermalSolve(/*tf*/1.01);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
