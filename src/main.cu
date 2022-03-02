@@ -96,7 +96,7 @@ void WriteCSV(char const * FileKey, double3 *x, double *var, int count){
 	std::ostringstream oss;
 	std::string fn(FileKey);
 	
-	oss << "X, Y, Z, Sigma_eq, Pl_Strain "<<endl;;
+	oss << "X, Y, Z, T"<<endl;;
 	
 	//#pragma omp parallel for schedule(static) num_threads(Nproc)
 	// #ifdef __GNUC__
@@ -308,6 +308,7 @@ int main(int argc, char **argv) //try
 	cudaDeviceSynchronize(); //Crashes if not Sync!!!
 	
 	dom_d->deltat = 0.3*h*h*rho*cp/k;
+	cout << "Time Step: "<<dom_d->deltat<<endl;
 	dom_d->ThermalSolve(/*tf*/1.01);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	

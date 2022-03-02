@@ -134,6 +134,34 @@ void __device__ Domain_d::CalcThermalTimeStep(){
 	printf("Time Step: %f\n",deltat);
 }
 
+void __global__ CalcConvHeatKernel (double *dTdt,
+																		double *m, double *rho, double *cp_T,
+																		double *T, double *T_inf,
+																		int *BC_T,
+																		double &h_conv) {
+	
+	int i = threadIdx.x+blockDim.x*blockIdx.x;
+	
+		if ( BC_T[i] == 1) {
+			double dS2 = pow(m[i]/rho[i],0.666666666);
+			//cout << "dS2" <<dS2<<endl;
+			//cout << Particles[i]->Density<<endl;
+			//Fraser Eq 3.121
+			//double q_conv = rho[i] * h_conv * dS2 * (T_inf[i] - T[i])/m[i]; //Fraser Eq - 3.121, J/(m3s)
+
+			//dTdt[i] += 1./(rho[i] * cp_T[i] ) * q_conv; //J /*+ Particles[i]->q_source + Particles[i]->q_plheat);	*/
+			
+			
+			double q_conv = h_conv * dS2 * (T_inf[i] - T[i])/cp_T[i];
+			dTdt[i] += q_conv;
+		
+			// if (Particles[i]->q_conv>max){
+				// max= Particles[i]->q_conv;
+				// imax=i;
+			// }
+			//cout << "Particle  "<<Particles[i]->Mass<<endl;
+		}
+}
 //Thread per particle
 //dTdt+=1/cp* (mass/dens^2)*4(k)
 void __global__ ThermalSolveKernel (double *dTdt,

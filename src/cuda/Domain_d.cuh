@@ -113,10 +113,13 @@ class Domain_d
 	double *rho, *m;	//Mass and density
 	//THERMAL
 	double *T, *Ta, *Tb, *dTdt;
-	double *T_h;	//host
+	double *T_h;	//host (for finding max, writing)
 	
-	double *k_T, *cp_T,*h_conv, *T_inf;
-			
+	double *k_T, *cp_T,*h_conv;
+	
+	int *BC_Type;	//0 nothing, 1 convection
+	double *T_inf;
+	
 	Domain_d(){isfirst_step=true;};
 	Domain_d(const int &particle_count);
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
