@@ -158,8 +158,8 @@ void __global__ CalcConvHeatKernel (double *dTdt,
 			//dTdt[i] += 1./(rho[i] * cp_T[i] ) * q_conv; //J /*+ Particles[i]->q_source + Particles[i]->q_plheat);	*/
 			
 			
-			double q_conv = h_conv * dS2 * (T_inf - T[i])/cp_T[i];
-			dTdt[i] += q_conv;
+			double q_conv =  /*rho[i]  * */h_conv * dS2 * (T_inf - T[i])/m[i];
+			dTdt[i] += 1./(/*rho[i] * */cp_T[i] ) * q_conv;
 		
 			// if (Particles[i]->q_conv>max){
 				// max= Particles[i]->q_conv;

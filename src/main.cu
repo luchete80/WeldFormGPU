@@ -272,7 +272,6 @@ int main(int argc, char **argv) //try
 		BC_type[a]=0;
 		T[a] = 20.;
 		if ( xx < -H/2.0 ) {
-			T[a] = 500.;
 			bcpart++;
 			BC_type[a]=1;
 		}
