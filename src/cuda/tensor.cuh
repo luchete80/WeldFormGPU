@@ -68,6 +68,7 @@ public:
 		__device__ tensor3 operator= (const float &f);
 		//tensor3 operator* (const float &f);
 		tensor3 Trans ();
+		__device__ ~tensor3(){};
 };
 
 __device__ tensor3 operator* (const float &f, const tensor3 &b);
@@ -75,6 +76,6 @@ __device__ tensor3 operator/ (const tensor3 &b, const float &f);
 
 __device__ float3 dot(tensor3 const& T, float3 const& v);
 
-__device__ tensor3 Identity();
+__device__ inline tensor3 Identity();
 
 #endif

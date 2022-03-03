@@ -17,7 +17,7 @@ __global__ void CalcForce2233(PartData_d *partdata){
 //Be a part data member???
 //CALLED BY GLOBAL
 //TODO; DIVIDE PARTDATA INTO DIFFERENT FIELDS
-__device__ inline void PartData_d::CalcForce2233(
+__device__ /*inline*/ void PartData_d::CalcForce2233(
 	/* const double &Dimension*/
 	const int & KernelType,
 	const float &XSPH)

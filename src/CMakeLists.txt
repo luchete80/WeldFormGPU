@@ -73,11 +73,17 @@ add_executable(gpuweldform main.cu
 													#NbSearch.cpp 
 													Output.cpp
 													Vector.cpp
+													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
+													cuda/Domain_d.cu
+													cuda/tensor.cu
+													#cuda/Interaction.cu
 													) 
 
-add_subdirectory (cuda)
+#set_property(TARGET gpuweldform PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 
-TARGET_LINK_LIBRARIES (gpuweldform cuda)
+#add_subdirectory (cuda)
+
+#TARGET_LINK_LIBRARIES (gpuweldform cuda)
 
 #FOREACH(var ${EXES})
 #    ADD_EXECUTABLE        (${var} "${var}.cpp" #
