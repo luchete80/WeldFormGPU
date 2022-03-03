@@ -38,9 +38,9 @@ namespace SPH {
 
 	__device__ __forceinline__ double EOS									(size_t const & EQ, double const & Cs0, double const & P00, double const & Density, double const & Density0);
 
-	double SoundSpeed						(size_t const & EQ, double const & Cs0, double const & Density, double const & Density0);
+	__device__ __host__ __forceinline__ double SoundSpeed						(size_t const & EQ, double const & Cs0, double const & Density, double const & Density0);
 
-	double DensitySolid					(size_t const & EQ, double const & Cs0, double const & P00, double const & Pressure, double const & Density0);
+	__device__ __host__ __forceinline__ double DensitySolid					(size_t const & EQ, double const & Cs0, double const & P00, double const & Pressure, double const & Density0);
 
 	__device__ void   Rotation							(tensor3 Input, tensor3 & Vectors, tensor3 & VectorsT, tensor3 & Values);
 
