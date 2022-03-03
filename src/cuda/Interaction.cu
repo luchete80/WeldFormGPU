@@ -83,7 +83,7 @@ __device__ inline void PartData_d::CalcForce2233(
 		}
 		
 		
-		tensor3 Sigmaj,Sigmai;
+		tensor3 Sigma,Sigmaj,Sigmai;
 		// set_to_zero(Sigmaj);
 		// set_to_zero(Sigmai);
 		
@@ -111,7 +111,9 @@ __device__ inline void PartData_d::CalcForce2233(
 		} else {
 			if (NoSlip[i] || NoSlip[j] ) {
 				// No-Slip velocity correction
-				if (IsFree[i])	vab = v[i] - (2.0f*v[j]- NSv[j]); else vab = (2.0f*v[i]- NSv[i]) - v[j];
+				if (IsFree[i])	vab = v[i] - 
+				(2.0f*v[j]- NSv[j]); 
+				else vab = (2.0f*v[i]- NSv[i]) - v[j];
 			}
 			// Please check
 			if (!(NoSlip[i] || NoSlip[j])) {

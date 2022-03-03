@@ -58,7 +58,7 @@ class PartData_d{
 	
 	//BOUNDARY
 	bool 			*IsFree;
-	double3 	 NSv;	///< Velocity of the fixed particle for no-slip BC
+	double3 	*NSv;	///< Velocity of the fixed particle for no-slip BC
 	
 	__device__ inline void CalcForce2233(
 	/* const double &Dimension*/
