@@ -20,6 +20,8 @@ class PartData_d{
 	int *neib_part;	//1D array, faster
 	int *neibcount;	//Useful??
 	
+	int particle_count;
+	
 	bool *isFree, *NoSlip;
 	
 	double3 *x,*v,*a;
@@ -64,6 +66,8 @@ class PartData_d{
 	/* const double &Dimension*/
 	const int & KernelType,
 	const float &XSPH);
+	
+	__device__ void ThermalSolveKernel(double dt);
 	
 };
 

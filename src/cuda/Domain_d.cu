@@ -214,9 +214,50 @@ void __global__ ThermalSolveKernel (double *dTdt,
 	}
 }
 
+////////////////////////////////////////////////////
+//// ALTERNATIVE KERNEL TO "ONLY" PASS PARTICLE DATA
+void __device__ PartData_d::ThermalSolveKernel (double dt) {
+
+//	printf("searching nb..\n");	
+	
+	int i = threadIdx.x+blockDim.x*blockIdx.x;
+
+	if ( i < particle_count ) {
+		dTdt[i] = 0.;
+
+		int neibcount;
+		#ifdef FIXED_NBSIZE
+		neibcount = neib_offs[i];
+		#else
+		neibcount =	neib_offs[i+1] - neib_offs[i];
+		#endif
+		// printf("neibcount %d\n",neibcount);
+		// printf("Nb indexed,i:%d\n",i);
+		for (int k=0;k < neibcount;k++) { //Or size
+			// //if fixed size i = part * NB + k
+			// //int j = neib[i][k];
+			int j = NEIB(i,k);
+			//printf("i,j: %d,%d\n",i,j);
+			double3 xij; 
+			xij = x[i] - x[j];
+			//printf("xij: %f,%f,%f:\n",x[i].x,x[i].y,x[i].z);
+			double h_ = (h[i] + h[j])/2.0;
+			double nxij = length(xij);
+			
+			double GK	= GradKernel(3, 0, nxij/h_, h_);
+			//printf("i, j, rho, GK, nxij,h: %d, %d, %f, %f, %f, %f\n",i, j, rho[j], GK,nxij,h_);
+			//		Particles[i]->dTdt = 1./(Particles[i]->Density * Particles[i]->cp_T ) * ( temp[i] + Particles[i]->q_conv + Particles[i]->q_source);	
+			//   mc[i]=mj/dj * 4. * ( P1->k_T * P2->k_T) / (P1->k_T + P2->k_T) * ( P1->T - P2->T) * dot( xij , v )/ (norm(xij)*norm(xij));
+			dTdt[i] += m[j]/rho[j]*( 4.0*k_T[i]*k_T[j]/(k_T[i]+k_T[j]) * (T[i] - T[j])) * dot( xij , GK*xij )/(nxij*nxij); //Fraser, Eqn 3.99
+		}
+		dTdt[i] *= 1./(rho[i]*cp_T[i]);
+	}
+}
+
+
 //This is the future solver, ir order to not pass so much data
 void __global__ ThermalSolveKernel (double dt, PartData_d *partdata){
-	
+	partdata->ThermalSolveKernel(dt);
 }
 
 __global__ void TempCalcLeapfrogFirst(double *T, double *Ta, double *Tb, //output
