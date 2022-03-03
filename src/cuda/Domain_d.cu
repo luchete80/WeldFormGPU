@@ -254,6 +254,9 @@ void Domain_d::ThermalSolve(const double &tf){
 	clock_beg = clock();
 	double T_inf = 500.;
 	double h_conv = 100.;
+	
+	double t_out,dt_out;
+	t_out = dt_out = 0.1;
 	while (Time<tf) {
 	// cout << "Callign Kernel"<<endl;
 	// cout << "blocksPerGrid (Blocksize)"<<blocksPerGrid<<endl;
@@ -288,14 +291,17 @@ void Domain_d::ThermalSolve(const double &tf){
 		}
 		
 		Time += deltat;
-
-//		cout << "Copying to host"<<endl;
-		cudaMemcpy(T_h, T, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
-		double max=0;
-		for (int i=0;i<particle_count;i++){
-			if (T_h[i]>max) max = T_h[i];
+		if (Time >= t_out) {
+	//		cout << "Copying to host"<<endl;
+			cudaMemcpy(T_h, T, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+			double max=0;
+			for (int i=0;i<particle_count;i++){
+				if (T_h[i]>max) max = T_h[i];
+			}
+			t_out += dt_out;
+			cout << "dTdt max\n"<<max<<endl;
 		}
-		//cout << "dTdt max\n"<<max<<endl;
+
 		step ++;
 	}//main time while
 	
