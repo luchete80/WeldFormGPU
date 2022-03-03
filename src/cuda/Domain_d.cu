@@ -142,9 +142,9 @@ void __device__ Domain_d::CalcThermalTimeStep(){
 
 void __global__ CalcConvHeatKernel (double *dTdt,
 																		double *m, double *rho, double *cp_T,
-																		double *T, double &T_inf,
+																		double *T, double T_inf,
 																		int *BC_T,
-																		double &h_conv, int count) {
+																		double h_conv, int count) {
 	
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
 	if ( i < count ) {	
@@ -159,7 +159,7 @@ void __global__ CalcConvHeatKernel (double *dTdt,
 			
 			
 			double q_conv = h_conv * dS2 * (T_inf - T[i])/cp_T[i];
-			//dTdt[i] = dTdt[i] + q_conv;
+			dTdt[i] += q_conv;
 		
 			// if (Particles[i]->q_conv>max){
 				// max= Particles[i]->q_conv;
@@ -252,7 +252,7 @@ void Domain_d::ThermalSolve(const double &tf){
 	double time_spent;
 	
 	clock_beg = clock();
-	double T_inf = 500.;
+	double t_inf = 500.;
 	double h_conv = 100.;
 	
 	double t_out,dt_out;
@@ -272,7 +272,7 @@ void Domain_d::ThermalSolve(const double &tf){
 	
 		CalcConvHeatKernel <<< blocksPerGrid,threadsPerBlock >>> (dTdt,
 												m, rho, cp_T,
-												T, T_inf,
+												T, t_inf,
 												BC_T,
 												h_conv,
 												particle_count);

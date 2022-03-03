@@ -118,7 +118,7 @@ class Domain_d
 	double *k_T, *cp_T,*h_conv;
 	
 	int *BC_T;	//0 nothing, 1 convection
-	double *T_inf;
+	//double *T_inf;
 	
 	Domain_d(){isfirst_step=true;};
 	Domain_d(const int &particle_count);
