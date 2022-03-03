@@ -117,7 +117,7 @@ class Domain_d
 	
 	double *k_T, *cp_T,*h_conv;
 	
-	int *BC_Type;	//0 nothing, 1 convection
+	int *BC_T;	//0 nothing, 1 convection
 	double *T_inf;
 	
 	Domain_d(){isfirst_step=true;};
@@ -149,6 +149,12 @@ __global__ void ThermalSolveKernel(double *dTdt,
 
 //NEXT SOLVER
 void __global__ ThermalSolveKernel (double dt, PartData_d *partdata);
+
+// void __global__ CalcConvHeatKernel (double *dTdt,
+																		// double *m, double *rho, double *cp_T,
+																		// double *T, double T_inf,
+																		// int *BC_T,
+																		// double &h_conv);
 
 __global__ void TempCalcLeapfrogFirst(double *T,double *Ta, double *Tb, 
 																			double *dTdt, double dt,

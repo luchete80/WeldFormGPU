@@ -29,6 +29,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&Ta		, particle_count * sizeof (double));
 	cudaMalloc((void **)&Tb		, particle_count * sizeof (double));
 	
+	cudaMalloc((void **)&BC_T, particle_count * sizeof (int));
+	
 	//Host things
 	T_h =  new double [particle_count];
 	
@@ -140,15 +142,15 @@ void __device__ Domain_d::CalcThermalTimeStep(){
 
 void __global__ CalcConvHeatKernel (double *dTdt,
 																		double *m, double *rho, double *cp_T,
-																		double *T, double *T_inf,
+																		double *T, double &T_inf,
 																		int *BC_T,
-																		double &h_conv) {
+																		double &h_conv, int count) {
 	
 	int i = threadIdx.x+blockDim.x*blockIdx.x;
-	
+	if ( i < count ) {	
 		if ( BC_T[i] == 1) {
 			double dS2 = pow(m[i]/rho[i],0.666666666);
-			//cout << "dS2" <<dS2<<endl;
+			//printf("dS2 %f\n",dS2);
 			//cout << Particles[i]->Density<<endl;
 			//Fraser Eq 3.121
 			//double q_conv = rho[i] * h_conv * dS2 * (T_inf[i] - T[i])/m[i]; //Fraser Eq - 3.121, J/(m3s)
@@ -156,8 +158,8 @@ void __global__ CalcConvHeatKernel (double *dTdt,
 			//dTdt[i] += 1./(rho[i] * cp_T[i] ) * q_conv; //J /*+ Particles[i]->q_source + Particles[i]->q_plheat);	*/
 			
 			
-			double q_conv = h_conv * dS2 * (T_inf[i] - T[i])/cp_T[i];
-			dTdt[i] += q_conv;
+			double q_conv = h_conv * dS2 * (T_inf - T[i])/cp_T[i];
+			//dTdt[i] = dTdt[i] + q_conv;
 		
 			// if (Particles[i]->q_conv>max){
 				// max= Particles[i]->q_conv;
@@ -165,6 +167,7 @@ void __global__ CalcConvHeatKernel (double *dTdt,
 			// }
 			//cout << "Particle  "<<Particles[i]->Mass<<endl;
 		}
+	}
 }
 //Thread per particle
 //dTdt+=1/cp* (mass/dens^2)*4(k)
@@ -249,6 +252,8 @@ void Domain_d::ThermalSolve(const double &tf){
 	double time_spent;
 	
 	clock_beg = clock();
+	double T_inf = 500.;
+	double h_conv = 100.;
 	while (Time<tf) {
 	// cout << "Callign Kernel"<<endl;
 	// cout << "blocksPerGrid (Blocksize)"<<blocksPerGrid<<endl;
@@ -261,13 +266,14 @@ void Domain_d::ThermalSolve(const double &tf){
 																		neib_part, neib_offs,
 																		particle_count);
 		cudaDeviceSynchronize(); //REQUIRED!!!!
-
-		// CalcConvHeatKernel (dTdt,
-												// m, rho, cp_T,
-												// T, T_inf,
-												// BC_T,
-												// h_conv);
-		// cudaDeviceSynchronize();
+	
+		CalcConvHeatKernel <<< blocksPerGrid,threadsPerBlock >>> (dTdt,
+												m, rho, cp_T,
+												T, T_inf,
+												BC_T,
+												h_conv,
+												particle_count);
+		cudaDeviceSynchronize();
 												
 		//cout << "Kernel called"<<endl;
 		 if (isfirst_step) {
@@ -289,7 +295,7 @@ void Domain_d::ThermalSolve(const double &tf){
 		for (int i=0;i<particle_count;i++){
 			if (T_h[i]>max) max = T_h[i];
 		}
-		cout << "dTdt max\n"<<max<<endl;
+		//cout << "dTdt max\n"<<max<<endl;
 		step ++;
 	}//main time while
 	
