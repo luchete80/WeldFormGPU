@@ -128,7 +128,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 	#else
 	neibcount =	neib_offs[i+1] - neib_offs[i];
 	#endif
-	printf("Solving\n");
+	//printf("Solving\n");
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
@@ -176,7 +176,10 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 			if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], Cs[j], dj, rho_0[j]);
 			Cij = 0.5*(Ci+Cj);
 			
-			//if (dot(vij,xij)<0) PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
+			tensor3 test;
+			PIij = (double)(Alpha*Cij)*test;	
+			// if (dot(vij,xij)<0) 
+				// PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
 		}
 		
 		
