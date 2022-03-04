@@ -77,6 +77,7 @@ add_executable(gpuweldform main.cu
 													cuda/Domain_d.cu
 													cuda/tensor.cu
 													#cuda/Interaction.cu
+													cuda/Interaction_global.cu
 													) 
 
 #set_property(TARGET gpuweldform PROPERTY CUDA_SEPARABLE_COMPILATION ON)
