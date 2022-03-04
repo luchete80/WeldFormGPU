@@ -9,6 +9,11 @@ __global__ void CalcForcesMember(PartData_d *partdata){
 	partdata->CalcForce2233(0,0.0);
 }
 
+__global__ void CalcForcesKernel(Domain_d *dom_d){
+	
+	dom_d->CalcForce2233(0,0.0);
+}
+
 #define NEIBS(i, k) partdata->neib_part[partdata->neib_offs[i]+k]
 __global__ void CalcForce2233(PartData_d *partdata){
 	
@@ -101,11 +106,21 @@ __device__ void CalcForcesExt(PartData_d *partdata){
 //TODO; DIVIDE PARTDATA INTO DIFFERENT FIELDS
 __device__ /*inline*/ void PartData_d::CalcForce2233(
 	/* const double &Dimension*/
-	const int & KernelType,
-	const float &XSPH)
+	int KernelType,
+	float XSPH)
+{
+}
+
+
+
+__device__ /*inline*/ void Domain_d::CalcForce2233(
+	/* const double &Dimension*/
+	int KernelType,
+	float XSPH)
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
+	if ( i < particle_count ) {
 	int Dimension = 3; //TODO, put in another 
 	int neibcount;
 	#ifdef FIXED_NBSIZE
@@ -161,7 +176,7 @@ __device__ /*inline*/ void PartData_d::CalcForce2233(
 			if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], Cs[j], dj, rho_0[j]);
 			Cij = 0.5*(Ci+Cj);
 			
-			if (dot(vij,xij)<0) PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
+			//if (dot(vij,xij)<0) PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
 		}
 		
 		
@@ -246,8 +261,8 @@ __device__ /*inline*/ void PartData_d::CalcForce2233(
 			//omp_unset_lock(&P2->my_lock);
 		}		
 		
-	}//neibcount
-	
+		}//neibcount
+	}//i < partcount
 }
 
 }; //SPH

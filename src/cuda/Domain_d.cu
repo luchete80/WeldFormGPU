@@ -14,16 +14,17 @@ void Domain_d::SetDimension(const int &particle_count){
 	//Allocae arrays (as Structure of arryays, SOA)
 
 	cudaMalloc((void **)&x, particle_count * sizeof (double3));
-	cudaMalloc((void **)&v, particle_count * sizeof (Vector));
-	cudaMalloc((void **)&a, particle_count * sizeof (Vector));
+	cudaMalloc((void **)&v, particle_count * sizeof (double3));
+	cudaMalloc((void **)&a, particle_count * sizeof (double3));
 
 	cudaMalloc((void **)&h, 	particle_count * sizeof (double));
 	cudaMalloc((void **)&m, 	particle_count * sizeof (double));
 	cudaMalloc((void **)&rho, particle_count * sizeof (double));
 	
-	//THERMAL
-	cudaMalloc((void **)&k_T, particle_count * sizeof (Vector));
-	cudaMalloc((void **)&cp_T, particle_count * sizeof (Vector));
+	///////////
+	//THERMAL //
+	cudaMalloc((void **)&k_T, 	particle_count * sizeof (double));
+	cudaMalloc((void **)&cp_T, 	particle_count * sizeof (double));
 		
 	cudaMalloc((void **)&T		, particle_count * sizeof (double));
 	cudaMalloc((void **)&Ta		, particle_count * sizeof (double));
@@ -41,8 +42,38 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&neib_offs	, (particle_count + 1) * sizeof (int));
 	cudaMalloc((void **)&neib_part	, (particle_count * 400) * sizeof (int));
 	
-	//cudaMalloc((void **)&partdata, sizeof(PartData_d));
+	cudaMalloc((void **)&partdata, sizeof(PartData_d));
 	
+	////////////////////////////
+	//// MECHANICAL DATA ///////
+	////////////////////////////
+	
+	/// DensitySolid ///
+	//DensitySolid (PresEq[i], Cs[i], P0[i],p[j], rho_0[i]);
+	cudaMalloc((void **)&PresEq, 	particle_count  * sizeof (double));	
+	cudaMalloc((void **)&Cs, 			particle_count  * sizeof (double));		
+	cudaMalloc((void **)&P0, 			particle_count  * sizeof (double));		
+	cudaMalloc((void **)&FPMassC, particle_count  * sizeof (double));	
+	cudaMalloc((void **)&rho_0, 	particle_count  * sizeof (double));	
+	
+	// FLATTENED ARRAY!!!!
+	cudaMalloc((void **)&sigma	, particle_count  * 6 * sizeof (double));		
+	
+	
+	// BOUNDARY CONDITIONS
+	cudaMalloc((void **)&IsFree	, particle_count  * sizeof (bool));	
+	cudaMalloc((void **)&NoSlip	, particle_count  * sizeof (bool));
+	cudaMalloc((void **)&NSv, 		particle_count  * sizeof (double3));	
+	
+	//////////////////////////
+	/////// TENSILE INST /////
+	cudaMalloc((void **)&TI, 					particle_count  * sizeof (double));	
+	cudaMalloc((void **)&TIn, 				particle_count  * sizeof (double));		
+	cudaMalloc((void **)&TIInitDist, 	particle_count  * sizeof (double));		
+	
+	//////////////////////////
+	/// CORRECTIONS /////////
+	cudaMalloc((void **)&VXSPH, 	particle_count  * sizeof (double3));		
 	//cudaMalloc((void **)&partdata->dTdt,particle_count * sizeof (double)); //TODO, pass to PartData
 	
 	// cudaMalloc((void**)&ppArray_a, 10 * sizeof(int*));

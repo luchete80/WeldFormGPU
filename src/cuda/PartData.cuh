@@ -64,8 +64,8 @@ class PartData_d{
 	
 	__device__ /*inline */ void CalcForce2233(
 	/* const double &Dimension*/
-	const int & KernelType,
-	const float &XSPH);
+	int KernelType,
+	float XSPH);
 	
 	__device__ void ThermalSolveKernel(double dt);
 	
