@@ -69,8 +69,8 @@ SET(EXES
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
 add_executable(gpuweldform 
-													main_thermal.cu
-													#main_mech.cu
+													#main_thermal.cu
+													main_mech.cu
 													Domain.cpp 
 													#NbSearch.cpp 
 													Output.cpp

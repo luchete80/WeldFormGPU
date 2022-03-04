@@ -56,10 +56,10 @@ clear(symtensor4& T)
 
 // determinant of a 3x3 symmetric tensor
 __spec
-float
+double
 det(symtensor3 const& T)
 {
-	float ret = 0;
+	double ret = 0;
 	ret += T.xx*(T.yy*T.zz - T.yz*T.yz);
 	ret -= T.xy*(T.xy*T.zz - T.xz*T.yz);
 	ret += T.xz*(T.xy*T.yz - T.xz*T.yy);
@@ -68,13 +68,13 @@ det(symtensor3 const& T)
 
 // determinant of a 4x4 symmetric tensor
 __spec
-float
+double
 det(symtensor4 const& T)
 {
-	float ret = 0;
+	double ret = 0;
 
 	// first minor: ww * (xyz × xyz)
-	float M = 0;
+	double M = 0;
 	M += T.xx*(T.yy*T.zz - T.yz*T.yz);
 	M -= T.xy*(T.xy*T.zz - T.xz*T.yz);
 	M += T.xz*(T.xy*T.yz - T.xz*T.yy);
@@ -106,10 +106,10 @@ det(symtensor4 const& T)
 
 // L-infinity norm of a symmetric 4x4 tensor
 __spec
-float
+double
 norm_inf(symtensor4 const& T)
 {
-	float m = fmaxf(T.xx, T.xy);
+	double m = fmaxf(T.xx, T.xy);
 	m = fmaxf(m, T.xz);
 	m = fmaxf(m, T.xw);
 	m = fmaxf(m, T.yy);
@@ -126,7 +126,7 @@ symtensor3
 inverse(symtensor3 const& T)
 {
 	symtensor3 R;
-	float D(det(T));
+	double D(det(T));
 	R.xx = (T.yy*T.zz - T.yz*T.yz)/D;
 	R.xy = (T.xz*T.yz - T.xy*T.zz)/D;
 	R.xz = (T.xy*T.yz - T.xz*T.yy)/D;
@@ -193,7 +193,7 @@ operator +=(symtensor3 &T1, symtensor3 const& T2)
 
 __spec
 symtensor3
-operator /(symtensor3 const& T1, float f)
+operator /(symtensor3 const& T1, double f)
 {
 	symtensor3 R;
 	R.xx = T1.xx/f;
@@ -208,7 +208,7 @@ operator /(symtensor3 const& T1, float f)
 
 __spec
 symtensor3 &
-operator /=(symtensor3 &T1, float f)
+operator /=(symtensor3 &T1, double f)
 {
 	T1.xx /= f;
 	T1.xy /= f;
@@ -220,10 +220,10 @@ operator /=(symtensor3 &T1, float f)
 }
 
 __spec
-float3
-dot(symtensor3 const& T, float3 const& v)
+double3
+dot(symtensor3 const& T, double3 const& v)
 {
-	return make_float3(
+	return make_double3(
 			T.xx*v.x + T.xy*v.y + T.xz*v.z,
 			T.xy*v.y + T.yy*v.y + T.yz*v.z,
 			T.xz*v.x + T.yz*v.y + T.zz*v.z);
@@ -231,10 +231,10 @@ dot(symtensor3 const& T, float3 const& v)
 }
 
 __spec
-float3
-dot(symtensor3 const& T, float4 const& v)
+double3
+dot(symtensor3 const& T, double4 const& v)
 {
-	return make_float3(
+	return make_double3(
 			T.xx*v.x + T.xy*v.y + T.xz*v.z,
 			T.xy*v.y + T.yy*v.y + T.yz*v.z,
 			T.xz*v.x + T.yz*v.y + T.zz*v.z);
@@ -243,10 +243,10 @@ dot(symtensor3 const& T, float4 const& v)
 
 // T.v
 __spec
-float4
-dot(symtensor4 const& T, float4 const& v)
+double4
+dot(symtensor4 const& T, double4 const& v)
 {
-	return make_float4(
+	return make_double4(
 			T.xx*v.x + T.xy*v.y + T.xz*v.z + T.xw*v.w,
 			T.xy*v.x + T.yy*v.y + T.yz*v.z + T.yw*v.w,
 			T.xz*v.x + T.yz*v.y + T.zz*v.z + T.zw*v.w,
@@ -256,16 +256,16 @@ dot(symtensor4 const& T, float4 const& v)
 
 // v.T.w
 __spec
-float
-dot(float4 const& v, symtensor4 const& T, float4 const& w)
+double
+dot(double4 const& v, symtensor4 const& T, double4 const& w)
 {
 	return dot(v, dot(T,w));
 }
 
 // v.T.v
 __spec
-float
-ddot(symtensor4 const& T, float4 const& v)
+double
+ddot(symtensor4 const& T, double4 const& v)
 {
 	return T.xx*v.x*v.x + T.yy*v.y*v.y + T.zz*v.z*v.z + T.ww*v.w*v.w +
 		2*(
@@ -276,10 +276,10 @@ ddot(symtensor4 const& T, float4 const& v)
 
 // First row of the adjugate of a given tensor3
 __spec
-float4
+double4
 adjugate_row1(symtensor4 const& T)
 {
-	return make_float4(
+	return make_double4(
 		T.yy*T.zz*T.ww + T.yz*T.zw*T.yw + T.yw*T.yz*T.zw - T.yy*T.zw*T.zw - T.yz*T.yz*T.ww - T.yw*T.zz*T.yw,
 		T.xy*T.zw*T.zw + T.yz*T.xz*T.ww + T.yw*T.zz*T.xw - T.xy*T.zz*T.ww - T.yz*T.zw*T.xw - T.yw*T.xz*T.zw,
 		T.xy*T.yz*T.ww + T.yy*T.zw*T.xw + T.yw*T.xz*T.yw - T.xy*T.zw*T.yw - T.yy*T.xz*T.ww - T.yw*T.yz*T.xw,
@@ -308,7 +308,7 @@ __spec tensor3 tensor3::Identity(){
 // // // symtensor3 fetchTau(uint i)
 // // // {
 	// // // symtensor3 tau;
-	// // // float2 temp = tex1Dfetch(tau0Tex, i);
+	// // // double2 temp = tex1Dfetch(tau0Tex, i);
 	// // // tau.xx = temp.x;
 	// // // tau.xy = temp.y;
 	// // // temp = tex1Dfetch(tau1Tex, i);
@@ -327,12 +327,12 @@ __spec tensor3 tensor3::Identity(){
 */
 __device__
 symtensor3 fetchTau(uint i,
-	const float2 *__restrict__ tau0,
-	const float2 *__restrict__ tau1,
-	const float2 *__restrict__ tau2)
+	const double2 *__restrict__ tau0,
+	const double2 *__restrict__ tau1,
+	const double2 *__restrict__ tau2)
 {
 	symtensor3 tau;
-	float2 temp = tau0[i];
+	double2 temp = tau0[i];
 	tau.xx = temp.x;
 	tau.xy = temp.y;
 	temp = tau1[i];
@@ -347,17 +347,17 @@ symtensor3 fetchTau(uint i,
 //! Store tau tensor to split arrays
 __device__
 void storeTau(symtensor3 const& tau, uint i,
-	float2 *__restrict__ tau0,
-	float2 *__restrict__ tau1,
-	float2 *__restrict__ tau2)
+	double2 *__restrict__ tau0,
+	double2 *__restrict__ tau1,
+	double2 *__restrict__ tau2)
 {
-	tau0[i] = make_float2(tau.xx, tau.xy);
-	tau1[i] = make_float2(tau.xz, tau.yy);
-	tau2[i] = make_float2(tau.yz, tau.zz);
+	tau0[i] = make_double2(tau.xx, tau.xy);
+	tau1[i] = make_double2(tau.xz, tau.yy);
+	tau2[i] = make_double2(tau.yz, tau.zz);
 }
 
 
-__device__ float& tensor3::operator()(int row, int col)
+__device__ double& tensor3::operator()(int row, int col)
 {
     // assert(col >= 0 && col < 4);
     // assert(row >= 0 && row < 4);
@@ -365,7 +365,7 @@ __device__ float& tensor3::operator()(int row, int col)
     return m_data[row][col];
 }
 
- __device__ float  tensor3::operator()(int row, int col) const
+ __device__ double  tensor3::operator()(int row, int col) const
 {
     // assert(col >= 0 && col < 4);
     // assert(row >= 0 && row < 4);
@@ -383,13 +383,13 @@ __device__ void tensor3::operator()() {
 }
 
 // __device__ tensor3::tensor3(){
-	// data = new float[3];
+	// data = new double[3];
 	// for (int i=0;i<9;i++) data[i] = 0.;
 // }
 
 
 
-__device__ float& tensor3::operator[](const int &i){
+__device__ double& tensor3::operator[](const int &i){
 
 	//return m_data[3*i];
 }
@@ -422,7 +422,7 @@ __device__ tensor3 tensor3:: operator- (const tensor3 &b){
 	return ret;
 }
 
-__device__ tensor3 tensor3:: operator- (const float &f){
+__device__ tensor3 tensor3:: operator- (const double &f){
 	tensor3 ret;
 	for (int i=0;i<3;i++)
 		for (int j=0;j<3;j++)
@@ -440,14 +440,14 @@ __device__ tensor3 tensor3:: Trans (){
 	return ret;
 }
 
-__device__ tensor3 operator* (const float &f, const tensor3 &b){
+__device__ tensor3 operator* (const double &f, const tensor3 &b){
 	tensor3 ret;
 	for (int i=0;i<3;i++)
 		for (int j=0;j<3;j++)
 			ret(i,j) = b(i,j)*f;	
 }
 
-__device__ tensor3 tensor3::operator= (const float &f){
+__device__ tensor3 tensor3::operator= (const double &f){
 	tensor3 ret;
 	for (int i=0;i<3;i++)
 		for (int j=0;j<3;j++)
@@ -466,10 +466,10 @@ __device__ /*__forceinline__*/ tensor3 Identity(){
 
 /*__spec*/
 __device__
-float3
-dot(tensor3 const& T, float3 const& v)
+double3
+dot(tensor3 const& T, double3 const& v)
 {
-	return make_float3(
+	return make_double3(
 			T(0,0)*v.x + T(0,1)*v.y +T(0,2)*v.z,
 			T(1,0)*v.x + T(1,1)*v.y +T(1,2)*v.z,			
 			T(2,0)*v.x + T(2,1)*v.y +T(2,2)*v.z
@@ -477,7 +477,7 @@ dot(tensor3 const& T, float3 const& v)
 
 }
 
-__device__ tensor3 operator/ (const tensor3 &b, const float &f){
+__device__ tensor3 operator/ (const tensor3 &b, const double &f){
 
 	tensor3 ret;
 	for (int i=0;i<3;i++)

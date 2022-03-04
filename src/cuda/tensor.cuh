@@ -28,25 +28,25 @@
 #define _TENSOR_H_
 
 typedef struct {
-	float xx;
-	float xy;
-	float xz;
-	float yy;
-	float yz;
-	float zz;
+	double xx;
+	double xy;
+	double xz;
+	double yy;
+	double yz;
+	double zz;
 } symtensor3 ;
 
 typedef struct {
-	float xx;
-	float xy;
-	float xz;
-	float xw;
-	float yy;
-	float yz;
-	float yw;
-	float zz;
-	float zw;
-	float ww;
+	double xx;
+	double xy;
+	double xz;
+	double xw;
+	double yy;
+	double yz;
+	double yw;
+	double zz;
+	double zw;
+	double ww;
 } symtensor4 ;
 
 #define __spec __device__ __forceinline__
@@ -54,30 +54,30 @@ typedef struct {
 class tensor3
 {
 private:
-		float m_data[4][4]{};    
+		double m_data[4][4]{};    
 public:
     __device__ tensor3();
-    __device__ float& operator()(int row, int col);
-    __device__ float& operator[](const int &i);	//0 to 8
-    __device__ float operator()(int row, int col) const;
+    __device__ double& operator()(int row, int col);
+    __device__ double& operator[](const int &i);	//0 to 8
+    __device__ double operator()(int row, int col) const;
     __device__ void operator()();
 		__device__ void Set(const int &i, const int &j);
 		__device__ tensor3 operator+ (const tensor3 &b);
 		__device__ tensor3 operator- (const tensor3 &b);
 		__device__ tensor3 operator* (const tensor3 &b);
-		__device__ tensor3 operator- (const float &f);
-		__device__ tensor3 operator= (const float &f);
+		__device__ tensor3 operator- (const double &f);
+		__device__ tensor3 operator= (const double &f);
 		
 		__spec tensor3 Identity();
-		//tensor3 operator* (const float &f);
+		//tensor3 operator* (const double &f);
 		tensor3 Trans ();
 		__device__ ~tensor3(){};
 };
 
-__device__ tensor3 operator* (const float &f, const tensor3 &b);
-__device__ tensor3 operator/ (const tensor3 &b, const float &f);
+__device__ tensor3 operator* (const double &f, const tensor3 &b);
+__device__ tensor3 operator/ (const tensor3 &b, const double &f);
 
-__device__ float3 dot(tensor3 const& T, float3 const& v);
+__device__ double3 dot(tensor3 const& T, double3 const& v);
 
 __device__ /*__forceinline__*/ tensor3 Identity();
 

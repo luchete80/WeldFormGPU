@@ -96,8 +96,8 @@ class Domain_d
 	
 	double *h;
 	double3* x; //Vector is double
-	Vector* v;
-	Vector* a;
+	double3* v;
+	double3* a;
 	
 	PartData_d *partdata;
 	
@@ -110,6 +110,9 @@ class Domain_d
 	double					deltatint;			//Initial Time Step
 
 	
+	
+	
+	/// TODO: PASS THIS TO PARTICLE DATA
 	double *rho, *m;	//Mass and density
 	//THERMAL
 	double *T, *Ta, *Tb, *dTdt;
@@ -119,7 +122,35 @@ class Domain_d
 	
 	int *BC_T;	//0 nothing, 1 convection
 	//double *T_inf;
+
+	//Mechanical
+	double *p,*PresEq;
+	double *Cs, *P0;
 	
+	double *rho_0;	///< Reference Density of Particle	
+	//
+	double *sigma; //To convert after to tensor;
+	
+	//Be in another class
+	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
+		
+	//ARTIFFICIAL VISC	
+	double 	Alpha;		///< Dynamic viscosity coefficient of the fluid particle
+	double 	Beta;		///< Dynamic viscosity coefficient of the fluid particle
+	
+	//TENSILE INSTABILITY
+	double	*TI;		///< Tensile instability factor
+	double	*TIn;		///< Tensile instability power
+	double 	*TIInitDist;	///< Initial distance of particles for calculation of tensile instability
+	
+	double3 *VXSPH;
+	
+	//BOUNDARY
+	bool 			*IsFree, *NoSlip;
+	double3 	*NSv;	///< Velocity of the fixed particle for no-slip BC
+
+
+		/// FUNCTIONS
 	Domain_d(){isfirst_step=true;};
 	Domain_d(const int &particle_count);
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
@@ -138,6 +169,8 @@ class Domain_d
 	__device__ void CalcThermalTimeStep();
 	
 	__device__ __forceinline__ void LastComputeAcceleration();
+	
+	__device__ /*inline*/ void CalcForce2233(	int KernelType, float XSPH);
 
 };
 
@@ -184,6 +217,8 @@ void __global__ /*inline*/ CalcForcesKernel(
 																		const float XSPH,
 																		int *neib_part, int *neib_offs,
 																		int particle_count);
+																		
+__global__ void CalcForcesKernel(Domain_d *dom_d);
 	/* const double &Dimension*/
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel

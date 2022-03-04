@@ -50,7 +50,13 @@ void Domain_d::MechSolve(const double &tf){
   Time =0.;
 	
 	isfirst_step =true;
-	CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);
+	
+	//This was in Original LastCompAcceleration
+	CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
+	cudaDeviceSynchronize(); //REQUIRED!!!!
+	
+	//TODO: Pass toPartData
+	//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);
 	//MechSolveKernel<<< >>>();
 	
 	
