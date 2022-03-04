@@ -1,6 +1,27 @@
 #include "Domain_d.cuh"
 namespace SPH{
-	
+
+//Called by __global__
+//void __device__ Domain_d::WholeVelocity() {
+    // //Apply a constant velocity to all particles in the initial time step
+    // if (norm(BC.allv)>0.0 || BC.allDensity>0.0) {
+    	// Vec3_t vel = 0.0;
+    	// double den = 0.0;
+
+    	// for (int i=0 ; i<Particles.Size() ; i++) {
+		// AllCon(Particles[i]->x,vel,den,BC);
+    		// if (Particles[i]->IsFree && norm(BC.allv)>0.0) {
+			// Particles[i]->v		= vel;
+ 		// }
+    		// if (IsFree[i] && BC.allDensity>0.0) {
+			// rho[i]	= den;
+			// p[i]		= EOS(Particles[i]->PresEq[i], Particles[i]->Cs[i], Particles[i]->P0,Particles[i]->rho[i], RefDensity);
+    		// }
+    	// }
+    // }
+//}
+
+
 // __device__ PartData_d::PrimaryComputeAcceleration(){
 	// // Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
 	

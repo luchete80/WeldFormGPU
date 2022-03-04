@@ -80,6 +80,7 @@ add_executable(gpuweldform
 													cuda/tensor.cu
 													cuda/Interaction.cu
 													cuda/Mechanical.cu
+													cuda/Thermal.cu
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
 													) 
 

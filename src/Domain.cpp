@@ -19,7 +19,6 @@
 ************************************************************************************/
 
 
-#include "cuda/mech_kernels.cuh"
 #include "Domain.h"
 #include <chrono>
 //#include <time.h>       /* time_t, struct tm, difftime, time, mktime */

@@ -220,6 +220,13 @@ void __global__ /*inline*/ CalcForcesKernel(
 																		int particle_count);
 																		
 __global__ void CalcForcesKernel(Domain_d *dom_d);
+
+void __global__ CalcConvHeatKernel (double *dTdt,
+																		double *m, double *rho, double *cp_T,
+																		double *T, double T_inf,
+																		int *BC_T,
+																		double h_conv, int count);
+																		
 	/* const double &Dimension*/
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
