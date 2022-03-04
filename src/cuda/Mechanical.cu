@@ -1,29 +1,149 @@
 #include "Domain_d.cuh"
+#include "Functions.cuh"
 namespace SPH{
 
 __global__ void WholeVelocityKernel(Domain_d *dom_d){
-	//dom_d->WholeVelocity()
+	dom_d->WholeVelocity();
 }
 //Called by __global__
-//void __device__ Domain_d::WholeVelocity() {
-    // //Apply a constant velocity to all particles in the initial time step
-    // if (norm(BC.allv)>0.0 || BC.allDensity>0.0) {
-    	// Vec3_t vel = 0.0;
-    	// double den = 0.0;
+void __device__ Domain_d::WholeVelocity() {
+		int i = threadIdx.x + blockDim.x*blockIdx.x;
+	
+	if ( i < particle_count ) {
+	}
+}
 
-    	// for (int i=0 ; i<Particles.Size() ; i++) {
-		// AllCon(Particles[i]->x,vel,den,BC);
-    		// if (Particles[i]->IsFree && norm(BC.allv)>0.0) {
-			// Particles[i]->v		= vel;
- 		// }
-    		// if (IsFree[i] && BC.allDensity>0.0) {
-			// rho[i]	= den;
-			// p[i]		= EOS(Particles[i]->PresEq[i], Particles[i]->Cs[i], Particles[i]->P0,Particles[i]->rho[i], RefDensity);
-    		// }
-    	// }
-    // }
-//}
+//////////////////////////////////////////////////
+///// THIS IS ONLY WHEN THERE ARE FIXED PARTICLES!
+//////////////////////////////////////////////////
+__device__ void Domain_d::PrimaryComputeAcceleration (/*int i*/) {
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+		
+	if ( i < particle_count ) {
+		double3 xij;
+		double h_,K;
+	int Dimension = 3;
+	
+	// Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
+	//Same Material pairs
+	int neibcount;
+	#ifdef FIXED_NBSIZE
+	neibcount = neib_offs[i];
+	#else
+	neibcount =	neib_offs[i+1] - neib_offs[i];
+	#endif
+	// printf("neibcount %d\n",neibcount);
+	// printf("Nb indexed,i:%d\n",i);
+	for (int k=0;k < neibcount;k++) { //Or size
+		// P1	= FSMPairs[k][a].first;
+		// P2	= FSMPairs[k][a].second;
+		int j = NEIB(i,k); //TODO; MAKE A FIXED PAIR
+		xij	= x[i]-x[j];
+		h_	= (h[i]+ h[j])/2.0;
+		double nxij = length(xij);
+		//Periodic_X_Correction(xij, h, Particles[P1], Particles[P2]);
+		//(size_t const & Dim, size_t const & KT, double const & q, double const & h);
+		K	= Kernel(Dimension, 0, nxij/h_, h_);
+		if ( !IsFree[i] ) {
+				SumKernel[i] += K;
+				p[i]	+= p[j] * K /*+ dot(Gravity,xij)*rho[j]*K*/;
+				sigma[i] 	 = sigma[i] + K * sigma[j];
+				if (NoSlip[i])		NSv[i] 	+= v[j] * K;
+		} else {
+				SumKernel[j] += K;
+				p[j]	+= p[i] * K /*+ dot(Gravity,xij)*rho[i]*K*/;
+				sigma[j]	 = sigma[j] + K * sigma[i];
+				if (NoSlip[j])		NSv[j] 	+= v[i] * K;
 
+		}	
+	}//FIXED neibcount k
+
+	////////////////////////////////////////////////////////////////
+	// // Calculateing the finala value of the smoothed pressure, velocity and stress for fixed particles
+	////////////////////////////////////////////////////////////////
+	
+	// #pragma omp parallel for schedule (static) num_threads(Nproc)
+	// #ifdef __GNUC__
+	// for (size_t i=0; i<FixedParticles.Size(); i++)
+	// #else
+	// for (int i=0; i<FixedParticles.Size(); i++)
+	// #endif
+		// if (Particles[FixedParticles[i]]-> ID != contact_surf_id)  //ADDED TO Prevent adding surface (rigid contact) particles
+		// if (Particles[FixedParticles[i]]->SumKernel!= 0.0) {
+			// size_t a = FixedParticles[i];
+			// Particles[a]->Pressure	= Particles[a]->Pressure/Particles[a]->SumKernel;
+			// Particles[a]->Sigma	= 1.0/Particles[a]->SumKernel*Particles[a]->Sigma;
+			// if (Particles[a]->NoSlip)	Particles[a]->NSv	= Particles[a]->NSv/Particles[a]->SumKernel;
+
+			// // Tensile Instability for fixed soil and solid particles
+			// if (Particles[a]->TI > 0.0)
+			// {
+				// // XY plane must be used, It is very slow in 3D
+				// if (Dimension == 2) {
+					// double teta, Sigmaxx, Sigmayy, C, S;
+					// if ((Particles[a]->Sigma(0,0)-Particles[a]->Sigma(1,1))!=0.0)
+						// teta = 0.5*atan(2.0*Particles[a]->Sigma(0,1)/(Particles[a]->Sigma(0,0)-Particles[a]->Sigma(1,1)));
+					// else
+						// teta = M_PI/4.0;
+
+					// C = cos(teta);
+					// S = sin(teta);
+					// Sigmaxx = C*C*Particles[a]->Sigma(0,0) + 2.0*C*S*Particles[a]->Sigma(0,1) + S*S*Particles[a]->Sigma(1,1);
+					// Sigmayy = S*S*Particles[a]->Sigma(0,0) - 2.0*C*S*Particles[a]->Sigma(0,1) + C*C*Particles[a]->Sigma(1,1);
+					// if (Sigmaxx>0) Sigmaxx = -Particles[a]->TI * Sigmaxx/(Particles[a]->Density*Particles[a]->Density); else Sigmaxx = 0.0;
+					// if (Sigmayy>0) Sigmayy = -Particles[a]->TI * Sigmayy/(Particles[a]->Density*Particles[a]->Density); else Sigmayy = 0.0;
+					// Particles[a]->TIR(0,0) = C*C*Sigmaxx + S*S*Sigmayy;
+					// Particles[a]->TIR(1,1) = S*S*Sigmaxx + C*C*Sigmayy;
+					// Particles[a]->TIR(0,1) = Particles[a]->TIR(1,0) = S*C*(Sigmaxx-Sigmayy);
+				// }
+				// else {
+					// Mat3_t Vec,Val,VecT,temp;
+					// Rotation(Particles[a]->Sigma,Vec,VecT,Val);
+					// double pc_ti_inv_d2=Particles[a]->TI/(Particles[a]->Density*Particles[a]->Density);//Precompute some values
+					// // if (Val(0,0)>0) Val(0,0) = -Particles[a]->TI * Val(0,0)/(Particles[a]->Density*Particles[a]->Density); else Val(0,0) = 0.0;
+					// // if (Val(1,1)>0) Val(1,1) = -Particles[a]->TI * Val(1,1)/(Particles[a]->Density*Particles[a]->Density); else Val(1,1) = 0.0;
+					// // if (Val(2,2)>0) Val(2,2) = -Particles[a]->TI * Val(2,2)/(Particles[a]->Density*Particles[a]->Density); else Val(2,2) = 0.0;
+					// if (Val(0,0)>0) Val(0,0) = -pc_ti_inv_d2 * Val(0,0); else Val(0,0) = 0.0;
+					// if (Val(1,1)>0) Val(1,1) = -pc_ti_inv_d2 * Val(1,1); else Val(1,1) = 0.0;
+					// if (Val(2,2)>0) Val(2,2) = -pc_ti_inv_d2 * Val(2,2); else Val(2,2) = 0.0;
+
+					// Mult(Vec,Val,temp);
+					// Mult(temp,VecT,Particles[a]->TIR);
+				// }
+			// }
+		// }
+
+	}//i<part_count
+}
+
+//IS NOT NECESSARY TO PASS ENTIRE DOMAIN!
+void __global__ MoveKernelExt(double3 *v, double3 *va, double3 *vb,
+													double *rho, double *rhoa, double *rhob,double *drho,
+													double3 *x, double3 *a,
+													double3 *u, /*Mat3_t I, */double dt,
+													bool FirstStep, int particle_count)
+{
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+		
+	if ( i < particle_count ) {
+	if (FirstStep) {
+		rhoa[i] = rho[i] - dt/2.0*drho[i];
+		va[i] = v[i] - dt/2.0*a[i];
+	}
+	rhob[i] = rho[i];
+	rhoa[i] += dt*drho[i];
+	rho[i] = (rhoa[i]+rhob[i])/2.0;
+	vb[i] = 	va[i];
+	va[i] += dt*a[i];
+	v[i] = (va[i] + vb[i])/2.0;
+	x[i] += dt*va[i];
+	
+	u[i] += dt*va[i];
+
+    // Mat2Leapfrog(dt);
+	// if (FirstStep) FirstStep = false;
+	}
+}
 
 // __device__ PartData_d::PrimaryComputeAcceleration(){
 	// // Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
@@ -78,6 +198,17 @@ void Domain_d::MechSolve(const double &tf){
 	//This was in Original LastCompAcceleration
 	CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
 	cudaDeviceSynchronize(); //REQUIRED!!!!
+	
+	//IMPOSE BC!
+	
+	MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
+													rho, rhoa, rhob, drho,
+													x, a,
+													u, /*Mat3_t I, */deltat,
+													isfirst_step, particle_count);
+	
+	cudaDeviceSynchronize(); //REQUIRED!!!!
+	if (isfirst_step) isfirst_step = false;
 	
 	//TODO: Pass toPartData
 	//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);

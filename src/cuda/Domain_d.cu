@@ -14,9 +14,7 @@ void Domain_d::SetDimension(const int &particle_count){
 	//Allocae arrays (as Structure of arryays, SOA)
 
 	cudaMalloc((void **)&x, particle_count * sizeof (double3));
-	cudaMalloc((void **)&v, particle_count * sizeof (double3));
-	cudaMalloc((void **)&a, particle_count * sizeof (double3));
-
+	
 	cudaMalloc((void **)&h, 	particle_count * sizeof (double));
 	cudaMalloc((void **)&m, 	particle_count * sizeof (double));
 	cudaMalloc((void **)&rho, particle_count * sizeof (double));
@@ -45,8 +43,19 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&partdata, sizeof(PartData_d));
 	
 	////////////////////////////
+	/////// SPH ////////////////
+	cudaMalloc((void **)&SumKernel, 	particle_count  * sizeof (double));	
+	
+	////////////////////////////
 	//// MECHANICAL DATA ///////
 	////////////////////////////
+	cudaMalloc((void **)&v, particle_count * sizeof (double3));
+	cudaMalloc((void **)&a, particle_count * sizeof (double3));
+	cudaMalloc((void **)&u, particle_count * sizeof (double3));
+	
+	cudaMalloc((void **)&va, particle_count * sizeof (double3));
+	cudaMalloc((void **)&vb, particle_count * sizeof (double3));
+	
 	cudaMalloc((void **)&p, 			particle_count * sizeof (double));	
 	/// DensitySolid ///
 	//DensitySolid (PresEq[i], Cs[i], P0[i],p[j], rho_0[i]);
@@ -55,7 +64,10 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&P0, 			particle_count  * sizeof (double));		
 	cudaMalloc((void **)&FPMassC, particle_count  * sizeof (double));	
 	cudaMalloc((void **)&rho_0, 	particle_count  * sizeof (double));	
-	
+
+	cudaMalloc((void **)&rhoa, 	particle_count  * sizeof (double));	
+	cudaMalloc((void **)&rhob, 	particle_count  * sizeof (double));	
+	cudaMalloc((void **)&drho, 	particle_count  * sizeof (double));		
 	// FLATTENED ARRAY!!!!
 	cudaMalloc((void **)&sigma	, particle_count  * 6 * sizeof (double));		
 	

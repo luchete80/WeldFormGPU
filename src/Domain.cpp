@@ -480,7 +480,7 @@ int calcHalfPartCount(const double &r, const double &R, const int xinc){
 	return ypartcount;
 }
 
-inline void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
+void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
 									double r, double Density, double h, bool Fixed) {
 
 //	Util::Stopwatch stopwatch;

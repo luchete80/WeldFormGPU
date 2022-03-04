@@ -71,7 +71,7 @@ class Domain
 	void __host__ /*__device__ */ AddBoxLength				(int tag, Vector const &V, double Lx, double Ly, double Lz,double r, double Density,
 																double h,int type, int rotation, bool random, bool Fixed);									//Add a cube of particles with a defined dimensions
 
-	void __host__ __device__ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
+	void __host__ /*__device__*/ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
 								double r, double Density, double h, bool Fixed);
 
 	void __host__ __device__ AddTractionProbeLength(int tag, Vector const & V, double Rxy, double Lz_side,

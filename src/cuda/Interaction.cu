@@ -182,7 +182,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 				// PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
 		}
 		
-		//printf("Ti %f\n",T[i]);
+		//printf("i %d, Ti %f\n",i, T[i]);
 		
 		tensor3 Sigma,Sigmaj,Sigmai;
 		// set_to_zero(Sigmaj);

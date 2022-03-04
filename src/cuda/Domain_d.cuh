@@ -98,10 +98,14 @@ class Domain_d
 	int *neibcount;	//Useful??
 	int particle_count;
 	
+	//SPH
 	double *h;
+	double *SumKernel;
+	
 	double3* x; //Vector is double
 	double3* v;
 	double3* a;
+	double3* u;
 	
 	PartData_d *partdata;
 	
@@ -132,6 +136,9 @@ class Domain_d
 	double *Cs, *P0;
 	
 	double *rho_0;	///< Reference Density of Particle	
+	
+	double *rhoa,*rhob,*drho;
+	double3 *va,*vb;
 	//
 	double *sigma; //To convert after to tensor;
 	
@@ -172,10 +179,16 @@ class Domain_d
 	__host__ void Domain_d::CopyData(const Domain &dom);
 	__device__ void CheckData();
 	__device__ void CalcThermalTimeStep();
-	
+
+	//MAIN MECHANICAL FUNCTIONS ARE THESE THREE (Start Acc & Whole Velocity are not)
+	__device__ __forceinline__ void PrimaryComputeAcceleration ();	
 	__device__ __forceinline__ void LastComputeAcceleration();
-	
 	__device__ /*inline*/ void CalcForce2233(	int KernelType, float XSPH);
+ ////////////////////////
+	
+
+
+	__device__ void WholeVelocity();
 
 };
 
@@ -232,6 +245,14 @@ void __global__ CalcConvHeatKernel (double *dTdt,
 																		double *T, double T_inf,
 																		int *BC_T,
 																		double h_conv, int count);
+																		
+void __global__ MoveKernelExt(double3 *v, double3 *va, double3 *vb,
+													double *rho, double *rhoa, double *rhob, double *drho,
+													double3 *x, double3 *a,
+													double3 *u, /*Mat3_t I, */double dt,
+													bool , int count);
+													
+void __global__ MoveKernelDom(Domain_d *dom);
 																		
 	/* const double &Dimension*/
 

@@ -118,6 +118,8 @@ void WriteCSV(char const * FileKey, double3 *x, double *var, int count){
 
 int main(int argc, char **argv) //try
 {
+	
+	
 	cout << "Initializing"<<endl;
 	SPH::Domain dom;//Cannot be defined as _device
 	// //OR cudamalloc((void**)&correctBool, sizeof(int));
@@ -136,20 +138,23 @@ int main(int argc, char **argv) //try
 //  dom.Scheme	= 0;
 //     	dom.XSPH	= 0.5; //Very important
 
-	double dx,h,rho;
-	double H,L,n;
+	double dx,h,rho,K,G;
+	double R,L,n;
 
-	H	= 1.;
-	n	= 15.0;
+	R	= 0.15;
+	L	= 0.56;
+	n	= 30.0;		//in length, radius is same distance
 
-	rho	= 1000.0;
-	dx	= H / n;
+	rho	= 2700.0;
+	K	= 6.7549e10;
+	G	= 2.5902e10;
+	
+	dx = 0.015;
 	h	= dx*1.2; //Very important
-	double cp = 1.;
-	double k = 3000.;
-	//Cs	= sqrt(K/rho);
 
-  double timestep;
+	double Cs	= sqrt(K/rho);
+
+  double timestep = (0.2*h/(Cs));
 
 	// cout<<"t  = "<<timestep<<endl;
 	// cout<<"Cs = "<<Cs<<endl;
@@ -158,11 +163,11 @@ int main(int argc, char **argv) //try
 	// cout<<"Fy = "<<Fy<<endl;
 	
 	// dom.GeneralAfter = & UserAcc;
-	dom.DomMax(0) = H;
-	dom.DomMin(0) = -H;
+	dom.DomMax(0) = L;
+	dom.DomMin(0) = -L;
   dom.GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
-	dom.AddBoxLength(1 ,Vector ( -H/2.0 -H/20., -H/2.0 -H/20., -H/2.0 -H/20. ), H + H/20., H +H/20.,  H + H/20. , dx/2.0 ,rho, h, 1 , 0 , false, false );
+	dom.AddCylinderLength(1, Vector(0.,0.,-L/10.), R, L + 2.*L/10.,  dx/2., rho, h, false); 
 	cout << "Particle count:" <<dom.Particles.size()<<endl;
 	
 	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
@@ -250,8 +255,6 @@ int main(int argc, char **argv) //try
 	cout << "done"<<endl;
 	cout << "Setting values"<<endl;
 	dom_d->SetDensity(1000.);
-	dom_d->SetConductivity(k);
-	dom_d->SetHeatCap(cp);
 	dom_d->Set_h(h);
 	cout << "done."<<endl;
 
@@ -271,7 +274,7 @@ int main(int argc, char **argv) //try
 		double xx = dom.Particles[a]->x(0);
 		BC_type[a]=0;
 		T[a] = 20.;
-		if ( xx < -H/2.0 ) {
+		if ( xx < -L/2.0 ) {
 			bcpart++;
 			BC_type[a]=1;
 		}
@@ -280,21 +283,26 @@ int main(int argc, char **argv) //try
 	cudaMemcpy(dom_d->T, T, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);
 	cudaMemcpy(dom_d->BC_T, BC_type, dom.Particles.size() * sizeof(int), cudaMemcpyHostToDevice);
 	
-			
+	dom_d->Alpha = 1.0;//For all particles		
 	for (size_t a=0; a<dom.Particles.size(); a++)
 	{
-		// x = dom.Particles[a]->x(0);
-	// dom.Particles[a]->k_T			=	3000.;
-	// dom.Particles[a]->cp_T			=	1.;
-	// dom.Particles[a]->h_conv		= 100.0; //W/m2-K
-	// dom.Particles[a]->T_inf 		= 500.;
-	// dom.Particles[a]->T				= 20.0;		
-	dom.Particles[a]->IsFree	= true;		
-		// if ( x < -H/2.0 ) {
-			// dom.Particles[a]->ID 			= 2;
-			// dom.Particles[a]->Thermal_BC 	= TH_BC_CONVECTION;
-		// // cout << "Particle " << a << "is convection BC" <<endl;
-	// }
+		dom.Particles[a]->G		= G;
+		dom.Particles[a]->PresEq	= 0;
+		dom.Particles[a]->Cs		= Cs;
+		//dom.Particles[a]->Shepard	= false;
+		//dom.Particles[a]->Material	= 2;
+		//dom.Particles[a]->Fail		= 1;
+		//dom.Particles[a]->Sigmay	= Fy;
+		//dom.Particles[a]->Alpha		= 1.0;
+		//dom.Particles[a]->Beta		= 1.0;
+		dom.Particles[a]->TI		= 0.3;
+		dom.Particles[a]->TIInitDist	= dx;
+		double z = dom.Particles[a]->x(2);
+		if ( z < 0 ){
+			dom.Particles[a]->ID=2;	
+		}
+		if ( z > L )
+			dom.Particles[a]->ID=3;
 	}
 	
 	dom_d->SetFreePart(dom);
@@ -313,7 +321,7 @@ int main(int argc, char **argv) //try
 	CheckData<<<1,1>>>(dom_d);
 	cudaDeviceSynchronize(); //Crashes if not Sync!!!
 	
-	dom_d->deltat = 0.3*h*h*rho*cp/k;
+	dom_d->deltat = timestep;
 	cout << "Time Step: "<<dom_d->deltat<<endl;
 	dom_d->MechSolve(/*tf*/1.01);
 
