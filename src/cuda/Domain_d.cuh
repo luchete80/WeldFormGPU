@@ -166,16 +166,20 @@ __global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb,
 
 void __global__ MechSolveKernel (double dt, PartData_d *partdata);
 
-__global__ /*inline*/ void CalcForces(
-																		dTdt,	
-																		x, h, //Vector has some problems
-																		m, rho, 
-																		neib_part, neib_offs,
+__device__ void CalcForcesExt(PartData_d *partdata);
+
+__global__ void CalcForcesKernelMember(PartData_d *partdata);
+
+void __global__ /*inline*/ CalcForcesKernel(
+																		double *dTdt,	
+																		double3 *x, double *h,
+																		double *m, double *rho, 
+																		double *T, double *k_T, double *cp_T, 
 																		const int KernelType,
 																		const float XSPH,
-																		particle_count
+																		int *neib_part, int *neib_offs,
+																		int particle_count);
 	/* const double &Dimension*/
-);
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
 // __global__ void StartAccelerationKernel(Domain_d &sd);

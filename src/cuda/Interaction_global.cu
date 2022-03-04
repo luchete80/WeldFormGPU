@@ -1,13 +1,15 @@
-__global__ /*inline*/ void CalcForces(
-																		dTdt,	
-																		x, h, //Vector has some problems
-																		m, rho, 
-																		neib_part, neib_offs,
+#include "Domain_d.cuh"
+__global__ /*inline*/ void CalcForcesKernel(
+																		double *dTdt,	
+																		double3 *x, double *h,
+																		double *m, double *rho, 
+																		double *T, double *k_T, double *cp_T, 
 																		const int KernelType,
 																		const float XSPH,
-																		particle_count
+																		int *neib_part, int *neib_offs,
+																		int particle_count)
 	/* const double &Dimension*/
-)
+
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	

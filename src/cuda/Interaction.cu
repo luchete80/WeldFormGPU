@@ -3,9 +3,61 @@
 #include "tensor.cuh"
 
 namespace SPH {
+// THIS CAUSES UNRESOLVED EXTERNAL
+// __global__ void CalcForcesMember(PartData_d *partdata){
+	
+	// partdata->CalcForce2233(0,0.0);
+// }
+
+#define NEIBS(i, k) partdata->neib_part[partdata->neib_offs[i]+k]
 __global__ void CalcForce2233(PartData_d *partdata){
 	
-	partdata->CalcForce2233(0,0.0);
+	//partdata->CalcForce2233(0,0.0);
+	CalcForcesExt(partdata);
+}
+
+//THIS IS NOT A FUNCTION MEMBER
+// THIS ALLOWS FOR COMPILING VIA NON SEPARABLE COMPILATION!!!!
+__device__ void CalcForcesExt(PartData_d *partdata){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+	int Dimension = 3; //TODO, put in another 
+	int neibcount;
+	#ifdef FIXED_NBSIZE
+	neibcount = partdata->neib_offs[i];
+	#else
+	neibcount =	partdata->neib_offs[i+1] - partdata->neib_offs[i];
+	#endif
+	printf("Solving\n");
+	for (int k=0;k < neibcount; k++) { //Or size
+		int j = NEIBS(i,k);
+		//double h	= partdata->h[i]+P2->h)/2;
+		double3 xij = partdata->x[i] - partdata->x[j];
+		double rij = length(xij);
+		double di=0.0,dj=0.0,mi=0.0,mj=0.0;
+	
+		if (!partdata->IsFree[i]) {
+			di = DensitySolid(partdata->PresEq[i], partdata->Cs[j], partdata->P0[j],partdata->p[i], partdata->rho_0[j]);
+			mi = partdata->FPMassC[i] * partdata->m[j];
+		} else {
+			di = partdata->rho[i];
+			mi = partdata->m[i];
+		}
+		if (!partdata->IsFree[j]) {
+			dj = DensitySolid (partdata->PresEq[i], partdata->Cs[i], partdata->P0[i],partdata->p[j], partdata->rho_0[i]);
+			mj = partdata->FPMassC[j] * partdata->m[i];
+		} else {
+			dj = partdata->rho[j];
+			mj = partdata->m[j];
+		}	
+		
+		double3 vij	= partdata->v[i] - partdata->v[j];
+		double h_ = (partdata->h[i] + partdata->h[j])/2.0;
+			
+		//double GK	= GradKernel(Dimension, KernelType, rij/h, h);
+		double GK	= GradKernel(3, partdata->KernelType, rij/h_, h_);
+		double K	= Kernel(3, 0, rij/h_, h_);
+	
+	}//neibcount	
 }
 
 //TODO; COMPARE WITH ORIGINAL IN PARTDATA
