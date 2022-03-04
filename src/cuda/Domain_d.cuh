@@ -162,6 +162,7 @@ class Domain_d
 	__host__ void SetDensity(const double &k);
 	__host__ void SetConductivity(const double &k);
 	__host__ void SetHeatCap(const double &);
+	__host__ void SetFreePart(const Domain &dom);
 	~Domain_d();
 	
 	__host__ void Domain_d::CopyData(const Domain &dom);

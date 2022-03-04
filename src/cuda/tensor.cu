@@ -31,6 +31,7 @@
 #include "vector_math.h"
 #define __spec __device__ __forceinline__
 
+#include <stdio.h> //Debug
 
 __device__ tensor3::tensor3(){
 	

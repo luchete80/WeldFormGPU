@@ -167,6 +167,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		////// Artificial Viscosity
 		tensor3 PIij;
 		//set_to_zero(PIij);
+
 		if (Alpha!=0.0 || Beta!=0.0)
 		{
 			double MUij = h_*dot(vij,xij)/(rij*rij+0.01*h_*h_);					///<(2.75) Li, Liu Book
@@ -176,10 +177,9 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 			if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], Cs[j], dj, rho_0[j]);
 			Cij = 0.5*(Ci+Cj);
 			
-			tensor3 test;
-			PIij = (double)(Alpha*Cij)*test;	
-			// if (dot(vij,xij)<0) 
-				// PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
+			//printf("C %f %f\n",Ci,Cj);
+			if (dot(vij,xij)<0) 
+				PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
 		}
 		
 		

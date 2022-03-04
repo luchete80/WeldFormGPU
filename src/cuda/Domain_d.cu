@@ -80,9 +80,22 @@ void Domain_d::SetDimension(const int &particle_count){
 	// for(int i=0; i<10; i++) {
 		// cudaMalloc(&someHostArray[i], 100*sizeof(int)); /* Replace 100 with the dimension that u want */
 	// }
+	
+	Alpha= 1.;
 
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
+}
+
+
+__host__ void Domain_d::SetFreePart(const Domain &dom){
+	bool *k_ =  new bool[particle_count];
+	for (int i=0;i<particle_count;i++){
+		k_[i] = dom.Particles[i]->IsFree;
+	}
+	int size = particle_count * sizeof(bool);
+	cudaMemcpy(this->IsFree, k_, size, cudaMemcpyHostToDevice);
+	delete k_;	
 }
 
 void Domain_d::CheckData(){

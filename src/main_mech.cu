@@ -279,6 +279,7 @@ int main(int argc, char **argv) //try
 	cout << "BC particles"<<bcpart<<endl;
 	cudaMemcpy(dom_d->T, T, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);
 	cudaMemcpy(dom_d->BC_T, BC_type, dom.Particles.size() * sizeof(int), cudaMemcpyHostToDevice);
+	
 			
 	for (size_t a=0; a<dom.Particles.size(); a++)
 	{
@@ -295,6 +296,8 @@ int main(int argc, char **argv) //try
 		// // cout << "Particle " << a << "is convection BC" <<endl;
 	// }
 	}
+	
+	dom_d->SetFreePart(dom);
 
         // // timestep = (0.3*h*h*rho*dom.Particles[0]->cp_T/dom.Particles[0]->k_T);	
 		// // cout << "Time Step: "<<timestep<<endl;
