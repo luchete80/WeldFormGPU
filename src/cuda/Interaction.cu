@@ -3,7 +3,7 @@
 #include "tensor.cuh"
 
 namespace SPH {
-// THIS CAUSES UNRESOLVED EXTERNAL
+// THIS CAUSED UNRESOLVED EXTERNAL, WITH INLINE TENSOR FUNCTIONS 
 __global__ void CalcForcesMember(PartData_d *partdata){
 	
 	partdata->CalcForce2233(0,0.0);

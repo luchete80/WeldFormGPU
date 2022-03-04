@@ -68,7 +68,9 @@ SET(EXES
 
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
-add_executable(gpuweldform main.cu
+add_executable(gpuweldform 
+													main_thermal.cu
+													#main_mech.cu
 													Domain.cpp 
 													#NbSearch.cpp 
 													Output.cpp
@@ -77,8 +79,11 @@ add_executable(gpuweldform main.cu
 													cuda/Domain_d.cu
 													cuda/tensor.cu
 													cuda/Interaction.cu
+													cuda/Mechanical.cu
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
 													) 
+
+
 #tensor and all functions defined in separate modulus
 set_property(TARGET gpuweldform PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 
