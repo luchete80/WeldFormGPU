@@ -185,6 +185,54 @@ __device__ __forceinline__ void Domain_d::LastComputeAcceleration(){
 	//partdata->();
 }
 
+__global__ void PressureKernelExt(double *p, double *PresEq, double *Cs, double *P0,double *Density, double *RefDensity, int particle_count){
+	
+	int i = threadIdx.x + blockDim.x*blockIdx.x;	
+	if ( i < particle_count ) {	
+		//p[i] = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
+	}
+}
+
+__global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
+																								double *strain,double *straina,double *strainb, //OUTPUT
+																								//INPUT
+																								double *p, double *rotrate, 
+																								double *shearstress,double *shearstressa, double *shearstressb,
+																								
+																								double dt, int particle_count) {
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+		
+	if ( i < particle_count ) {	
+		//Pressure = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
+
+		// Jaumann rate terms
+		tensor3 RotationRateT,SRT,RS;
+		// Trans(RotationRate,RotationRateT);
+		// Mult(ShearStress,RotationRateT,SRT);
+		// Mult(RotationRate,ShearStress,RS);
+		// double dep =0.;
+		// double prev_sy;
+		// double Et;
+		
+		// // Elastic prediction step (ShearStress_e n+1)
+		// if (FirstStep)
+			// ShearStressa	= -dt/2.0*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStress;
+		// ShearStressb	= ShearStressa;
+		// ShearStressa	= dt*(2.0*G*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*OrthoSys::I)+SRT+RS) + ShearStressa;	
+
+		// //Fail, TODO
+		
+		// ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
+		// Sigma = -p[i] * OrthoSys::I + ShearStress;	//Fraser, eq 3.32
+		
+		// if (FirstStep)
+			// Straina	= -dt/2.0*StrainRate + Strain;
+		// Strainb	= Straina;
+		// Straina	= dt*StrainRate + Straina;
+		// Strain	= 1.0/2.0*(Straina+Strainb);
+	}
+}
+
 void Domain_d::MechSolve(const double &tf){
 
 	int N = particle_count;
@@ -208,6 +256,17 @@ void Domain_d::MechSolve(const double &tf){
 													isfirst_step, particle_count);
 	
 	cudaDeviceSynchronize(); //REQUIRED!!!!
+	
+	//If kernel is the external, calculate pressure
+	//Calculate pressure!
+
+	// StressStrainExtKernel(sigma,	//OUTPUT
+																								// double *strain,*straina,*strainb, //OUTPUT
+																								// //INPUT
+																								// double *p, double *rotrate, 
+																								// double* shearstress,double* shearstressa, double* shearstressb,
+											
+																								// double dt, int particle_count);
 	if (isfirst_step) isfirst_step = false;
 	
 	//TODO: Pass toPartData

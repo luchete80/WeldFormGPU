@@ -305,7 +305,7 @@ int main(int argc, char **argv) //try
 			dom.Particles[a]->ID=3;
 	}
 	
-	dom_d->SetFreePart(dom);
+	dom_d->SetFreePart(dom); //All set to IsFree = true in this example
 
         // // timestep = (0.3*h*h*rho*dom.Particles[0]->cp_T/dom.Particles[0]->k_T);	
 		// // cout << "Time Step: "<<timestep<<endl;

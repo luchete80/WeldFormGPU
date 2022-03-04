@@ -253,7 +253,18 @@ void __global__ MoveKernelExt(double3 *v, double3 *va, double3 *vb,
 													bool , int count);
 													
 void __global__ MoveKernelDom(Domain_d *dom);
-																		
+
+__global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
+																								double *strain,double *straina,double *strainb, //OUTPUT
+																								//INPUT
+																								double *p, double *rotrate, 
+																								double *shearstress,double *shearstressa, double *shearstressb,
+																								
+																								double dt, int particle_count);
+
+__global__ void PressureKernelExt(double *p,
+																	double *PresEq, double *Cs, double *P0,double *Density, double *RefDensity, int particle_count);																		
+
 	/* const double &Dimension*/
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
