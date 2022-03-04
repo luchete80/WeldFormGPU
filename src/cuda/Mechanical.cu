@@ -1,6 +1,9 @@
 #include "Domain_d.cuh"
 namespace SPH{
 
+__global__ void WholeVelocityKernel(Domain_d *dom_d){
+	//dom_d->WholeVelocity()
+}
 //Called by __global__
 //void __device__ Domain_d::WholeVelocity() {
     // //Apply a constant velocity to all particles in the initial time step

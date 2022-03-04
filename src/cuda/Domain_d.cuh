@@ -80,7 +80,11 @@ class Boundary;
 // };
 
 class Domain;
-
+// LUCIANO
+// DOMAIN_D is basically a SOA.
+// In the future it is of interest to compare passing this in kernel vs
+// passing less arguments (oir by grouping arrays per Mech, Therm, Stress, etc.)
+// in order to check if computational speed is improved
 class Domain_d
 {
 	public:
@@ -220,6 +224,8 @@ void __global__ /*inline*/ CalcForcesKernel(
 																		int particle_count);
 																		
 __global__ void CalcForcesKernel(Domain_d *dom_d);
+
+__global__ void WholeVelocityKernel(Domain_d *dom_d);
 
 void __global__ CalcConvHeatKernel (double *dTdt,
 																		double *m, double *rho, double *cp_T,
