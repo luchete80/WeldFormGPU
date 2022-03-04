@@ -35,3 +35,18 @@ void __global__ MechSolveKernel (double dt, PartData_d *partdata) {
 	}
 	dTdt[i] *=1/(rho[i]*cp[i]);
 }
+
+void Domain_d::MechSolve(const double &tf){
+
+	int N = particle_count;
+	int threadsPerBlock = 256; //Or BlockSize
+	int blocksPerGrid =				// Or gridsize
+	(N + threadsPerBlock - 1) / threadsPerBlock;
+  Time =0.;
+	
+	isfirst_step =true;
+	
+	//MechSolveKernel<<< >>>();
+	
+	
+}

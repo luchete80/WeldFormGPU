@@ -31,6 +31,11 @@
 #include "vector_math.h"
 #define __spec __device__ __forceinline__
 
+
+__device__ tensor3::tensor3(){
+	
+}
+		
 __spec
 void
 clear(symtensor3& T)
@@ -281,6 +286,13 @@ adjugate_row1(symtensor4 const& T)
 		T.xy*T.zz*T.yw + T.yy*T.xz*T.zw + T.yz*T.yz*T.xw - T.xy*T.yz*T.zw - T.yy*T.zz*T.xw - T.yz*T.xz*T.yw);
 }
 
+__spec tensor3 tensor3::Identity(){
+	tensor3 ret;
+	ret(0,0) = ret(1,1) = ret(2,2) = 1.;
+	//ret[1][1]=ret[2][2]=1.;
+	
+	return ret;
+}
 #undef __spec
 
 /**** Methods for loading/storing tensors from textures and array ****/
@@ -444,7 +456,7 @@ __device__ tensor3 tensor3::operator= (const float &f){
 }
 
 
-__device__ tensor3 Identity(){
+__device__ /*__forceinline__*/ tensor3 Identity(){
 	tensor3 ret;
 	ret(0,0) = ret(1,1) = ret(2,2) = 1.;
 	//ret[1][1]=ret[2][2]=1.;

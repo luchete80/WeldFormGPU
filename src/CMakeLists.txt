@@ -79,8 +79,8 @@ add_executable(gpuweldform main.cu
 													cuda/Interaction.cu
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
 													) 
-
-#set_property(TARGET gpuweldform PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+#tensor and all functions defined in separate modulus
+set_property(TARGET gpuweldform PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 
 #add_subdirectory (cuda)
 

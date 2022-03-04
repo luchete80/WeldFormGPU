@@ -4,10 +4,10 @@
 
 namespace SPH {
 // THIS CAUSES UNRESOLVED EXTERNAL
-// __global__ void CalcForcesMember(PartData_d *partdata){
+__global__ void CalcForcesMember(PartData_d *partdata){
 	
-	// partdata->CalcForce2233(0,0.0);
-// }
+	partdata->CalcForce2233(0,0.0);
+}
 
 #define NEIBS(i, k) partdata->neib_part[partdata->neib_offs[i]+k]
 __global__ void CalcForce2233(PartData_d *partdata){
@@ -15,6 +15,19 @@ __global__ void CalcForce2233(PartData_d *partdata){
 	//partdata->CalcForce2233(0,0.0);
 	CalcForcesExt(partdata);
 }
+
+// __device__ tensor3 Identity(){
+	// tensor3 ret;
+	// ret(0,0) = ret(1,1) = ret(2,2) = 1.;
+	// //ret[1][1]=ret[2][2]=1.;
+	
+	// return ret;
+// }
+
+// __device__ tensor3::tensor3(){
+
+// }
+
 
 //THIS IS NOT A FUNCTION MEMBER
 // THIS ALLOWS FOR COMPILING VIA NON SEPARABLE COMPILATION!!!!
@@ -54,9 +67,26 @@ __device__ void CalcForcesExt(PartData_d *partdata){
 		double h_ = (partdata->h[i] + partdata->h[j])/2.0;
 			
 		//double GK	= GradKernel(Dimension, KernelType, rij/h, h);
-		double GK	= GradKernel(3, partdata->KernelType, rij/h_, h_);
+		double GK	= GradKernel(3, 0, rij/h_, h_);
 		double K	= Kernel(3, 0, rij/h_, h_);
-	
+
+		////// Artificial Viscosity
+		tensor3 PIij;
+		//set_to_zero(PIij);
+		if (partdata->Alpha!=0.0 || partdata->Beta!=0.0)
+		{
+			double MUij = h_*dot(vij,xij)/(rij*rij+0.01*h_*h_);					///<(2.75) Li, Liu Book
+			double Cij;
+			double Ci,Cj;
+			if (!partdata->IsFree[i]) Ci = SoundSpeed(partdata->PresEq[j], partdata->Cs[j], di, partdata->rho_0[j]); 
+			else 											Ci = SoundSpeed(partdata->PresEq[i], partdata->Cs[i], di, partdata->rho_0[i]);
+			if (!partdata->IsFree[j]) Cj = SoundSpeed(partdata->PresEq[j], partdata->Cs[i], dj, partdata->rho_0[i]); 
+			else 											Cj = SoundSpeed(partdata->PresEq[j], partdata->Cs[j], dj, partdata->rho_0[j]);
+			Cij = 0.5*(Ci+Cj);
+			
+			if (dot(vij,xij)<0) PIij = (partdata->Alpha*Cij*MUij + partdata->Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
+		}
+		
 	}//neibcount	
 }
 

@@ -49,13 +49,14 @@ typedef struct {
 	float ww;
 } symtensor4 ;
 
+#define __spec __device__ __forceinline__
 
 class tensor3
 {
 private:
 		float m_data[4][4]{};    
 public:
-    __device__ tensor3(){};
+    __device__ tensor3();
     __device__ float& operator()(int row, int col);
     __device__ float& operator[](const int &i);	//0 to 8
     __device__ float operator()(int row, int col) const;
@@ -66,6 +67,8 @@ public:
 		__device__ tensor3 operator* (const tensor3 &b);
 		__device__ tensor3 operator- (const float &f);
 		__device__ tensor3 operator= (const float &f);
+		
+		__spec tensor3 Identity();
 		//tensor3 operator* (const float &f);
 		tensor3 Trans ();
 		__device__ ~tensor3(){};
@@ -76,6 +79,6 @@ __device__ tensor3 operator/ (const tensor3 &b, const float &f);
 
 __device__ float3 dot(tensor3 const& T, float3 const& v);
 
-__device__ inline tensor3 Identity();
+__device__ /*__forceinline__*/ tensor3 Identity();
 
 #endif
