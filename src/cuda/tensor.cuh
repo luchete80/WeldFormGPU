@@ -59,6 +59,8 @@ public:
     __device__ tensor3();
     __device__ tensor3(double flat[]);	//Six components
     __device__ void FromFlatSym(double flat[]);	//Six components
+		__device__ void ToFlatSymPtr(double *flat, int initial);
+    __device__ void FromFlatAntiSym(double flat[]);	//Six components
     __device__ void FromFlatSymPtr(double *flat);	//Six components
     __device__ double& operator()(int row, int col);
     __device__ double& operator[](const int &i);	//0 to 8
@@ -73,7 +75,7 @@ public:
 		
 		__spec tensor3 Identity();
 		//tensor3 operator* (const double &f);
-		tensor3 Trans ();
+		__device__ tensor3 Trans ();
 		__device__ ~tensor3(){};
 };
 

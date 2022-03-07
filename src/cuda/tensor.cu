@@ -53,12 +53,32 @@ __device__ void tensor3::FromFlatSym(double flat[]){
 	m_data [0][2] = m_data [2][0] = flat[5]; 
 }
 
+__device__ void tensor3::FromFlatAntiSym(double flat[]){
+	for (int i=0;i<3;i++)
+		m_data [i][i] = flat[i];
+	m_data [0][1] = flat[3]; 
+	m_data [1][2] = flat[4]; 
+	m_data [0][2] = flat[5]; 
+	
+	m_data [1][0] = -flat[3]; 
+	m_data [2][1] = -flat[4]; 
+	m_data [2][0] = -flat[5]; 
+}
+
 __device__ void tensor3::FromFlatSymPtr(double *flat){
 	for (int i=0;i<3;i++)
 		m_data [i][i] = flat[i];
 	m_data [0][1] = m_data [1][0] = flat[3]; 
 	m_data [1][2] = m_data [2][1] = flat[4]; 
 	m_data [0][2] = m_data [2][0] = flat[5]; 
+}
+
+__device__ void tensor3::ToFlatSymPtr(double *flat, int initial){
+	for (int i=0;i<3;i++)
+		flat [initial + i] = m_data [i][i];
+		flat [initial + 3] = m_data [0][1];
+		flat [initial + 4] = m_data [1][2];
+		flat [initial + 5] = m_data [0][2];
 }
 
 __spec

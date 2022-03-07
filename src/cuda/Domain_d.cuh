@@ -135,12 +135,21 @@ class Domain_d
 	double *p,*PresEq;
 	double *Cs, *P0;
 	
+	//Material params elastic
+	double *G;
+	
 	double *rho_0;	///< Reference Density of Particle	
 	
 	double *rhoa,*rhob,*drho;
 	double3 *va,*vb;
 	//
+	
+	//STRESS AND STRAIN TENSORS
 	double *sigma; //To convert after to tensor;
+	
+	double *strrate,*rotrate;//all flattened, six component (rotation rate is upped matrix component, since it is antisymm)
+	double *shearstress,*shearstressa,*shearstressb;
+	double *strain,*straina,*strainb;
 	
 	//Be in another class
 	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
@@ -192,6 +201,7 @@ class Domain_d
 	__device__ __forceinline__ void PrimaryComputeAcceleration ();	
 	__device__ __forceinline__ void LastComputeAcceleration();
 	__device__ /*inline*/ void CalcForce2233(	int KernelType, float XSPH);
+	__device__ void StressStrain();
 	
 	__device__ void ApplyBCVel(int bcid, 
 														double3 bcv);
@@ -286,6 +296,8 @@ __global__ void ApplyBCVelExtKernel(double *v,
 																int particle_count);
 
 __global__ void ApplyBCVelKernel (Domain_d *dom, int bcid, double3 bcv);
+
+__global__ void StressStrainKernel(Domain_d *dom);
 
 	/* const double &Dimension*/
 

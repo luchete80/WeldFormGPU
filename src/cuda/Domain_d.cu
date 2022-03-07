@@ -65,12 +65,24 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&FPMassC, particle_count  * sizeof (double));	
 	cudaMalloc((void **)&rho_0, 	particle_count  * sizeof (double));	
 
+	cudaMalloc((void **)&G, 	particle_count  * sizeof (double));	
+	
 	cudaMalloc((void **)&rhoa, 	particle_count  * sizeof (double));	
 	cudaMalloc((void **)&rhob, 	particle_count  * sizeof (double));	
 	cudaMalloc((void **)&drho, 	particle_count  * sizeof (double));		
-	// FLATTENED ARRAY!!!!
-	cudaMalloc((void **)&sigma	, particle_count  * 6 * sizeof (double));		
 	
+	// STRESS AND STRAIN TENSORS - FLATTENED ARRAY!!!!
+	cudaMalloc((void **)&sigma		, particle_count  * 6 * sizeof (double));		
+	cudaMalloc((void **)&strrate	, particle_count  * 6 * sizeof (double));			
+	cudaMalloc((void **)&rotrate	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
+	
+	cudaMalloc((void **)&shearstress	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
+	cudaMalloc((void **)&shearstressa	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
+	cudaMalloc((void **)&shearstressb	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
+
+	cudaMalloc((void **)&strain		, particle_count  * 6 * sizeof (double));		
+	cudaMalloc((void **)&straina	, particle_count  * 6 * sizeof (double));		
+	cudaMalloc((void **)&strainb	, particle_count  * 6 * sizeof (double));		
 	
 	// BOUNDARY CONDITIONS
 	cudaMalloc((void **)&IsFree	, particle_count  * sizeof (bool));	

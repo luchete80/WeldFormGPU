@@ -207,6 +207,18 @@ __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
 
 		// Jaumann rate terms
 		tensor3 RotationRateT,SRT,RS;
+		tensor3 RotationRate;
+		
+		double temprr[6],tempss[6];
+		for (int k=0;k<6;k++){ //First the diagonal
+			temprr[k]=rotrate[6*i+k];
+			tempss[k]=shearstress[6*i+k];
+		}
+		
+		RotationRate.FromFlatSym(tempss);
+		RotationRate.FromFlatAntiSym(temprr);
+		// RotationRateT = temprr.Trans();
+		// SRT = ;
 		// Trans(RotationRate,RotationRateT);
 		// Mult(ShearStress,RotationRateT,SRT);
 		// Mult(RotationRate,ShearStress,RS);
@@ -231,6 +243,76 @@ __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
 		// Straina	= dt*StrainRate + Straina;
 		// Strain	= 1.0/2.0*(Straina+Strainb);
 	}
+}
+
+__device__ void Domain_d::StressStrain() {
+	
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+		
+	if ( i < particle_count ) {	
+		//Pressure = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
+
+		// Jaumann rate terms
+		tensor3 RotationRateT,SRT,RS;
+		tensor3 RotationRate;
+		tensor3 StrainRate;
+		tensor3 ShearStress,ShearStressa,ShearStressb;
+		tensor3 Sigma;
+		tensor3 Strain,Straina,Strainb;
+		
+		double temprr[6],tempss[6],tempsr[6];
+		for (int k=0;k<6;k++){ //First the diagonal
+			temprr[k]=rotrate[6*i+k];
+			tempss[k]=shearstress[6*i+k];
+			tempsr[k]=strrate[6*i+k];
+		}
+		ShearStress.FromFlatSym(tempss);
+		StrainRate.FromFlatSym(tempsr);
+		RotationRate.FromFlatAntiSym(temprr);
+		StrainRate.FromFlatSym(tempsr);
+		
+		RotationRateT = RotationRate.Trans();
+		
+		SRT = ShearStress * RotationRateT;
+		RS = RotationRate * ShearStress;
+		// Trans(RotationRate,RotationRateT);
+		// Mult(ShearStress,RotationRateT,SRT);
+		// Mult(RotationRate,ShearStress,RS);
+		// double dep =0.;
+		// double prev_sy;
+		// double Et;
+		
+		// // Elastic prediction step (ShearStress_e n+1)
+		if (isfirst_step)
+			ShearStressa	= -deltat/2.0*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))* Identity())+SRT+RS) + ShearStress;
+		ShearStressb	= ShearStressa;
+		ShearStressa	= deltat*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*Identity())+SRT+RS) + ShearStressa;	
+
+		// //Fail, TODO
+		
+		ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
+		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
+		
+		if (isfirst_step)
+			Straina	= -deltat/2.0*StrainRate + Strain;
+		Strainb	= Straina;
+		Straina	= deltat*StrainRate + Straina;
+		Strain	= 1.0/2.0*(Straina+Strainb);
+		
+		//OUTPUT TO Flatten arrays
+		Sigma.ToFlatSymPtr(sigma,i);
+		Strain.ToFlatSymPtr(strain,i);
+		Straina.ToFlatSymPtr(straina,i);
+		Strainb.ToFlatSymPtr(strainb,i);
+		ShearStress.ToFlatSymPtr(shearstress,i);
+		ShearStressa.ToFlatSymPtr(shearstressa,i);
+		ShearStressb.ToFlatSymPtr(shearstressb,i);
+		
+	}//particle count
+}
+
+__global__ void StressStrainKernel(Domain_d *dom){
+	dom->StressStrain();
 }
 
 #define TAU		0.005
