@@ -233,6 +233,10 @@ __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
 	}
 }
 
+
+#define TAU		0.005
+#define VMAX	10.0
+
 void Domain_d::MechSolve(const double &tf){
 
 	int N = particle_count;
@@ -248,7 +252,11 @@ void Domain_d::MechSolve(const double &tf){
 	cudaDeviceSynchronize(); //REQUIRED!!!!
 	
 	//IMPOSE BC!
-	
+			// domi.Particles[i]->a		= Vec3_t(0.0,0.0,0.0);
+			// domi.Particles[i]->v		= Vec3_t(0.0,0.0,-vcompress);
+			// domi.Particles[i]->va		= Vec3_t(0.0,0.0,-vcompress);
+
+			
 	MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
 													rho, rhoa, rhob, drho,
 													x, a,
@@ -257,6 +265,7 @@ void Domain_d::MechSolve(const double &tf){
 	
 	cudaDeviceSynchronize(); //REQUIRED!!!!
 	
+
 	//If kernel is the external, calculate pressure
 	//Calculate pressure!
 

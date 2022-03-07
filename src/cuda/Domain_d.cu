@@ -76,12 +76,14 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&IsFree	, particle_count  * sizeof (bool));	
 	cudaMalloc((void **)&NoSlip	, particle_count  * sizeof (bool));
 	cudaMalloc((void **)&NSv, 		particle_count  * sizeof (double3));	
+	cudaMalloc((void **)&ID, 			particle_count  * sizeof (int));	
 	
 	//////////////////////////
 	/////// TENSILE INST /////
 	cudaMalloc((void **)&TI, 					particle_count  * sizeof (double));	
 	cudaMalloc((void **)&TIn, 				particle_count  * sizeof (double));		
 	cudaMalloc((void **)&TIInitDist, 	particle_count  * sizeof (double));		
+	cudaMalloc((void **)&TIR, 				6 * particle_count  * sizeof (double));	
 	
 	//////////////////////////
 	/// CORRECTIONS /////////
@@ -109,6 +111,17 @@ __host__ void Domain_d::SetFreePart(const Domain &dom){
 	cudaMemcpy(this->IsFree, k_, size, cudaMemcpyHostToDevice);
 	delete k_;	
 }
+
+__host__ void Domain_d::SetID(const Domain &dom){
+	int *k_ =  new int[particle_count];
+	for (int i=0;i<particle_count;i++){
+		k_[i] = dom.Particles[i]->ID;
+	}
+	int size = particle_count * sizeof(int);
+	cudaMemcpy(this->ID, k_, size, cudaMemcpyHostToDevice);
+	delete k_;	
+}
+
 
 void Domain_d::CheckData(){
 	printf("dTdt partdta: %d",sizeof(this->dTdt)/sizeof(double));

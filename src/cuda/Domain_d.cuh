@@ -151,6 +151,7 @@ class Domain_d
 	
 	//TENSILE INSTABILITY
 	double	*TI;		///< Tensile instability factor
+	double	*TIR;		///< Tensile Instability stress tensor R
 	double	*TIn;		///< Tensile instability power
 	double 	*TIInitDist;	///< Initial distance of particles for calculation of tensile instability
 	
@@ -159,7 +160,8 @@ class Domain_d
 	//BOUNDARY
 	bool 			*IsFree, *NoSlip;
 	double3 	*NSv;	///< Velocity of the fixed particle for no-slip BC
-
+	
+	int 			*ID;
 
 		/// FUNCTIONS
 	Domain_d(){isfirst_step=true;};
@@ -174,6 +176,7 @@ class Domain_d
 	__host__ void SetConductivity(const double &k);
 	__host__ void SetHeatCap(const double &);
 	__host__ void SetFreePart(const Domain &dom);
+	__host__ void SetID(const Domain &dom);
 	~Domain_d();
 	
 	__host__ void Domain_d::CopyData(const Domain &dom);

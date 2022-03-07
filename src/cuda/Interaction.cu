@@ -208,10 +208,10 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		// Tensile Instability //////////////////////
 		tensor3 TIij;
 		tensor3 TIRi, TIRj;
-		for (int k=0;k<6;k++) {
-			TIRi.FromFlatSymPtr(TIR[6*i+k]);
-			TIRj.FromFlatSymPtr(TIR[6*j+k]);
-		}
+		// for (int k=0;k<6;k++) {
+			// TIRi.FromFlatSymPtr(TIR[6*i+k]);
+			// TIRj.FromFlatSymPtr(TIR[6*j+k]);
+		// }
 		//TODO: CONVERT TIR FROM FLATTENED ARRAY TO TENSOR
 		//set_to_zero(TIij);
 		if (TI[i] > 0.0 || TI[j] > 0.0) 
@@ -253,6 +253,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		StrainRate(2,1) = StrainRate(1,2);
 		StrainRate(2,2) = 2.0*vab.z*xij.z;
 		StrainRate	= -0.5 * GK * StrainRate;
+		
+		//printf("Strain Rate %f %f %f\n",StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
 
 		// // Calculation rotation rate tensor
 		RotationRate(0,1) = vab.x*xij.y-vab.y*xij.x;
