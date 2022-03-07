@@ -275,14 +275,8 @@ __device__ void Domain_d::StressStrain() {
 		
 		SRT = ShearStress * RotationRateT;
 		RS = RotationRate * ShearStress;
-		// Trans(RotationRate,RotationRateT);
-		// Mult(ShearStress,RotationRateT,SRT);
-		// Mult(RotationRate,ShearStress,RS);
-		// double dep =0.;
-		// double prev_sy;
-		// double Et;
 		
-		// // Elastic prediction step (ShearStress_e n+1)
+		// Elastic prediction step (ShearStress_e n+1)
 		if (isfirst_step)
 			ShearStressa	= -deltat/2.0*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))* Identity())+SRT+RS) + ShearStress;
 		ShearStressb	= ShearStressa;
@@ -299,7 +293,7 @@ __device__ void Domain_d::StressStrain() {
 		Straina	= deltat*StrainRate + Straina;
 		Strain	= 1.0/2.0*(Straina+Strainb);
 		
-		//OUTPUT TO Flatten arrays
+		///// OUTPUT TO Flatten arrays
 		Sigma.ToFlatSymPtr(sigma,i);
 		Strain.ToFlatSymPtr(strain,i);
 		Straina.ToFlatSymPtr(straina,i);
@@ -366,48 +360,58 @@ void Domain_d::MechSolve(const double &tf){
   Time =0.;
 	
 	isfirst_step =true;
-	
-	//This was in Original LastCompAcceleration
-	CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
-	cudaDeviceSynchronize(); //REQUIRED!!!!
-	
-	//IMPOSE BC!
-			// domi.Particles[i]->a		= Vec3_t(0.0,0.0,0.0);
-			// domi.Particles[i]->v		= Vec3_t(0.0,0.0,-vcompress);
-			// domi.Particles[i]->va		= Vec3_t(0.0,0.0,-vcompress);
-	ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
-	cudaDeviceSynchronize();
-	double vbc = VMAX/TAU * Time;
-	ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
-	cudaDeviceSynchronize();
-				
-	MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
-													rho, rhoa, rhob, drho,
-													x, a,
-													u, /*Mat3_t I, */deltat,
-													isfirst_step, particle_count);
-	
-	cudaDeviceSynchronize(); //REQUIRED!!!!
-	
 
-	//If kernel is the external, calculate pressure
-	//Calculate pressure!
-	PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
+	while (Time<tf) {
+		
+		//This was in Original LastCompAcceleration
+		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
+		cudaDeviceSynchronize(); //REQUIRED!!!!
+		
+		//IMPOSE BC!
+		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
+		cudaDeviceSynchronize();
+
+		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
+		cudaDeviceSynchronize();
+
+		//Move particle and then calculate streses and strains ()
+		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
+														rho, rhoa, rhob, drho,
+														x, a,
+														u, /*Mat3_t I, */deltat,
+														isfirst_step, particle_count);	
+		cudaDeviceSynchronize(); //REQUIRED!!!!
+		
+
+		//If kernel is the external, calculate pressure
+		//Calculate pressure!
+		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
+		cudaDeviceSynchronize();
+		// StressStrainExtKernel(sigma,	//OUTPUT
+																									// double *strain,*straina,*strainb, //OUTPUT
+																									// //INPUT
+																									// double *p, double *rotrate, 
+																									// double* shearstress,double* shearstressa, double* shearstressb,
+												
+																									// double dt, int particle_count);
+		StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+		cudaDeviceSynchronize();
+		if (isfirst_step) isfirst_step = false;
+		
+		cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+		double3 max= make_double3(0.,0.,0.);
+		for (int i=0;i<particle_count;i++){
+			if (u_h[i].x>max.x) max.x = u_h[i].x;
+			if (u_h[i].y>max.y) max.y = u_h[i].y;
+			if (u_h[i].z>max.z) max.z = u_h[i].z;
+		}
+		// cout << 
+		
+		//TODO: Pass toPartData
+		//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);
+		//MechSolveKernel<<< >>>();
 	
-	// StressStrainExtKernel(sigma,	//OUTPUT
-																								// double *strain,*straina,*strainb, //OUTPUT
-																								// //INPUT
-																								// double *p, double *rotrate, 
-																								// double* shearstress,double* shearstressa, double* shearstressb,
-											
-																								// double dt, int particle_count);
-	if (isfirst_step) isfirst_step = false;
-	
-	//TODO: Pass toPartData
-	//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);
-	//MechSolveKernel<<< >>>();
-	
-	
+	}//while <tf
 }
 
 };//SPH

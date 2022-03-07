@@ -107,6 +107,8 @@ class Domain_d
 	double3* a;
 	double3* u;
 	
+	double3 *x_h, *u_h;
+	
 	PartData_d *partdata;
 	
 	//Time things
