@@ -57,6 +57,9 @@ private:
 		double m_data[4][4]{};    
 public:
     __device__ tensor3();
+    __device__ tensor3(double flat[]);	//Six components
+    __device__ FromFlatSym(double flat[]);	//Six components
+    __device__ FromFlatSymPtr(double *flat);	//Six components
     __device__ double& operator()(int row, int col);
     __device__ double& operator[](const int &i);	//0 to 8
     __device__ double operator()(int row, int col) const;

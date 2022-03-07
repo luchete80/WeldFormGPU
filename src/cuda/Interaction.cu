@@ -189,8 +189,17 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		// set_to_zero(Sigmai);
 		
 		//TODO: CONVERT FLATTENED ARRAY TO TENSOR
-		Sigmai = Sigma[i];
-		Sigmaj = Sigma[j];
+		//TODO: Avoid temp array conversion and test
+		double tempi[6],tempj[6];
+		for (int k=0;k<6;k++){ //First the diagonal
+			tempi[k]=sigma[6*i+k];
+			tempj[k]=sigma[6*j+k];
+		}
+		
+		Sigmai.FromFlatSym(tempi);
+		Sigmaj.FromFlatSym(tempj);
+		//Sigmai = Sigma[i];
+		//Sigmaj = Sigma[j];
 
 		//THIS IS COMMENTED IN THE ORIGINAL CODE
 //		if (IsFree[i]) Sigmai = P1->Sigma; else  Sigmai = P2->Sigma;
