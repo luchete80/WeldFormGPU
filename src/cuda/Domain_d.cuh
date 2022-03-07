@@ -172,11 +172,16 @@ class Domain_d
 
 	__host__ void MechSolve(const double &tf);
 	
+	//General
 	__host__ void SetDensity(const double &k);
 	__host__ void SetConductivity(const double &k);
 	__host__ void SetHeatCap(const double &);
+	//Boundary
 	__host__ void SetFreePart(const Domain &dom);
 	__host__ void SetID(const Domain &dom);
+	
+	//Mechanical
+	__host__ void SetCs(const Domain &dom);
 	~Domain_d();
 	
 	__host__ void Domain_d::CopyData(const Domain &dom);
@@ -187,6 +192,10 @@ class Domain_d
 	__device__ __forceinline__ void PrimaryComputeAcceleration ();	
 	__device__ __forceinline__ void LastComputeAcceleration();
 	__device__ /*inline*/ void CalcForce2233(	int KernelType, float XSPH);
+	
+	__device__ void ApplyBCVel(int bcid, 
+														double3 bcv);
+	
  ////////////////////////
 	
 
@@ -267,6 +276,16 @@ __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
 
 __global__ void PressureKernelExt(double *p,
 																	double *PresEq, double *Cs, double *P0,double *Density, double *RefDensity, int particle_count);																		
+
+__global__ void ApplyBCVelExtKernel(double *v,
+																double *va,
+																int *ID, 	//Input
+																int bcid, 
+																double bcv,
+																double Time,
+																int particle_count);
+
+__global__ void ApplyBCVelKernel (Domain_d *dom, int bcid, double3 bcv);
 
 	/* const double &Dimension*/
 

@@ -286,9 +286,9 @@ int main(int argc, char **argv) //try
 	dom_d->Alpha = 1.0;//For all particles		
 	for (size_t a=0; a<dom.Particles.size(); a++)
 	{
-		dom.Particles[a]->G		= G;
+		dom.Particles[a]->G				= G;
 		dom.Particles[a]->PresEq	= 0;
-		dom.Particles[a]->Cs		= Cs;
+		dom.Particles[a]->Cs			= Cs;
 		//dom.Particles[a]->Shepard	= false;
 		//dom.Particles[a]->Material	= 2;
 		//dom.Particles[a]->Fail		= 1;

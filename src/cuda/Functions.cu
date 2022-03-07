@@ -225,7 +225,7 @@ namespace SPH {
 				//std::cout << "0 => P0+(Cs*Cs)*(Density-Density0)" << std::endl;
 				//std::cout << "1 => P0+(Density0*Cs*Cs/7)*(pow(Density/Density0,7)-1)" << std::endl;
 				//std::cout << "2 => (Cs*Cs)*Density" << std::endl;
-				abort();
+				//abort();
 				break;
 		}
 	}

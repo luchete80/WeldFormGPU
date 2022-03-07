@@ -122,6 +122,15 @@ __host__ void Domain_d::SetID(const Domain &dom){
 	delete k_;	
 }
 
+__host__ void Domain_d::SetCs(const Domain &dom){
+	double *k_ =  new double[particle_count];
+	for (int i=0;i<particle_count;i++){
+		k_[i] = dom.Particles[i]->Cs;
+	}
+	int size = particle_count * sizeof(double);
+	cudaMemcpy(this->Cs, k_, size, cudaMemcpyHostToDevice);
+	delete k_;	
+}
 
 void Domain_d::CheckData(){
 	printf("dTdt partdta: %d",sizeof(this->dTdt)/sizeof(double));

@@ -189,7 +189,7 @@ __global__ void PressureKernelExt(double *p, double *PresEq, double *Cs, double 
 	
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
 	if ( i < particle_count ) {	
-		//p[i] = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
+		p[i] = EOS(PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]); //CALL BEFORE!
 	}
 }
 
@@ -233,9 +233,47 @@ __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
 	}
 }
 
-
 #define TAU		0.005
 #define VMAX	10.0
+
+// TODO #53 Make generic function pointer
+// THISIS ONLY AN EXAMPLE	
+__device__ void Domain_d::ApplyBCVel(int bcid, 
+																		double3 bcv){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;	
+	if ( i < particle_count ) {	
+
+		if (ID[i]==bcid){
+			a[i]		= make_double3(0.0);
+			v[i]		= bcv;
+			va[i]		= bcv;
+			
+		}
+	}
+}
+
+__global__ void ApplyBCVelKernel (Domain_d *dom, int bcid, double3 bcv) {
+	
+	dom->ApplyBCVel (bcid,bcv);
+}
+
+__global__ void ApplyBCVelExtKernel(	double *v, //Output
+																double *va,
+																int *ID, 	//Input
+																int bcid, 
+																double bcv,
+																double Time,
+																int particle_count) {
+	
+	int i = threadIdx.x + blockDim.x*blockIdx.x;	
+	
+	//VMAX/TAU * domi.getTime();
+	
+	if ( i < particle_count ) {	
+		//if (ID[i]==bcid)
+			
+	}
+}
 
 void Domain_d::MechSolve(const double &tf){
 
@@ -255,8 +293,12 @@ void Domain_d::MechSolve(const double &tf){
 			// domi.Particles[i]->a		= Vec3_t(0.0,0.0,0.0);
 			// domi.Particles[i]->v		= Vec3_t(0.0,0.0,-vcompress);
 			// domi.Particles[i]->va		= Vec3_t(0.0,0.0,-vcompress);
-
-			
+	ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
+	cudaDeviceSynchronize();
+	double vbc = VMAX/TAU * Time;
+	ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
+	cudaDeviceSynchronize();
+				
 	MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
 													rho, rhoa, rhob, drho,
 													x, a,
@@ -268,7 +310,8 @@ void Domain_d::MechSolve(const double &tf){
 
 	//If kernel is the external, calculate pressure
 	//Calculate pressure!
-
+	PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
+	
 	// StressStrainExtKernel(sigma,	//OUTPUT
 																								// double *strain,*straina,*strainb, //OUTPUT
 																								// //INPUT
