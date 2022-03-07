@@ -45,7 +45,7 @@ __device__ tensor3(double flat[]){	//Six components
 		FromFlatSym(flat);
 }
 
-__device__ FromFlatSym(double flat[]){
+__device__ void FromFlatSym(double flat[]){
 	for (int i=0;i<3;i++)
 		m_data [i][i] = flat[i];
 	m_data [0][1] = m_data [1][0] = flat[3]; 
@@ -53,7 +53,7 @@ __device__ FromFlatSym(double flat[]){
 	m_data [0][2] = m_data [2][0] = flat[5]; 
 }
 
-__device__ FromFlatSymPtr(double *flat){
+__device__ void FromFlatSymPtr(double *flat){
 	for (int i=0;i<3;i++)
 		m_data [i][i] = flat[i];
 	m_data [0][1] = m_data [1][0] = flat[3]; 

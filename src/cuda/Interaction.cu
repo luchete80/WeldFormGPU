@@ -209,8 +209,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		tensor3 TIij;
 		tensor3 TIRi, TIRj;
 		for (int k=0;k<6;k++) {
-			TIRi.FromFlatSym(TIR[6*i+k]);
-			TIRj.FromFlatSym(TIR[6*j+k]);
+			TIRi.FromFlatSymPtr(TIR[6*i+k]);
+			TIRj.FromFlatSymPtr(TIR[6*j+k]);
 		}
 		//TODO: CONVERT TIR FROM FLATTENED ARRAY TO TENSOR
 		//set_to_zero(TIij);
