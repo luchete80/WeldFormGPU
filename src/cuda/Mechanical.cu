@@ -370,7 +370,8 @@ void Domain_d::MechSolve(const double &tf){
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
 		cudaDeviceSynchronize();
-
+		double vbc = VMAX/TAU*Time;
+		
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
 
