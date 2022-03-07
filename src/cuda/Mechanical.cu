@@ -1,5 +1,8 @@
 #include "Domain_d.cuh"
 #include "Functions.cuh"
+#include <iostream>
+using namespace std;
+
 namespace SPH{
 
 __global__ void WholeVelocityKernel(Domain_d *dom_d){
@@ -398,6 +401,7 @@ void Domain_d::MechSolve(const double &tf){
 		StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
 		if (isfirst_step) isfirst_step = false;
+		Time +=deltat;
 		
 		cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 		double3 max= make_double3(0.,0.,0.);
@@ -406,7 +410,7 @@ void Domain_d::MechSolve(const double &tf){
 			if (u_h[i].y>max.y) max.y = u_h[i].y;
 			if (u_h[i].z>max.z) max.z = u_h[i].z;
 		}
-		// cout << 
+		cout << "Time "<<Time<<endl;
 		
 		//TODO: Pass toPartData
 		//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);
