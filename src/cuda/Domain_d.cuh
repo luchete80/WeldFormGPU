@@ -202,8 +202,8 @@ class Domain_d
 	//MAIN MECHANICAL FUNCTIONS ARE THESE THREE (Start Acc & Whole Velocity are not)
 	__device__ __forceinline__ void PrimaryComputeAcceleration ();	
 	__device__ __forceinline__ void LastComputeAcceleration();
-	__device__ /*inline*/ void CalcForce2233(	int KernelType, float XSPH);
-	__device__ void StressStrain();
+	__device__ /*inline*/ void CalcForce2233(int KernelType, float XSPH);
+	__device__ void StressStrain(int i);
 	
 	__device__ void ApplyBCVel(int bcid, 
 														double3 bcv);

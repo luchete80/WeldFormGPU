@@ -197,6 +197,9 @@ __device__ __forceinline__ void Domain_d::LastComputeAcceleration(){
 __global__ void PressureKernelExt(double *p, double *PresEq, double *Cs, double *P0,double *Density, double *RefDensity, int particle_count){
 	
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
+	if (i == 1250){
+		printf("PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]: %f %f %f %f %f \n",PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]);
+	}
 	if ( i < particle_count ) {	
 		p[i] = EOS(PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]); //CALL BEFORE!
 	}
@@ -254,9 +257,9 @@ __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
 	}
 }
 
-__device__ void Domain_d::StressStrain() {
+__device__ void Domain_d::StressStrain(int i) {
 	
-	int i = threadIdx.x + blockDim.x*blockIdx.x;
+	//int i = threadIdx.x + blockDim.x*blockIdx.x;
 		
 	if ( i < particle_count ) {	
 		//Pressure = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
@@ -295,6 +298,9 @@ __device__ void Domain_d::StressStrain() {
 		
 		ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
+		if (i == 1250){
+			printf("Time %.4e Particle 1250, presure %f , ShearStresszz %f Sigmazz %f\n",Time, p[i], ShearStress(2,2), Sigma(2,2));
+		}
 		
 		if (isfirst_step)
 			Straina	= -deltat/2.0*StrainRate + Strain;
@@ -315,7 +321,8 @@ __device__ void Domain_d::StressStrain() {
 }
 
 __global__ void StressStrainKernel(Domain_d *dom){
-	dom->StressStrain();
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+	dom->StressStrain(i);
 }
 
 #define TAU		0.005
@@ -441,6 +448,7 @@ void Domain_d::MechSolve(const double &tf){
 
 		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
 		step ++;
+		cout<<"--------------------------- END STEP --------------------------"<<endl; 
 	}//while <tf
 
 	time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;

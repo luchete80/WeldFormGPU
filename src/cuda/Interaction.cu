@@ -10,7 +10,7 @@ __global__ void CalcForcesMember(PartData_d *partdata){
 }
 
 __global__ void CalcForcesKernel(Domain_d *dom_d){
-	
+	//int i = threadIdx.x + blockDim.x*blockIdx.x;
 	dom_d->CalcForce2233(0,0.0);
 }
 
@@ -242,6 +242,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		////////////////////////////////////
 		// // Calculation strain rate tensor
 		////////////////////////////////////
+		if (i==1250 || j==1250)
+			printf("Time, i,j,vab: %.4e %d %d %f %f %f\n",Time, i,j,vab.x,vab.y,vab.z);
 		StrainRate(0,0) = 2.0*vab.x*xij.x;
 		StrainRate(0,1) = vab.x*xij.y+vab.y*xij.x;
 		StrainRate(0,2) = vab.x*xij.z+vab.z*xij.x;
@@ -253,7 +255,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		StrainRate(2,2) = 2.0*vab.z*xij.z;
 		StrainRate	= -0.5 * GK * StrainRate;
 		
-		//printf("Strain Rate %f %f %f\n",StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
+		if (i==1250 || j==1250)
+			printf("Strain Rate %f %f %f\n",StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
 
 		// // Calculation rotation rate tensor
 		RotationRate(0,1) = vab.x*xij.y-vab.y*xij.x;
@@ -286,8 +289,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		double temp1 = 0.0;
 		
 		//if (GradientType == 0)
-		// if (i == 1250)
-			// printf("Sigmaizz %f , Sigmajzz %f\n",Sigmai(2,2),Sigmaj(2,2));
+		if (i == 1250)
+			printf("Particle 1250 Time %.4e, Sigmaizz %f , Sigmajzz %f\n",Time, Sigmai(2,2),Sigmaj(2,2));
 		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /*+ TIij */) * (GK*xij);
 			//Mult( GK*xij , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) , temp); //TODO: TIR AND ARTIFF VISC
 		// else
