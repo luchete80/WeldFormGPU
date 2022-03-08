@@ -286,8 +286,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		double temp1 = 0.0;
 		
 		//if (GradientType == 0)
-		if (i == 1140)
-			printf("Sigmaizz %f , Sigmajzz %f\n",Sigmai(2,2),Sigmaj(2,2));
+		// if (i == 1250)
+			// printf("Sigmaizz %f , Sigmajzz %f\n",Sigmai(2,2),Sigmaj(2,2));
 		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /*+ TIij */) * (GK*xij);
 			//Mult( GK*xij , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) , temp); //TODO: TIR AND ARTIFF VISC
 		// else

@@ -149,7 +149,7 @@ int main(int argc, char **argv) //try
 	K	= 6.7549e10;
 	G	= 2.5902e10;
 	
-	dx = 0.03; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
+	dx = 0.015; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
 	h	= dx*1.2; //Very important
 
 	double Cs	= sqrt(K/rho);
@@ -319,7 +319,8 @@ int main(int argc, char **argv) //try
 	
 	dom_d->deltat = timestep;
 	cout << "Time Step: "<<dom_d->deltat<<endl;
-	dom_d->MechSolve(timestep + 1.e-10 /*tf*//*1.01*/);
+	//dom_d->MechSolve(timestep + 1.e-10 /*tf*//*1.01*/);
+	dom_d->MechSolve(0.0011);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	

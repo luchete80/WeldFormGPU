@@ -1,6 +1,11 @@
 #include "Domain_d.cuh"
 #include "Functions.cuh"
 #include <iostream>
+
+#include <chrono>
+//#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
+#include <ctime> //Clock
+
 using namespace std;
 
 namespace SPH{
@@ -365,6 +370,14 @@ void Domain_d::MechSolve(const double &tf){
 	
 	isfirst_step =true;
 
+	int step = 0;
+	clock_t clock_beg;
+	double time_spent;
+	clock_beg = clock();
+
+	double t_out,dt_out;
+	t_out = dt_out = 0.0001;
+	
 	while (Time<tf) {
 		
 		//This was in Original LastCompAcceleration
@@ -403,7 +416,11 @@ void Domain_d::MechSolve(const double &tf){
 		cudaDeviceSynchronize();
 		if (isfirst_step) isfirst_step = false;
 		Time +=deltat;
-		
+		if (Time >= t_out) {		
+			t_out += dt_out;
+			time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
+			cout << "Time "<<Time<<", GPU time "<<time_spent<<endl;
+		}
 		cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 		cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 		cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
@@ -411,20 +428,25 @@ void Domain_d::MechSolve(const double &tf){
 		double3 max= make_double3(0.,0.,0.);
 		for (int i=0;i<particle_count;i++){
 			//cout << "Particle " << i << "Vel: "<< v_h[i].x<<", "<<v_h[i].y<< ", "<< v_h[i].z<<endl;
-			cout << "Particle " << i << "Acc: "<< a_h[i].x<<", "<<a_h[i].y<< ", "<< a_h[i].z<<endl;
+			//cout << "Particle " << i << "Acc: "<< a_h[i].x<<", "<<a_h[i].y<< ", "<< a_h[i].z<<endl;
 			if (u_h[i].x>max.x) max.x = u_h[i].x;
 			if (u_h[i].y>max.y) max.y = u_h[i].y;
 			if (u_h[i].z>max.z) max.z = u_h[i].z;
 		}
-		cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
-		
-		cout << "Time "<<Time<<endl;
+		//cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
 		
 		//TODO: Pass toPartData
 		//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);
 		//MechSolveKernel<<< >>>();
-	
+
+		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
+		step ++;
 	}//while <tf
+
+	time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
+	
+	printf("Total steps: %d, time spent %f\n",step, time_spent);
+
 }
 
 };//SPH
