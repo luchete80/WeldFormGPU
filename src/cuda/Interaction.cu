@@ -225,8 +225,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		} else {
 			if (NoSlip[i] || NoSlip[j] ) {
 				// No-Slip velocity correction
-				if (IsFree[i])	vab = v[i] - 
-				(2.0f*v[j]- NSv[j]); 
+				if (IsFree[i])	vab = v[i] - (2.0f*v[j]- NSv[j]); 
 				else vab = (2.0f*v[i]- NSv[i]) - v[j];
 			}
 			// Please check
@@ -264,6 +263,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		RotationRate(2,0) = -RotationRate(0,2);
 		RotationRate(2,1) = -RotationRate(1,2);
 		RotationRate	  = -0.5 * GK * RotationRate;
+		
+		//printf("Particle %d strain rate: %f %f %f\n",i,StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
 
 		// XSPH Monaghan
 		if (XSPH != 0.0  && (IsFree[i]*IsFree[j])) {

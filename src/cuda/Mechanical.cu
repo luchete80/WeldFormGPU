@@ -374,8 +374,8 @@ void Domain_d::MechSolve(const double &tf){
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
 		cudaDeviceSynchronize();
-		double vbc = VMAX/TAU*Time;
-		
+//		double vbc = VMAX/TAU*Time;
+		double vbc = 1.0; 
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
 
@@ -405,6 +405,9 @@ void Domain_d::MechSolve(const double &tf){
 		Time +=deltat;
 		
 		cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+		cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+		cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+		
 		double3 max= make_double3(0.,0.,0.);
 		for (int i=0;i<particle_count;i++){
 			if (u_h[i].x>max.x) max.x = u_h[i].x;

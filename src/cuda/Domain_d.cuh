@@ -107,7 +107,7 @@ class Domain_d
 	double3* a;
 	double3* u;
 	
-	double3 *x_h, *u_h;
+	double3 *a_h, *x_h, *v_h, *u_h;
 	
 	PartData_d *partdata;
 	
