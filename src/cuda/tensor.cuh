@@ -59,7 +59,7 @@ public:
     __device__ tensor3();
     __device__ tensor3(double flat[]);	//Six components
     __device__ void FromFlatSym(double flat[]);	//Six components
-		__device__ void ToFlatSymPtr(double *flat, int initial);
+		__device__ void ToFlatSymPtr(double *flat, int initial); //Antisymm is the same
     __device__ void FromFlatAntiSym(double flat[]);	//Six components
     __device__ void FromFlatSymPtr(double *flat);	//Six components
     __device__ double& operator()(int row, int col);

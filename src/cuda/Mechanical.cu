@@ -130,6 +130,7 @@ void __global__ MoveKernelExt(double3 *v, double3 *va, double3 *vb,
 		
 	if ( i < particle_count ) {
 	if (FirstStep) {
+		//printf("First Step\n");
 		rhoa[i] = rho[i] - dt/2.0*drho[i];
 		va[i] = v[i] - dt/2.0*a[i];
 	}
@@ -321,7 +322,7 @@ __device__ void Domain_d::ApplyBCVel(int bcid,
 																		double3 bcv){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
 	if ( i < particle_count ) {	
-
+		//printf("particle %d bc \n",i);
 		if (ID[i]==bcid){
 			a[i]		= make_double3(0.0);
 			v[i]		= bcv;
@@ -410,6 +411,8 @@ void Domain_d::MechSolve(const double &tf){
 			if (u_h[i].y>max.y) max.y = u_h[i].y;
 			if (u_h[i].z>max.z) max.z = u_h[i].z;
 		}
+		cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
+		
 		cout << "Time "<<Time<<endl;
 		
 		//TODO: Pass toPartData

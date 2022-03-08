@@ -178,8 +178,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 			Cij = 0.5*(Ci+Cj);
 			
 			//printf("C %f %f\n",Ci,Cj);
-			// if (dot(vij,xij)<0) 
-				// PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
+			if (dot(vij,xij)<0) 
+				PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
 		}
 		
 		//printf("i %d, Ti %f\n",i, T[i]);
@@ -279,6 +279,63 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 			// K*vij;
 			//omp_unset_lock(&P2->my_lock);
 		}		
+		
+		
+		double3 temp = make_double3(0.0);
+		double temp1 = 0.0;
+		
+		//if (GradientType == 0)
+		temp = (GK*xij) * ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */);
+			//Mult( GK*xij , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) , temp); //TODO: TIR AND ARTIFF VISC
+		// else
+			// Mult( GK*xij , ( 1.0/(di*dj)*(Sigmai + Sigmaj)           + PIij + TIij ) , temp);
+
+		//if (Dimension == 2) temp(2) = 0.0;
+		temp1 = dot( vij , GK*xij );
+
+		// Locking the particle 1 for updating the properties
+		a[i] 		+= mj * temp;
+		drho[i]	+= mj * (di/dj) * temp1;
+
+		if (IsFree[i]) {
+			float mj_dj= mj/dj;
+			//P1->ZWab	+= mj_dj* K;
+			StrainRate *= mj_dj;
+
+			///// OUTPUT TO Flatten arrays
+			RotationRate.ToFlatSymPtr(rotrate,i);
+			StrainRate.ToFlatSymPtr(strrate,6*i);	//Is the same for antisymm, stores upper diagonal
+			
+			//P1->RotationRate = P1->RotationRate + mj_dj*RotationRate;
+		}
+		// else
+			// P1->ZWab	= 1.0;
+
+		// if (P1->Shepard)
+			// if (P1->ShepardCounter == P1->ShepardStep)
+				// P1->SumDen += mj*    K;
+
+	
+		// THIS IS THE ORIGINAL
+		// Locking the particle 2 for updating the properties
+		//omp_set_lock(&P2->my_lock);
+			// P2->a		-= mi * temp;
+			// P2->dDensity	+= mi * (dj/di) * temp1;
+			// if (IsFree[j]) {
+				// float mi_di = mi/di;
+				// //P2->ZWab	+= mi_di* K;
+				// //StrainRate[j]	  += StrainRate[j] + mi_di*StrainRate;
+				// //RotationRate[j] += P2->RotationRate + mi_di*RotationRate;
+
+			// }
+			// else
+				// P2->ZWab	= 1.0;
+
+			// if (P2->Shepard)
+				// if (P2->ShepardCounter == P2->ShepardStep)
+					// P2->SumDen += mi*    K;
+
+	
 		
 		}//neibcount
 	}//i < partcount
