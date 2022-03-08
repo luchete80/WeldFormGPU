@@ -298,13 +298,13 @@ __device__ void Domain_d::StressStrain() {
 		Strain	= 1.0/2.0*(Straina+Strainb);
 		
 		///// OUTPUT TO Flatten arrays
-		Sigma.ToFlatSymPtr(sigma,i);
-		Strain.ToFlatSymPtr(strain,i);
-		Straina.ToFlatSymPtr(straina,i);
-		Strainb.ToFlatSymPtr(strainb,i);
-		ShearStress.ToFlatSymPtr(shearstress,i);
-		ShearStressa.ToFlatSymPtr(shearstressa,i);
-		ShearStressb.ToFlatSymPtr(shearstressb,i);
+		Sigma.ToFlatSymPtr(sigma,6*i);
+		Strain.ToFlatSymPtr(strain,6*i);
+		Straina.ToFlatSymPtr(straina,6*i);
+		Strainb.ToFlatSymPtr(strainb,6*i);
+		ShearStress.ToFlatSymPtr(shearstress,6*i);
+		ShearStressa.ToFlatSymPtr(shearstressa,6*i);
+		ShearStressb.ToFlatSymPtr(shearstressb,6*i);
 		
 	}//particle count
 }
