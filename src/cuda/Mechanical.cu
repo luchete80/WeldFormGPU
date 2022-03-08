@@ -410,6 +410,8 @@ void Domain_d::MechSolve(const double &tf){
 		
 		double3 max= make_double3(0.,0.,0.);
 		for (int i=0;i<particle_count;i++){
+			//cout << "Particle " << i << "Vel: "<< v_h[i].x<<", "<<v_h[i].y<< ", "<< v_h[i].z<<endl;
+			cout << "Particle " << i << "Acc: "<< a_h[i].x<<", "<<a_h[i].y<< ", "<< a_h[i].z<<endl;
 			if (u_h[i].x>max.x) max.x = u_h[i].x;
 			if (u_h[i].y>max.y) max.y = u_h[i].y;
 			if (u_h[i].z>max.z) max.z = u_h[i].z;

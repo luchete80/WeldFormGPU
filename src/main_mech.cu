@@ -319,7 +319,7 @@ int main(int argc, char **argv) //try
 	
 	dom_d->deltat = timestep;
 	cout << "Time Step: "<<dom_d->deltat<<endl;
-	dom_d->MechSolve(/*tf*/1.01);
+	dom_d->MechSolve(timestep + 1.e-10 /*tf*//*1.01*/);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	
