@@ -187,6 +187,7 @@ void Domain_d::SetDensity(const double &k){
 	}
 	int size = particle_count * sizeof(double);
 	cudaMemcpy(this->rho, k_, size, cudaMemcpyHostToDevice);
+	cudaMemcpy(this->rho_0, k_, size, cudaMemcpyHostToDevice);
 	delete k_;
 }
 

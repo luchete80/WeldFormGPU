@@ -184,7 +184,8 @@ class Domain_d
 	__host__ void MechSolve(const double &tf);
 	
 	//General
-	__host__ void SetDensity(const double &k);
+	__host__ void SetDensity (const double &k);
+	//__host__ void SetDensity0(const double &k);
 	__host__ void SetConductivity(const double &k);
 	__host__ void SetHeatCap(const double &);
 	//Boundary

@@ -254,7 +254,7 @@ int main(int argc, char **argv) //try
 	
 	cout << "done"<<endl;
 	cout << "Setting values"<<endl;
-	dom_d->SetDensity(1000.);
+	dom_d->SetDensity(rho);
 	dom_d->Set_h(h);
 	cout << "done."<<endl;
 
