@@ -129,6 +129,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 	neibcount =	neib_offs[i+1] - neib_offs[i];
 	#endif
 	//printf("Solving\n");
+	tensor3 StrainRate,RotationRate;
+	
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
@@ -235,7 +237,6 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 			}
 		} //Are not both fixed
 		
-		tensor3 StrainRate,RotationRate;
 		// set_to_zero(StrainRate);
 		// set_to_zero(RotationRate);
 
@@ -256,7 +257,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		StrainRate	= -0.5 * GK * StrainRate;
 		
 		if (i==1250 || j==1250)
-			printf("Strain Rate %f %f %f\n",StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
+			printf("Strain Rate i %f %f %f\n",StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
 
 		// // Calculation rotation rate tensor
 		RotationRate(0,1) = vab.x*xij.y-vab.y*xij.x;
@@ -306,12 +307,9 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		if (IsFree[i]) {
 			float mj_dj= mj/dj;
 			//P1->ZWab	+= mj_dj* K;
-			StrainRate = mj_dj * StrainRate;
-			RotationRate = mj_dj * RotationRate;
-
-			///// OUTPUT TO Flatten arrays
-			RotationRate.ToFlatSymPtr(rotrate,6*i);
-			StrainRate.ToFlatSymPtr(strrate,6*i);	//Is the same for antisymm, stores upper diagonal
+			//printf("mj /dj %f\n",mj_dj);
+			StrainRate = StrainRate + mj_dj * StrainRate;
+			RotationRate = RotationRate + mj_dj * RotationRate;
 			
 			//P1->RotationRate = P1->RotationRate + mj_dj*RotationRate;
 		}
@@ -345,6 +343,12 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 	
 		
 		}//neibcount
+
+		///// OUTPUT TO Flatten arrays
+		RotationRate.ToFlatSymPtr(rotrate,6*i);
+		StrainRate.ToFlatSymPtr(strrate,6*i);	//Is the same for antisymm, stores upper diagonal
+		if (i==1250)
+			printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
 	}//i < partcount
 }
 

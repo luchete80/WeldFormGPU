@@ -212,23 +212,23 @@ __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
 																								double *shearstress,double *shearstressa, double *shearstressb,
 																								
 																								double dt, int particle_count) {
-	int i = threadIdx.x + blockDim.x*blockIdx.x;
+	// int i = threadIdx.x + blockDim.x*blockIdx.x;
 		
-	if ( i < particle_count ) {	
-		//Pressure = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
+	// if ( i < particle_count ) {	
+		// //Pressure = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
 
-		// Jaumann rate terms
-		tensor3 RotationRateT,SRT,RS;
-		tensor3 RotationRate;
+		// // Jaumann rate terms
+		// tensor3 RotationRateT,SRT,RS;
+		// tensor3 RotationRate;
 		
-		double temprr[6],tempss[6];
-		for (int k=0;k<6;k++){ //First the diagonal
-			temprr[k]=rotrate[6*i+k];
-			tempss[k]=shearstress[6*i+k];
-		}
+		// double temprr[6],tempss[6];
+		// for (int k=0;k<6;k++){ //First the diagonal
+			// temprr[k]=rotrate[6*i+k];
+			// tempss[k]=shearstress[6*i+k];
+		// }
 		
-		RotationRate.FromFlatSym(tempss);
-		RotationRate.FromFlatAntiSym(temprr);
+		// RotationRate.FromFlatSym(tempss);
+		// RotationRate.FromFlatAntiSym(temprr);
 		// RotationRateT = temprr.Trans();
 		// SRT = ;
 		// Trans(RotationRate,RotationRateT);
@@ -254,7 +254,7 @@ __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
 		// Strainb	= Straina;
 		// Straina	= dt*StrainRate + Straina;
 		// Strain	= 1.0/2.0*(Straina+Strainb);
-	}
+	// }
 }
 
 __device__ void Domain_d::StressStrain(int i) {
