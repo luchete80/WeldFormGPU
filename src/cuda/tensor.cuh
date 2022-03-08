@@ -73,6 +73,7 @@ public:
 		__device__ tensor3 operator- (const double &f);
 		__device__ tensor3 operator= (const double &f);
 		
+		__device__ double3 operator* (const double3 &v);
 		__spec tensor3 Identity();
 		//tensor3 operator* (const double &f);
 		__device__ tensor3 Trans ();

@@ -285,7 +285,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		double temp1 = 0.0;
 		
 		//if (GradientType == 0)
-		temp = (GK*xij) * ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */);
+		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) * (GK*xij);
 			//Mult( GK*xij , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) , temp); //TODO: TIR AND ARTIFF VISC
 		// else
 			// Mult( GK*xij , ( 1.0/(di*dj)*(Sigmai + Sigmaj)           + PIij + TIij ) , temp);
@@ -300,10 +300,11 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		if (IsFree[i]) {
 			float mj_dj= mj/dj;
 			//P1->ZWab	+= mj_dj* K;
-			StrainRate *= mj_dj;
+			StrainRate = mj_dj * StrainRate;
+			RotationRate = mj_dj * RotationRate;
 
 			///// OUTPUT TO Flatten arrays
-			RotationRate.ToFlatSymPtr(rotrate,i);
+			RotationRate.ToFlatSymPtr(rotrate,6*i);
 			StrainRate.ToFlatSymPtr(strrate,6*i);	//Is the same for antisymm, stores upper diagonal
 			
 			//P1->RotationRate = P1->RotationRate + mj_dj*RotationRate;
