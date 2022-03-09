@@ -73,7 +73,7 @@ public:
 		__device__ tensor3 operator- (const double &f);
 		__device__ tensor3 operator= (const double &f);
 
-		__device__ void operator+= (const tensor3 &b);
+		__device__ tensor3& operator+= (const tensor3 &b);
 		
 		__device__ double3 operator* (const double3 &v);
 		__device__ tensor3 operator*= (const double &v);
@@ -90,5 +90,7 @@ __device__ tensor3 operator/ (const tensor3 &b, const double &f);
 __device__ double3 dot(tensor3 const& T, double3 const& v);
 
 __device__ /*__forceinline__*/ tensor3 Identity();
+
+//__device__ void operator+= (tensor3 &a, tensor3 &a);
 
 #endif

@@ -307,13 +307,13 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		
 		tensor3 tempt;
 		if (IsFree[i]) {
-			float mj_dj= mj/dj;
+			double mj_dj= mj/dj;
 			//P1->ZWab	+= mj_dj* K;
 			//printf("mj /dj %f\n",mj_dj);
-			tempt = StrainRate;
-			StrainRate += mj_dj * tempt;
-			tempt = RotationRate;
-			RotationRate += mj_dj * tempt;
+			tempt = mj_dj * StrainRate;
+			StrainRate += tempt;
+			// tempt = RotationRate;
+			// RotationRate += mj_dj * tempt;
 			if (i==1250 /*|| j==1250*/)
 			printf("StrainRate_zz tempt k/nbcount %d %d %f %f %d %d\n",i,j,StrainRate(2,2),tempt(2,2),k,neibcount);
 			
