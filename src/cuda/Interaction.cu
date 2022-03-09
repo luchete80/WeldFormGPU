@@ -252,6 +252,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		StrainRate(2,0) = StrainRate(0,2);
 		StrainRate(2,1) = StrainRate(1,2);
 		StrainRate(2,2) = 2.0*vab.z*xij.z;
+		//StrainRate	= (-0.5) * GK * StrainRate;
 		StrainRate	*= (-0.5) * GK;
 		
 		if (i==1250 || j==1250){
@@ -266,7 +267,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		RotationRate(2,0) = -RotationRate(0,2);
 		RotationRate(2,1) = -RotationRate(1,2);
 		//RotationRate	  	= -0.5 * GK * RotationRate; //THIS OPERATOR FAILS
-		RotationRate	  	= (-0.5 * GK) * RotationRate;
+		RotationRate	  	*= (-0.5 * GK);
 		
 		//printf("Particle %d strain rate: %f %f %f\n",i,StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
 
@@ -303,11 +304,13 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		// Locking the particle 1 for updating the properties
 		a[i] 		+= mj * temp;
 		drho[i]	+= mj * (di/dj) * temp1;
-
+		
+		tensor3 temp;
 		if (IsFree[i]) {
 			float mj_dj= mj/dj;
 			//P1->ZWab	+= mj_dj* K;
 			//printf("mj /dj %f\n",mj_dj);
+			temp = StrainRate;
 			StrainRate = StrainRate + mj_dj * StrainRate;
 			RotationRate = RotationRate + mj_dj * RotationRate;
 			

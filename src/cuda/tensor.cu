@@ -519,6 +519,12 @@ __device__ tensor3 tensor3::operator= (const double &f){
 	return ret;
 }
 
+// __device__ void tensor3::operator= (tensor3 &t){
+		// for (int i=0;i<3;i++)
+		// for (int j=0;j<3;j++)
+			// m_data[i][j] = t.m_data[i][j];
+// }
+
 
 __device__ /*__forceinline__*/ tensor3 Identity(){
 	tensor3 ret;
