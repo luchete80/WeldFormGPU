@@ -243,8 +243,6 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		////////////////////////////////////
 		// // Calculation strain rate tensor
 		////////////////////////////////////
-		if (i==1250 || j==1250)
-			printf("Time, i,j,vab: %.4e %d %d %f %f %f\n",Time, i,j,vab.x,vab.y,vab.z);
 		StrainRate(0,0) = 2.0*vab.x*xij.x;
 		StrainRate(0,1) = vab.x*xij.y+vab.y*xij.x;
 		StrainRate(0,2) = vab.x*xij.z+vab.z*xij.x;
@@ -254,11 +252,12 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		StrainRate(2,0) = StrainRate(0,2);
 		StrainRate(2,1) = StrainRate(1,2);
 		StrainRate(2,2) = 2.0*vab.z*xij.z;
-		StrainRate	= -0.5 * GK * StrainRate;
+		StrainRate	*= (-0.5) * GK;
 		
-		if (i==1250 || j==1250)
-			printf("Strain Rate i %f %f %f\n",StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
-
+		if (i==1250 || j==1250){
+			printf("Time, i,j,vab, xij, GK: %.4e %d %d %f %f %f %f %f %f %f\n",Time, i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
+			printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
+		}
 		// // Calculation rotation rate tensor
 		RotationRate(0,1) = vab.x*xij.y-vab.y*xij.x;
 		RotationRate(0,2) = vab.x*xij.z-vab.z*xij.x;
@@ -266,7 +265,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		RotationRate(1,0) = -RotationRate(0,1);
 		RotationRate(2,0) = -RotationRate(0,2);
 		RotationRate(2,1) = -RotationRate(1,2);
-		RotationRate	  = -0.5 * GK * RotationRate;
+		//RotationRate	  	= -0.5 * GK * RotationRate; //THIS OPERATOR FAILS
+		RotationRate	  	= (-0.5 * GK) * RotationRate;
 		
 		//printf("Particle %d strain rate: %f %f %f\n",i,StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
 
