@@ -458,6 +458,15 @@ __device__ tensor3 tensor3:: operator+ (const tensor3 &b){
 	return ret;
 }
 
+__device__ void tensor3::operator+= (const tensor3 &b){
+	//tensor3 ret;
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+				m_data[i][j]=m_data[i][j]+b(i,j);
+	// ret = this;
+	// return m_data;
+}
+
 __device__ tensor3 tensor3:: operator- (const tensor3 &b){
 	tensor3 ret;
 	for (int i=0;i<3;i++)

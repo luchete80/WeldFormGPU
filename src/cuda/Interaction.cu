@@ -255,7 +255,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		//StrainRate	= (-0.5) * GK * StrainRate;
 		StrainRate	*= (-0.5) * GK;
 		
-		if (i==1250 || j==1250){
+		if (i==1250 /*|| j==1250*/){
 			printf("Time, i,j,vab, xij, GK: %.4e %d %d %f %f %f %f %f %f %f\n",Time, i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
 			printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
 		}
@@ -291,8 +291,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		double temp1 = 0.0;
 		
 		//if (GradientType == 0)
-		if (i == 1250)
-			printf("Particle 1250 Time %.4e, Sigmaizz %f , Sigmajzz %f\n",Time, Sigmai(2,2),Sigmaj(2,2));
+		// if (i == 1250)
+			// printf("Particle 1250 Time %.4e, Sigmaizz %f , Sigmajzz %f\n",Time, Sigmai(2,2),Sigmaj(2,2));
 		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /*+ TIij */) * (GK*xij);
 			//Mult( GK*xij , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) , temp); //TODO: TIR AND ARTIFF VISC
 		// else
@@ -305,14 +305,17 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		a[i] 		+= mj * temp;
 		drho[i]	+= mj * (di/dj) * temp1;
 		
-		tensor3 temp;
+		tensor3 tempt;
 		if (IsFree[i]) {
 			float mj_dj= mj/dj;
 			//P1->ZWab	+= mj_dj* K;
 			//printf("mj /dj %f\n",mj_dj);
-			temp = StrainRate;
-			StrainRate = StrainRate + mj_dj * StrainRate;
-			RotationRate = RotationRate + mj_dj * RotationRate;
+			tempt = StrainRate;
+			StrainRate += mj_dj * tempt;
+			tempt = RotationRate;
+			RotationRate += mj_dj * tempt;
+			if (i==1250 /*|| j==1250*/)
+			printf("StrainRate_zz tempt k/nbcount %d %d %f %f %d %d\n",i,j,StrainRate(2,2),tempt(2,2),k,neibcount);
 			
 			//P1->RotationRate = P1->RotationRate + mj_dj*RotationRate;
 		}
