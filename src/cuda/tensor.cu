@@ -494,6 +494,13 @@ __device__ tensor3 tensor3::operator*= (const double &v){
 	return ret;
 }
 
+__device__ tensor3& tensor3::operator* (const double &f){
+	for (int i=0;i<3;i++)
+		for (int j=0;j<3;j++)
+			m_data[i][j] *= f;	
+	return *this;
+}
+
 
 __device__ tensor3 tensor3:: operator- (const double &f){
 	tensor3 ret;
@@ -517,7 +524,8 @@ __device__ tensor3 operator* (const double &f, const tensor3 &b){
 	tensor3 ret;
 	for (int i=0;i<3;i++)
 		for (int j=0;j<3;j++)
-			ret(i,j) = b(i,j)*f;	
+			ret.m_data[i][j] = b(i,j)*f;	
+	return ret;
 }
 
 __device__ tensor3 tensor3::operator= (const double &f){

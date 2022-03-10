@@ -54,8 +54,9 @@ typedef struct {
 class tensor3
 {
 private:
-		double m_data[4][4]{};    
+		
 public:
+		double m_data[4][4]{};    
     __device__ tensor3();
     __device__ tensor3(double flat[]);	//Six components
     __device__ void FromFlatSym(double flat[]);	//Six components
@@ -76,6 +77,7 @@ public:
 		__device__ tensor3& operator+= (const tensor3 &b);
 		
 		__device__ double3 operator* (const double3 &v);
+		__device__ tensor3& operator* (const double &v);
 		__device__ tensor3 operator*= (const double &v);
 		__spec tensor3 Identity();
 		//tensor3 operator* (const double &f);
