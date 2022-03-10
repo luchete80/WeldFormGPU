@@ -480,7 +480,7 @@ __device__ double3 tensor3::operator* (const double3 &v){
 	double3 ret;
 	ret.x = m_data[0][0]*v.x+m_data[0][1]*v.y+m_data[0][2]*v.z;	
 	ret.y = m_data[1][0]*v.x+m_data[1][1]*v.y+m_data[1][2]*v.z;	
-	ret.z = m_data[2][0]*v.x+m_data[2][1]*v.y+m_data[1][2]*v.z;	
+	ret.z = m_data[2][0]*v.x+m_data[2][1]*v.y+m_data[2][2]*v.z;	
 	return ret;
 }
 

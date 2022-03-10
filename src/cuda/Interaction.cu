@@ -294,8 +294,17 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		//if (GradientType == 0)
 		// if (i == 1250)
 			// printf("Particle 1250 Time %.4e, Sigmaizz %f , Sigmajzz %f\n",Time, Sigmai(2,2),Sigmaj(2,2));
-		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /*+ TIij */) * (GK*xij);
-			//Mult( GK*xij , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) , temp); //TODO: TIR AND ARTIFF VISC
+		tensor3 test = (1.0/(di*di))*Sigmai + (1.0/(dj*dj))*Sigmaj ;
+		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) * (GK*xij);		
+		double3 gkxij = GK*xij;
+		if (i==1250 ){
+			// printf("i %d,j %d,Sigmai, Sigmaj \n",i,j);Sigmai.print();Sigmaj.print();
+			printf("i %d  j%d 1/di2 Sigmai + 1/dj2Sigmai GKxij %f %f %f\n %f %f %f\n",i,j,
+			temp.x,temp.y,temp.z,xij.x,xij.y,xij.z);
+			//printf("i %d  j%d 1/di2 Sigmai + 1/dj2Sigmai \n",i,j);
+			//test.print();
+		}
+		//Mult( GK*xij , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) , temp); //TODO: TIR AND ARTIFF VISC
 		// else
 			// Mult( GK*xij , ( 1.0/(di*dj)*(Sigmai + Sigmaj)           + PIij + TIij ) , temp);
 
