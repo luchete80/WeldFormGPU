@@ -181,7 +181,7 @@ class Domain_d
 	__host__ void Set_h(const double &);
 	__host__ void ThermalSolve(const double &tf);
 
-	__host__ void MechSolve(const double &tf);
+	__host__ void MechSolve(const double &tf, const double &dt_out);
 	
 	//General
 	__host__ void SetDensity (const double &k);

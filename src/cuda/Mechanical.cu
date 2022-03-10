@@ -367,7 +367,7 @@ __global__ void ApplyBCVelExtKernel(	double *v, //Output
 	}
 }
 
-void Domain_d::MechSolve(const double &tf){
+void Domain_d::MechSolve(const double &tf, const double &dt_out){
 
 	int N = particle_count;
 	int threadsPerBlock = 256; //Or BlockSize
@@ -382,8 +382,8 @@ void Domain_d::MechSolve(const double &tf){
 	double time_spent;
 	clock_beg = clock();
 
-	double t_out,dt_out;
-	t_out = dt_out = 0.0001;
+	double t_out;
+	t_out = dt_out;
 	
 	while (Time<tf) {
 		
@@ -440,7 +440,7 @@ void Domain_d::MechSolve(const double &tf){
 			if (u_h[i].y>max.y) max.y = u_h[i].y;
 			if (u_h[i].z>max.z) max.z = u_h[i].z;
 		}
-		//cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
+		cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
 		
 		//TODO: Pass toPartData
 		//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);

@@ -256,10 +256,10 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		//StrainRate	= (-0.5) * GK * StrainRate;
 		StrainRate	*= (-0.5) * GK;
 		
-		if (i==1250 /*|| j==1250*/){
-			printf("Time, i,j,vab, xij, GK: %.4e %d %d %f %f %f %f %f %f %f\n",Time, i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
-			printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
-		}
+		// if (i==1250 /*|| j==1250*/){
+			// printf("Time, i,j,vab, xij, GK: %.4e %d %d %f %f %f %f %f %f %f\n",Time, i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
+			// printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
+		// }
 		// // Calculation rotation rate tensor
 		RotationRate(0,1) = vab.x*xij.y-vab.y*xij.x;
 		RotationRate(0,2) = vab.x*xij.z-vab.z*xij.x;
@@ -314,8 +314,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 			//tempt = StrainRate * mj_dj;
 			StrainRateSum += mj_dj * StrainRate;
 			RotationRateSum += mj_dj * RotationRate;
-			if (i==1250 /*|| j==1250*/)
-			printf("StrainRate_zz_sum tempt k/nbcount %d %d %f %d %d\n",i,j,StrainRateSum(2,2),k,neibcount);
+			//if (i==1250 /*|| j==1250*/)
+			//printf("StrainRate_zz_sum tempt k/nbcount %d %d %f %d %d\n",i,j,StrainRateSum(2,2),k,neibcount);
 			
 			//P1->RotationRate = P1->RotationRate + mj_dj*RotationRate;
 		}
@@ -354,7 +354,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		RotationRate.ToFlatSymPtr(rotrate,6*i);
 		StrainRateSum.ToFlatSymPtr(strrate,6*i);	//Is the same for antisymm, stores upper diagonal
 		if (i==1250)
-			printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
+			printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRateSum(0,0),StrainRateSum(1,1),StrainRateSum(2,2));
 	}//i < partcount
 }
 

@@ -92,11 +92,11 @@ using std::endl;
 
 //__host__		SPH::Domain dom;
 
-void WriteCSV(char const * FileKey, double3 *x, double *var, int count){
+void WriteCSV(char const * FileKey, double3 *x, double3 *varv, int count){
 	std::ostringstream oss;
 	std::string fn(FileKey);
 	
-	oss << "X, Y, Z, T"<<endl;;
+	oss << "X, Y, Z, dx dy dz"<<endl;;
 	
 	//#pragma omp parallel for schedule(static) num_threads(Nproc)
 	// #ifdef __GNUC__
@@ -105,7 +105,9 @@ void WriteCSV(char const * FileKey, double3 *x, double *var, int count){
 	for (int i=0; i<count; i++)//Like in Domain::Move
 	//#endif
 	{
-			oss << x[i].x<<", "<<x[i].y<<", "<<x[i].z<<", "<<var[i]<<endl;
+			oss << x[i].x<<", "<<x[i].y<<", "<<x[i].z<<", "<<varv[i].x<<
+", "<<varv[i].y<<
+", "<<varv[i].z<<			endl;
 		
 		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
 		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;
@@ -320,13 +322,13 @@ int main(int argc, char **argv) //try
 	
 	dom_d->deltat = timestep;
 	cout << "Time Step: "<<dom_d->deltat<<endl;
-	dom_d->MechSolve(2*timestep + 1.e-10 /*tf*//*1.01*/);
+	dom_d->MechSolve(2*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
 	//dom_d->MechSolve(0.00105);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	
         // return 0;
-	WriteCSV("test.csv", x, T, dom.Particles.size());
+	WriteCSV("test.csv", x, dom_d->u_h, dom.Particles.size());
 	
 	cudaFree(dom_d);
 	//report_gpu_mem();
