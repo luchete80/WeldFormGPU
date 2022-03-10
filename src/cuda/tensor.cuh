@@ -82,8 +82,10 @@ public:
 		__spec tensor3 Identity();
 		//tensor3 operator* (const double &f);
 		__device__ tensor3 Trans ();
+				__device__ void print();
 		//__device__ void operator= (tensor3 &t);
 		__device__ ~tensor3(){};
+		
 };
 
 __device__ tensor3 operator* (const double &f, const tensor3 &b);

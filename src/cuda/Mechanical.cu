@@ -289,8 +289,11 @@ __device__ void Domain_d::StressStrain(int i) {
 		RS = RotationRate * ShearStress;
 		
 		// Elastic prediction step (ShearStress_e n+1)
-		if (isfirst_step)
+		if (isfirst_step){
 			ShearStressa	= -deltat/2.0*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))* Identity())+SRT+RS) + ShearStress;
+			if (i==1250){
+			printf("first step ShearStressA\n");ShearStressa.print();}
+		}
 		ShearStressb	= ShearStressa;
 		ShearStressa	= deltat*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*Identity())+SRT+RS) + ShearStressa;	
 
