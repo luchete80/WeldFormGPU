@@ -273,21 +273,31 @@ __device__ void Domain_d::StressStrain(int i) {
 		tensor3 Strain,Straina,Strainb;
 		
 		double temprr[6],tempss[6],tempsr[6];
+		double tempssa[6],tempssb[6];
 		for (int k=0;k<6;k++){ //First the diagonal
-			temprr[k]=rotrate[6*i+k];
-			tempss[k]=shearstress[6*i+k];
-			tempsr[k]=strrate[6*i+k];
+			temprr[k] = rotrate[6*i+k];
+			tempss[k] = shearstress[6*i+k];
+			tempsr[k] = strrate[6*i+k];
+			tempssa[k]= shearstressa[6*i+k];
+			tempssb[k]= shearstressb[6*i+k];			
 		}
-		ShearStress.FromFlatSym(tempss);
+		ShearStress.FromFlatSym (tempss);
+		ShearStressa.FromFlatSym(tempssa);
+		ShearStressb.FromFlatSym(tempssb);
+		
 		StrainRate.FromFlatSym(tempsr);
 		RotationRate.FromFlatAntiSym(temprr);
-		StrainRate.FromFlatSym(tempsr);
+
 		
 		RotationRateT = RotationRate.Trans();
 		
 		SRT = ShearStress * RotationRateT;
 		RS = RotationRate * ShearStress;
-		
+
+		if (i==1250){
+			printf("StrainRate\n");StrainRate.print();
+			printf("G, %f\n",G[i]);}
+			
 		// Elastic prediction step (ShearStress_e n+1)
 		if (isfirst_step){
 			ShearStressa	= -deltat/2.0*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))* Identity())+SRT+RS) + ShearStress;

@@ -574,7 +574,7 @@ __device__ tensor3 operator/ (const tensor3 &b, const double &f){
 }
 
 __device__ void tensor3::print(){
-	printf("%[f %f %f]\n[%f %f %f]\n[%f %f %f\n]",
+	printf("[%f %f %f],\n[%f %f %f],\n[%f %f %f].\n",
 	m_data[0][0],m_data[0][1],m_data[0][2],
 	m_data[1][0],m_data[1][1],m_data[1][2],
 	m_data[2][0],m_data[2][1],m_data[2][2]);
