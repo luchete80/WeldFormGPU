@@ -190,6 +190,7 @@ class Domain_d
 	__host__ void SetHeatCap(const double &);
 	//Boundary
 	__host__ void SetFreePart(const Domain &dom);
+	__host__ void SetShearModulus(const double &);
 	__host__ void SetID(const Domain &dom);
 	
 	//Mechanical

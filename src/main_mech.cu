@@ -96,7 +96,7 @@ void WriteCSV(char const * FileKey, double3 *x, double3 *varv, int count){
 	std::ostringstream oss;
 	std::string fn(FileKey);
 	
-	oss << "X, Y, Z, dx dy dz"<<endl;;
+	oss << "X, Y, Z, dx, dy, dz"<<endl;;
 	
 	//#pragma omp parallel for schedule(static) num_threads(Nproc)
 	// #ifdef __GNUC__
@@ -286,9 +286,10 @@ int main(int argc, char **argv) //try
 	cudaMemcpy(dom_d->BC_T, BC_type, dom.Particles.size() * sizeof(int), cudaMemcpyHostToDevice);
 	
 	dom_d->Alpha = 1.0;//For all particles		
+	dom_d->SetShearModulus(G);	// 
 	for (size_t a=0; a<dom.Particles.size(); a++)
 	{
-		dom.Particles[a]->G				= G;
+		//dom.Particles[a]->G				= G; 
 		dom.Particles[a]->PresEq	= 0;
 		dom.Particles[a]->Cs			= Cs;
 

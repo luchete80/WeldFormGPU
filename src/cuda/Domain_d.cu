@@ -180,6 +180,17 @@ void Domain_d::SetConductivity(const double &k){
 	delete k_;
 }
 
+void Domain_d::SetShearModulus(const double &k){
+	double *k_ =  new double[particle_count];
+	for (int i=0;i<particle_count;i++){
+		k_[i] = k;
+	}
+	int size = particle_count * sizeof(double);
+	cudaMemcpy(this->G, k_, size, cudaMemcpyHostToDevice);
+	delete k_;
+}
+
+
 void Domain_d::SetDensity(const double &k){
 	double *k_ =  new double[particle_count];
 	for (int i=0;i<particle_count;i++){
