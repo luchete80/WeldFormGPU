@@ -285,7 +285,7 @@ int main(int argc, char **argv) //try
 	cudaMemcpy(dom_d->T, T, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);
 	cudaMemcpy(dom_d->BC_T, BC_type, dom.Particles.size() * sizeof(int), cudaMemcpyHostToDevice);
 	
-	dom_d->Alpha = 1.0;//For all particles		
+	dom_d->Alpha = 0.0;//For all particles		
 	dom_d->SetShearModulus(G);	// 
 	for (size_t a=0; a<dom.Particles.size(); a++)
 	{
