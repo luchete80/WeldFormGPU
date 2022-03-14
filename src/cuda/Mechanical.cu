@@ -315,7 +315,7 @@ __device__ void Domain_d::StressStrain(int i) {
 		ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
 		if (i == 1250){
-			printf("Time %.4e Particle 1250, presure %f , ShearStresszz %f Sigmazz %f\n",Time, p[i], ShearStress(2,2), Sigma(2,2));
+			printf("Time %.4e Particle 1250, pressure %f , ShearStresszz %f Sigmazz %f\n",Time, p[i], ShearStress(2,2), Sigma(2,2));
 		}
 		
 		if (isfirst_step)

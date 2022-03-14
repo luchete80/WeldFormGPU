@@ -325,7 +325,7 @@ int main(int argc, char **argv) //try
 	cout << "Time Step: "<<dom_d->deltat<<endl;
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
 	//dom_d->MechSolve(0.000101 /*tf*//*1.01*/,timestep);
-	dom_d->MechSolve(10*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
+	dom_d->MechSolve(3*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
 	//dom_d->MechSolve(0.00105);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	

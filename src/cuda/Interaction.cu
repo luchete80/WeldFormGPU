@@ -317,8 +317,6 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		// Locking the particle 1 for updating the properties
 		a[i] 		+= mj * temp;
 		drho[i]	+= mj * (di/dj) * temp1;
-		if (i==1250)
-			printf("drho %f\n",drho[i]);
 		
 		if (IsFree[i]) {
 			double mj_dj= mj/dj;
@@ -371,6 +369,7 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 			printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRateSum(0,0),StrainRateSum(1,1),StrainRateSum(2,2));
 			printf("Accel: %f %f %f\n",a[i].x,a[i].y,a[i].z);
 			printf("Disp: %f %f %f\n",u[i].x,u[i].y,u[i].z);
+			printf("drho %f\n",drho[i]);
 		}
 	}//i < partcount
 }
