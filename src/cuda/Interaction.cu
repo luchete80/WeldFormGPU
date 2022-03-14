@@ -132,6 +132,9 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 	tensor3 StrainRate,RotationRate;
 	tensor3 StrainRateSum,RotationRateSum;
 	
+	a[i]		=	make_double3(0.,0.,0.);
+	drho[i]	= 0.0;
+	
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
@@ -314,6 +317,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		// Locking the particle 1 for updating the properties
 		a[i] 		+= mj * temp;
 		drho[i]	+= mj * (di/dj) * temp1;
+		if (i==1250)
+			printf("drho %f\n",drho[i]);
 		
 		if (IsFree[i]) {
 			double mj_dj= mj/dj;

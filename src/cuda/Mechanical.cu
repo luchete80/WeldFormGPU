@@ -423,9 +423,9 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		cudaDeviceSynchronize();
 		
 		//Save before move (to be changed)
-		char str[10];
-		sprintf(str, "out_%d.csv", step);
-		WriteCSV(str);
+		// char str[10];
+		// sprintf(str, "out_%d.csv", step);
+		// WriteCSV(str);
 		
 		//Move particle and then calculate streses and strains ()
 		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
