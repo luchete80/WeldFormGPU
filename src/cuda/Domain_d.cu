@@ -6,6 +6,7 @@
 //#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
 #include <ctime> //Clock
 
+
 //Else (offset)
 //Allocating from host
 namespace SPH {
@@ -266,7 +267,6 @@ Domain_d::~Domain_d(){
 		cudaFree(neib_part);		
 }
 
-};//SPH
     // // Create host pointer to array-like storage of device pointers
     // Obj** h_d_obj = (Obj**)malloc(sizeof(Obj*) * 3); //    <--------- SEE QUESTION 1
     // for (int i = 0; i < 3; i++) {
@@ -286,3 +286,25 @@ Domain_d::~Domain_d(){
     // cudaMalloc((void**)&d_d_obj, sizeof(Obj*) * 3);
     // // Copy the pointers from the host memory to the device array
     // cudaMemcpy(d_d_obj, h_d_obj, sizeof(Obj*) * 3, cudaMemcpyHostToDevice);
+
+
+#include <cstdio>
+
+void Domain_d::WriteCSV(char const * FileKey){
+	FILE *f = fopen(FileKey,"w");;
+	
+	fprintf(f, "X, Y, Z\n");
+
+	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
+
+	for (int i=0; i<particle_count; i++) {
+		fprintf(f,"%f, %f, %f\n",a_h[i].x,a_h[i].y,a_h[i].z);
+		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
+		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;
+	}
+
+ fclose(f);
+}
+
+
+};//SPH

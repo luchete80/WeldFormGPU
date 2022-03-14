@@ -6,6 +6,8 @@
 //#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
 #include <ctime> //Clock
 
+//For Writing file
+
 using namespace std;
 
 namespace SPH{
@@ -397,7 +399,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	
 	isfirst_step =true;
 
-	int step = 0;
+	step = 0;						//Par of domain_h
 	clock_t clock_beg;
 	double time_spent;
 	clock_beg = clock();
@@ -407,6 +409,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	
 	while (Time<tf) {
 		
+		cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
 		//This was in Original LastCompAcceleration
 		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize(); //REQUIRED!!!!
@@ -418,7 +421,12 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		double vbc = 1.0; 
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
-
+		
+		//Save before move (to be changed)
+		char str[10];
+		sprintf(str, "out_%d.csv", step);
+		WriteCSV(str);
+		
 		//Move particle and then calculate streses and strains ()
 		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
 														rho, rhoa, rhob, drho,

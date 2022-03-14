@@ -113,6 +113,7 @@ class Domain_d
 	
 	//Time things
 	bool isfirst_step;
+	int step = 0;
 
 	double					Time;    				//Current time of simulation at each solving step
 	double					deltat;					//Time Step
@@ -209,7 +210,7 @@ class Domain_d
 	
 	__device__ void ApplyBCVel(int bcid, 
 														double3 bcv);
-	
+	__host__ void WriteCSV(char const * FileKey);
  ////////////////////////
 	
 
