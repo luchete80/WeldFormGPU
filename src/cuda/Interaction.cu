@@ -39,51 +39,7 @@ __device__ void CalcForcesExt(PartData_d *partdata){
 	#endif
 	printf("Solving\n");
 	for (int k=0;k < neibcount; k++) { //Or size
-		int j = NEIBS(i,k);
-		//double h	= partdata->h[i]+P2->h)/2;
-		double3 xij = partdata->x[i] - partdata->x[j];
-		double rij = length(xij);
-		double di=0.0,dj=0.0,mi=0.0,mj=0.0;
-	
-		if (!partdata->IsFree[i]) {
-			di = DensitySolid(partdata->PresEq[i], partdata->Cs[j], partdata->P0[j],partdata->p[i], partdata->rho_0[j]);
-			mi = partdata->FPMassC[i] * partdata->m[j];
-		} else {
-			di = partdata->rho[i];
-			mi = partdata->m[i];
-		}
-		if (!partdata->IsFree[j]) {
-			dj = DensitySolid (partdata->PresEq[i], partdata->Cs[i], partdata->P0[i],partdata->p[j], partdata->rho_0[i]);
-			mj = partdata->FPMassC[j] * partdata->m[i];
-		} else {
-			dj = partdata->rho[j];
-			mj = partdata->m[j];
-		}	
-		
-		double3 vij	= partdata->v[i] - partdata->v[j];
-		double h_ = (partdata->h[i] + partdata->h[j])/2.0;
-			
-		//double GK	= GradKernel(Dimension, KernelType, rij/h, h);
-		double GK	= GradKernel(3, 0, rij/h_, h_);
-		double K	= Kernel(3, 0, rij/h_, h_);
 
-		////// Artificial Viscosity
-		tensor3 PIij;
-		//set_to_zero(PIij);
-		if (partdata->Alpha!=0.0 || partdata->Beta!=0.0)
-		{
-			double MUij = h_*dot(vij,xij)/(rij*rij+0.01*h_*h_);					///<(2.75) Li, Liu Book
-			double Cij;
-			double Ci,Cj;
-			if (!partdata->IsFree[i]) Ci = SoundSpeed(partdata->PresEq[j], partdata->Cs[j], di, partdata->rho_0[j]); 
-			else 											Ci = SoundSpeed(partdata->PresEq[i], partdata->Cs[i], di, partdata->rho_0[i]);
-			if (!partdata->IsFree[j]) Cj = SoundSpeed(partdata->PresEq[j], partdata->Cs[i], dj, partdata->rho_0[i]); 
-			else 											Cj = SoundSpeed(partdata->PresEq[j], partdata->Cs[j], dj, partdata->rho_0[j]);
-			Cij = 0.5*(Ci+Cj);
-			
-			if (dot(vij,xij)<0) PIij = (partdata->Alpha*Cij*MUij + partdata->Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
-		}
-		
 	}//neibcount	
 }
 
@@ -121,8 +77,9 @@ __device__ inline void Domain_d::CalcForce2233(
 	neibcount =	neib_offs[i+1] - neib_offs[i];
 	#endif
 	//printf("Solving\n");
-	tensor3 StrainRate,RotationRate;
-	tensor3 StrainRateSum,RotationRateSum;
+	symtensor3 StrainRate;
+	//,RotationRate;
+	symtensor3 StrainRateSum,RotationRateSum;
 	
 	a[i]		=	make_double3(0.,0.,0.);
 	drho[i]	= 0.0;
@@ -182,7 +139,7 @@ __device__ inline void Domain_d::CalcForce2233(
 		
 		//printf("i %d, Ti %f\n",i, T[i]);
 		
-		tensor3 Sigma,Sigmaj,Sigmai;
+		symtensor3 Sigma,Sigmaj,Sigmai;
 		// set_to_zero(Sigmaj);
 		// set_to_zero(Sigmai);
 		
@@ -194,8 +151,8 @@ __device__ inline void Domain_d::CalcForce2233(
 			tempj[k]=sigma[6*j+k];
 		}
 		
-		Sigmai.FromFlatSym(tempi);
-		Sigmaj.FromFlatSym(tempj);
+		Sigmai = FromFlatSym(tempi);
+		Sigmaj = FromFlatSym(tempj);
 		//Sigmai = Sigma[i];
 		//Sigmaj = Sigma[j];
 
@@ -239,17 +196,17 @@ __device__ inline void Domain_d::CalcForce2233(
 		////////////////////////////////////
 		// // Calculation strain rate tensor
 		////////////////////////////////////
-		StrainRate(0,0) = 2.0*vab.x*xij.x;
-		StrainRate(0,1) = vab.x*xij.y+vab.y*xij.x;
-		StrainRate(0,2) = vab.x*xij.z+vab.z*xij.x;
-		StrainRate(1,0) = StrainRate(0,1);
-		StrainRate(1,1) = 2.0*vab.y*xij.y;
-		StrainRate(1,2) = vab.y*xij.z+vab.z*xij.y;
-		StrainRate(2,0) = StrainRate(0,2);
-		StrainRate(2,1) = StrainRate(1,2);
-		StrainRate(2,2) = 2.0*vab.z*xij.z;
+		StrainRate.xx = 2.0*vab.x*xij.x;
+		StrainRate.xy = vab.x*xij.y+vab.y*xij.x;
+		StrainRate.xz = vab.x*xij.z+vab.z*xij.x;
+		//StrainRate.yx = StrainRate(0,1);
+		StrainRate.yy = 2.0*vab.y*xij.y;
+		StrainRate.yz = vab.y*xij.z+vab.z*xij.y;
+		//StrainRate.zx = StrainRate(0,2);
+		//StrainRate.zy = StrainRate(1,2);
+		//StrainRate.zz = 2.0*vab.z*xij.z;
 		//StrainRate	= (-0.5) * GK * StrainRate;
-		StrainRate	*= (-0.5) * GK;
+		StrainRate	= StrainRate * (-0.5) * GK;
 		
 		// if (i==1250 /*|| j==1250*/){
 			// printf("Time, i,j,vab, xij, GK: %.4e %d %d %f %f %f %f %f %f %f\n",Time, i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
@@ -431,8 +388,8 @@ void __global__ /*inline*/ CalcForcesKernel(
 			tempj[k]=sigma[6*j+k];
 		}
 		
-		Sigmai.FromFlatSym(tempi);
-		Sigmaj.FromFlatSym(tempj);
+		Sigmai = FromFlatSym(tempi);
+		Sigmaj = FromFlatSym(tempj);
 
 		double3 vab = make_double3(0.0);
 		//if (IsFree[i]*IsFree[j]) {

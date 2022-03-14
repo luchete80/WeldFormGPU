@@ -49,6 +49,18 @@ typedef struct {
 	double ww;
 } symtensor4 ;
 
+// typedef struct {
+	// double xx;
+	// double xy;
+	// double xz;
+	// double yx;
+	// double yy;
+	// double yz;
+	// double zx;
+	// double zy;
+	// double zz;
+// } tensor3 ;
+
 #define __spec __device__ __forceinline__
 
 class tensor3
@@ -93,7 +105,7 @@ __device__ tensor3 operator/ (const tensor3 &b, const double &f);
 
 __device__ double3 dot(tensor3 const& T, double3 const& v);
 
-__device__ /*__forceinline__*/ tensor3 Identity();
+//__device__ /*__forceinline__*/ tensor3 Identity();
 
 
 __spec
@@ -132,24 +144,60 @@ operator +(symtensor3 const& T1, symtensor3 const& T2)
 	return R;
 }
 
-__device__ inline tensor3 Identity(){
-	tensor3 ret;
-	ret(0,0) = ret(1,1) = ret(2,2) = 1.;
+__device__ inline symtensor3 Identity(){
+	symtensor3 ret;
+	ret.xx = ret.yy = ret.zz = 1.;
 	//ret[1][1]=ret[2][2]=1.;	
 	return ret;
 }
 
 //Converts tensor to flat symm
-__device__ void tensor3 FromFlatSym(double flat[]){
-	tensor3 ret;
-	for (int i=0;i<3;i++)
-		m_data [i][i] = flat[i];
-	m_data [0][1] = m_data [1][0] = flat[3]; 
-	m_data [1][2] = m_data [2][1] = flat[4]; 
-	m_data [0][2] = m_data [2][0] = flat[5]; 
+__device__ inline symtensor3 FromFlatSym(double flat[]){
+	symtensor3 ret;
+	// for (int i=0;i<3;i++)
+		// ret.m_data [i][i] = flat[i];
+	// ret.m_data [0][1] = ret.m_data [1][0] = flat[3]; 
+	// ret.m_data [1][2] = ret.m_data [2][1] = flat[4]; 
+	// ret.m_data [0][2] = ret.m_data [2][0] = flat[5]; 
 	
 	return ret;
 }
+
+__device__ inline symtensor3 operator* (symtensor3 a, const double &f){
+	symtensor3 ret = a;
+	ret.xx *=f;		ret.yy *=f;		ret.zz *=f;	
+		ret.xy *=f;		ret.xz *=f;		ret.yz *=f;	
+	return ret;
+}
+
+__device__ inline symtensor3 operator* (const double &f, symtensor3 a){
+	symtensor3 ret = a;
+	ret.xx *=f;		ret.yy *=f;		ret.zz *=f;	
+	ret.xy *=f;		ret.xz *=f;		ret.yz *=f;	
+	return ret;
+}
+
+__spec
+double3
+dot(symtensor3 const& T, double3 const& v)
+{
+	return make_double3(
+			T.xx*v.x + T.xy*v.y + T.xz*v.z,
+			T.xy*v.y + T.yy*v.y + T.yz*v.z,
+			T.xz*v.x + T.yz*v.y + T.zz*v.z);
+
+}
+
+// __spec
+// double3
+// dot(symtensor3 const& T, double3 const& v)
+// {
+	// return make_double3(
+			// T.xx*v.x + T.xy*v.y + T.xz*v.z,
+			// T.xy*v.y + T.yy*v.y + T.yz*v.z,
+			// T.xz*v.x + T.yz*v.y + T.zz*v.z);
+
+// }
 
 
 //__device__ void operator+= (tensor3 &a, tensor3 &a);
