@@ -299,8 +299,8 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		double3 gkxij = GK*xij;
 		if (i==1250 ){
 			// printf("i %d,j %d,Sigmai, Sigmaj \n",i,j);Sigmai.print();Sigmaj.print();
-			printf("i %d  j%d 1/di2 Sigmai + 1/dj2Sigmai GKxij %f %f %f\n %f %f %f\n",i,j,
-			temp.x,temp.y,temp.z,xij.x,xij.y,xij.z);
+			//printf("i %d  j%d 1/di2 Sigmai + 1/dj2Sigmai GKxij %f %f %f\n %f %f %f\n",i,j,
+			//temp.x,temp.y,temp.z,xij.x,xij.y,xij.z);
 			//printf("i %d  j%d 1/di2 Sigmai + 1/dj2Sigmai \n",i,j);
 			//test.print();
 		}
