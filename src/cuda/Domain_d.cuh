@@ -119,6 +119,8 @@ class Domain_d
 	double					deltat;					//Time Step
 	double					deltatmin;			//Minimum Time Step
 	double					deltatint;			//Initial Time Step
+	
+	bool						auto_ts;
 
 	
 	
@@ -205,12 +207,13 @@ class Domain_d
 	//MAIN MECHANICAL FUNCTIONS ARE THESE THREE (Start Acc & Whole Velocity are not)
 	__device__ __forceinline__ void PrimaryComputeAcceleration ();	
 	__device__ __forceinline__ void LastComputeAcceleration();
-	__device__ /*inline*/ void CalcForce2233(int KernelType, float XSPH);
+	__device__ /*__forceinline__*/inline void CalcForce2233(int KernelType, float XSPH);
 	__device__ void StressStrain(int i);
 	
 	__device__ void ApplyBCVel(int bcid, 
 														double3 bcv);
 	__host__ void WriteCSV(char const * FileKey);
+	__host__ void AdaptiveTimeStep();
  ////////////////////////
 	
 

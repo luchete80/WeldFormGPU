@@ -407,13 +407,21 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	double t_out;
 	t_out = dt_out;
 	
+	double stress_time,forces_time,accel_time,pressure_time,move_time;
+	
+	clock_t clock_beg_int;
+
+	stress_time = forces_time = accel_time = pressure_time = move_time = 0.;
+	
 	while (Time<tf) {
 		
-		cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
+		//cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
 		//This was in Original LastCompAcceleration
+		clock_beg_int = clock();
 		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize(); //REQUIRED!!!!
-		
+		forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
+			
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
 		cudaDeviceSynchronize();
@@ -422,6 +430,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
 		
+		deltatmin = deltatint = deltat;
 		//Save before move (to be changed)
 		// char str[10];
 		// sprintf(str, "out_%d.csv", step);
@@ -447,28 +456,35 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 																									// double* shearstress,double* shearstressa, double* shearstressb,
 												
 																									// double dt, int particle_count);
+		clock_beg_int = clock();
 		StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
+		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
+		
 		if (isfirst_step) isfirst_step = false;
 		Time +=deltat;
+		
 		if (Time >= t_out) {		
+			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			t_out += dt_out;
 			time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
 			cout << "Time "<<Time<<", GPU time "<<time_spent<<endl;
+			cout << "Forces calc: "			<<forces_time<<endl;
+			cout << "Stresses calc: "		<<stress_time<<endl;
+			
+			double3 max= make_double3(0.,0.,0.);
+			for (int i=0;i<particle_count;i++){
+				//cout << "Particle " << i << "Vel: "<< v_h[i].x<<", "<<v_h[i].y<< ", "<< v_h[i].z<<endl;
+				//cout << "Particle " << i << "Acc: "<< a_h[i].x<<", "<<a_h[i].y<< ", "<< a_h[i].z<<endl;
+				if (u_h[i].x>max.x) max.x = u_h[i].x;
+				if (u_h[i].y>max.y) max.y = u_h[i].y;
+				if (u_h[i].z>max.z) max.z = u_h[i].z;
+			}
+			cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
 		}
-		cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
-		cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
-		cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 		
-		double3 max= make_double3(0.,0.,0.);
-		for (int i=0;i<particle_count;i++){
-			//cout << "Particle " << i << "Vel: "<< v_h[i].x<<", "<<v_h[i].y<< ", "<< v_h[i].z<<endl;
-			//cout << "Particle " << i << "Acc: "<< a_h[i].x<<", "<<a_h[i].y<< ", "<< a_h[i].z<<endl;
-			if (u_h[i].x>max.x) max.x = u_h[i].x;
-			if (u_h[i].y>max.y) max.y = u_h[i].y;
-			if (u_h[i].z>max.z) max.z = u_h[i].z;
-		}
-		cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
 		
 		//TODO: Pass toPartData
 		//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);
@@ -476,7 +492,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 
 		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
 		step ++;
-		cout<<"--------------------------- END STEP --------------------------"<<endl; 
+		//cout<<"--------------------------- END STEP, Time"<<Time <<", --------------------------"<<endl; 
 	}//while <tf
 
 	time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;

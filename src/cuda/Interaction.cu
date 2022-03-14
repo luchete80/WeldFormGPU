@@ -113,7 +113,7 @@ __device__ /*inline*/ void PartData_d::CalcForce2233(
 
 
 
-__device__ /*inline*/ void Domain_d::CalcForce2233(
+__device__ inline void Domain_d::CalcForce2233(
 	/* const double &Dimension*/
 	int KernelType,
 	float XSPH)
@@ -174,19 +174,19 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		tensor3 PIij;
 		//set_to_zero(PIij);
 
-		if (Alpha!=0.0 || Beta!=0.0)
-		{
-			double MUij = h_*dot(vij,xij)/(rij*rij+0.01*h_*h_);					///<(2.75) Li, Liu Book
-			double Cij;
-			double Ci,Cj;
-			if (!IsFree[i]) Ci = SoundSpeed(PresEq[j], Cs[j], di, rho_0[j]); else Ci = SoundSpeed(PresEq[i], Cs[i], di, rho_0[i]);
-			if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], Cs[j], dj, rho_0[j]);
-			Cij = 0.5*(Ci+Cj);
+		// if (Alpha!=0.0 || Beta!=0.0)
+		// {
+			// double MUij = h_*dot(vij,xij)/(rij*rij+0.01*h_*h_);					///<(2.75) Li, Liu Book
+			// double Cij;
+			// double Ci,Cj;
+			// if (!IsFree[i]) Ci = SoundSpeed(PresEq[j], Cs[j], di, rho_0[j]); else Ci = SoundSpeed(PresEq[i], Cs[i], di, rho_0[i]);
+			// if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], Cs[j], dj, rho_0[j]);
+			// Cij = 0.5*(Ci+Cj);
 			
-			//printf("C %f %f\n",Ci,Cj);
-			if (dot(vij,xij)<0) 
-				PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
-		}
+			// //printf("C %f %f\n",Ci,Cj);
+			// if (dot(vij,xij)<0) 
+				// PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
+		// }
 		
 		//printf("i %d, Ti %f\n",i, T[i]);
 		
@@ -220,9 +220,9 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		// }
 		//TODO: CONVERT TIR FROM FLATTENED ARRAY TO TENSOR
 		//set_to_zero(TIij);
-		if (TI[i] > 0.0 || TI[j] > 0.0) 
-			TIij = pow((K/Kernel(Dimension, KernelType, (TIInitDist[i] + TIInitDist[j])/(2.0*h_), h_)),(TIn[i] + TIn[j])/2.0)*(TIRi+TIRj);
-			//TIij = pow((K/m_kernel.W((P1->TIInitDist + P2->TIInitDist)/(2.0*h))),(P1->TIn+P2->TIn)/2.0)*(P1->TIR+P2->TIR); //COMMENTED IN ORIGINAL CODE
+		// if (TI[i] > 0.0 || TI[j] > 0.0) 
+			// TIij = pow((K/Kernel(Dimension, KernelType, (TIInitDist[i] + TIInitDist[j])/(2.0*h_), h_)),(TIn[i] + TIn[j])/2.0)*(TIRi+TIRj);
+			// //TIij = pow((K/m_kernel.W((P1->TIInitDist + P2->TIInitDist)/(2.0*h))),(P1->TIn+P2->TIn)/2.0)*(P1->TIR+P2->TIR); //COMMENTED IN ORIGINAL CODE
 		
 		// NoSlip BC velocity correction 		////////////////////////////////
 		double3 vab = make_double3(0.0);
@@ -300,13 +300,13 @@ __device__ /*inline*/ void Domain_d::CalcForce2233(
 		tensor3 test = (1.0/(di*di))*Sigmai + (1.0/(dj*dj))*Sigmaj ;
 		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) * (GK*xij);		
 		double3 gkxij = GK*xij;
-		if (i==1250 ){
+		//if (i==1250 ){
 			// printf("i %d,j %d,Sigmai, Sigmaj \n",i,j);Sigmai.print();Sigmaj.print();
 			//printf("i %d  j%d 1/di2 Sigmai + 1/dj2Sigmai GKxij %f %f %f\n %f %f %f\n",i,j,
 			//temp.x,temp.y,temp.z,xij.x,xij.y,xij.z);
 			//printf("i %d  j%d 1/di2 Sigmai + 1/dj2Sigmai \n",i,j);
 			//test.print();
-		}
+		//}
 		//Mult( GK*xij , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) , temp); //TODO: TIR AND ARTIFF VISC
 		// else
 			// Mult( GK*xij , ( 1.0/(di*dj)*(Sigmai + Sigmaj)           + PIij + TIij ) , temp);
