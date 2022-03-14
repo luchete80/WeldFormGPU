@@ -418,7 +418,16 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		//cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
 		//This was in Original LastCompAcceleration
 		clock_beg_int = clock();
-		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
+		//CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
+		CalcForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(
+																		a, drho,				//OUTPUT
+																		x, h, v,
+																		m, rho, FPMassC,
+																		Cs, P0,p, rho_0,
+																		neib_part, neib_offs,
+																		sigma,
+																		strrate, rotrate,
+																		 particle_count);
 		cudaDeviceSynchronize(); //REQUIRED!!!!
 		forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
 			

@@ -222,6 +222,8 @@ class Domain_d
 
 };
 
+
+
 __global__ void CheckData(Domain_d *dom);
 
 //Called by Solve host function
@@ -257,13 +259,13 @@ __device__ void CalcForcesExt(PartData_d *partdata);
 __global__ void CalcForcesKernelMember(PartData_d *partdata);
 
 void __global__ /*inline*/ CalcForcesKernel(
-																		double *dTdt,	
-																		double3 *x, double *h,
-																		double *m, double *rho, 
-																		double *T, double *k_T, double *cp_T, 
-																		const int KernelType,
-																		const float XSPH,
+																		double3 *a, double *drho,				//OUTPUT
+																		double3 *x, double *h, double3* v,
+																		double *m, double *rho, double *FPMassC,
+																		double *Cs, double *P0,double *p, double *rho_0,
 																		int *neib_part, int *neib_offs,
+																		double *sigma,
+																		double *strrate, double *rotrate,
 																		int particle_count);
 																		
 __global__ void CalcForcesKernel(Domain_d *dom_d);

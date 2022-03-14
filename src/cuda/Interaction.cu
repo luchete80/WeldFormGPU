@@ -366,4 +366,149 @@ __device__ inline void Domain_d::CalcForce2233(
 	}//i < partcount
 }
 
+
+
+//NON CLASS GLOBAL VERSION
+void __global__ /*inline*/ CalcForcesKernel(
+																		double3 *a, double *drho,				//OUTPUT
+																		double3 *x, double *h, double3* v,
+																		double *m, double *rho, double *FPMassC,
+																		double *Cs, double *P0,double *p, double *rho_0,
+																		int *neib_part, int *neib_offs,
+																		double *sigma,
+																		double *strrate, double *rotrate,
+																		int particle_count)
+{
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+	
+	if ( i < particle_count ) {
+	int Dimension = 3; //TODO, put in another 
+	int neibcount;
+	#ifdef FIXED_NBSIZE
+	neibcount = neib_offs[i];
+	#else
+	neibcount =	neib_offs[i+1] - neib_offs[i];
+	#endif
+	//printf("Solving\n");
+	tensor3 StrainRate,RotationRate;
+	tensor3 StrainRateSum,RotationRateSum;
+	
+	a[i]		=	make_double3(0.,0.,0.);
+	drho[i]	= 0.0;
+	
+	for (int k=0;k < neibcount; k++) { //Or size
+		//if fixed size i = part * NB + k
+		//int j = neib[i][k];
+		int j = NEIB(i,k);
+		//double h	= partdata->h[i]+P2->h)/2;
+		double3 xij = x[i] - x[j];
+		double rij = length(xij);
+		double di=0.0,dj=0.0,mi=0.0,mj=0.0;
+		
+
+		di = DensitySolid(/*PresEq[i]*/0, Cs[j], P0[j],p[i], rho_0[j]);
+		mi = FPMassC[i] * m[j];
+
+		dj = rho[j];
+		mj = m[j];
+
+		double3 vij	= v[i] - v[j];
+		double h_ = (h[i] + h[j])/2.0;
+			
+		//double GK	= GradKernel(Dimension, KernelType, rij/h, h);
+		double GK	= GradKernel(3, 0/*KernelType*/, rij/h_, h_);
+		double K	= Kernel(3, 0, rij/h_, h_);
+		
+		tensor3 Sigma,Sigmaj,Sigmai;
+		// set_to_zero(Sigmaj);
+		// set_to_zero(Sigmai);
+		
+		//TODO: CONVERT FLATTENED ARRAY TO TENSOR
+		//TODO: Avoid temp array conversion and test
+		double tempi[6],tempj[6];
+		for (int k=0;k<6;k++){ //First the diagonal
+			tempi[k]=sigma[6*i+k];
+			tempj[k]=sigma[6*j+k];
+		}
+		
+		Sigmai.FromFlatSym(tempi);
+		Sigmaj.FromFlatSym(tempj);
+
+		double3 vab = make_double3(0.0);
+		//if (IsFree[i]*IsFree[j]) {
+			vab = vij;
+
+		
+
+		////////////////////////////////////
+		// // Calculation strain rate tensor
+		////////////////////////////////////
+		StrainRate(0,0) = 2.0*vab.x*xij.x;
+		StrainRate(0,1) = vab.x*xij.y+vab.y*xij.x;
+		StrainRate(0,2) = vab.x*xij.z+vab.z*xij.x;
+		StrainRate(1,0) = StrainRate(0,1);
+		StrainRate(1,1) = 2.0*vab.y*xij.y;
+		StrainRate(1,2) = vab.y*xij.z+vab.z*xij.y;
+		StrainRate(2,0) = StrainRate(0,2);
+		StrainRate(2,1) = StrainRate(1,2);
+		StrainRate(2,2) = 2.0*vab.z*xij.z;
+		//StrainRate	= (-0.5) * GK * StrainRate;
+		StrainRate	*= (-0.5) * GK;
+		
+		// if (i==1250 /*|| j==1250*/){
+			// printf("Time, i,j,vab, xij, GK: %.4e %d %d %f %f %f %f %f %f %f\n",Time, i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
+			// printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate(0,0),StrainRate(1,1),StrainRate(2,2));
+		// }
+		// // Calculation rotation rate tensor
+		RotationRate(0,1) = vab.x*xij.y-vab.y*xij.x;
+		RotationRate(0,2) = vab.x*xij.z-vab.z*xij.x;
+		RotationRate(1,2) = vab.y*xij.z-vab.z*xij.y;
+		RotationRate(1,0) = -RotationRate(0,1);
+		RotationRate(2,0) = -RotationRate(0,2);
+		RotationRate(2,1) = -RotationRate(1,2);
+		//RotationRate	  	= -0.5 * GK * RotationRate; //THIS OPERATOR FAILS
+		RotationRate	  	*= (-0.5 * GK);
+		
+
+		
+		double3 temp = make_double3(0.0);
+		double temp1 = 0.0;
+		
+		//if (GradientType == 0)
+		// if (i == 1250)
+			// printf("Particle 1250 Time %.4e, Sigmaizz %f , Sigmajzz %f\n",Time, Sigmai(2,2),Sigmaj(2,2));
+		tensor3 test = (1.0/(di*di))*Sigmai + (1.0/(dj*dj))*Sigmaj ;
+		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) * (GK*xij);		
+		double3 gkxij = GK*xij;
+
+		temp1 = dot( vij , GK*xij );
+
+		// Locking the particle 1 for updating the properties
+		a[i] 		+= mj * temp;
+		drho[i]	+= mj * (di/dj) * temp1;
+		
+		//if (IsFree[i]) {
+			double mj_dj= mj/dj;
+			//P1->ZWab	+= mj_dj* K;
+			//printf("mj /dj %f\n",mj_dj);
+			//Different function overloading than StrRate * mjdj
+			//tempt = StrainRate * mj_dj;
+			StrainRateSum += mj_dj * StrainRate;
+
+		//}
+
+		}//neibcount
+
+		///// OUTPUT TO Flatten arrays
+		RotationRateSum.ToFlatSymPtr(rotrate,6*i);
+		StrainRateSum.ToFlatSymPtr(strrate,6*i);	//Is the same for antisymm, stores upper diagonal
+		// if (i==1250){
+			// printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRateSum(0,0),StrainRateSum(1,1),StrainRateSum(2,2));
+			// printf("Accel: %f %f %f\n",a[i].x,a[i].y,a[i].z);
+			// printf("Disp: %f %f %f\n",u[i].x,u[i].y,u[i].z);
+			// printf("drho %f\n",drho[i]);
+		// }
+	}//i < partcount
+}
+
 }; //SPH
