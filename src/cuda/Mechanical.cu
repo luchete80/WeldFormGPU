@@ -199,9 +199,9 @@ __device__ __forceinline__ void Domain_d::LastComputeAcceleration(){
 __global__ void PressureKernelExt(double *p, double *PresEq, double *Cs, double *P0,double *Density, double *RefDensity, int particle_count){
 	
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
-	if (i == 1250){
-		printf("PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]: %f %f %f %f %f \n",PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]);
-	}
+	// if (i == 1250){
+		// printf("PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]: %f %f %f %f %f \n",PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]);
+	// }
 	if ( i < particle_count ) {	
 		p[i] = EOS(PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]); //CALL BEFORE!
 	}
@@ -296,9 +296,9 @@ __device__ void Domain_d::StressStrain(int i) {
 		SRT = ShearStress * RotationRateT;
 		RS = RotationRate * ShearStress;
 
-		if (i==1250){
-			printf("StrainRate\n");StrainRate.print();
-			printf("G, %f\n",G[i]);}
+		// if (i==1250){
+			// printf("StrainRate\n");StrainRate.print();
+			// printf("G, %f\n",G[i]);}
 			
 		// Elastic prediction step (ShearStress_e n+1)
 		if (isfirst_step){
@@ -307,16 +307,16 @@ __device__ void Domain_d::StressStrain(int i) {
 		ShearStressb	= ShearStressa;
 		ShearStressa	= deltat*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*Identity())+SRT+RS) + ShearStressa;	
 
-		if (i==1250){
-		printf("ShearStressA\n");ShearStressa.print();}
+		// if (i==1250){
+		// printf("ShearStressA\n");ShearStressa.print();}
 			
 		// //Fail, TODO
 		
 		ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
-		if (i == 1250){
-			printf("Time %.4e Particle 1250, pressure %f , ShearStresszz %f Sigmazz %f\n",Time, p[i], ShearStress(2,2), Sigma(2,2));
-		}
+		// if (i == 1250){
+			// printf("Time %.4e Particle 1250, pressure %f , ShearStresszz %f Sigmazz %f\n",Time, p[i], ShearStress(2,2), Sigma(2,2));
+		// }
 		
 		if (isfirst_step)
 			Straina	= -deltat/2.0*StrainRate + Strain;
@@ -335,10 +335,10 @@ __device__ void Domain_d::StressStrain(int i) {
 		ShearStressa.ToFlatSymPtr(shearstressa,6*i);
 		ShearStressb.ToFlatSymPtr(shearstressb,6*i);
 		
-		if (i==1250){
-			printf("particle 1250 Sigma\n");
-			Sigma.print();
-		}
+		// if (i==1250){
+			// printf("particle 1250 Sigma\n");
+			// Sigma.print();
+		// }
 	}//particle count
 }
 
