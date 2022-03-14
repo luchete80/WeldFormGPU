@@ -21,14 +21,6 @@ __global__ void CalcForce2233(PartData_d *partdata){
 	CalcForcesExt(partdata);
 }
 
-// __device__ tensor3 Identity(){
-	// tensor3 ret;
-	// ret(0,0) = ret(1,1) = ret(2,2) = 1.;
-	// //ret[1][1]=ret[2][2]=1.;
-	
-	// return ret;
-// }
-
 // __device__ tensor3::tensor3(){
 
 // }

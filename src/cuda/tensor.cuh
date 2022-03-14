@@ -57,7 +57,7 @@ private:
 		
 public:
 		double m_data[4][4]{};    
-    __device__ tensor3();
+    __device__ tensor3(){};
     __device__ tensor3(double flat[]);	//Six components
     __device__ void FromFlatSym(double flat[]);	//Six components
 		__device__ void ToFlatSymPtr(double *flat, int initial); //Antisymm is the same
@@ -94,6 +94,63 @@ __device__ tensor3 operator/ (const tensor3 &b, const double &f);
 __device__ double3 dot(tensor3 const& T, double3 const& v);
 
 __device__ /*__forceinline__*/ tensor3 Identity();
+
+
+__spec
+void
+clear(symtensor3& T)
+{
+	T.xx = T.xy = T.xz =
+		T.yy = T.yz = T.zz = 0.0f;
+}
+
+__spec
+symtensor3
+operator -(symtensor3 const& T1, symtensor3 const& T2)
+{
+	symtensor3 R;
+	R.xx = T1.xx - T2.xx;
+	R.xy = T1.xy - T2.xy;
+	R.xz = T1.xz - T2.xz;
+	R.yy = T1.yy - T2.yy;
+	R.yz = T1.yz - T2.yz;
+	R.zz = T1.zz - T2.zz;
+	return R;
+}
+
+__spec
+symtensor3
+operator +(symtensor3 const& T1, symtensor3 const& T2)
+{
+	symtensor3 R;
+	R.xx = T1.xx + T2.xx;
+	R.xy = T1.xy + T2.xy;
+	R.xz = T1.xz + T2.xz;
+	R.yy = T1.yy + T2.yy;
+	R.yz = T1.yz + T2.yz;
+	R.zz = T1.zz + T2.zz;
+	return R;
+}
+
+__device__ inline tensor3 Identity(){
+	tensor3 ret;
+	ret(0,0) = ret(1,1) = ret(2,2) = 1.;
+	//ret[1][1]=ret[2][2]=1.;	
+	return ret;
+}
+
+//Converts tensor to flat symm
+__device__ void tensor3 FromFlatSym(double flat[]){
+	tensor3 ret;
+	for (int i=0;i<3;i++)
+		m_data [i][i] = flat[i];
+	m_data [0][1] = m_data [1][0] = flat[3]; 
+	m_data [1][2] = m_data [2][1] = flat[4]; 
+	m_data [0][2] = m_data [2][0] = flat[5]; 
+	
+	return ret;
+}
+
 
 //__device__ void operator+= (tensor3 &a, tensor3 &a);
 

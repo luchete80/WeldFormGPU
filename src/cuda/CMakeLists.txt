@@ -6,6 +6,6 @@ add_library (cuda
 							Interaction.cu
 							#Interaction_global.cu
 							Domain_d.cu
-							tensor.cu)
+							#tensor.cu)
 							
 #set_property(TARGET cuda PROPERTY CUDA_SEPARABLE_COMPILATION ON)

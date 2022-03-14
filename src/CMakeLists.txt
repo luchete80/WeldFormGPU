@@ -77,7 +77,7 @@ add_executable(gpuweldform
 													Vector.cpp
 													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
 													cuda/Domain_d.cu
-													cuda/tensor.cu
+													#cuda/tensor.cu
 													cuda/Interaction.cu
 													cuda/Mechanical.cu
 													cuda/Thermal.cu
@@ -86,7 +86,8 @@ add_executable(gpuweldform
 
 
 #tensor and all functions defined in separate modulus
-set_property(TARGET gpuweldform PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+# CASE NO INLINE VERSION
+#set_property(TARGET gpuweldform PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 
 #add_subdirectory (cuda)
 
@@ -101,10 +102,10 @@ set_property(TARGET gpuweldform PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 #    SET_TARGET_PROPERTIES (${var} PROPERTIES COMPILE_FLAGS "${FLAGS}" LINK_FLAGS "${LFLAGS}")
 #ENDFOREACH(var)
 
-if (NOT BUILD_GPU)
-else()
-TARGET_LINK_LIBRARIES (${var} cuda)
-endif()
+# if (NOT BUILD_GPU)
+# else()
+# TARGET_LINK_LIBRARIES (${var} cuda)
+# endif()
     # ADD_EXECUTABLE        (${EXES} "Plate-Yield.cpp")
     # TARGET_LINK_LIBRARIES (${EXES} ${LIBS} blitz)
     # SET_TARGET_PROPERTIES (${EXES} PROPERTIES COMPILE_FLAGS "${FLAGS}" LINK_FLAGS "${LFLAGS}")
