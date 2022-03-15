@@ -83,6 +83,8 @@ __device__ inline void Domain_d::CalcForce2233(
 	a[i]		=	make_double3(0.,0.,0.);
 	drho[i]	= 0.0;
 	
+	clear(RotationRateSum);
+	clear(StrainRateSum);
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
@@ -201,9 +203,9 @@ __device__ inline void Domain_d::CalcForce2233(
 		//StrainRate.yx = StrainRate.xy;
 		StrainRate.yy = 2.0*vab.y*xij.y;
 		StrainRate.yz = vab.y*xij.z+vab.z*xij.y;
-		//StrainRate.zx = StrainRate.xz;
-		//StrainRate.zy = StrainRate(1,2);
-		//StrainRate.zz = 2.0*vab.z*xij.z;
+		StrainRate.zx = StrainRate.xz;
+		StrainRate.zy = StrainRate.yz;
+		StrainRate.zz = 2.0*vab.z*xij.z;
 		//StrainRate	= (-0.5) * GK * StrainRate;
 		StrainRate	= StrainRate * (-0.5) * GK;
 		
@@ -212,6 +214,7 @@ __device__ inline void Domain_d::CalcForce2233(
 			// printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate.xx,StrainRate(1,1),StrainRate(2,2));
 		// }
 		// // Calculation rotation rate tensor
+		clear(RotationRate);
 		RotationRate.xy = vab.x*xij.y-vab.y*xij.x;
 		RotationRate.xz = vab.x*xij.z-vab.z*xij.x;
 		RotationRate.yz = vab.y*xij.z-vab.z*xij.y;
@@ -416,10 +419,7 @@ void __global__ /*inline*/ CalcForcesKernel(
 		//StrainRate	= (-0.5) * GK * StrainRate;
 		StrainRate	= StrainRate * ((-0.5) * GK);
 		
-		if (i==1250 /*|| j==1250*/){
-			printf("Time, i,j,vab, xij, GK: %d %d %f %f %f %f %f %f %f\n", i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
-			printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate.xx,StrainRate.yy,StrainRate.zz);
-		}
+		clear(RotationRate);
 		// // Calculation rotation rate tensor
 		RotationRate.xy = vab.x*xij.y-vab.y*xij.x;
 		RotationRate.xz = vab.x*xij.z-vab.z*xij.x;
@@ -430,7 +430,11 @@ void __global__ /*inline*/ CalcForcesKernel(
 		//RotationRate	  	= -0.5 * GK * RotationRate; //THIS OPERATOR FAILS
 		RotationRate	  	= RotationRate * (-0.5 * GK);
 		
-
+		if (i==1250 /*|| j==1250*/){
+			printf("Time, i,j,vab, xij, GK: %d %d %f %f %f %f %f %f %f\n", i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
+			printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate.xx,StrainRate.yy,StrainRate.zz);
+			printf("Rot Rate %d %d \n",i,j);print(RotationRate);
+		}
 		
 		double3 temp = make_double3(0.0);
 		double temp1 = 0.0;

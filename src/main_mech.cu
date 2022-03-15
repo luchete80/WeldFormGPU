@@ -21,6 +21,7 @@
 #include "Domain.h"
 
 #include "cuda/Domain_d.cuh" 
+#include "cuda/Mechanical.cu" 
 
 #define TAU		0.005
 #define VMAX	1.0
