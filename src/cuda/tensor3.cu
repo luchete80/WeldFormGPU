@@ -299,6 +299,26 @@ operator +(tensor3 const& T1, tensor3 const& T2)
   R.zz = T1.zz + T2.zz;
 	return R;
 }
+
+__spec
+tensor3
+operator -(tensor3 const& T1, tensor3 const& T2)
+{
+	tensor3 R;
+	R.xx = T1.xx - T2.xx;
+	R.xy = T1.xy - T2.xy;
+	R.xz = T1.xz - T2.xz;
+  
+	R.yx = T1.yx - T2.yx;
+	R.yy = T1.yy - T2.yy;
+	R.yz = T1.yz - T2.yz;
+	
+  R.zx = T1.zx - T2.zx;
+  R.zy = T1.zy - T2.zy;
+  R.zz = T1.zz - T2.zz;
+	return R;
+}
+
 // __device__ tensor3 tensor3::operator= (const double &f){
 	// tensor3 ret;
 	// for (int i=0;i<3;i++)

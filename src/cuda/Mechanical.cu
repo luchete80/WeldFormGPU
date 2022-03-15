@@ -302,10 +302,10 @@ __device__ void Domain_d::StressStrain(int i) {
 			
 		// Elastic prediction step (ShearStress_e n+1)
 		if (isfirst_step){
-			ShearStressa	= -deltat/2.0*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))* Identity())+SRT+RS) + ShearStress;
+			ShearStressa	= -deltat/2.0*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate.xx+StrainRate.yy+StrainRate.zz)* Identity())+SRT+RS) + ShearStress;
 		}
 		ShearStressb	= ShearStressa;
-		ShearStressa	= deltat*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate(0,0)+StrainRate(1,1)+StrainRate(2,2))*Identity())+SRT+RS) + ShearStressa;	
+		ShearStressa	= deltat*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate.xx+StrainRate.yy+StrainRate.zz)*Identity())+SRT+RS) + ShearStressa;	
 
 		// if (i==1250){
 		// printf("ShearStressA\n");ShearStressa.print();}
@@ -325,15 +325,15 @@ __device__ void Domain_d::StressStrain(int i) {
 		Strain	= 1.0/2.0*(Straina+Strainb);
 		
 		///// OUTPUT TO Flatten arrays
-		Sigma.ToFlatSymPtr(sigma,6*i);
+		Sigma = ToFlatSymPtr(sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM
 		
-		Strain.ToFlatSymPtr(strain,6*i);
-		Straina.ToFlatSymPtr(straina,6*i);
-		Strainb.ToFlatSymPtr(strainb,6*i);
+		Strain = ToFlatSymPtr(strain,6*i);
+		Straina = ToFlatSymPtr(straina,6*i);
+		Strainb = ToFlatSymPtr(strainb,6*i);
 		
-		ShearStress.ToFlatSymPtr(shearstress,6*i);
-		ShearStressa.ToFlatSymPtr(shearstressa,6*i);
-		ShearStressb.ToFlatSymPtr(shearstressb,6*i);
+		ShearStress = ToFlatSymPtr(shearstress,6*i);
+		ShearStressa = ToFlatSymPtr(shearstressa,6*i);
+		ShearStressb = ToFlatSymPtr(shearstressb,6*i);
 		
 		// if (i==1250){
 			// printf("particle 1250 Sigma\n");
