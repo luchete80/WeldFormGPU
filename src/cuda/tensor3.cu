@@ -265,7 +265,26 @@ __spec tensor3 operator* (const double &f, const tensor3 &b){
 	m_data.xx *= f;	m_data.xy *= f;	 m_data.xz *= f;	
   m_data.yx *= f;	 m_data.yy *= f;	 m_data.yz *= f;	
   m_data.zx *= f;	 m_data.zy *= f;	 m_data.zz *= f;	
-	return ret;
+	return m_data;
+}
+
+__spec
+tensor3
+operator +(tensor3 const& T1, tensor3 const& T2)
+{
+	tensor3 R;
+	R.xx = T1.xx + T2.xx;
+	R.xy = T1.xy + T2.xy;
+	R.xz = T1.xz + T2.xz;
+  
+	R.yx = T1.yx + T2.yx;
+	R.yy = T1.yy + T2.yy;
+	R.yz = T1.yz + T2.yz;
+	
+  R.zx = T1.zx + T2.zx;
+  R.zy = T1.zy + T2.zy;
+  R.zz = T1.zz + T2.zz;
+	return R;
 }
 
 // __device__ tensor3 tensor3::operator= (const double &f){
