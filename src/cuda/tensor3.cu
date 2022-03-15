@@ -291,20 +291,20 @@ __device__ tensor3 Trans (const tensor3 &m_data){
 	return ret;
 }
 
-__spec tensor3 operator* (const double &f, const tensor3 &b){
-	tensor3 m_data;
-	m_data.xx *= f;	m_data.xy *= f;	 m_data.xz *= f;	
-  m_data.yx *= f;	 m_data.yy *= f;	 m_data.yz *= f;	
-  m_data.zx *= f;	 m_data.zy *= f;	 m_data.zz *= f;	
-	return m_data;
+__spec tensor3 operator* (const double &f, const tensor3 &m_data){
+	tensor3 ret;
+	ret.xx = m_data.xx * f;	ret.xy = m_data.xy * f;	 ret.xz = m_data.xz * f;	
+	ret.yx = m_data.yx * f;	ret.yy = m_data.yy * f;	 ret.yz = m_data.yz * f;	
+	ret.zx = m_data.zx * f;	ret.zy = m_data.zy * f;	 ret.zz = m_data.zz * f;		
+	return ret;
 }
 
-__spec tensor3 operator* (const tensor3 &b, const double &f){
-	tensor3 m_data;
-	m_data.xx *= f;	m_data.xy *= f;	 m_data.xz *= f;	
-  m_data.yx *= f;	 m_data.yy *= f;	 m_data.yz *= f;	
-  m_data.zx *= f;	 m_data.zy *= f;	 m_data.zz *= f;	
-	return m_data;
+__spec tensor3 operator* (const tensor3 &m_data, const double &f){
+	tensor3 ret;
+	ret.xx = m_data.xx * f;	ret.xy = m_data.xy * f;	 ret.xz = m_data.xz * f;	
+	ret.yx = m_data.yx * f;	ret.yy = m_data.yy * f;	 ret.yz = m_data.yz * f;	
+	ret.zx = m_data.zx * f;	ret.zy = m_data.zy * f;	 ret.zz = m_data.zz * f;		
+	return ret;
 }
 
 __spec

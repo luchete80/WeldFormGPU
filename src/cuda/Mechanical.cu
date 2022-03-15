@@ -298,18 +298,19 @@ __device__ void Domain_d::StressStrain(int i) {
 		RS = RotationRate * ShearStress;
 
 		// if (i==1250){
-			// printf("StrainRate\n");StrainRate.print();
+			// printf("Stress Kernel, StrainRate\n");print(StrainRate);
+			// printf("Stress Kernel, Identity() before calc\n");print((StrainRate.xx+StrainRate.yy+StrainRate.zz)* Identity());
 			// printf("G, %f\n",G[i]);}
 			
 		// Elastic prediction step (ShearStress_e n+1)
 		if (isfirst_step){
-			ShearStressa	= -deltat/2.0*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate.xx+StrainRate.yy+StrainRate.zz)* Identity())+SRT+RS) + ShearStress;
+			ShearStressa	= -deltat/2.0*(2.0*G[i]*(StrainRate - 1.0/3.0*(StrainRate.xx+StrainRate.yy+StrainRate.zz)* Identity()) + SRT+RS) + ShearStress;
 		}
 		ShearStressb	= ShearStressa;
 		ShearStressa	= deltat*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate.xx+StrainRate.yy+StrainRate.zz)*Identity())+SRT+RS) + ShearStressa;	
 
 		// if (i==1250){
-		// printf("ShearStressA\n");ShearStressa.print();}
+		// printf("Stress Kernel ShearStressA\n");print(ShearStressa);}
 			
 		// //Fail, TODO
 		
@@ -328,7 +329,7 @@ __device__ void Domain_d::StressStrain(int i) {
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(Sigma, sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM
 		
-		ToFlatSymPtr(Strain, strain,6*i);
+		ToFlatSymPtr(Strain, 	strain,6*i);
 		ToFlatSymPtr(Straina, straina,6*i);
 		ToFlatSymPtr(Strainb, strainb,6*i);
 		
@@ -336,10 +337,10 @@ __device__ void Domain_d::StressStrain(int i) {
 		ToFlatSymPtr(ShearStressa, shearstressa,6*i);
 		ToFlatSymPtr(ShearStressb, shearstressb,6*i);
 		
-		if (i==1250){
-			printf("Stress Strain kernel, particle 1250 Sigma\n");
-			print(Sigma);
-		}
+		// if (i==1250){
+			// printf("Stress Strain kernel, particle 1250 Sigma\n");
+			// print(Sigma);
+		// }
 	}//particle count
 }
 
@@ -419,16 +420,16 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		//cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
 		//This was in Original LastCompAcceleration
 		clock_beg_int = clock();
-		//CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
-		CalcForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(
-																		a, drho,				//OUTPUT
-																		x, h, v,
-																		m, rho, FPMassC,
-																		Cs, P0,p, rho_0,
-																		neib_part, neib_offs,
-																		sigma,
-																		strrate, rotrate,
-																		 particle_count);
+		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
+		// CalcForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(
+																		// a, drho,				//OUTPUT
+																		// x, h, v,
+																		// m, rho, FPMassC,
+																		// Cs, P0,p, rho_0,
+																		// neib_part, neib_offs,
+																		// sigma,
+																		// strrate, rotrate,
+																		 // particle_count);
 		cudaDeviceSynchronize(); //REQUIRED!!!!
 		forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
 			
