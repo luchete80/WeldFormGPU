@@ -451,7 +451,7 @@ void __global__ /*inline*/ CalcForcesKernel(
 			//printf("mj /dj %f\n",mj_dj);
 			//Different function overloading than StrRate * mjdj
 			//tempt = StrainRate * mj_dj;
-			StrainRateSum += mj_dj * StrainRate;
+			StrainRateSum = StrainRateSum + mj_dj * StrainRate;
 
 		//}
 

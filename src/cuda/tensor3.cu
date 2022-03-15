@@ -58,6 +58,7 @@
 
 
 //Converts tensor to flat symm
+//TODO: CHECK IF THE RETURN VALUE IS IN PARAMETERS THIS IS FASTER
 __spec tensor3 FromFlatSym(double flat[]){
 	tensor3 ret;
   ret.xx = flat[0];		ret.yy = flat[1];		ret.zz = flat[2];
@@ -67,17 +68,21 @@ __spec tensor3 FromFlatSym(double flat[]){
 	
 	return ret;
 }
-// __device__ void tensor3::FromFlatAntiSym(double flat[]){
-	// for (int i=0;i<3;i++)
-		// m_data [i][i] = flat[i];
-	// m_data .xy = flat[3]; 
-	// m_data [1][2] = flat[4]; 
-	// m_data .xz = flat[5]; 
+
+__spec tensor3 FromFlatAntiSym(double flat[]){
+	tensor3 ret;
+  ret.xx = flat[0];		ret.yy = flat[1];		ret.zz = flat[2];  
+
+	ret.xy = flat[3]; 
+	ret.yz = flat[4]; 
+	ret.xz = flat[5]; 
 	
-	// m_data [1][0] = -flat[3]; 
-	// m_data [2][1] = -flat[4]; 
-	// m_data [2][0] = -flat[5]; 
-// }
+	ret.yx = -flat[3]; 
+	ret.zy = -flat[4]; 
+	ret.zx = -flat[5]; 
+  
+  return ret;
+}
 
 // __device__ void tensor3::FromFlatSymPtr(double *flat){
 	// for (int i=0;i<3;i++)
@@ -251,16 +256,24 @@ __spec double3 operator* (const double3 &v, const tensor3 &m_data){
 	// return ret;
 // }
 
-// __device__ tensor3 tensor3:: Trans (){
-	// tensor3 ret;
-	// for (int i=0;i<3;i++)
-		// for (int j=0;j<3;j++)
-			// ret.m_data[i][j] = m_data[j][i];
-	
-	// return ret;
-// }
+__device__ tensor3 Trans (const tensor3 &m_data){
+	tensor3 ret;
+	ret.xx = m_data.xx; 	ret.yy = m_data.yy; 	ret.zz = m_data.zz;
+	ret.xy = m_data.yx; 	ret.xz = m_data.zx; 	
+  ret.yx = m_data.xy;   ret.yz = m_data.zy; 	
+  ret.zx = m_data.xz; 	ret.zy = m_data.yz;	
+	return ret;
+}
 
 __spec tensor3 operator* (const double &f, const tensor3 &b){
+	tensor3 m_data;
+	m_data.xx *= f;	m_data.xy *= f;	 m_data.xz *= f;	
+  m_data.yx *= f;	 m_data.yy *= f;	 m_data.yz *= f;	
+  m_data.zx *= f;	 m_data.zy *= f;	 m_data.zz *= f;	
+	return m_data;
+}
+
+__spec tensor3 operator* (const tensor3 &b, const double &f){
 	tensor3 m_data;
 	m_data.xx *= f;	m_data.xy *= f;	 m_data.xz *= f;	
   m_data.yx *= f;	 m_data.yy *= f;	 m_data.yz *= f;	
@@ -286,7 +299,6 @@ operator +(tensor3 const& T1, tensor3 const& T2)
   R.zz = T1.zz + T2.zz;
 	return R;
 }
-
 // __device__ tensor3 tensor3::operator= (const double &f){
 	// tensor3 ret;
 	// for (int i=0;i<3;i++)

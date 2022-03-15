@@ -5,7 +5,7 @@
 #include <chrono>
 //#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
 #include <ctime> //Clock
-
+#include "tensor3.cu" //INLINE
 //For Writing file
 
 using namespace std;
@@ -283,15 +283,15 @@ __device__ void Domain_d::StressStrain(int i) {
 			tempssa[k]= shearstressa[6*i+k];
 			tempssb[k]= shearstressb[6*i+k];			
 		}
-		ShearStress.FromFlatSym (tempss);
-		ShearStressa.FromFlatSym(tempssa);
-		ShearStressb.FromFlatSym(tempssb);
+		ShearStress   = FromFlatSym (tempss);
+		ShearStressa  = FromFlatSym(tempssa);
+		ShearStressb  = FromFlatSym(tempssb);
 		
-		StrainRate.FromFlatSym(tempsr);
-		RotationRate.FromFlatAntiSym(temprr);
+		StrainRate    = FromFlatSym(tempsr);
+		RotationRate  = FromFlatAntiSym(temprr);
 
 		
-		RotationRateT = RotationRate.Trans();
+		RotationRateT = Trans(RotationRate);
 		
 		SRT = ShearStress * RotationRateT;
 		RS = RotationRate * ShearStress;
