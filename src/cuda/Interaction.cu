@@ -394,7 +394,9 @@ void __global__ /*inline*/ CalcForcesKernel(
 		
 		Sigmai = FromFlatSym(tempi);
 		Sigmaj = FromFlatSym(tempj);
-
+		if (i==1250){
+			printf("Sigma i\n");print(Sigmai);
+		}
 		double3 vab = make_double3(0.0);
 		//if (IsFree[i]*IsFree[j]) {
 			vab = vij;
@@ -416,10 +418,10 @@ void __global__ /*inline*/ CalcForcesKernel(
 		//StrainRate	= (-0.5) * GK * StrainRate;
 		StrainRate	= StrainRate * ((-0.5) * GK);
 		
-		// if (i==1250 /*|| j==1250*/){
-			// printf("Time, i,j,vab, xij, GK: %.4e %d %d %f %f %f %f %f %f %f\n",Time, i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
-			// printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate.xx,StrainRate(1,1),StrainRate(2,2));
-		// }
+		if (i==1250 /*|| j==1250*/){
+			printf("Time, i,j,vab, xij, GK: %d %d %f %f %f %f %f %f %f\n", i,j,vab.x,vab.y,vab.z, xij.x,xij.y,xij.z, GK);
+			printf("Strain Rate %d %d %f %f %f\n",i,j,StrainRate.xx,StrainRate.yy,StrainRate.zz);
+		}
 		// // Calculation rotation rate tensor
 		RotationRate.xy = vab.x*xij.y-vab.y*xij.x;
 		RotationRate.xz = vab.x*xij.z-vab.z*xij.x;
@@ -463,12 +465,12 @@ void __global__ /*inline*/ CalcForcesKernel(
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(RotationRateSum, rotrate,6*i);
 		ToFlatSymPtr(StrainRateSum, strrate,6*i);	//Is the same for antisymm, stores upper diagonal
-		// if (i==1250){
-			// printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRateSum.xx,StrainRateSum(1,1),StrainRateSum(2,2));
-			// printf("Accel: %f %f %f\n",a[i].x,a[i].y,a[i].z);
-			// printf("Disp: %f %f %f\n",u[i].x,u[i].y,u[i].z);
-			// printf("drho %f\n",drho[i]);
-		// }
+		if (i==1250){
+			printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRateSum.xx,StrainRateSum.yy,StrainRateSum.zz);
+			printf("Accel: %f %f %f\n",a[i].x,a[i].y,a[i].z);
+			//printf("Disp: %f %f %f\n",u[i].x,u[i].y,u[i].z);
+			printf("drho %f\n",drho[i]);
+		}
 	}//i < partcount
 }
 

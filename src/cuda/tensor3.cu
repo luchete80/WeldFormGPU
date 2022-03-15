@@ -102,7 +102,7 @@ __spec void ToFlatSymPtr(const tensor3 &m_data, double *flat, int initial){
 __spec tensor3 Identity(){
 	tensor3 ret;
 	ret.xx = ret.yy = ret.zz = 1.;
-	ret.xy = ret.xz = ret.yx = ret.yz = ret.zx = ret.zy = 1.;
+	ret.xy = ret.xz = ret.yx = ret.yz = ret.zx = ret.zy = 0.;
 	//ret[1][1]=ret[2][2]=1.;
 	
 	return ret;
@@ -390,12 +390,12 @@ operator -(tensor3 const& T1, tensor3 const& T2)
 			
 // }
 
-// __device__ void tensor3::print(){
-	// printf("[%f %f %f],\n[%f %f %f],\n[%f %f %f].\n",
-	// m_data.xx,m_data.xy,m_data.xz,
-	// m_data[1][0],m_data[1][1],m_data[1][2],
-	// m_data[2][0],m_data[2][1],m_data[2][2]);
-// }
+__spec void print(const tensor3 &m_data){
+	printf("[%f %f %f],\n[%f %f %f],\n[%f %f %f].\n",
+	m_data.xx,m_data.xy,m_data.xz,
+	m_data.yx,m_data.yy,m_data.yz,
+	m_data.zx,m_data.zy,m_data.zz);
+}
 
 #undef __spec
 

@@ -336,10 +336,10 @@ __device__ void Domain_d::StressStrain(int i) {
 		ToFlatSymPtr(ShearStressa, shearstressa,6*i);
 		ToFlatSymPtr(ShearStressb, shearstressb,6*i);
 		
-		// if (i==1250){
-			// printf("particle 1250 Sigma\n");
-			// Sigma.print();
-		// }
+		if (i==1250){
+			printf("Stress Strain kernel, particle 1250 Sigma\n");
+			print(Sigma);
+		}
 	}//particle count
 }
 
