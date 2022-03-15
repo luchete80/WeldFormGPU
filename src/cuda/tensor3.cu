@@ -92,7 +92,7 @@ __spec tensor3 FromFlatAntiSym(double flat[]){
 	// m_data .xz = m_data [2][0] = flat[5]; 
 // }
 
-__spec void ToFlatSymPtr(tensor3 m_data, double *flat, int initial){
+__spec void ToFlatSymPtr(const tensor3 &m_data, double *flat, int initial){
 	flat [initial + 0] = m_data.xx; flat [initial + 1] = m_data .yy; flat [initial + 2] = m_data.zz;
   flat [initial + 3] = m_data.xy;
   flat [initial + 4] = m_data.yz;
@@ -106,6 +106,15 @@ __spec tensor3 Identity(){
 	//ret[1][1]=ret[2][2]=1.;
 	
 	return ret;
+}
+
+__spec
+void
+clear(tensor3& T)
+{
+	T.xx = T.xy = T.xz =
+	T.yx = T.yy = T.yz = 
+	T.zx = T.zy = T.zz = 0.0f;
 }
 
 /**** Methods for loading/storing tensors from textures and array ****/
@@ -228,6 +237,23 @@ __spec double3 operator* (const double3 &v, const tensor3 &m_data){
 	ret.z = m_data.zx*v.x+m_data.zy*v.y+m_data.zz*v.z;	
 	return ret;
 }
+
+__spec tensor3 operator* (const tensor3 &a, const tensor3 &b){
+	tensor3 ret;
+	ret.xx = a.xx*b.xx + a.xy * b.yx + a.xz * b.zx;	
+	ret.xy = a.xx*b.yx + a.xy * b.yy + a.xz * b.yz;
+	ret.xz = a.xx*b.zx + a.xy * b.zy + a.xz * b.zz;
+	
+	ret.yx = a.yx*b.xx + a.yy * b.yx + a.yz * b.zx;	
+	ret.yy = a.yx*b.yx + a.yy * b.yy + a.yz * b.yz;
+	ret.yz = a.yx*b.zx + a.yy * b.zy + a.yz * b.zz;
+	
+	ret.zx = a.zx*b.xx + a.zy * b.yx + a.zz * b.zx;	
+	ret.zy = a.zx*b.yx + a.zy * b.yy + a.zz * b.yz;
+	ret.zz = a.zx*b.zx + a.zy * b.zy + a.zz * b.zz;
+	return ret;
+}
+
 
 // __device__ tensor3 tensor3::operator*= (const double &v){
 	// tensor3 ret;

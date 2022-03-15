@@ -351,6 +351,9 @@ void __global__ /*inline*/ CalcForcesKernel(
 	tensor3 StrainRate,RotationRate;
 	tensor3 StrainRateSum,RotationRateSum;
 	
+	clear(StrainRateSum);
+	clear(RotationRateSum);
+	
 	a[i]		=	make_double3(0.,0.,0.);
 	drho[i]	= 0.0;
 	

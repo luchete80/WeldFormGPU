@@ -78,7 +78,7 @@ add_executable(gpuweldform
 													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
 													cuda/Domain_d.cu
 													#cuda/tensor.cu
-													cuda/Interaction.cu
+													#cuda/Interaction.cu
 													cuda/Mechanical.cu
 													cuda/Thermal.cu
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL

@@ -6,6 +6,7 @@
 //#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
 #include <ctime> //Clock
 #include "tensor3.cu" //INLINE
+#include "Interaction.cu"
 //For Writing file
 
 using namespace std;
@@ -325,15 +326,15 @@ __device__ void Domain_d::StressStrain(int i) {
 		Strain	= 1.0/2.0*(Straina+Strainb);
 		
 		///// OUTPUT TO Flatten arrays
-		Sigma = ToFlatSymPtr(sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM
+		ToFlatSymPtr(Sigma, sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM
 		
-		Strain = ToFlatSymPtr(strain,6*i);
-		Straina = ToFlatSymPtr(straina,6*i);
-		Strainb = ToFlatSymPtr(strainb,6*i);
+		ToFlatSymPtr(Strain, strain,6*i);
+		ToFlatSymPtr(Straina, straina,6*i);
+		ToFlatSymPtr(Strainb, strainb,6*i);
 		
-		ShearStress = ToFlatSymPtr(shearstress,6*i);
-		ShearStressa = ToFlatSymPtr(shearstressa,6*i);
-		ShearStressb = ToFlatSymPtr(shearstressb,6*i);
+		ToFlatSymPtr(ShearStress, shearstress,6*i);
+		ToFlatSymPtr(ShearStressa, shearstressa,6*i);
+		ToFlatSymPtr(ShearStressb, shearstressb,6*i);
 		
 		// if (i==1250){
 			// printf("particle 1250 Sigma\n");
