@@ -48,7 +48,6 @@ enum Kernels_Type { Qubic_Spline=0, Quintic=1, Quintic_Spline=2 ,Hyperbolic_Spli
 enum Viscosity_Eq_Type { Morris=0, Shao=1, Incompressible_Full=2, Takeda=3 };
 enum Gradient_Type { Squared_density=0, Multiplied_density=1 };
 
-#include <cuNSearch.h>
 
 namespace SPH {
 

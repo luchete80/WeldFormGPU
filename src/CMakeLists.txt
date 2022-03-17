@@ -8,7 +8,7 @@ project (gpuweldform LANGUAGES CXX CUDA)
 include_directories(${PROJECT_SOURCE_DIR})
 #include_directories(Source_cuda/CuNSearch/include)
 #include_directories(${CUNSEARCH_SRC_DIR}/External)
-include_directories(${CUNSEARCH_SRC_DIR}/Utils)
+
 #link_directories(${CUNSEARCH_LIB_DIR})
 # target_link_libraries (gpuweldform cuNSearch )
 
