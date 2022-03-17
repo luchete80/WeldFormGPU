@@ -213,7 +213,7 @@ class Domain_d
 	__device__ void ApplyBCVel(int bcid, 
 														double3 bcv);
 	__host__ void WriteCSV(char const * FileKey);
-	__host__ void AdaptiveTimeStep();
+	__device__ inline void AdaptiveTimeStep();
  ////////////////////////
 	
 

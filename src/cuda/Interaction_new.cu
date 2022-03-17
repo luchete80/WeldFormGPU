@@ -85,6 +85,7 @@ __device__ inline void Domain_d::CalcForce2233(
 	
 	clear(RotationRateSum);
 	clear(StrainRateSum);
+	int offset_id = 6*i; //TODO: PASS AS ARGUMENT AND SEE DIFF
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
@@ -124,32 +125,32 @@ __device__ inline void Domain_d::CalcForce2233(
 		tensor3 PIij;
 		//set_to_zero(PIij);
 
-		if (Alpha!=0.0 || Beta!=0.0)
-		{
-			double MUij = h_*dot(vij,xij)/(rij*rij+0.01*h_*h_);					///<(2.75) Li, Liu Book
-			double Cij;
-			double Ci,Cj;
-			if (!IsFree[i]) Ci = SoundSpeed(PresEq[j], Cs[j], di, rho_0[j]); else Ci = SoundSpeed(PresEq[i], Cs[i], di, rho_0[i]);
-			if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], Cs[j], dj, rho_0[j]);
-			Cij = 0.5*(Ci+Cj);
+		// if (Alpha!=0.0 || Beta!=0.0)
+		// {
+			// double MUij = h_*dot(vij,xij)/(rij*rij+0.01*h_*h_);					///<(2.75) Li, Liu Book
+			// double Cij;
+			// double Ci,Cj;
+			// if (!IsFree[i]) Ci = SoundSpeed(PresEq[j], Cs[j], di, rho_0[j]); else Ci = SoundSpeed(PresEq[i], Cs[i], di, rho_0[i]);
+			// if (!IsFree[j]) Cj = SoundSpeed(PresEq[j], Cs[i], dj, rho_0[i]); else Cj = SoundSpeed(PresEq[j], Cs[j], dj, rho_0[j]);
+			// Cij = 0.5*(Ci+Cj);
 			
-			//printf("C %f %f\n",Ci,Cj);
-			if (dot(vij,xij)<0) 
-				PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
-		}
+			// //printf("C %f %f\n",Ci,Cj);
+			// if (dot(vij,xij)<0) 
+				// PIij = (Alpha*Cij*MUij+Beta*MUij*MUij)/(0.5*(di+dj)) * Identity();		///<(2.74) Li, Liu Book
+		// }
 		
 		//printf("i %d, Ti %f\n",i, T[i]);
 		
 		tensor3 Sigma,Sigmaj,Sigmai;
 		// set_to_zero(Sigmaj);
 		// set_to_zero(Sigmai);
-		
+
 		//TODO: CONVERT FLATTENED ARRAY TO TENSOR
 		//TODO: Avoid temp array conversion and test
 		double tempi[6],tempj[6];
 		for (int k=0;k<6;k++){ //First the diagonal
-			tempi[k]=sigma[6*i+k];
-			tempj[k]=sigma[6*j+k];
+			tempi[k]=sigma[offset_id+k];
+			tempj[k]=sigma[offset_id+k];
 		}
 		
 		Sigmai = FromFlatSym(tempi);
@@ -249,7 +250,7 @@ __device__ inline void Domain_d::CalcForce2233(
 		// if (i == 1250)
 			// printf("Particle 1250 Time %.4e, Sigmaizz %f , Sigmajzz %f\n",Time, Sigmai(2,2),Sigmaj(2,2));
 		tensor3 test = (1.0/(di*di))*Sigmai + (1.0/(dj*dj))*Sigmaj ;
-		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /*+ TIij */) * (GK*xij);		
+		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij + TIij */) * (GK*xij);		
 		double3 gkxij = GK*xij;
 		//if (i==1250 ){
 			// printf("i %d,j %d,Sigmai, Sigmaj \n",i,j);Sigmai.print();Sigmaj.print();
@@ -288,7 +289,7 @@ __device__ inline void Domain_d::CalcForce2233(
 		// if (P1->Shepard)
 			// if (P1->ShepardCounter == P1->ShepardStep)
 				// P1->SumDen += mj*    K;
- 
+
 	
 		// THIS IS THE ORIGINAL
 		// Locking the particle 2 for updating the properties
@@ -314,10 +315,10 @@ __device__ inline void Domain_d::CalcForce2233(
 		}//neibcount
 
 		///// OUTPUT TO Flatten arrays
-		ToFlatSymPtr(RotationRateSum,rotrate,6*i);
-		ToFlatSymPtr(StrainRateSum, strrate,6*i);	//Is the same for antisymm, stores upper diagonal
+		ToFlatSymPtr(RotationRateSum,rotrate,offset_id);
+		ToFlatSymPtr(StrainRateSum, strrate,offset_id);	//Is the same for antisymm, stores upper diagonal
 		// if (i==1250){
-			// printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRateSum.xx,StrainRateSum(1,1),StrainRateSum(2,2));
+			// //printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRateSum.xx,StrainRateSum(1,1),StrainRateSum(2,2));
 			// printf("Accel: %f %f %f\n",a[i].x,a[i].y,a[i].z);
 			// printf("Disp: %f %f %f\n",u[i].x,u[i].y,u[i].z);
 			// printf("drho %f\n",drho[i]);
