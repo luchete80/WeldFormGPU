@@ -335,10 +335,12 @@ __device__ void Domain_d::StressStrain(int i) {
 		ShearStressa.ToFlatSymPtr(shearstressa,6*i);
 		ShearStressb.ToFlatSymPtr(shearstressb,6*i);
 		
-		// if (i==1250){
-			// printf("particle 1250 Sigma\n");
-			// Sigma.print();
-		// }
+		if (i==1250){
+			printf("particle 1250 Sigma\n");
+			Sigma.print();
+			printf("particle 1250 ShearStress\n");
+			ShearStress.print();
+		}
 	}//particle count
 }
 
@@ -418,16 +420,16 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		//cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
 		//This was in Original LastCompAcceleration
 		clock_beg_int = clock();
-		//CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
-		CalcForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(
-																		a, drho,				//OUTPUT
-																		x, h, v,
-																		m, rho, FPMassC,
-																		Cs, P0,p, rho_0,
-																		neib_part, neib_offs,
-																		sigma,
-																		strrate, rotrate,
-																		 particle_count);
+		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
+		// CalcForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(
+																		// a, drho,				//OUTPUT
+																		// x, h, v,
+																		// m, rho, FPMassC,
+																		// Cs, P0,p, rho_0,
+																		// neib_part, neib_offs,
+																		// sigma,
+																		// strrate, rotrate,
+																		 // particle_count);
 		cudaDeviceSynchronize(); //REQUIRED!!!!
 		forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
 			
