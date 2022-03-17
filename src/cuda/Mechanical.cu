@@ -326,6 +326,12 @@ __device__ void Domain_d::StressStrain(int i) {
 		Straina	= deltat*StrainRate + Straina;
 		Strain	= 1.0/2.0*(Straina+Strainb);
 		
+		double J2	= 0.5*(ShearStress.xx*ShearStress.xx + 2.0*ShearStress.xy*ShearStress.yx +
+					2.0*ShearStress.xz*ShearStress.zx + ShearStress.yy*ShearStress.yy +
+					2.0*ShearStress.yz*ShearStress.zy + ShearStress.zz*ShearStress.zz);
+	
+		sigma_eq[i] = sqrt(3.0*J2);	
+		
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(Sigma, sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM
 		
@@ -476,9 +482,12 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		Time +=deltat;
 		
 		if (Time >= t_out) {		
+			cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+			
 			t_out += dt_out;
 			time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
 			cout << "Time "<<Time<<", GPU time "<<time_spent<<endl;

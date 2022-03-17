@@ -156,6 +156,8 @@ class Domain_d
 	double *shearstress,*shearstressa,*shearstressb;
 	double *strain,*straina,*strainb;
 	
+	double *sigma_eq, *sigma_eq_h;
+	
 	//Be in another class
 	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
 		

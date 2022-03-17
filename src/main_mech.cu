@@ -334,7 +334,8 @@ int main(int argc, char **argv) //try
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	
         // return 0;
-	WriteCSV("test.csv", x, dom_d->u_h, dom.Particles.size());
+	//WriteCSV("test.csv", x, dom_d->u_h, dom.Particles.size());
+	dom_d->WriteCSV("test.csv");
 	
 	cudaFree(dom_d);
 	//report_gpu_mem();

@@ -384,6 +384,7 @@ inline void Domain::WriteXDMF (char const * FileKey)
     // of.close();
 }
 
+
 inline void Domain::WriteCSV(char const * FileKey)
 {
 	//type definition to shorten coding

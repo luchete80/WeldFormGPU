@@ -37,6 +37,7 @@ void Domain_d::SetDimension(const int &particle_count){
 	v_h =  new double3 [particle_count];
 	u_h =  new double3 [particle_count];
 	a_h =  new double3 [particle_count];
+	sigma_eq_h =  new double [particle_count];
 	
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
 	//printf("Size of dTdt: %d, particle count %d\n",sizeof(dTdt)/sizeof (double),particle_count);
@@ -85,6 +86,9 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&shearstressa	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
 	cudaMalloc((void **)&shearstressb	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
 
+	cudaMalloc((void **)&sigma_eq		, particle_count  * sizeof (double));		
+
+	
 	cudaMalloc((void **)&strain		, particle_count  * 6 * sizeof (double));		
 	cudaMalloc((void **)&straina	, particle_count  * 6 * sizeof (double));		
 	cudaMalloc((void **)&strainb	, particle_count  * 6 * sizeof (double));		
@@ -293,12 +297,16 @@ Domain_d::~Domain_d(){
 void Domain_d::WriteCSV(char const * FileKey){
 	FILE *f = fopen(FileKey,"w");;
 	
-	fprintf(f, "X, Y, Z\n");
+	fprintf(f, "X, Y, Z, Vx, Vy, Vz, Ax, Ay, Az, SigmaEq\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%f, %f, %f\n",a_h[i].x,a_h[i].y,a_h[i].z);
+		fprintf(f,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f \n",
+							x_h[i].x,x_h[i].y,x_h[i].z, 
+							v_h[i].x,v_h[i].y,v_h[i].z, 
+							a_h[i].x,a_h[i].y,a_h[i].z, 
+						sigma_eq_h[i]);
 		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
 		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;
 	}
@@ -328,5 +336,33 @@ __device__ inline void Domain_d::AdaptiveTimeStep(){
 		}
 		
 }
+
+// THIS SHOULD BE DONE
+	// if (deltatint>deltatmin)
+	// {
+		// if (deltat<deltatmin)
+			// deltat		= 2.0*deltat*deltatmin/(deltat+deltatmin);
+		// else
+			// deltat		= deltatmin;
+	// }
+	// else
+	// {
+		// if (deltatint!=deltat)
+			// deltat		= 2.0*deltat*deltatint/(deltat+deltatint);
+		// else
+			// deltat		= deltatint;
+	// }
+	
+	// if (contact){
+		// if (min_force_ts < deltat)
+		// //cout << "Step size changed minimum Contact Forcess time: " << 	min_force_ts<<endl;
+		// deltat = min_force_ts;
+	// }
+
+	// if (deltat<(deltatint/1.0e5))
+		// //cout << "WARNING: Too small time step, please choose a smaller time step initially to make the simulation more stable"<<endl;
+		// throw new Fatal("Too small time step, please choose a smaller time step initially to make the simulation more stable");
+// }
+
 
 };//SPH
