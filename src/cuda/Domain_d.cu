@@ -306,21 +306,26 @@ void Domain_d::WriteCSV(char const * FileKey){
  fclose(f);
 }
 
+__global__ void AdaptiveTimeStep(Domain_d *dom){
+	
+	dom->AdaptiveTimeStep();
+}
 //TODO: CHANGE TO MECH
 __device__ inline void Domain_d::AdaptiveTimeStep(){
+		int i = threadIdx.x + blockDim.x*blockIdx.x;
 		// //Min time step check based on the acceleration
-		// double test	= 0.0;
-		// deltatmin	= deltatint;
+		double test	= 0.0;
+		deltatmin	= deltatint;
+		float sqrt_h_a = 0.0025;
+		//Appears to be safe
+		//https://stackoverflow.com/questions/8416374/several-threads-writing-the-same-value-in-the-same-global-memory-location
 
-		// if (IsFree[i]) {
-			// test = sqrt(h[i]/norm(Particles[i]->a));
-			// if (deltatmin > (sqrt_h_a*test))
-			// {
-				// omp_set_lock(&dom_lock);
-					// deltatmin = sqrt_h_a*test;
-				// omp_unset_lock(&dom_lock);
-			// }
-		// }
+		if (IsFree[i]) {
+			test = sqrt(h[i]/length(a[i]));
+			if (deltatmin > (sqrt_h_a*test)) {
+					deltatmin = sqrt_h_a*test;
+			}
+		}
 		
 }
 

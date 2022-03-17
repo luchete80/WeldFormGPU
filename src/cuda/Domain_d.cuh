@@ -309,6 +309,8 @@ __global__ void ApplyBCVelKernel (Domain_d *dom, int bcid, double3 bcv);
 
 __global__ void StressStrainKernel(Domain_d *dom);
 
+__global__ void AdaptiveTimeStep(Domain_d *dom);
+
 	/* const double &Dimension*/
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
