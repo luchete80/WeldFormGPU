@@ -200,9 +200,9 @@ __device__ __forceinline__ void Domain_d::LastComputeAcceleration(){
 __global__ void PressureKernelExt(double *p, double *PresEq, double *Cs, double *P0,double *Density, double *RefDensity, int particle_count){
 	
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
-	// if (i == 1250){
-		// printf("PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]: %f %f %f %f %f \n",PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]);
-	// }
+	if (i == 1250){
+		printf("PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]: %f %f %f %f %f \n",PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]);
+	}
 	if ( i < particle_count ) {	
 		p[i] = EOS(PresEq[i], Cs[i], P0[i],Density[i], RefDensity[i]); //CALL BEFORE!
 	}
@@ -316,9 +316,10 @@ __device__ void Domain_d::StressStrain(int i) {
 		
 		ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
-		// if (i == 1250){
-			// printf("Time %.4e Particle 1250, pressure %f , ShearStresszz %f Sigmazz %f\n",Time, p[i], ShearStress(2,2), Sigma(2,2));
-		// }
+		if (i == 1250){
+			printf("Time %.4e Particle 1250, pressure %f , ShearStresszz %f Sigma \n",Time, p[i], ShearStress.zz);
+			print(Sigma);
+		}
 		
 		if (isfirst_step)
 			Straina	= -deltat/2.0*StrainRate + Strain;

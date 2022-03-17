@@ -249,7 +249,7 @@ __device__ inline void Domain_d::CalcForce2233(
 		// if (i == 1250)
 			// printf("Particle 1250 Time %.4e, Sigmaizz %f , Sigmajzz %f\n",Time, Sigmai(2,2),Sigmaj(2,2));
 		tensor3 test = (1.0/(di*di))*Sigmai + (1.0/(dj*dj))*Sigmaj ;
-		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /*+ TIij */) * (GK*xij);		
+		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij /* TIij */) * (GK*xij);		
 		double3 gkxij = GK*xij;
 		//if (i==1250 ){
 			// printf("i %d,j %d,Sigmai, Sigmaj \n",i,j);Sigmai.print();Sigmaj.print();
@@ -316,12 +316,12 @@ __device__ inline void Domain_d::CalcForce2233(
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(RotationRateSum,rotrate,6*i);
 		ToFlatSymPtr(StrainRateSum, strrate,6*i);	//Is the same for antisymm, stores upper diagonal
-		// if (i==1250){
-			// printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRateSum.xx,StrainRateSum(1,1),StrainRateSum(2,2));
-			// printf("Accel: %f %f %f\n",a[i].x,a[i].y,a[i].z);
-			// printf("Disp: %f %f %f\n",u[i].x,u[i].y,u[i].z);
-			// printf("drho %f\n",drho[i]);
-		// }
+		if (i==1250){
+			//printf("TOTAL (SUM) Strain Rate part %d %f %f %f\n",i, StrainRateSum.xx,StrainRateSum(1,1),StrainRateSum(2,2));
+			printf("Accel: %f %f %f\n",a[i].x,a[i].y,a[i].z);
+			printf("Disp: %f %f %f\n",u[i].x,u[i].y,u[i].z);
+			printf("drho %f\n",drho[i]);
+		}
 	}//i < partcount
 }
 
