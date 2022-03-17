@@ -145,6 +145,9 @@ void __global__ MoveKernelExt(double3 *v, double3 *va, double3 *vb,
 	rhob[i] = rho[i];
 	rhoa[i] += dt*drho[i];
 	rho[i] = (rhoa[i]+rhob[i])/2.0;
+	if (i==1250){
+		printf("Move. particle 1250 rho %f rhoa %f rhob %f\n",rho[i],rhoa[i],rhob[i]);
+	}
 	vb[i] = 	va[i];
 	va[i] += dt*a[i];
 	v[i] = (va[i] + vb[i])/2.0;
