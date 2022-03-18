@@ -179,8 +179,20 @@ class Domain_d
 	double3 	*NSv;	///< Velocity of the fixed particle for no-slip BC
 	
 	int 			*ID;
-
-		/// FUNCTIONS
+	
+	
+	////////////////////////////////////
+	/////// CONTACT THINGS /////////////
+	////////////////////////////////////
+	double 	max_contact_force;
+	double3 normal; 
+	int **contneib;	//array of lists
+	int *contneib_part;	//1D array, faster
+	int *contneib_offs;	//Offset or count
+	double3 *contforce;	//SOA
+	
+	/////////////////////////////////////////
+	///////// MEMBER FUNCTIONS /////////////
 	Domain_d(){isfirst_step=true;};
 	Domain_d(const int &particle_count);
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
