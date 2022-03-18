@@ -455,34 +455,6 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		//Save before move (to be changed)
 
 		
-		//Move particle and then calculate streses and strains ()
-		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
-														rho, rhoa, rhob, drho,
-														x, a,
-														u, /*Mat3_t I, */deltat,
-														isfirst_step, particle_count);	
-		cudaDeviceSynchronize(); //REQUIRED!!!!
-		
-
-		//If kernel is the external, calculate pressure
-		//Calculate pressure!
-		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
-		cudaDeviceSynchronize();
-		// StressStrainExtKernel(sigma,	//OUTPUT
-																									// double *strain,*straina,*strainb, //OUTPUT
-																									// //INPUT
-																									// double *p, double *rotrate, 
-																									// double* shearstress,double* shearstressa, double* shearstressb,
-												
-																									// double dt, int particle_count);
-		clock_beg_int = clock();
-		StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
-		cudaDeviceSynchronize();
-		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
-		
-		if (isfirst_step) isfirst_step = false;
-		Time +=deltat;
-		
 		if (Time >= t_out) {		
 			cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
@@ -510,7 +482,34 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			}
 			cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
 		}
+
+		//Move particle and then calculate streses and strains ()
+		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
+														rho, rhoa, rhob, drho,
+														x, a,
+														u, /*Mat3_t I, */deltat,
+														isfirst_step, particle_count);	
+		cudaDeviceSynchronize(); //REQUIRED!!!!
 		
+
+		//If kernel is the external, calculate pressure
+		//Calculate pressure!
+		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
+		cudaDeviceSynchronize();
+		// StressStrainExtKernel(sigma,	//OUTPUT
+																									// double *strain,*straina,*strainb, //OUTPUT
+																									// //INPUT
+																									// double *p, double *rotrate, 
+																									// double* shearstress,double* shearstressa, double* shearstressb,
+												
+																									// double dt, int particle_count);
+		clock_beg_int = clock();
+		StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+		cudaDeviceSynchronize();
+		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
+		
+		if (isfirst_step) isfirst_step = false;
+		Time +=deltat;		
 		
 		//TODO: Pass toPartData
 		//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);
