@@ -119,6 +119,7 @@ class Domain_d
 	double					deltat;					//Time Step
 	double					deltatmin;			//Minimum Time Step
 	double					deltatint;			//Initial Time Step
+	double 					sqrt_h_a;
 	
 	bool						auto_ts;
 
@@ -215,7 +216,8 @@ class Domain_d
 	__device__ void ApplyBCVel(int bcid, 
 														double3 bcv);
 	__host__ void WriteCSV(char const * FileKey);
-	__device__ inline void AdaptiveTimeStep();
+	__device__ void CalcMinTimeStep();
+	__host__ void AdaptiveTimeStep();
  ////////////////////////
 	
 
@@ -311,7 +313,7 @@ __global__ void ApplyBCVelKernel (Domain_d *dom, int bcid, double3 bcv);
 
 __global__ void StressStrainKernel(Domain_d *dom);
 
-__global__ void AdaptiveTimeStep(Domain_d *dom);
+__global__ void CalcMinTimeStepKernel(Domain_d *dom);
 
 	/* const double &Dimension*/
 

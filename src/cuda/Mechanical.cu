@@ -320,10 +320,10 @@ __device__ void Domain_d::StressStrain(int i) {
 		
 		ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
-		// if (i == 1250){
-			// printf("Time %.4e Particle 1250, pressure %f , ShearStresszz %f Sigma \n",Time, p[i], ShearStress.zz);
-			// print(Sigma);
-		// }
+		if (i == 1250){
+			printf("Time %.4e Particle 1250, pressure %f , ShearStresszz %f Sigma \n",Time, p[i], ShearStress.zz);
+			print(Sigma);
+		}
 		
 		if (isfirst_step)
 			Straina	= -deltat/2.0*StrainRate + Strain;
@@ -485,6 +485,14 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			}
 			cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
 		}
+		
+
+		if (auto_ts){
+			CalcMinTimeStepKernel<<< blocksPerGrid,threadsPerBlock >>> (this);
+			cudaDeviceSynchronize();
+			AdaptiveTimeStep();
+			cout << "Auto TS is on. Time Step size: "<<deltat<<endl;
+		}
 
 		//Move particle and then calculate streses and strains ()
 		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
@@ -519,7 +527,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 
 		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
 		step ++;
-		//cout<<"--------------------------- END STEP, Time"<<Time <<", --------------------------"<<endl; 
+		cout<<"--------------------------- END STEP, Time"<<Time <<", --------------------------"<<endl; 
 	}//while <tf
 
 	time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;

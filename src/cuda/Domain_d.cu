@@ -121,6 +121,11 @@ void Domain_d::SetDimension(const int &particle_count){
 	Alpha= 1.;
 	auto_ts = true;
 	
+	deltat	= 0.0;
+	deltatint	= 0.0;
+	deltatmin	= 0.0;
+	sqrt_h_a = 0.0025;	
+	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
 }
 
@@ -318,13 +323,16 @@ void Domain_d::WriteCSV(char const * FileKey){
  fclose(f);
 }
 
-__global__ void AdaptiveTimeStep(Domain_d *dom){
+__global__ void CalcMinTimeStepKernel(Domain_d *dom){
 	
-	dom->AdaptiveTimeStep();
+	dom->CalcMinTimeStep();	//Stablish deltatmin based on acceleration
+	
 }
+
 //TODO: CHANGE TO MECH
-__device__ inline void Domain_d::AdaptiveTimeStep(){
+__device__ void Domain_d::CalcMinTimeStep(){
 		int i = threadIdx.x + blockDim.x*blockIdx.x;
+		//THIS WAS IN LASTCOMPUTEACCELERATION original code
 		// //Min time step check based on the acceleration
 		double test	= 0.0;
 		deltatmin	= deltatint;
@@ -338,7 +346,21 @@ __device__ inline void Domain_d::AdaptiveTimeStep(){
 					deltatmin = sqrt_h_a*test;
 			}
 		}
-		
+				
+}
+
+__host__ void Domain_d::AdaptiveTimeStep(){
+		if (deltatint>deltatmin) {
+		if (deltat<deltatmin)
+			deltat		= 2.0*deltat*deltatmin/(deltat+deltatmin);
+		else
+			deltat		= deltatmin;
+	} else {
+		if (deltatint!=deltat)
+			deltat		= 2.0*deltat*deltatint/(deltat+deltatint);
+		else
+			deltat		= deltatint;
+	}
 }
 
 // THIS SHOULD BE DONE

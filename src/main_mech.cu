@@ -152,7 +152,7 @@ int main(int argc, char **argv) //try
 	K	= 6.7549e10;
 	G	= 2.5902e10;
 	
-	dx = 0.03; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
+	dx = 0.015; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
 	h	= dx*1.2; //Very important
 
 	double Cs	= sqrt(K/rho);
@@ -322,14 +322,14 @@ int main(int argc, char **argv) //try
 	//CheckData<<<1,1>>>(dom_d);
 	//cudaDeviceSynchronize(); //Crashes if not Sync!!!
 	
-	dom_d->deltat = timestep;
-	//dom_d->deltat = 1.0e-7;
+	//dom_d->deltat = timestep;
+	dom_d->deltat = 1.0e-8;
 	
 	cout << "Time Step: "<<dom_d->deltat<<endl;
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
 	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
-	dom_d->MechSolve(3*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
-	//dom_d->MechSolve(0.0010,1.0e-4);
+	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
+	dom_d->MechSolve(0.0001,1.0e-5);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	
