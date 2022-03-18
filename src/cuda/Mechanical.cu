@@ -320,10 +320,10 @@ __device__ void Domain_d::StressStrain(int i) {
 		
 		ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
-		if (i == 1250){
-			printf("Time %.4e Particle 1250, pressure %f , ShearStresszz %f Sigma \n",Time, p[i], ShearStress.zz);
-			print(Sigma);
-		}
+		// if (i == 1250){
+			// printf("Time %.4e Particle 1250, pressure %f , ShearStresszz %f Sigma \n",Time, p[i], ShearStress.zz);
+			// print(Sigma);
+		// }
 		
 		if (isfirst_step)
 			Straina	= -deltat/2.0*StrainRate + Strain;
@@ -402,6 +402,20 @@ __global__ void ApplyBCVelExtKernel(	double *v, //Output
 	}
 }
 
+__global__ void TimestepCheckKernel(const double &CFL,
+																double *h,
+																double *Cs){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;	
+	
+	//VMAX/TAU * domi.getTime();
+	
+	if ( i < particle_count ){
+		
+		t1 = CFL*h[i]/Cs[i];//Or is Cij??
+	}															
+
+}
+
 void Domain_d::MechSolve(const double &tf, const double &dt_out){
 
 	int N = particle_count;
@@ -416,6 +430,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	clock_t clock_beg;
 	double time_spent;
 	clock_beg = clock();
+	
+	TimestepCheck(0.7,h,Cs);
 
 	double t_out;
 	t_out = dt_out;
@@ -487,9 +503,11 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		}
 		
 
+		CalcMinTimeStepKernel<<< blocksPerGrid,threadsPerBlock >>> (this);
+		cudaDeviceSynchronize();
+		
+		cout << "Step "<<step<<", Min step size "<<deltatmin<<endl;
 		if (auto_ts){
-			CalcMinTimeStepKernel<<< blocksPerGrid,threadsPerBlock >>> (this);
-			cudaDeviceSynchronize();
 			AdaptiveTimeStep();
 			cout << "Auto TS is on. Time Step size: "<<deltat<<endl;
 		}

@@ -344,6 +344,7 @@ __device__ void Domain_d::CalcMinTimeStep(){
 			test = sqrt(h[i]/length(a[i]));
 			if (deltatmin > (sqrt_h_a*test)) {
 					deltatmin = sqrt_h_a*test;
+					//printf("particle i: %d Min time step %f\n",i,deltatmin);
 			}
 		}
 				

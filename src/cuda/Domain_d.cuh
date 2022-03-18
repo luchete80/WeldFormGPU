@@ -49,7 +49,7 @@
 
 //#include <cuNSearch.h>
 
-
+#define DEBUG_MODE
 
 namespace SPH {
 
@@ -314,6 +314,10 @@ __global__ void ApplyBCVelKernel (Domain_d *dom, int bcid, double3 bcv);
 __global__ void StressStrainKernel(Domain_d *dom);
 
 __global__ void CalcMinTimeStepKernel(Domain_d *dom);
+
+__global__ void TimestepCheckKernel(const double &CFL,
+																double *h,
+																double *Cs);
 
 	/* const double &Dimension*/
 
