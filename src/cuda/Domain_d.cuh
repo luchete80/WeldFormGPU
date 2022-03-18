@@ -157,7 +157,7 @@ class Domain_d
 	double *strain,*straina,*strainb;
 	
 	double *sigma_eq, *sigma_eq_h;
-	
+	double *p_h,*rho_h;
 	//Be in another class
 	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
 		

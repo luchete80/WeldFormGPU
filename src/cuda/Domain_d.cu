@@ -38,6 +38,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	u_h =  new double3 [particle_count];
 	a_h =  new double3 [particle_count];
 	sigma_eq_h =  new double [particle_count];
+	p_h =  new double [particle_count];
+	rho_h =  new double [particle_count];
 	
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
 	//printf("Size of dTdt: %d, particle count %d\n",sizeof(dTdt)/sizeof (double),particle_count);
@@ -297,15 +299,17 @@ Domain_d::~Domain_d(){
 void Domain_d::WriteCSV(char const * FileKey){
 	FILE *f = fopen(FileKey,"w");;
 	
-	fprintf(f, "X, Y, Z, Vx, Vy, Vz, Ax, Ay, Az, SigmaEq\n");
+	fprintf(f, "X, Y, Z, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f \n",
+		fprintf(f,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f \n",
 							x_h[i].x,x_h[i].y,x_h[i].z, 
 							v_h[i].x,v_h[i].y,v_h[i].z, 
-							a_h[i].x,a_h[i].y,a_h[i].z, 
+							a_h[i].x,a_h[i].y,a_h[i].z,
+						rho_h[i],
+						p_h[i],
 						sigma_eq_h[i]);
 		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
 		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;

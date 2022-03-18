@@ -141,8 +141,9 @@ void __global__ MoveKernelExt(double3 *v, double3 *va, double3 *vb,
 		//printf("First Step\n");
 		rhoa[i] = rho[i] - dt/2.0*drho[i];
 		va[i] = v[i] - dt/2.0*a[i];
+		//printf("First Step!\n");
 	}
-	rhob[i] = rho[i];
+	rhob[i] = rhoa[i];
 	rhoa[i] += dt*drho[i];
 	rho[i] = (rhoa[i]+rhob[i])/2.0;
 	if (i==1250){
@@ -460,6 +461,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(p_h, p, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(rho_h, rho, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
 			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
 
 			char str[10];
@@ -491,7 +494,9 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 														isfirst_step, particle_count);	
 		cudaDeviceSynchronize(); //REQUIRED!!!!
 		
-
+		cout << "Density particle 1250 before move: "<<rho_h[1250]<<endl;
+			cudaMemcpy(rho_h, rho, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
+		cout << "Density particle 1250 after move: "<<rho_h[1250]<<endl;
 		//If kernel is the external, calculate pressure
 		//Calculate pressure!
 		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
@@ -517,7 +522,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 
 		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
 		step ++;
-		//cout<<"--------------------------- END STEP, Time"<<Time <<", --------------------------"<<endl; 
+		cout<<"--------------------------- END STEP, Time"<<Time <<", --------------------------"<<endl; 
 	}//while <tf
 
 	time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
