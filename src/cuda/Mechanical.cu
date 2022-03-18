@@ -453,9 +453,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		
 		deltatmin = deltatint = deltat;
 		//Save before move (to be changed)
-		// char str[10];
-		// sprintf(str, "out_%d.csv", step);
-		// WriteCSV(str);
+
 		
 		//Move particle and then calculate streses and strains ()
 		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
@@ -491,6 +489,10 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+
+			char str[10];
+			sprintf(str, "out_%d.csv", step);
+			WriteCSV(str);
 			
 			t_out += dt_out;
 			time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
