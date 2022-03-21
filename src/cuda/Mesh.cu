@@ -107,10 +107,3 @@ inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const d
 	}
 
 }
-
-Element::Element(const int &n1, const int &n2, const int &n3){
-	
-	//centroid = Vec3_t();
-	node[0] = n1; node [1] = n2; node[2] = n3;
-	
-}
