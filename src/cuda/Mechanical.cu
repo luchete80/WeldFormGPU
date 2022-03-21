@@ -409,10 +409,10 @@ __global__ void TimestepCheckKernel(const double &CFL,
 	
 	//VMAX/TAU * domi.getTime();
 	
-	if ( i < particle_count ){
+	// if ( i < particle_count ){
 		
-		t1 = CFL*h[i]/Cs[i];//Or is Cij??
-	}															
+		// t1 = CFL*h[i]/Cs[i];//Or is Cij??
+	// }															
 
 }
 
@@ -431,7 +431,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	double time_spent;
 	clock_beg = clock();
 	
-	TimestepCheck(0.7,h,Cs);
+	//TimestepCheck(0.7,h,Cs);
 
 	double t_out;
 	t_out = dt_out;

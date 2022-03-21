@@ -6,8 +6,8 @@ else ()
 
 project (gpuweldform LANGUAGES CXX CUDA)
 include_directories(${PROJECT_SOURCE_DIR})
-#include_directories(Source_cuda/CuNSearch/include)
-#include_directories(${CUNSEARCH_SRC_DIR}/External)
+include_directories(Source_cuda/CuNSearch/include)
+include_directories(${CUNSEARCH_SRC_DIR}/External)
 
 #link_directories(${CUNSEARCH_LIB_DIR})
 # target_link_libraries (gpuweldform cuNSearch )
@@ -84,6 +84,15 @@ add_executable(gpuweldform
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
 													) 
 
+add_executable(test_cuns 
+													main_mech_cuns.cu
+													Domain.cpp 
+													Output.cpp
+													Vector.cpp
+													cuda/Domain_d.cu
+													cuda/Thermal.cu
+													) 
+                          
 
 #tensor and all functions defined in separate modulus
 # CASE NO INLINE VERSION

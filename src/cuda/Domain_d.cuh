@@ -42,6 +42,7 @@
 #include "Vector.h"
 #include "vector_math.h"
 #include "PartData.cuh"
+
 //C++ Enum used for easiness of coding in the input files
 
 //enum Viscosity_Eq_Type { Morris=0, Shao=1, Incompressible_Full=2, Takeda=3 };
@@ -110,6 +111,8 @@ class Domain_d
 	double3 *a_h, *x_h, *v_h, *u_h;
 	
 	PartData_d *partdata;
+  
+  //cuNSearch::NeighborhoodSearch nsearch;
 	
 	//Time things
 	bool isfirst_step;
