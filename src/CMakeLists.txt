@@ -1,10 +1,8 @@
 SET(BUILD_GPU ON)
 
-if (NOT BUILD_GPU)
-
-else ()
 
 project (gpuweldform LANGUAGES CXX CUDA)
+project (testcuns LANGUAGES CXX CUDA)
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(Source_cuda/CuNSearch/include)
 include_directories(Source_cuda/CuNSearch/Utils)
@@ -14,8 +12,8 @@ link_directories(${CUNSEARCH_LIB_DIR})
 link_directories(${cuNSearch_BINARY_DIR})
 # target_link_libraries (gpuweldform cuNSearch )
 
-set (CMAKE_CXX_FLAGS "-fopenmp")
-endif()
+#set (CMAKE_CXX_FLAGS "-fopenmp")
+
 
 set(CMAKE_CXX_STANDARD 11) #LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
