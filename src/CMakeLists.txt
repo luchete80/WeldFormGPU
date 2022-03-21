@@ -10,7 +10,8 @@ include_directories(Source_cuda/CuNSearch/include)
 include_directories(Source_cuda/CuNSearch/Utils)
 include_directories(${CUNSEARCH_SRC_DIR}/External)
 
-#link_directories(${CUNSEARCH_LIB_DIR})
+link_directories(${CUNSEARCH_LIB_DIR})
+link_directories(${cuNSearch_BINARY_DIR})
 # target_link_libraries (gpuweldform cuNSearch )
 
 set (CMAKE_CXX_FLAGS "-fopenmp")
@@ -85,20 +86,26 @@ add_executable(gpuweldform
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
 													) 
 
-add_executable(test_cuns 
-													main_mech_cuns.cu
-													Domain.cpp 
-													Output.cpp
-													Vector.cpp
-													cuda/Domain_d.cu
-													cuda/Thermal.cu
-													) 
+# add_executable(test_cuns 
+													# main_mech_cuns.cu
+													# Domain.cpp 
+													# Output.cpp
+													# Vector.cpp
+													# cuda/Domain_d.cu
+													# cuda/Thermal.cu
+													# ) 
  
-add_dependencies(test_cuns cuNSearch)
-target_link_libraries(test_cuns 
+# add_dependencies(test_cuns cuNSearch)
+# target_link_libraries(test_cuns 
+														# PUBLIC 
+														# cuNSearch)
+														
+
+add_executable(testcuns main_test_cuns.cu)
+add_dependencies(testcuns cuNSearch)
+target_link_libraries(testcuns 
 														#PRIVATE 
 														cuNSearch)
- 
 
 #tensor and all functions defined in separate modulus
 # CASE NO INLINE VERSION
