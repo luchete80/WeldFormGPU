@@ -1,11 +1,11 @@
 // TODO: extend to all dirs
 //NOTE: DENSITY IS OF ELEMENTS
-inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const Vec3_t p1, const Vec3_t p2,  const int &dens){
+inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens){
 	int elemcount = dens * dens;
 	
 	double x1,x2,x3;
 	double l1,l2;
-	Vec3_t p = p2-p1;
+	double3 p = p2-p1;
 	int dir[3];
 	if 			(axis == 0 )	{dir[0] = 1; dir[1] = 2;}
 	else if (axis == 1 )	{dir[0] = 0; dir[1] = 2;}
@@ -28,16 +28,19 @@ inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const V
   
 	//cout <<"dens: "<<dens<<endl;
 	//Plane is in 0 and 1 dirs
+	int v=0;
 	int test =dens+1;
 	for (int j=0; j<test; j++) {
 		x1 = p1(dir[0]);
 		for (int i=0; i<test; i++){
-			Vec3_t v;
+			double3 v;
 			v(dir[0])=x1;v(dir[1])=x2;v(dir[2])=x3;
 			//cout << "i,j" << i << ", " << j<<endl; 
-			//node.Push(new Vec3_t(x1,x2,x3));
-			node.Push(new Vec3_t(v(0),v(1),v(2)));
-			node_v.Push(new Vec3_t(0.,0.,0.));
+			//node.Push(new double3(x1,x2,x3));
+			node[v]		=make_double3(v(0),v(1),v(2));
+			node_v[v]	=make_double3(0.,0.,0.);
+			// node.Push(new double3(v(0),v(1),v(2)));
+			// node_v.Push(new double3(0.,0.,0.));
 			//cout << "xyz: "<<x1 << ", "<<x2<<", "<<x3<<endl;
 			x1+=dl;
 		}
@@ -73,7 +76,7 @@ inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const V
 				// for (int en = 0 ; en<3; en++) cout << elcon[e][en]<<", ";
 				// cout <<endl;
 				
-				Vec3_t v = ( *node[elcon[e][0]] + *node[elcon[e][1]] + *node[elcon[e][2]] ) / 3. ;
+				double3 v = ( *node[elcon[e][0]] + *node[elcon[e][1]] + *node[elcon[e][2]] ) / 3. ;
 				element[el] -> centroid = v; 
 				//cout << "Centroid" << element[el] -> centroid << endl;
 				el++;

@@ -95,7 +95,9 @@ add_executable(test_cuns
 													) 
  
 add_dependencies(test_cuns cuNSearch)
-target_link_libraries(test_cuns PRIVATE cuNSearch)
+target_link_libraries(test_cuns 
+														#PRIVATE 
+														cuNSearch)
  
 
 #tensor and all functions defined in separate modulus
