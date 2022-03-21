@@ -50,6 +50,12 @@ inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const d
 	int n[4];
 	int el =0;
 	int i;
+	
+	int elcount = dens * dens * 2;
+	cudaMalloc((void **)&elem_data.centroid , 	elcount * sizeof (double3));
+	cudaMalloc((void **)&elem_data.normal 	, 	elcount * sizeof (double3));
+	cudaMalloc((void **)&elem_data.node 		, 	3 * elcount * sizeof (int));	
+	
 	for (size_t j = 0 ;j  < dens; j++ ) {
 				// cout <<"j, dens" <<j<<", "<<dens<<endl;
 				// cout <<"j<dens"<< (j  < dens)<<endl;
@@ -71,13 +77,17 @@ inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const d
 			}
 			//cout << "elnodes"<<endl;
 			for ( int e= 0; e<2;e++) { // 2 triangles
-				element.Push(new Element(elcon[e][0],elcon[e][1],elcon[e][2]));		
+				//element.Push(new Element(elcon[e][0],elcon[e][1],elcon[e][2]));		
+				elem_data.node[el + 0] = elcon[e][0]; 
+				elem_data.node[el + 1] = elcon[e][1]; 
+				elem_data.node[el + 2] = elcon[e][2];
 				//cout << "Element "<< el <<": ";
 				// for (int en = 0 ; en<3; en++) cout << elcon[e][en]<<", ";
 				// cout <<endl;
 				
 				double3 v = ( *node[elcon[e][0]] + *node[elcon[e][1]] + *node[elcon[e][2]] ) / 3. ;
-				element[el] -> centroid = v; 
+				//element[el] -> centroid = v; 
+				elem_data.centroid[el] = v;
 				//cout << "Centroid" << element[el] -> centroid << endl;
 				el++;
 			}
@@ -90,7 +100,17 @@ inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const d
 	for (int e = 0; e < element.Size(); e++){ 
 		double f=-1.;
 		if (positaxisorent) f= 1.;
-		element[e] -> normal (axis) = f;
+		//element[e] -> normal (axis) = f;
+		if (axis == 0)			elem_data.normal[e].x = f;
+		else if (axis == 1)	elem_data.normal[e].y = f;
+		else 								elem_data.normal[e].z = f;
 	}
 
+}
+
+Element::Element(const int &n1, const int &n2, const int &n3){
+	
+	//centroid = Vec3_t();
+	node[0] = n1; node [1] = n2; node[2] = n3;
+	
 }

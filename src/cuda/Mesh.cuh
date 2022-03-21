@@ -24,7 +24,7 @@ class TriMesh{
 	
 	public:
 
-	Element 						element_data;
+	Element 						elem_data;
 	double3 						*node,node_v; //Positions and veloc
 	double3 						*node_v;				//Node velocities
 	
