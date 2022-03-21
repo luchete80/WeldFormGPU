@@ -77,10 +77,11 @@ inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const d
 			}
 			//cout << "elnodes"<<endl;
 			for ( int e= 0; e<2;e++) { // 2 triangles
+				int elnodeid = 3*el;
 				//element.Push(new Element(elcon[e][0],elcon[e][1],elcon[e][2]));		
-				elem_data.node[el + 0] = elcon[e][0]; 
-				elem_data.node[el + 1] = elcon[e][1]; 
-				elem_data.node[el + 2] = elcon[e][2];
+				elem_data.node[elnodeid + 0] = elcon[e][0]; 
+				elem_data.node[elnodeid + 1] = elcon[e][1]; 
+				elem_data.node[elnodeid + 2] = elcon[e][2];
 				//cout << "Element "<< el <<": ";
 				// for (int en = 0 ; en<3; en++) cout << elcon[e][en]<<", ";
 				// cout <<endl;
