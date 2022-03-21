@@ -120,9 +120,17 @@ void WriteCSV(char const * FileKey, double3 *x, double3 *varv, int count){
 }
 
 #include "cuNSearch.h"
+//#include "Timing.h"
+#include <iostream>
+#include <vector>
+#include <array>
+#include <cmath>
+#include <limits>
+#include <random>
+
 using namespace cuNSearch;
 using Real3 = std::array<Real, 3>;
-std::vector<Real3> positions;
+std::vector < Real3> positions;
 
 
 int main(int argc, char **argv) //try
@@ -223,11 +231,48 @@ int main(int argc, char **argv) //try
 			nbcount+=2; // Total nb count (for flattened array)
 		}
 	}
-  
-  std::vector< std::array<float, 3> > positions;
-  
-	cout << "NbCount[0] "<< nb[0]<<endl;
+ 	cout << "NbCount[0] "<< nb[0]<<endl;
 	cout << "Done."<<endl;
+  
+  ////////////////////////// CUNSEARCH
+  ////////////////////////////////////
+  //std::vector< std::array<float, 3> > positions;
+  positions.reserve(dom.Particles.size());
+	for (unsigned int i = 0; i < dom.Particles.size(); i++) {
+    std::array<Real, 3> x ={{ dom.Particles[i]->x(0),
+                              dom.Particles[i]->x(1),
+                              dom.Particles[i]->x(2)
+                            }};
+		positions.push_back(x);
+	}
+  NeighborhoodSearch nsearch(dx/2.0);
+	auto pointSetIndex = nsearch.add_point_set(positions.front().data(), positions.size(), true, true);
+	for (size_t i = 0; i < 5; i++) {
+		if (i != 0) {
+			nsearch.z_sort();
+			nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
+		}
+
+		//Timing::reset();
+		nsearch.find_neighbors();
+		//Timing::printAverageTimes();
+	}
+	auto &pointSet = nsearch.point_set(0);
+	auto points = pointSet.GetPoints();
+  
+	std::cout << "Validate results" << std::endl;
+  int avg = 0;
+  int totcount = 0;
+	for (unsigned int i = 0; i < pointSet.n_points(); i++)
+	{
+		Real3 point = ((Real3*)points)[i];
+		auto count = pointSet.n_neighbors(0, i);
+    totcount+=count;
+	} 
+  avg = totcount/dom.Particles.size(); 
+  cout << "avg b size "<<avg<<endl;
+  
+  ///////////////////////////BEGIN FLATTENED ARRAY
 	
 	cout << "Allocating flattened array..."<<endl;
 	//FLATENED ARRAY
@@ -352,3 +397,24 @@ int main(int argc, char **argv) //try
 	cout << "Program ended."<<endl;
 }
 //MECHSYS_CATCH
+
+
+// ORIGINAL CUNSEARCH DEMO 
+	// std::cout << "Validate results" << std::endl;
+	// for (unsigned int i = 0; i < pointSet.n_points(); i++)
+	// {
+		// Real3 point = ((Real3*)points)[i];
+		// auto count = pointSet.n_neighbors(0, i);
+		// for (unsigned int j = 0; j < count; j++)
+		// {
+			// auto neighbor = pointSet.neighbor(0, i, j);
+			// auto diff = point - ((Real3*)points)[neighbor];
+			// float squaredLength = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
+			// float distance = sqrt(squaredLength);
+
+			// if (distance > radius)
+			// {
+				// throw std::runtime_error("Not a neighbor");
+			// }
+		// }
+	// }

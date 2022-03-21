@@ -7,6 +7,7 @@ else ()
 project (gpuweldform LANGUAGES CXX CUDA)
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(Source_cuda/CuNSearch/include)
+include_directories(Source_cuda/CuNSearch/Utils)
 include_directories(${CUNSEARCH_SRC_DIR}/External)
 
 #link_directories(${CUNSEARCH_LIB_DIR})
@@ -92,7 +93,10 @@ add_executable(test_cuns
 													cuda/Domain_d.cu
 													cuda/Thermal.cu
 													) 
-                          
+ 
+add_dependencies(test_cuns cuNSearch)
+target_link_libraries(test_cuns PRIVATE cuNSearch)
+ 
 
 #tensor and all functions defined in separate modulus
 # CASE NO INLINE VERSION
