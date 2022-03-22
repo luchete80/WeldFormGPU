@@ -53,7 +53,6 @@ include_directories("External")
 endif()
 
 add_subdirectory("src")
-add_subdirectory("lib/cuNSearch")
 
 
 

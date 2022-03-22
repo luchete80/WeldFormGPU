@@ -4,9 +4,12 @@ SET(BUILD_GPU ON)
 project (gpuweldform LANGUAGES CXX CUDA)
 project (testcuns LANGUAGES CXX CUDA)
 include_directories(${PROJECT_SOURCE_DIR})
-include_directories(Source_cuda/CuNSearch/include)
-include_directories(Source_cuda/CuNSearch/Utils)
-include_directories(${CUNSEARCH_SRC_DIR}/External)
+# include_directories(Source_cuda/CuNSearch/include)
+# include_directories(Source_cuda/CuNSearch/Utils)
+# include_directories(${CUNSEARCH_SRC_DIR}/External)
+
+include_directories(cuNSearch/include)
+include_directories(cuNSearch/Utils)
 
 link_directories(${CUNSEARCH_LIB_DIR})
 link_directories(${cuNSearch_BINARY_DIR})
@@ -82,6 +85,7 @@ add_executable(gpuweldform
 													#cuda/Mechanical.cu
 													cuda/Thermal.cu
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
+													
 													) 
 
 # add_executable(test_cuns 
@@ -99,7 +103,15 @@ add_executable(gpuweldform
 														# cuNSearch)
 														
 
-add_executable(testcuns main_test_cuns.cu)
+add_executable(testcuns main_test_cuns.cu
+														cuNSearch/src/PointSet.cu
+														cuNSearch/src/PointSetImplementation.cu
+														cuNSearch/src/cuNSearch.cu
+														cuNSearch/src/cuNSearchDeviceData.cu
+														cuNSearch/src/cuNSearchKernels.cu
+														cuNSearch/Utils/cuda_helper.cu
+														cuNSearch/Utils/Timing.cpp
+														cuNSearch/Utils/IDFactory.cpp)
 add_dependencies(testcuns cuNSearch)
 target_link_libraries(testcuns 
 														#PRIVATE 
