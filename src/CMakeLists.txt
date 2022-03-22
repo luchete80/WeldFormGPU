@@ -88,34 +88,23 @@ add_executable(gpuweldform
 													
 													) 
 
-# add_executable(test_cuns 
-													# main_mech_cuns.cu
-													# Domain.cpp 
-													# Output.cpp
-													# Vector.cpp
-													# cuda/Domain_d.cu
-													# cuda/Thermal.cu
-													# ) 
- 
-# add_dependencies(test_cuns cuNSearch)
-# target_link_libraries(test_cuns 
-														# PUBLIC 
-														# cuNSearch)
-														
+add_executable(test_cuns 
+													main_mech_cuns.cu
+													Domain.cpp 
+													Output.cpp
+													Vector.cpp
+													cuda/Domain_d.cu
+													cuda/Thermal.cu
+													cuNSearch/src/PointSet.cu
+													cuNSearch/src/PointSetImplementation.cu
+													cuNSearch/src/cuNSearch.cu
+													cuNSearch/src/cuNSearchDeviceData.cu
+													cuNSearch/src/cuNSearchKernels.cu
+													cuNSearch/Utils/cuda_helper.cu
+													cuNSearch/Utils/Timing.cpp
+													cuNSearch/Utils/IDFactory.cpp
+													) 
 
-add_executable(testcuns main_test_cuns.cu
-														cuNSearch/src/PointSet.cu
-														cuNSearch/src/PointSetImplementation.cu
-														cuNSearch/src/cuNSearch.cu
-														cuNSearch/src/cuNSearchDeviceData.cu
-														cuNSearch/src/cuNSearchKernels.cu
-														cuNSearch/Utils/cuda_helper.cu
-														cuNSearch/Utils/Timing.cpp
-														cuNSearch/Utils/IDFactory.cpp)
-add_dependencies(testcuns cuNSearch)
-target_link_libraries(testcuns 
-														#PRIVATE 
-														cuNSearch)
 
 #tensor and all functions defined in separate modulus
 # CASE NO INLINE VERSION

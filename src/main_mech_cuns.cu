@@ -127,6 +127,7 @@ void WriteCSV(char const * FileKey, double3 *x, double3 *varv, int count){
 #include <cmath>
 #include <limits>
 #include <random>
+#include <chrono>
 
 using namespace cuNSearch;
 using Real3 = std::array<Real, 3>;
@@ -166,18 +167,13 @@ int main(int argc, char **argv) //try
 	K	= 6.7549e10;
 	G	= 2.5902e10;
 	
-	dx = 0.030; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
+	dx = 0.015; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
 	h	= dx*1.2; //Very important
 
 	double Cs	= sqrt(K/rho);
 
   double timestep = (0.2*h/(Cs));
 
-	// cout<<"t  = "<<timestep<<endl;
-	// cout<<"Cs = "<<Cs<<endl;
-	// cout<<"K  = "<<K<<endl;
-	// cout<<"G  = "<<G<<endl;
-	// cout<<"Fy = "<<Fy<<endl;
 	
 	// dom.GeneralAfter = & UserAcc;
 	dom.DomMax(0) = L;
@@ -205,7 +201,13 @@ int main(int argc, char **argv) //try
 	cout << "Cell Initiate..."<<endl; dom.CellInitiate();
 	cout << "Generating List..."<<endl;	dom.ListGenerate();
 	
-	cout << "Nb Searching..."<<endl;	dom.MainNeighbourSearch(); 
+	cout << "Nb Searching..."<<endl;
+	auto t0 = std::chrono::high_resolution_clock::now();
+	dom.MainNeighbourSearch(); 
+	std::cout << "CPU Neighborhood search took " << 
+		std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t0).count() << 
+		"ms" << std::endl;	
+		
 	cout << "Done"<<endl;
 	
 	//Creating 2 arrays of nb (TODO: Which is faster 2D or flattened array?)
@@ -245,16 +247,23 @@ int main(int argc, char **argv) //try
                             }};
 		positions.push_back(x);
 	}
-  NeighborhoodSearch nsearch(dx/2.0);
+
+	
+  NeighborhoodSearch nsearch(2.*h);
+
 	auto pointSetIndex = nsearch.add_point_set(positions.front().data(), positions.size(), true, true);
 	for (size_t i = 0; i < 5; i++) {
 		if (i != 0) {
 			nsearch.z_sort();
 			nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
 		}
-
+		auto t0 = std::chrono::high_resolution_clock::now();
 		//Timing::reset();
 		nsearch.find_neighbors();
+		std::cout << "GPU Neighborhood search took " << 
+			std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t0).count() << 
+			"ms" << std::endl;		
+		
 		//Timing::printAverageTimes();
 	}
 	auto &pointSet = nsearch.point_set(0);
@@ -267,10 +276,25 @@ int main(int argc, char **argv) //try
 	{
 		Real3 point = ((Real3*)points)[i];
 		auto count = pointSet.n_neighbors(0, i);
+		if (i==0) {
+		for (unsigned int j = 0; j < count; j++)
+		{
+			auto neighbor = pointSet.neighbor(0, i, j); 
+			//return neighborSet.Neighbors[neighborSet.Offsets[i] + k];
+			//In DeviceData is allocated
+			//cudaMallocHost(&neighborSet.Neighbors, sizeof(uint) * neighborSet.NeighborCountAllocationSize);
+			
+			cout << neighbor<<", ";
+			//auto diff = point - ((Real3*)points)[neighbor];		
+		}
+		cout <<endl;
+			
+		}
+		//cout << "Nb particles "<<count<<endl;
     totcount+=count;
 	} 
   avg = totcount/dom.Particles.size(); 
-  cout << "avg b size "<<avg<<endl;
+  cout << "avg cuNSearch nb size "<<avg<<endl;
   
   ///////////////////////////BEGIN FLATTENED ARRAY
 	
@@ -362,19 +386,7 @@ int main(int argc, char **argv) //try
 	dom_d->SetID(dom); 
 	dom_d->SetCs(dom);
 
-        // // timestep = (0.3*h*h*rho*dom.Particles[0]->cp_T/dom.Particles[0]->k_T);	
-		// // cout << "Time Step: "<<timestep<<endl;
-		// // //timestep=1.e-6;
-		// // //0.3 rho cp h^2/k
-	
-		
-	// dom.WriteCSV("maz");
-	
-	// WriteCSV_kernel<<<1,1>>>(&dom);
-
 	cout << "Solving "<<endl;
-	//CheckData<<<1,1>>>(dom_d);
-	//cudaDeviceSynchronize(); //Crashes if not Sync!!!
 	
 	//dom_d->deltat = timestep;
 	dom_d->deltat = 1.0e-6;
@@ -384,7 +396,7 @@ int main(int argc, char **argv) //try
 	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
 	dom_d->auto_ts = true;
-	dom_d->MechSolve(0.0001,1.0e-5);
+	//dom_d->MechSolve(0.0001,1.0e-5);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	
@@ -393,28 +405,7 @@ int main(int argc, char **argv) //try
 	dom_d->WriteCSV("test.csv");
 	
 	cudaFree(dom_d);
-	//report_gpu_mem();
+
 	cout << "Program ended."<<endl;
+	return 0;
 }
-//MECHSYS_CATCH
-
-
-// ORIGINAL CUNSEARCH DEMO 
-	// std::cout << "Validate results" << std::endl;
-	// for (unsigned int i = 0; i < pointSet.n_points(); i++)
-	// {
-		// Real3 point = ((Real3*)points)[i];
-		// auto count = pointSet.n_neighbors(0, i);
-		// for (unsigned int j = 0; j < count; j++)
-		// {
-			// auto neighbor = pointSet.neighbor(0, i, j);
-			// auto diff = point - ((Real3*)points)[neighbor];
-			// float squaredLength = diff[0] * diff[0] + diff[1] * diff[1] + diff[2] * diff[2];
-			// float distance = sqrt(squaredLength);
-
-			// if (distance > radius)
-			// {
-				// throw std::runtime_error("Not a neighbor");
-			// }
-		// }
-	// }
