@@ -85,16 +85,6 @@ add_executable(gpuweldform
 													#cuda/Mechanical.cu
 													cuda/Thermal.cu
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
-													
-													) 
-
-add_executable(test_cuns 
-													main_mech_cuns.cu
-													Domain.cpp 
-													Output.cpp
-													Vector.cpp
-													cuda/Domain_d.cu
-													cuda/Thermal.cu
 													cuNSearch/src/PointSet.cu
 													cuNSearch/src/PointSetImplementation.cu
 													cuNSearch/src/cuNSearch.cu
@@ -102,8 +92,25 @@ add_executable(test_cuns
 													cuNSearch/src/cuNSearchKernels.cu
 													cuNSearch/Utils/cuda_helper.cu
 													cuNSearch/Utils/Timing.cpp
-													cuNSearch/Utils/IDFactory.cpp
+													cuNSearch/Utils/IDFactory.cpp													
 													) 
+
+# add_executable(test_cuns 
+													# main_mech_cuns.cu
+													# Domain.cpp 
+													# Output.cpp
+													# Vector.cpp
+													# cuda/Domain_d.cu
+													# cuda/Thermal.cu
+													# cuNSearch/src/PointSet.cu
+													# cuNSearch/src/PointSetImplementation.cu
+													# cuNSearch/src/cuNSearch.cu
+													# cuNSearch/src/cuNSearchDeviceData.cu
+													# cuNSearch/src/cuNSearchKernels.cu
+													# cuNSearch/Utils/cuda_helper.cu
+													# cuNSearch/Utils/Timing.cpp
+													# cuNSearch/Utils/IDFactory.cpp
+													# ) 
 
 
 #tensor and all functions defined in separate modulus

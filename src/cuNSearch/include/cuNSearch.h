@@ -181,7 +181,7 @@ namespace cuNSearch
 			return m_activation_table.is_active(i, j);
 		}
 
-	private:
+	//private: //LUCIANO, NOW IS ALL PUBLIC
 		bool isInitialized = false;
 		Real searchRadius;
 		ActivationTable m_activation_table;

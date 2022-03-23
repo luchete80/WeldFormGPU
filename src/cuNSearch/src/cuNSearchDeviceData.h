@@ -32,7 +32,7 @@ namespace cuNSearch
 		*/
 		void computeNeighborhood(PointSet &queryPointSet, PointSet &pointSet, uint neighborListEntry);
 
-	private:
+	//private: //LUCIANO
 		Real m_SearchRadius;
 
 		thrust::device_vector<Int3> d_MinMax;

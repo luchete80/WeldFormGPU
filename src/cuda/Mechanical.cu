@@ -7,6 +7,8 @@
 #include <ctime> //Clock
 #include "tensor3.cu" //INLINE
 #include "Interaction.cu"
+
+#include "cuNSearch.h"
 //For Writing file
 
 using namespace std;
@@ -416,6 +418,18 @@ __global__ void TimestepCheckKernel(const double &CFL,
 
 }
 
+
+#include "cuNSearch.h"
+
+#include<array>
+#include <chrono>
+#include <iostream>
+#include <vector>
+using namespace std;
+using namespace cuNSearch;
+using Real3 = std::array<Real, 3>;
+
+
 void Domain_d::MechSolve(const double &tf, const double &dt_out){
 
 	int N = particle_count;
@@ -441,8 +455,112 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	clock_t clock_beg_int;
 
 	stress_time = forces_time = accel_time = pressure_time = move_time = 0.;
+
+	cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);		
+	
+	//Make the nb search at first
+	
+	vector < Real3> pos;
+  // positions.reserve(dom.Particles.size());
+	for (unsigned int i = 0; i < particle_count; i++) {
+    std::array<Real, 3> x ={{ x_h[i].x,
+                              x_h[i].y,
+                              x_h[i].z
+                            }};
+		pos.push_back(x);
+	}
+
+	
+  NeighborhoodSearch nsearch(2.0*h_glob);
+
+	auto pointSetIndex = nsearch.add_point_set(pos.front().data(), pos.size(), true, true);
+
+	// for (size_t i = 0; i < 5; i++) {
+		// if (i != 0) {
+			// nsearch.z_sort();
+			// nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
+		// }
+		// //auto t0 = chrono::high_resolution_clock::now();
+		// // // //Timing::reset();
+		// nsearch.find_neighbors();
+		// // cout << "GPU Neighborhood search took " << 
+			// // std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t0).count() << 
+			// // "ms" << endl;		
+		
+		// // // //Timing::printAverageTimes();
+	// }
+	
+
+	auto &pointSet = nsearch.point_set(0);
+	// pointSet.set_dynamic(true);
+	// auto points = pointSet.GetPoints();
+  
+	// cout << "Validate results" << endl;
+	// Real3 point = ((Real3*)points)[0];
+	// //try to move a point 
+	// ((Real3*)points)[0][0]=10.;
+	// ((Real3*)points)[0][1]=20.;
+
+	// points = pointSet.GetPoints();
+	
+	int *nb_part_h =  new int [particle_count * 100]; //This could be sized only once with max nb count
+	int *nb_offs_h =  new int [particle_count + 1];
+	
+	auto points = pointSet.GetPoints();
 	
 	while (Time<tf) {
+
+	/////////////////////////////////////////
+	// UPDATE POINTS POSITIONS
+	for (int i=0; i <particle_count;i++){
+	((Real3*)points)[i][0] = x_h[i].x;
+	((Real3*)points)[i][1] = x_h[i].y;
+	((Real3*)points)[i][2] = x_h[i].z;
+	}		
+
+	nsearch.z_sort();
+	nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
+	nsearch.find_neighbors();
+		
+	auto &ps = nsearch.point_set(0);
+	
+  
+	// cout << "Validate results" << endl;
+  int avg = 0;
+  int totcount = 0;
+	// Real3 point = ((Real3*)points)[0];
+	// //try to move a point 
+
+	// ((Real3*)points)[0][1]=20.;
+
+	cout << "Creating flattened array..."<<endl;	
+
+	int k=0;
+	cout << "Point set count "<<ps.n_points()<<endl;
+	
+	for (unsigned int i = 0; i < ps.n_points(); i++) {
+		Real3 point = ((Real3*)points)[i];
+		auto count = ps.n_neighbors(0, i);
+		for (unsigned int j = 0; j < count; j++) {
+			auto neighbor = ps.neighbor(0, i, j); 
+			nb_part_h[k] = neighbor;
+			k++;
+		}
+		nb_offs_h[i+1]=k;
+
+		//cout << "Nb particles "<<count<<endl;
+    totcount+=count;
+	}
+	avg = 	totcount/particle_count;
+	cout << "Created Avg "<<avg<< "nb per particle, total "<<totcount<<endl;
+	
+	//cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
+	//nb offset or count already initiated
+	// THIS FAILS SOMETIMES
+	cudaMemcpy(neib_offs, nb_offs_h, (particle_count + 1) * sizeof(int), cudaMemcpyHostToDevice);
+
+		//cout << "
 		
 		//cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
 		//This was in Original LastCompAcceleration
@@ -551,6 +669,9 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
 	
 	printf("Total steps: %d, time spent %f\n",step, time_spent);
+	
+	delete nb_part_h;
+	delete nb_offs_h;
 
 }
 

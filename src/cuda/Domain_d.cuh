@@ -43,6 +43,8 @@
 #include "vector_math.h"
 #include "PartData.cuh"
 
+#include "cuNSearch.h"
+
 //C++ Enum used for easiness of coding in the input files
 
 //enum Viscosity_Eq_Type { Morris=0, Shao=1, Incompressible_Full=2, Takeda=3 };
@@ -81,6 +83,7 @@ class Boundary;
 // };
 
 class Domain;
+
 // LUCIANO
 // DOMAIN_D is basically a SOA.
 // In the future it is of interest to compare passing this in kernel vs
@@ -89,6 +92,9 @@ class Domain;
 class Domain_d
 {
 	public:
+	///////////////////////////////////
+	///////////// NEIGHBOR THING //////
+	
 	//cuNSearch::NeighborhoodSearch neib;
 	//Structured in AOS
 	int **neib;	//array of lists
@@ -99,9 +105,16 @@ class Domain_d
 	int *neibcount;	//Useful??
 	int particle_count;
 	
+	//cuNSearch::PointSet part_pointset; 	// IN THE FUTURE IS GOOD TO HAVE NEIGHBOUR DEVICE DATA WHICH IS IN DEVICE	
+														// INSTEAD OF HOST
+														
+	//cuNSearchDeviceData nb_device_data;
+	
 	//SPH
 	double *h;
 	double *SumKernel;
+	
+	double h_glob;	//Initial h
 	
 	double3* x; //Vector is double
 	double3* v;
@@ -112,7 +125,8 @@ class Domain_d
 	
 	PartData_d *partdata;
   
-  //cuNSearch::NeighborhoodSearch nsearch;
+
+	
 	
 	//Time things
 	bool isfirst_step;
@@ -183,6 +197,9 @@ class Domain_d
 	
 	int 			*ID;
 	
+
+	
+	
 	
 	////////////////////////////////////
 	/////// CONTACT THINGS /////////////
@@ -209,6 +226,7 @@ class Domain_d
 	//__host__ void SetDensity0(const double &k);
 	__host__ void SetConductivity(const double &k);
 	__host__ void SetHeatCap(const double &);
+	
 	//Boundary
 	__host__ void SetFreePart(const Domain &dom);
 	__host__ void SetShearModulus(const double &);

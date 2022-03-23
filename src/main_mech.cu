@@ -251,9 +251,9 @@ int main(int argc, char **argv) //try
 	//Device side
 	//cudaMalloc((void **) dom_d->neib_part, 	(nbcount) * sizeof (int));
 	report_gpu_mem();
-	cudaMemcpy(dom_d->neib_part, nb_part, nbcount * sizeof(int), cudaMemcpyHostToDevice);
-	//nb offset or count already initiated
-	cudaMemcpy(dom_d->neib_offs, nb_offs, (dom.Particles.size()+1) * sizeof(int), cudaMemcpyHostToDevice);
+	// cudaMemcpy(dom_d->neib_part, nb_part, nbcount * sizeof(int), cudaMemcpyHostToDevice);
+	// //nb offset or count already initiated
+	// cudaMemcpy(dom_d->neib_offs, nb_offs, (dom.Particles.size()+1) * sizeof(int), cudaMemcpyHostToDevice);
 	
 	cout << "done"<<endl;
 	cout << "Setting values"<<endl;
@@ -330,7 +330,8 @@ int main(int argc, char **argv) //try
 	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
 	dom_d->auto_ts = true;
-	dom_d->MechSolve(0.0001,1.0e-5);
+	//dom_d->MechSolve(0.0001,1.0e-5);
+	dom_d->MechSolve(2.*timestep,timestep);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	

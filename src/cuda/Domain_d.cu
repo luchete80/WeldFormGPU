@@ -46,7 +46,7 @@ void Domain_d::SetDimension(const int &particle_count){
 
 	//Nb data
 	cudaMalloc((void **)&neib_offs	, (particle_count + 1) * sizeof (int));
-	cudaMalloc((void **)&neib_part	, (particle_count * 400) * sizeof (int));
+	cudaMalloc((void **)&neib_part	, (particle_count * 100) * sizeof (int));
 	
 	cudaMalloc((void **)&partdata, sizeof(PartData_d));
 	
@@ -179,6 +179,7 @@ void Domain_d::Set_h(const double &k){
 	}
 	int size = particle_count * sizeof(double);
 	cudaMemcpy(this->h, k_, size, cudaMemcpyHostToDevice);
+	h_glob = k;
 	delete k_;
 }
 
