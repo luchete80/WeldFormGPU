@@ -128,10 +128,7 @@ class Domain_d
 	double3 *a_h, *x_h, *v_h, *u_h;
 	
 	PartData_d *partdata;
-  
-
-	
-	
+  	
 	//Time things
 	bool isfirst_step;
 	int step = 0;
@@ -144,8 +141,7 @@ class Domain_d
 	
 	bool						auto_ts;
 
-	
-	
+
 	
 	/// TODO: PASS THIS TO PARTICLE DATA
 	double *rho, *m;	//Mass and density
@@ -232,6 +228,7 @@ class Domain_d
 	__host__ void SetDensity (const double &k);
 	//__host__ void SetDensity0(const double &k);
 	__host__ void SetConductivity(const double &k);
+	__host__ void SetSigmay(const double &k);
 	__host__ void SetHeatCap(const double &);
 	
 	//Boundary

@@ -11,6 +11,9 @@
 #include "cuNSearch.h"
 //For Writing file
 
+//This is temporary since can be used a delta_pl_strain for each particle
+#define MIN_PS_FOR_NBSEARCH		1.e-6//TODO: MOVE TO CLASS MEMBER
+
 using namespace std;
 
 namespace SPH{
@@ -342,7 +345,7 @@ __device__ void Domain_d::StressStrain(int i) {
 		sigma_eq[i] = sig_trial;	
 		
 		if ( sig_trial > sigma_y[i]) {
-			dep=( sig_trial - sigma_y[i])/ (3.*G[i] + Ep);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
+			dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
 			pl_strain[i] += dep;			
 		}
 		///// OUTPUT TO Flatten arrays
@@ -542,9 +545,24 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	int ts_i=0;
 	int ts_nb_inc = 5;
 	
+	bool is_yielding = false;
+	double max_pl_strain = 0.;
+
+	//First time find nbs
+	for (int i=0; i <particle_count;i++){
+	((Real3*)points)[i][0] = x_h[i].x;
+	((Real3*)points)[i][1] = x_h[i].y;
+	((Real3*)points)[i][2] = x_h[i].z;
+	}		
+	// TODO: FIX THIS! 
+	//zsort is much faster than traditional, but particle order and nb changes
+	//nsearch.z_sort();
+	//nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
+	nsearch.find_neighbors();	
+	
 	while (Time<tf) {
 	
-	if ( ts_i == 0 ){
+	if ( ts_i == 0 && is_yielding ){
 		//cout << "Searching nbs"<<endl; 
 		/////////////////////////////////////////
 		// UPDATE POINTS POSITIONS
@@ -559,45 +577,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		//nsearch.z_sort();
 		//nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
 		nsearch.find_neighbors();
-		//cout << "Done."<<endl;
-			
-		auto &ps = nsearch.point_set(0);
-		
-		
-		// cout << "Validate results" << endl;
-		int avg = 0;
-		int totcount = 0;
-		// Real3 point = ((Real3*)points)[0];
-		// //try to move a point 
 
-		// ((Real3*)points)[0][1]=20.;
-
-		//cout << "Creating flattened array..."<<endl;	
-
-		int k=0;
-		//cout << "Point set count "<<ps.n_points()<<endl;
-		
-		for (unsigned int i = 0; i < ps.n_points(); i++) {
-			Real3 point = ((Real3*)points)[i];
-			auto count = ps.n_neighbors(0, i);
-			for (unsigned int j = 0; j < count; j++) {
-				auto neighbor = ps.neighbor(0, i, j); 
-				nb_part_h[k] = neighbor;
-				k++;
-			}
-			nb_offs_h[i+1]=k;
-
-			//cout << "Nb particles "<<count<<endl;
-			totcount+=count;
-		}
-		avg = 	totcount/particle_count;
-		//cout << "Created Avg "<<avg<< "nb per particle, total "<<totcount<<endl;
-		
-		// testNeighboursKernel(	const uint particle,
-		// const uint *particlenbcount,
-		// const uint *neighborWriteOffsets,
-		// const uint *neighbors)
-		//cout << "Printing nbs"<<endl;
 		// testNeighboursKernel<<< blocksPerGrid,threadsPerBlock >>>(	0,
 		// CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
 		// CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
@@ -645,10 +625,12 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			
 			cudaMemcpy(p_h, p, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+			
 			cudaMemcpy(rho_h, rho, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
 			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
-
+			
 			char str[10];
 			sprintf(str, "out_%d.csv", step);
 			WriteCSV(str);
@@ -670,14 +652,26 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
 		}
 		
+		//TODO: CHANGE this to an interleaved reduction or something like that (see #84)
+		if (!is_yielding){
+			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
+			for (int i=0;i<particle_count;i++){
+				if (pl_strain[i]>)
+					max_pl_strain = pl_strain[i];
+			}
+			
+			if ( max_pl_strain > MIN_PS_FOR_NBSEARCH ){
+				is_yielding = true;
+				cout << "Now is yielding"<<endl;
+			}
+		}
 
 		CalcMinTimeStepKernel<<< blocksPerGrid,threadsPerBlock >>> (this);
 		cudaDeviceSynchronize();
 		
-		cout << "Step "<<step<<", Min step size "<<deltatmin<<endl;
 		if (auto_ts){
 			AdaptiveTimeStep();
-			cout << "Auto TS is on. Time Step size: "<<deltat<<endl;
+			//cout << "Auto TS is on. Time Step size: "<<deltat<<endl;
 		}
 
 		//Move particle and then calculate streses and strains ()
@@ -718,7 +712,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		ts_i ++;
 		if ( ts_i > (ts_nb_inc - 1) ) 
 			ts_i = 0;
-			
+		
 	}//while <tf
 
 

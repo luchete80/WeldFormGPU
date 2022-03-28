@@ -130,6 +130,15 @@ void Domain_d::SetDimension(const int &particle_count){
 	deltatmin	= 0.0;
 	sqrt_h_a = 0.0025;	
 	
+	//Initiate pl_strain, is it necessary
+	double *k_ =  new double[particle_count];
+	for (int i=0;i<particle_count;i++){
+		k_[i] = 0.;
+	}
+	int size = particle_count * sizeof(double);
+	cudaMemcpy(this->pl_strain, k_, size, cudaMemcpyHostToDevice);
+	delete k_;	
+	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
 }
 
@@ -164,6 +173,8 @@ __host__ void Domain_d::SetCs(const Domain &dom){
 	delete k_;	
 }
 
+
+
 void Domain_d::CheckData(){
 	printf("dTdt partdta: %d",sizeof(this->dTdt)/sizeof(double));
 	printf("dTdt[200] %f",dTdt[200]);
@@ -194,6 +205,16 @@ void Domain_d::SetConductivity(const double &k){
 	}
 	int size = particle_count * sizeof(double);
 	cudaMemcpy(this->k_T, k_, size, cudaMemcpyHostToDevice);
+	delete k_;
+}
+
+void Domain_d::SetSigmay(const double &k){
+	double *k_ =  new double[particle_count];
+	for (int i=0;i<particle_count;i++){
+		k_[i] = k;
+	}
+	int size = particle_count * sizeof(double);
+	cudaMemcpy(this->sigma_y, k_, size, cudaMemcpyHostToDevice);
 	delete k_;
 }
 

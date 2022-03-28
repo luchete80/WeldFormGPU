@@ -238,6 +238,9 @@ int main(int argc, char **argv) //try
 	dom_d->SetFreePart(dom); //All set to IsFree = true in this example
 	dom_d->SetID(dom); 
 	dom_d->SetCs(dom);
+	
+	dom_d->SetSigmay(300.e6);
+	
 
         // // timestep = (0.3*h*h*rho*dom.Particles[0]->cp_T/dom.Particles[0]->k_T);	
 		// // cout << "Time Step: "<<timestep<<endl;
