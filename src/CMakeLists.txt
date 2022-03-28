@@ -4,11 +4,9 @@ SET(BUILD_GPU ON)
 project (gpuweldform LANGUAGES CXX CUDA)
 project (testcuns LANGUAGES CXX CUDA)
 include_directories(${PROJECT_SOURCE_DIR})
-# include_directories(Source_cuda/CuNSearch/include)
-# include_directories(Source_cuda/CuNSearch/Utils)
-# include_directories(${CUNSEARCH_SRC_DIR}/External)
 
 include_directories(cuNSearch/include)
+include_directories(cuNSearch/src)
 include_directories(cuNSearch/Utils)
 
 link_directories(${CUNSEARCH_LIB_DIR})

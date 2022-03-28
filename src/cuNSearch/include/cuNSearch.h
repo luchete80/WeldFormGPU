@@ -21,6 +21,8 @@ namespace cuNSearch
 
 	public:
 
+		NeighborhoodSearch(){}	//LUCIANO Allows to have as Domain_h member
+
 		/**
 		* Constructor.
 		* Creates a new instance of the neighborhood search class.

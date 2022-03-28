@@ -8,6 +8,7 @@ namespace cuNSearch
 	class cuNSearchDeviceData
 	{
 	public:
+		cuNSearchDeviceData(){}	//LUCIANO: in order to this can be defined as Domain_d member
 		cuNSearchDeviceData(Real searchRadius)
 		{
 			m_SearchRadius = searchRadius;

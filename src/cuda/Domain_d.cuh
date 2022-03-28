@@ -44,6 +44,7 @@
 #include "PartData.cuh"
 
 #include "cuNSearch.h"
+#include "cuNSearchDeviceData.h"
 
 //C++ Enum used for easiness of coding in the input files
 
@@ -105,10 +106,13 @@ class Domain_d
 	int *neibcount;	//Useful??
 	int particle_count;
 	
+	
 	//cuNSearch::PointSet part_pointset; 	// IN THE FUTURE IS GOOD TO HAVE NEIGHBOUR DEVICE DATA WHICH IS IN DEVICE	
 														// INSTEAD OF HOST
 														
-	//cuNSearchDeviceData nb_device_data;
+	cuNSearch::NeighborhoodSearch nsearch;
+														
+	cuNSearch::cuNSearchDeviceData nb_device_data;
 	
 	//SPH
 	double *h;

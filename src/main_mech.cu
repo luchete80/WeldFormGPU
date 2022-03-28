@@ -261,8 +261,8 @@ int main(int argc, char **argv) //try
 	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
 	dom_d->auto_ts = true;
-	//dom_d->MechSolve(0.0001,1.0e-5);
-	dom_d->MechSolve(2.*timestep,timestep);
+	dom_d->MechSolve(0.0001,1.0e-5);
+	//dom_d->MechSolve(2.*timestep,timestep);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	

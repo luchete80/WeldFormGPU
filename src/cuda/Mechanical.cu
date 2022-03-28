@@ -470,8 +470,10 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		pos.push_back(x);
 	}
 
-	
-  NeighborhoodSearch nsearch(2.0*h_glob);
+	double radius = 2.0*h_glob;
+	//This bypass the original constructor 
+  nsearch.set_radius(radius);
+	nsearch.deviceData = std::make_unique<cuNSearchDeviceData>(radius);
 
 	auto pointSetIndex = nsearch.add_point_set(pos.front().data(), pos.size(), true, true);
 
@@ -508,58 +510,65 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	
 	auto points = pointSet.GetPoints();
 	
+	int ts_i=0;
+	int ts_nb_inc = 5;
+	
 	while (Time<tf) {
+	
+	if ( ts_i == 0 ){
+		cout << "Searching nbs"<<endl; 
+		/////////////////////////////////////////
+		// UPDATE POINTS POSITIONS
+		for (int i=0; i <particle_count;i++){
+		((Real3*)points)[i][0] = x_h[i].x;
+		((Real3*)points)[i][1] = x_h[i].y;
+		((Real3*)points)[i][2] = x_h[i].z;
+		}		
 
-	/////////////////////////////////////////
-	// UPDATE POINTS POSITIONS
-	for (int i=0; i <particle_count;i++){
-	((Real3*)points)[i][0] = x_h[i].x;
-	((Real3*)points)[i][1] = x_h[i].y;
-	((Real3*)points)[i][2] = x_h[i].z;
-	}		
-
-	nsearch.z_sort();
-	nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
-	nsearch.find_neighbors();
+		nsearch.z_sort();
+		nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
+		nsearch.find_neighbors();
+			
+		auto &ps = nsearch.point_set(0);
 		
-	auto &ps = nsearch.point_set(0);
-	
-  
-	// cout << "Validate results" << endl;
-  int avg = 0;
-  int totcount = 0;
-	// Real3 point = ((Real3*)points)[0];
-	// //try to move a point 
+		
+		// cout << "Validate results" << endl;
+		int avg = 0;
+		int totcount = 0;
+		// Real3 point = ((Real3*)points)[0];
+		// //try to move a point 
 
-	// ((Real3*)points)[0][1]=20.;
+		// ((Real3*)points)[0][1]=20.;
 
-	cout << "Creating flattened array..."<<endl;	
+		cout << "Creating flattened array..."<<endl;	
 
-	int k=0;
-	cout << "Point set count "<<ps.n_points()<<endl;
-	
-	for (unsigned int i = 0; i < ps.n_points(); i++) {
-		Real3 point = ((Real3*)points)[i];
-		auto count = ps.n_neighbors(0, i);
-		for (unsigned int j = 0; j < count; j++) {
-			auto neighbor = ps.neighbor(0, i, j); 
-			nb_part_h[k] = neighbor;
-			k++;
+		int k=0;
+		cout << "Point set count "<<ps.n_points()<<endl;
+		
+		for (unsigned int i = 0; i < ps.n_points(); i++) {
+			Real3 point = ((Real3*)points)[i];
+			auto count = ps.n_neighbors(0, i);
+			for (unsigned int j = 0; j < count; j++) {
+				auto neighbor = ps.neighbor(0, i, j); 
+				nb_part_h[k] = neighbor;
+				k++;
+			}
+			nb_offs_h[i+1]=k;
+
+			//cout << "Nb particles "<<count<<endl;
+			totcount+=count;
 		}
-		nb_offs_h[i+1]=k;
-
-		//cout << "Nb particles "<<count<<endl;
-    totcount+=count;
-	}
-	avg = 	totcount/particle_count;
-	cout << "Created Avg "<<avg<< "nb per particle, total "<<totcount<<endl;
+		avg = 	totcount/particle_count;
+		cout << "Created Avg "<<avg<< "nb per particle, total "<<totcount<<endl;
+		
+		//cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
+		cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
+		
+		//nb offset or count already initiated
+		// THIS FAILS SOMETIMES
+		cudaMemcpy(neib_offs, nb_offs_h, (particle_count + 1) * sizeof(int), cudaMemcpyHostToDevice);
+	}//ts_i == 0
 	
-	//cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
-	cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
-	//nb offset or count already initiated
-	// THIS FAILS SOMETIMES
-	cudaMemcpy(neib_offs, nb_offs_h, (particle_count + 1) * sizeof(int), cudaMemcpyHostToDevice);
-
 		//cout << "
 		
 		//cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
@@ -664,7 +673,13 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
 		step ++;
 		cout<<"--------------------------- END STEP, Time"<<Time <<", --------------------------"<<endl; 
+
+		ts_i ++;
+		if ( ts_i > (ts_nb_inc - 1) ) 
+			ts_i = 0;
+			
 	}//while <tf
+
 
 	time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
 	
