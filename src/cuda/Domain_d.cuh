@@ -110,7 +110,7 @@ class Domain_d
 	//cuNSearch::PointSet part_pointset; 	// IN THE FUTURE IS GOOD TO HAVE NEIGHBOUR DEVICE DATA WHICH IS IN DEVICE	
 														// INSTEAD OF HOST
 														
-	cuNSearch::NeighborhoodSearch nsearch;
+	cuNSearch::NeighborhoodSearch nb_search;
 														
 	cuNSearch::cuNSearchDeviceData nb_device_data;
 	

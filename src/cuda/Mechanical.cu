@@ -418,7 +418,7 @@ __global__ void TimestepCheckKernel(const double &CFL,
 
 }
 
-
+#include "cuda_helper.h"
 #include "cuNSearch.h"
 
 #include<array>
@@ -428,6 +428,23 @@ __global__ void TimestepCheckKernel(const double &CFL,
 using namespace std;
 using namespace cuNSearch;
 using Real3 = std::array<Real, 3>;
+
+__global__ void testNeighboursKernel(	const uint particle,
+	const uint *particlenbcount,
+	const uint *neighborWriteOffsets,
+	const uint *neighbors)
+{
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+	if (i == particle){
+		printf("Particle %d nbs\n", particle);
+		const uint writeOffset = neighborWriteOffsets[i];
+
+		for (int j=0; j< particlenbcount[i];j++){
+			printf("%d ", neighbors[writeOffset + j]);
+		}
+
+	}
+}
 
 
 void Domain_d::MechSolve(const double &tf, const double &dt_out){
@@ -469,11 +486,15 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
                             }};
 		pos.push_back(x);
 	}
-
+	
+	cout << "Initializing nb search data.."<<endl;
 	double radius = 2.0*h_glob;
 	//This bypass the original constructor 
-  nsearch.set_radius(radius);
-	nsearch.deviceData = std::make_unique<cuNSearchDeviceData>(radius);
+  //TODO: make this
+	//nsearch.set_radius(radius);
+	//nsearch.deviceData = std::make_unique<cuNSearchDeviceData>(radius);
+	cuNSearch::NeighborhoodSearch nsearch(radius);
+	cout << "Done."<<endl;
 
 	auto pointSetIndex = nsearch.add_point_set(pos.front().data(), pos.size(), true, true);
 
@@ -511,7 +532,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	auto points = pointSet.GetPoints();
 	
 	int ts_i=0;
-	int ts_nb_inc = 5;
+	int ts_nb_inc = 1;
 	
 	while (Time<tf) {
 	
@@ -519,15 +540,17 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		cout << "Searching nbs"<<endl; 
 		/////////////////////////////////////////
 		// UPDATE POINTS POSITIONS
+		//TODO: THIS HAS TO BE DONE WITH KERNEL
 		for (int i=0; i <particle_count;i++){
 		((Real3*)points)[i][0] = x_h[i].x;
 		((Real3*)points)[i][1] = x_h[i].y;
 		((Real3*)points)[i][2] = x_h[i].z;
 		}		
 
-		nsearch.z_sort();
-		nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
+		//nsearch.z_sort();
+		//nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
 		nsearch.find_neighbors();
+		cout << "Done."<<endl;
 			
 		auto &ps = nsearch.point_set(0);
 		
@@ -561,12 +584,23 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		avg = 	totcount/particle_count;
 		cout << "Created Avg "<<avg<< "nb per particle, total "<<totcount<<endl;
 		
-		//cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
+		// testNeighboursKernel(	const uint particle,
+		// const uint *particlenbcount,
+		// const uint *neighborWriteOffsets,
+		// const uint *neighbors)
+		cout << "Printing nbs"<<endl;
+		testNeighboursKernel<<< blocksPerGrid,threadsPerBlock >>>(	0,
+		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+		CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)
+		);
 		
-		//nb offset or count already initiated
-		// THIS FAILS SOMETIMES
-		cudaMemcpy(neib_offs, nb_offs_h, (particle_count + 1) * sizeof(int), cudaMemcpyHostToDevice);
+		//cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
+		// cudaMemcpy(neib_part, nb_part_h, totcount * sizeof(int), cudaMemcpyHostToDevice);
+		
+		// //nb offset or count already initiated
+		// // THIS FAILS SOMETIMES
+		// cudaMemcpy(neib_offs, nb_offs_h, (particle_count + 1) * sizeof(int), cudaMemcpyHostToDevice);
 	}//ts_i == 0
 	
 		//cout << "
