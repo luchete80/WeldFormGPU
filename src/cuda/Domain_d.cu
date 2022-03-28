@@ -44,6 +44,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	p_h =  new double [particle_count];
 	rho_h =  new double [particle_count];
 	
+	max_deltat_h = new double [particle_count];
+	
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
 	//printf("Size of dTdt: %d, particle count %d\n",sizeof(dTdt)/sizeof (double),particle_count);
 
@@ -111,6 +113,9 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&TIn, 				particle_count  * sizeof (double));		
 	cudaMalloc((void **)&TIInitDist, 	particle_count  * sizeof (double));		
 	cudaMalloc((void **)&TIR, 				6 * particle_count  * sizeof (double));	
+
+	cudaMalloc((void **)&max_deltat, 	particle_count  * sizeof (double));		
+	
 	
 	//////////////////////////
 	/// CORRECTIONS /////////
@@ -339,6 +344,7 @@ void Domain_d::WriteCSV(char const * FileKey){
 							x_h[i].x,x_h[i].y,x_h[i].z, 
 							v_h[i].x,v_h[i].y,v_h[i].z, 
 							a_h[i].x,a_h[i].y,a_h[i].z,
+							//ID[i],
 						rho_h[i],
 						p_h[i],
 						sigma_eq_h[i],
@@ -361,20 +367,31 @@ __device__ void Domain_d::CalcMinTimeStep(){
 		int i = threadIdx.x + blockDim.x*blockIdx.x;
 		//THIS WAS IN LASTCOMPUTEACCELERATION original code
 		// //Min time step check based on the acceleration
-		double test	= 0.0;
-		deltatmin	= deltatint;
-		float sqrt_h_a = 0.0025;
-		//Appears to be safe
-		//https://stackoverflow.com/questions/8416374/several-threads-writing-the-same-value-in-the-same-global-memory-location
-
-		if (IsFree[i]) {
-			test = sqrt(h[i]/length(a[i]));
-			if (deltatmin > (sqrt_h_a*test)) {
-					deltatmin = sqrt_h_a*test;
-					//printf("particle i: %d Min time step %f\n",i,deltatmin);
-			}
-		}
+		if (i<particle_count){
+			double test	= 0.0;
+			deltatmin	= deltatint;
+			float sqrt_h_a = 0.0025;
+			//Appears to be safe
+			//https://stackoverflow.com/questions/8416374/several-threads-writing-the-same-value-in-the-same-global-memory-location
+	
+			//ORIGINAL: test = sqrt(h[i]/length(a[i]));
+			if (IsFree[i]) {
+				test = sqrt(h[i]/length(a[i]));
+				max_deltat[i]=sqrt_h_a*test;
 				
+				//test = h[i]/(Cs[i]+length(v[i]));
+				//max_deltat[i]=0.6*test;
+				
+				if (deltatmin > (sqrt_h_a*test)) 
+						deltatmin = sqrt_h_a*test;
+				//if (deltatmin > (0.6*test)) 
+					//deltatmin = 0.6*test;
+
+						
+						//printf("particle i: %d Min time step %f\n",i,deltatmin);
+				
+			}
+		}		
 }
 
 __host__ void Domain_d::AdaptiveTimeStep(){

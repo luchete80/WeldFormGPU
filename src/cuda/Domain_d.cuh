@@ -140,6 +140,8 @@ class Domain_d
 	double 					sqrt_h_a;
 	
 	bool						auto_ts;
+	
+	double 					*max_deltat, *max_deltat_h;		//According to each particle
 
 
 	

@@ -509,34 +509,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	cout << "Done."<<endl;
 
 	auto pointSetIndex = nsearch.add_point_set(pos.front().data(), pos.size(), true, true);
-
-	// for (size_t i = 0; i < 5; i++) {
-		// if (i != 0) {
-			// nsearch.z_sort();
-			// nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
-		// }
-		// //auto t0 = chrono::high_resolution_clock::now();
-		// // // //Timing::reset();
-		// nsearch.find_neighbors();
-		// // cout << "GPU Neighborhood search took " << 
-			// // std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t0).count() << 
-			// // "ms" << endl;		
-		
-		// // // //Timing::printAverageTimes();
-	// }
-	
-
 	auto &pointSet = nsearch.point_set(0);
-	// pointSet.set_dynamic(true);
-	// auto points = pointSet.GetPoints();
-  
-	// cout << "Validate results" << endl;
-	// Real3 point = ((Real3*)points)[0];
-	// //try to move a point 
-	// ((Real3*)points)[0][0]=10.;
-	// ((Real3*)points)[0][1]=20.;
-
-	// points = pointSet.GetPoints();
 	
 	int *nb_part_h =  new int [particle_count * 100]; //This could be sized only once with max nb count
 	int *nb_offs_h =  new int [particle_count + 1];
@@ -568,29 +541,23 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		
 	while (Time<tf) {
 	
-	if ( ts_i == 0 && is_yielding ){
-		//cout << "Searching nbs"<<endl; 
-		/////////////////////////////////////////
-		// UPDATE POINTS POSITIONS
-		//TODO: THIS HAS TO BE DONE WITH KERNEL
-		for (int i=0; i <particle_count;i++){
-		((Real3*)points)[i][0] = x_h[i].x;
-		((Real3*)points)[i][1] = x_h[i].y;
-		((Real3*)points)[i][2] = x_h[i].z;
-		}		
-		// TODO: FIX THIS! 
-		//zsort is much faster than traditional, but particle order and nb changes
-		//nsearch.z_sort();
-		//nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
-		nsearch.find_neighbors();
+		if ( ts_i == 0 && is_yielding ){
+			//cout << "Searching nbs"<<endl; 
+			/////////////////////////////////////////
+			// UPDATE POINTS POSITIONS
+			//TODO: THIS HAS TO BE DONE WITH KERNEL
+			for (int i=0; i <particle_count;i++){
+			((Real3*)points)[i][0] = x_h[i].x;
+			((Real3*)points)[i][1] = x_h[i].y;
+			((Real3*)points)[i][2] = x_h[i].z;
+			}		
+			// TODO: FIX THIS! 
+			//zsort is much faster than traditional, but particle order and nb changes
+			//nsearch.z_sort();
+			//nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
+			nsearch.find_neighbors();
 
-		// testNeighboursKernel<<< blocksPerGrid,threadsPerBlock >>>(	0,
-		// CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-		// CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-		// CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)
-		// );
-
-	}//ts_i == 0
+		}//ts_i == 0
 	
 		//cout << "
 		
@@ -645,6 +612,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			t_out += dt_out;
 			time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
 			cout << "Time "<<Time<<", GPU time "<<time_spent<<endl;
+			cout << "Current time step: "<< deltat << endl;
 			cout << "Forces calc: "			<<forces_time<<endl;
 			cout << "Stresses calc: "		<<stress_time<<endl;
 			
@@ -658,7 +626,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			}
 			cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
 		}
-		
+					
 		//TODO: CHANGE this to an interleaved reduction or something like that (see #84)
 		if (!is_yielding){
 			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
@@ -672,11 +640,22 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 				cout << "Now is yielding"<<endl;
 			}
 		}
-
-		CalcMinTimeStepKernel<<< blocksPerGrid,threadsPerBlock >>> (this);
-		cudaDeviceSynchronize();
-		
+	
 		if (auto_ts){
+			CalcMinTimeStepKernel<<< blocksPerGrid,threadsPerBlock >>> (this);
+			cudaDeviceSynchronize();
+			
+			// cudaMemcpy(max_deltat_h, max_deltat, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
+			// double max_dt=1000.;
+			// int part;
+			// for (int i=0;i<particle_count;i++){
+				// if ( max_deltat_h[i] < max_dt ){
+					// max_dt = max_deltat_h[i];
+					// deltatmin = max_dt;
+					// part = i;
+				// }
+			// }
+			// cout << "Max delta t (safe): " << max_dt<<"in particle "<<part<< ", parallel: "<<deltatmin<<endl;
 			AdaptiveTimeStep();
 			//cout << "Auto TS is on. Time Step size: "<<deltat<<endl;
 		}
