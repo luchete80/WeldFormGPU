@@ -491,8 +491,10 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	double radius = 2.0*h_glob;
 	//This bypass the original constructor 
   //TODO: make this
-	//nsearch.set_radius(radius);
-	//nsearch.deviceData = std::make_unique<cuNSearchDeviceData>(radius);
+	
+	nb_search.deviceData = std::make_unique<cuNSearchDeviceData>(radius);
+	nb_search.set_radius(radius);
+	
 	cuNSearch::NeighborhoodSearch nsearch(radius);
 	cout << "Done."<<endl;
 
@@ -608,7 +610,11 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		//cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
 		//This was in Original LastCompAcceleration
 		clock_beg_int = clock();
-		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
+		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this,
+		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+		CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+		);
 		// CalcForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(
 																		// a, drho,				//OUTPUT
 																		// x, h, v,

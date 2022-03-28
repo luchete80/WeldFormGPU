@@ -247,7 +247,10 @@ class Domain_d
 	//MAIN MECHANICAL FUNCTIONS ARE THESE THREE (Start Acc & Whole Velocity are not)
 	__device__ __forceinline__ void PrimaryComputeAcceleration ();	
 	__device__ __forceinline__ void LastComputeAcceleration();
-	__device__ /*__forceinline__*/inline void CalcForce2233(int KernelType, float XSPH);
+	__device__ /*__forceinline__*/inline void CalcForce2233(const uint *particlenbcount,
+																													const uint *neighborWriteOffsets,
+																													const uint *neighbors,
+																													int KernelType, float XSPH);
 	__device__ void StressStrain(int i);
 	
 	__device__ void ApplyBCVel(int bcid, 
@@ -308,8 +311,12 @@ void __global__ /*inline*/ CalcForcesKernel(
 																		double *sigma,
 																		double *strrate, double *rotrate,
 																		int particle_count);
-																		
-__global__ void CalcForcesKernel(Domain_d *dom_d);
+
+//TODO: pass all to Domain_d																		
+__global__ void CalcForcesKernel(	const uint *particlenbcount,
+																	const uint *neighborWriteOffsets,
+																	const uint *neighbors,
+																	Domain_d *dom_d);
 
 __global__ void WholeVelocityKernel(Domain_d *dom_d);
 

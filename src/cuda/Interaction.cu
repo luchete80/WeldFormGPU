@@ -10,9 +10,17 @@ __global__ void CalcForcesMember(PartData_d *partdata){
 	partdata->CalcForce2233(0,0.0);
 }
 
-__global__ void CalcForcesKernel(Domain_d *dom_d){
+//TODO: Add nb data to domain
+__global__ void CalcForcesKernel(Domain_d *dom_d,
+	const uint *particlenbcount,
+	const uint *neighborWriteOffsets,
+	const uint *neighbors){
 	//int i = threadIdx.x + blockDim.x*blockIdx.x;
-	dom_d->CalcForce2233(0,0.0);
+	dom_d->CalcForce2233(
+	particlenbcount,
+	neighborWriteOffsets,
+	neighbors,
+	0,0.0);
 }
 
 #define NEIBS(i, k) partdata->neib_part[partdata->neib_offs[i]+k]
@@ -62,20 +70,21 @@ __device__ /*inline*/ void PartData_d::CalcForce2233(
 
 
 __device__ inline void Domain_d::CalcForce2233(
+	const uint *particlenbcount,
+	const uint *neighborWriteOffsets,
+	const uint *neighbors,
 	/* const double &Dimension*/
 	int KernelType,
-	float XSPH)
+	float XSPH
+	)
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
 	if ( i < particle_count ) {
 	int Dimension = 3; //TODO, put in another 
-	int neibcount;
-	#ifdef FIXED_NBSIZE
-	neibcount = neib_offs[i];
-	#else
-	neibcount =	neib_offs[i+1] - neib_offs[i];
-	#endif
+	int neibcount = particlenbcount[i];
+	const uint writeOffset = neighborWriteOffsets[i];
+	
 	//printf("Solving\n");
 	tensor3 StrainRate, RotationRate;
 	tensor3 StrainRateSum,RotationRateSum;
@@ -88,7 +97,7 @@ __device__ inline void Domain_d::CalcForce2233(
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
-		int j = NEIB(i,k);
+		int j = neighbors[writeOffset + k];
 		//double h	= partdata->h[i]+P2->h)/2;
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
