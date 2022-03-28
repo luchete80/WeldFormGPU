@@ -346,7 +346,8 @@ __device__ void Domain_d::StressStrain(int i) {
 		
 		if ( sig_trial > sigma_y[i]) {
 			dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
-			pl_strain[i] += dep;			
+			pl_strain[i] += dep;		
+			sigma_eq[i] = sigma_y[i];
 		}
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(Sigma, sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM

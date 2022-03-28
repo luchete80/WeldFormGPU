@@ -335,7 +335,7 @@ void Domain_d::WriteCSV(char const * FileKey){
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f %f\n",
+		fprintf(f,"%.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n",
 							x_h[i].x,x_h[i].y,x_h[i].z, 
 							v_h[i].x,v_h[i].y,v_h[i].z, 
 							a_h[i].x,a_h[i].y,a_h[i].z,
