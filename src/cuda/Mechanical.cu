@@ -341,7 +341,7 @@ __device__ void Domain_d::StressStrain(int i) {
 		double sig_trial = sqrt(3.0*J2); 
 		sigma_eq[i] = sig_trial;	
 		
-		if ( sig_trial > Sigmay) {
+		if ( sig_trial > sigma_y[i]) {
 			dep=( sig_trial - sigma_y[i])/ (3.*G[i] + Ep);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
 			pl_strain[i] += dep;			
 		}
