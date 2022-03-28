@@ -559,7 +559,12 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	//nsearch.z_sort();
 	//nsearch.point_set(pointSetIndex).sort_field((Real3*)nsearch.point_set(pointSetIndex).GetPoints());
 	nsearch.find_neighbors();	
-	
+		// testNeighboursKernel<<< blocksPerGrid,threadsPerBlock >>>(	0,
+		// CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+		// CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+		// CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)
+		// );
+		
 	while (Time<tf) {
 	
 	if ( ts_i == 0 && is_yielding ){
@@ -630,6 +635,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			
 			cudaMemcpy(rho_h, rho, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
 			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
 			
 			char str[10];
 			sprintf(str, "out_%d.csv", step);
@@ -656,8 +662,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		if (!is_yielding){
 			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
 			for (int i=0;i<particle_count;i++){
-				if (pl_strain[i]>)
-					max_pl_strain = pl_strain[i];
+				if ( pl_strain_h[i] > max_pl_strain )
+					max_pl_strain = pl_strain_h[i];
 			}
 			
 			if ( max_pl_strain > MIN_PS_FOR_NBSEARCH ){

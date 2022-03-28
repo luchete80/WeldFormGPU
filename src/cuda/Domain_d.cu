@@ -330,18 +330,19 @@ Domain_d::~Domain_d(){
 void Domain_d::WriteCSV(char const * FileKey){
 	FILE *f = fopen(FileKey,"w");;
 	
-	fprintf(f, "X, Y, Z, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq\n");
+	fprintf(f, "X, Y, Z, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f \n",
+		fprintf(f,"%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f %f\n",
 							x_h[i].x,x_h[i].y,x_h[i].z, 
 							v_h[i].x,v_h[i].y,v_h[i].z, 
 							a_h[i].x,a_h[i].y,a_h[i].z,
 						rho_h[i],
 						p_h[i],
-						sigma_eq_h[i]);
+						sigma_eq_h[i],
+						pl_strain_h[i]);
 		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
 		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;
 	}
