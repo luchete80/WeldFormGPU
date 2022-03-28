@@ -179,7 +179,10 @@ class Domain_d
 	double *strain,*straina,*strainb;
 	
 	double *sigma_eq, *sigma_eq_h;
+	double *pl_strain,*pl_strain_h;
 	double *p_h,*rho_h;
+	
+	double *sigma_y,*sigma_y_h;
 	//Be in another class
 	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
 		

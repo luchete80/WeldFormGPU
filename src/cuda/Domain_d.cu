@@ -37,7 +37,10 @@ void Domain_d::SetDimension(const int &particle_count){
 	v_h =  new double3 [particle_count];
 	u_h =  new double3 [particle_count];
 	a_h =  new double3 [particle_count];
+	
 	sigma_eq_h =  new double [particle_count];
+	pl_strain_h = new double [particle_count];
+	
 	p_h =  new double [particle_count];
 	rho_h =  new double [particle_count];
 	
@@ -89,7 +92,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&shearstressb	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
 
 	cudaMalloc((void **)&sigma_eq		, particle_count  * sizeof (double));		
-
+	cudaMalloc((void **)&pl_strain	, particle_count  * sizeof (double));	
+	cudaMalloc((void **)&sigma_y		, particle_count  * sizeof (double));		
 	
 	cudaMalloc((void **)&strain		, particle_count  * 6 * sizeof (double));		
 	cudaMalloc((void **)&straina	, particle_count  * 6 * sizeof (double));		

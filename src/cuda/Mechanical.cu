@@ -269,7 +269,8 @@ __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
 __device__ void Domain_d::StressStrain(int i) {
 	
 	//int i = threadIdx.x + blockDim.x*blockIdx.x;
-		
+	double dep = 0.;
+	
 	if ( i < particle_count ) {	
 		//Pressure = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
 
@@ -336,9 +337,14 @@ __device__ void Domain_d::StressStrain(int i) {
 		double J2	= 0.5*(ShearStress.xx*ShearStress.xx + 2.0*ShearStress.xy*ShearStress.yx +
 					2.0*ShearStress.xz*ShearStress.zx + ShearStress.yy*ShearStress.yy +
 					2.0*ShearStress.yz*ShearStress.zy + ShearStress.zz*ShearStress.zz);
-	
-		sigma_eq[i] = sqrt(3.0*J2);	
 		
+		double sig_trial = sqrt(3.0*J2); 
+		sigma_eq[i] = sig_trial;	
+		
+		if ( sig_trial > Sigmay) {
+			dep=( sig_trial - sigma_y[i])/ (3.*G[i] + Ep);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
+			pl_strain[i] += dep;			
+		}
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(Sigma, sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM
 		
