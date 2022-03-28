@@ -257,7 +257,7 @@ int main(int argc, char **argv) //try
 	//cudaDeviceSynchronize(); //Crashes if not Sync!!!
 	
 	//dom_d->deltat = timestep;
-	dom_d->deltat = 1.0e-7;
+	dom_d->deltat = 5.0e-8;
 	
 	cout << "Time Step: "<<dom_d->deltat<<endl;
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
