@@ -19,6 +19,13 @@ link_directories(${cuNSearch_BINARY_DIR})
 set(CMAKE_CXX_STANDARD 11) #LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# --fmad=true and --fmad=false enables and disables the contraction respectively. 
+ # This switch is supported only when the --gpu-architecture option is set with     
+ # compute_20, sm_20, or higher. For other architecture classes, the contraction is     
+  # always enabled. 
+ # The --use_fast_math option implies --fmad=true, and enables the contraction.
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --fmad=false")
+
 SET(EXES
 	#Ale
 	#Ale_modelo6

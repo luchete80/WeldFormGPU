@@ -8,7 +8,7 @@ namespace SPH{
 //max_contact_force
 //Neighbours
 //vectors v
-void __device__ inline Domain::CalcContactForces(/* int i*/){
+void __device__ inline Domain_d::CalcContactForces(/* int i*/){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
 
 	double min_force_ts_=1000.;
@@ -81,34 +81,11 @@ void __device__ inline Domain::CalcContactForces(/* int i*/){
 				}
 				
 				if (inside ) { //Contact point inside element, contact proceeds
-		// cout << "Particle Normal: "<<normal[j]<<endl;
-					// cout << "/////////////////////////////////////////" <<endl;
-					// cout << " vr: "<< vr<<endl;
-					// cout << "delta_: "<<delta_<<endl;
-					// cout << "x[i]"<< x[i]<<endl;
-					 // cout << "Particles[P2]->x"<< Particles[P2]->x<<endl;
-					 // cout << "Particles[P2]->n"<< normal[j]<<endl;
-					 // cout << "Particles[P1]->h"<< Particles[P1]->h<<endl;
-					 // cout << "pplane" << pplane<<endl;
-					 // cout << "dot (normal[j],	x[i])" <<dot (normal[j],	x[i])<<endl;
-					 //cout << "dt contact: "<<deltat_cont<<endl;
-			
-					//Recalculate vr (for large FEM mesh densities)
-					//cout << "particle "<<P1 <<" inside element"<<endl;
-					
+
 					//Calculate penetration depth (Fraser 3-49)
 					double delta = (deltat - deltat_cont) * delta_;
 					//cout << "delta: "<<delta<<endl;
-					// omp_set_lock(&Particles[P1]->my_lock);
-					// if (Particles[P1]->delta_pl_strain > 0.) {
-						// //cout << "recalc sitffness"<<endl;
-						// double dS = pow(m[i]/Particles[P1]->Density,0.33333); //Fraser 3-119;
-						// //Particles[P1]-> cont_stiff = Particles[P1]->mat->Elastic().E()*0.01 * dS;
-						// Particles[P1]-> cont_stiff = Particles [P1]-> Et_m * dS;
-						// //cout << "recalculated: "<< Particles[P1]-> cont_stiff<<endl;
-					// }
-					// omp_unset_lock(&Particles[P1]->my_lock);
-					
+
 					// DAMPING
 					//Calculate SPH and FEM elements stiffness (series)
 					//Since FEM is assumed as rigid, stiffness is simply the SPH one 

@@ -265,6 +265,9 @@ class Domain_d
 
 
 	__device__ void WholeVelocity();
+  
+  //Contact things 
+  void __device__ inline CalcContactForces(/* int i*/);
 
 };
 
