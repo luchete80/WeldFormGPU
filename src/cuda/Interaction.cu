@@ -131,6 +131,7 @@ __device__ inline void Domain_d::CalcForce2233(
 		
 		////// Artificial Viscosity
 		tensor3 PIij;
+    clear(PIij);
 		//set_to_zero(PIij);
 
 		if (Alpha!=0.0 || Beta!=0.0)
@@ -258,7 +259,7 @@ __device__ inline void Domain_d::CalcForce2233(
 		// if (i == 1250)
 			// printf("Particle 1250 Time %.4e, Sigmaizz %f , Sigmajzz %f\n",Time, Sigmai(2,2),Sigmaj(2,2));
 		tensor3 test = (1.0/(di*di))*Sigmai + (1.0/(dj*dj))*Sigmaj ;
-		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj /*+ PIij /* TIij */) * (GK*xij);		
+		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /* TIij */) * (GK*xij);		
 		double3 gkxij = GK*xij;
 		//if (i==1250 ){
 			// printf("i %d,j %d,Sigmai, Sigmaj \n",i,j);Sigmai.print();Sigmaj.print();
