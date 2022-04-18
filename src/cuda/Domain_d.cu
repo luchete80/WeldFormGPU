@@ -335,12 +335,13 @@ Domain_d::~Domain_d(){
 void Domain_d::WriteCSV(char const * FileKey){
 	FILE *f = fopen(FileKey,"w");;
 	
-	fprintf(f, "X, Y, Z, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain\n");
+	fprintf(f, "X, Y, Z, Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n",
+		fprintf(f,"%.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n",
+              u_h[i].x,u_h[i].y,u_h[i].z, 
 							x_h[i].x,x_h[i].y,x_h[i].z, 
 							v_h[i].x,v_h[i].y,v_h[i].z, 
 							a_h[i].x,a_h[i].y,a_h[i].z,

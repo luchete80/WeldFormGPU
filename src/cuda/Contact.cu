@@ -4,6 +4,10 @@
 // domain max_contact_force
 
 namespace SPH{
+
+
+
+
 //Inputs
 //max_contact_force
 //Neighbours
@@ -18,17 +22,15 @@ void __device__ inline Domain_d::CalcContactForces(/* int i*/){
 	double min_contact_force = 1000.;
 	int inside_pairs = 0;
 	
-	int neibcount;
-	#ifdef FIXED_NBSIZE
-	neibcount = contneib_offs[i];
-	#else
-	neibcount =	contneib_offs[i+1] - contneib_offs[i];
-	#endif
+	int neibcount = particlenbcount[i];
+	const uint writeOffset = neighborWriteOffsets[i];
+
 	// printf("neibcount %d\n",neibcount);
 	// printf("Nb indexed,i:%d\n",i);
 	// In this Weldform GPU version, is clear than i is SPH particle and 2 is RIGID PARTICLE
 	for (int k=0;k < neibcount;k++) { //Or size
 
+    int j = neighbors[writeOffset + k];
 		double3 xij;
 		double h,K;
 		// Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
@@ -46,7 +48,7 @@ void __device__ inline Domain_d::CalcContactForces(/* int i*/){
 
 		//Check if SPH and fem particles are approaching each other
 		if (delta_ > 0 ){
-			Element* e = trimesh-> element[Particles[P2]->element];
+			Element* e = trimesh-> element[element[j]];
 			double pplane = e -> pplane; 
 			//cout<< "contact distance"<<Particles[P1]->h + pplane - dot (normal[j],	x[i])<<endl;
 

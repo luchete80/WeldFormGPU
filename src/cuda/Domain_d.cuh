@@ -215,6 +215,9 @@ class Domain_d
 	int *contneib_part;	//1D array, faster
 	int *contneib_offs;	//Offset or count
 	double3 *contforce;	//SOA
+  
+  int element;
+  //Trimesh *trimesh;
 	
 	/////////////////////////////////////////
 	///////// MEMBER FUNCTIONS /////////////
