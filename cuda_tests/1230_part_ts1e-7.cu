@@ -257,25 +257,16 @@ int main(int argc, char **argv) //try
 	//CheckData<<<1,1>>>(dom_d);
 	//cudaDeviceSynchronize(); //Crashes if not Sync!!!
 	
-	
-
+	//dom_d->deltat = timestep;
+	dom_d->deltat = 1.0e-7;
 	
 	cout << "Time Step: "<<dom_d->deltat<<endl;
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
 	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
-  
-  dom_d->deltat = timestep;
-	dom_d->auto_ts = true;
-  //dom_d->Alpha = 1.0;
-	dom_d->MechSolve(0.00101,1.0e-4);
-  
-  //First example
-  // dom_d->deltat = 1.0e-7;
-	// dom_d->auto_ts = false;
-  // dom_d->Alpha = 1.0;
-	// dom_d->MechSolve(0.00101,1.0e-4);
-
+	dom_d->auto_ts = false;
+	dom_d->MechSolve(0.00201,1.0e-4);
+	//dom_d->MechSolve(2.*timestep,timestep);
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	
@@ -287,4 +278,3 @@ int main(int argc, char **argv) //try
 	//report_gpu_mem();
 	cout << "Program ended."<<endl;
 }
-//MECHSYS_CATCH

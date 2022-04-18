@@ -38,6 +38,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	u_h =  new double3 [particle_count];
 	a_h =  new double3 [particle_count];
 	
+  ID_h =  new int    [particle_count];
+	
 	sigma_eq_h =  new double [particle_count];
 	pl_strain_h = new double [particle_count];
 	
@@ -127,7 +129,8 @@ void Domain_d::SetDimension(const int &particle_count){
 		// cudaMalloc(&someHostArray[i], 100*sizeof(int)); /* Replace 100 with the dimension that u want */
 	// }
 	
-	Alpha= 1.;
+	Alpha = 1.;
+  Beta  = 0.;
 	auto_ts = true;
 	
 	deltat	= 0.0;
@@ -340,9 +343,9 @@ void Domain_d::WriteCSV(char const * FileKey){
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n",
-              u_h[i].x,u_h[i].y,u_h[i].z, 
+		fprintf(f,"%.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n", 
 							x_h[i].x,x_h[i].y,x_h[i].z, 
+              u_h[i].x,u_h[i].y,u_h[i].z,
 							v_h[i].x,v_h[i].y,v_h[i].z, 
 							a_h[i].x,a_h[i].y,a_h[i].z,
 							//ID[i],
@@ -377,16 +380,17 @@ __device__ void Domain_d::CalcMinTimeStep(){
 	
 			//ORIGINAL: test = sqrt(h[i]/length(a[i]));
 			if (IsFree[i]) {
-				test = sqrt(h[i]/length(a[i]));
-				max_deltat[i]=sqrt_h_a*test;
 				
 				//test = h[i]/(Cs[i]+length(v[i]));
 				//max_deltat[i]=0.6*test;
-				
-				if (deltatmin > (sqrt_h_a*test)) 
-						deltatmin = sqrt_h_a*test;
 				//if (deltatmin > (0.6*test)) 
 					//deltatmin = 0.6*test;
+        
+				test = sqrt(h[i]/length(a[i]));
+				max_deltat[i]=sqrt_h_a*test;				
+				if (deltatmin > (sqrt_h_a*test)) 
+						deltatmin = sqrt_h_a*test;
+
 
 						
 						//printf("particle i: %d Min time step %f\n",i,deltatmin);

@@ -200,10 +200,7 @@ class Domain_d
 	bool 			*IsFree, *NoSlip;
 	double3 	*NSv;	///< Velocity of the fixed particle for no-slip BC
 	
-	int 			*ID;
-	
-
-	
+	int 			*ID, *ID_h;
 	
 	
 	////////////////////////////////////

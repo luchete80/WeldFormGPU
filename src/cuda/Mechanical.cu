@@ -484,7 +484,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	stress_time = forces_time = accel_time = pressure_time = move_time = 0.;
 
 	cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);		
-	
+
+
 	//Make the nb search at first
 	
 	vector < Real3> pos;
@@ -584,8 +585,10 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
 		cudaDeviceSynchronize();
-//		double vbc = VMAX/TAU*Time;
-		double vbc = 1.0; 
+    double vbc;
+    if (Time < TAU) vbc = VMAX/TAU*Time;
+    else            vbc = VMAX;
+		//double vbc = 1.0; 
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
 		
@@ -655,7 +658,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 					// part = i;
 				// }
 			// }
-			// cout << "Max delta t (safe): " << max_dt<<"in particle "<<part<< ", parallel: "<<deltatmin<<endl;
+			//cout << "Max delta t (safe): " << max_dt<<"in particle "<<part<< ", parallel: "<<deltatmin<<endl;
 			AdaptiveTimeStep();
 			//cout << "Auto TS is on. Time Step size: "<<deltat<<endl;
 		}
