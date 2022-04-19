@@ -1,3 +1,6 @@
+#ifndef _INTERACTIONS_CU_
+#define _INTERACTIONS_CU_
+
 #include "Domain_d.cuh"
 #include "Functions.cuh"
 #include "tensor.cuh"
@@ -11,7 +14,7 @@ __global__ void CalcForcesMember(PartData_d *partdata){
 }
 
 //TODO: Add nb data to domain
-__global__ void CalcForcesKernel(Domain_d *dom_d,
+__global__ inline void CalcForcesKernel(Domain_d *dom_d,
 	const uint *particlenbcount,
 	const uint *neighborWriteOffsets,
 	const uint *neighbors){
@@ -491,3 +494,6 @@ void __global__ /*inline*/ CalcForcesKernel(
 }
 
 }; //SPH
+
+
+#endif

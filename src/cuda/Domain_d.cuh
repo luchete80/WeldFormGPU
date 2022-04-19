@@ -305,9 +305,9 @@ void __global__ MechSolveKernel (double dt, PartData_d *partdata);
 
 __device__ void CalcForcesExt(PartData_d *partdata);
 
-__global__ void CalcForcesKernelMember(PartData_d *partdata);
+__global__ inline void CalcForcesKernelMember(PartData_d *partdata);
 
-void __global__ /*inline*/ CalcForcesKernel(
+void __global__ inline CalcForcesKernel(
 																		double3 *a, double *drho,				//OUTPUT
 																		double3 *x, double *h, double3* v,
 																		double *m, double *rho, double *FPMassC,
@@ -318,7 +318,7 @@ void __global__ /*inline*/ CalcForcesKernel(
 																		int particle_count);
 
 //TODO: pass all to Domain_d																		
-__global__ void CalcForcesKernel(	const uint *particlenbcount,
+__global__ inline void CalcForcesKernel(	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
 																	const uint *neighbors,
 																	Domain_d *dom_d);
