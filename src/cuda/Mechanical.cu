@@ -539,7 +539,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		// CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
 		// CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)
 		// );
-		
+  int count = 1;
 	while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){
@@ -595,7 +595,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		deltatmin = deltatint = deltat;
 		//Save before move (to be changed)
 
-		int count = 1;
+		
 		if (Time >= t_out) {		
 			cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
