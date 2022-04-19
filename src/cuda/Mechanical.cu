@@ -595,7 +595,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		deltatmin = deltatint = deltat;
 		//Save before move (to be changed)
 
-		
+		int count = 1;
 		if (Time >= t_out) {		
 			cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
@@ -609,7 +609,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
 			
 			char str[10];
-			sprintf(str, "out_%d.csv", step);
+			sprintf(str, "out_%d.csv", count);
+      count++;
 			WriteCSV(str);
 			
 			t_out += dt_out;
