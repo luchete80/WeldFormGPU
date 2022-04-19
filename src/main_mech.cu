@@ -153,7 +153,7 @@ int main(int argc, char **argv) //try
 	G	= 2.5902e10;
 	
 	//dx = 0.030; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
-  dx = 0.015; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
+  dx = 0.030; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
 	h	= dx*1.2; //Very important
 
 	double Cs	= sqrt(K/rho);

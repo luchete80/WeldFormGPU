@@ -323,7 +323,26 @@ __device__ void Domain_d::StressStrain(int i) {
 		// printf("Stress Kernel ShearStressA\n");print(ShearStressa);}
 			
 		// //Fail, TODO
+				
+		double J2	= 0.5*(ShearStressa.xx*ShearStressa.xx + 2.0*ShearStressa.xy*ShearStressa.yx +
+					2.0*ShearStressa.xz*ShearStressa.zx + ShearStressa.yy*ShearStressa.yy +
+					2.0*ShearStressa.yz*ShearStressa.zy + ShearStressa.zz*ShearStressa.zz);
+
+    //Scale back, Fraser Eqn 3-53
+		double sig_trial = sqrt(3.0*J2); 
+    if ( sigma_y[i] < sig_trial ) ShearStressa = sigma_y[i]/sig_trial * ShearStressa; //Yielding      
+    //std::min((Sigmay/sqrt(3.0*J2)),1.0)*ShearStressa;
 		
+		sigma_eq[i] = sig_trial;	
+		
+		if ( sig_trial > sigma_y[i]) {
+			dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
+			pl_strain[i] += dep;	
+      //printf("Particle %d, dep %.1e, sigtrial %.1e\n",i,dep,sig_trial);
+			sigma_eq[i] = sigma_y[i];
+		}
+
+    
 		ShearStress	= 1.0/2.0*(ShearStressa+ShearStressb);
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
 		// if (i == 1250){
@@ -336,19 +355,7 @@ __device__ void Domain_d::StressStrain(int i) {
 		Strainb	= Straina;
 		Straina	= deltat*StrainRate + Straina;
 		Strain	= 1.0/2.0*(Straina+Strainb);
-		
-		double J2	= 0.5*(ShearStress.xx*ShearStress.xx + 2.0*ShearStress.xy*ShearStress.yx +
-					2.0*ShearStress.xz*ShearStress.zx + ShearStress.yy*ShearStress.yy +
-					2.0*ShearStress.yz*ShearStress.zy + ShearStress.zz*ShearStress.zz);
-		
-		double sig_trial = sqrt(3.0*J2); 
-		sigma_eq[i] = sig_trial;	
-		
-		if ( sig_trial > sigma_y[i]) {
-			dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
-			pl_strain[i] += dep;		
-			sigma_eq[i] = sigma_y[i];
-		}
+
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(Sigma, sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM
 		
