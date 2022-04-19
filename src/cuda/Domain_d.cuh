@@ -318,7 +318,7 @@ void __global__ inline CalcForcesKernel(
 																		int particle_count);
 
 //TODO: pass all to Domain_d																		
-__global__ inline void CalcForcesKernel(	const uint *particlenbcount,
+__global__ void CalcForcesKernel(	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
 																	const uint *neighbors,
 																	Domain_d *dom_d);
