@@ -13,6 +13,7 @@ __global__ void CalcForcesMember(PartData_d *partdata){
 	partdata->CalcForce2233(0,0.0);
 }
 
+// THIS IS WHICH IS CURRENTLY WORKING
 //TODO: Add nb data to domain
 __global__ inline void CalcForcesKernel(Domain_d *dom_d,
 	const uint *particlenbcount,

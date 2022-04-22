@@ -413,6 +413,7 @@ __host__ void Domain_d::AdaptiveTimeStep(){
 	}
 }
 
+
 // THIS SHOULD BE DONE
 	// if (deltatint>deltatmin)
 	// {

@@ -28,51 +28,9 @@ set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --fmad=false")
 #set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --fast_math=false")
 
 SET(EXES
-	#Ale
-	#Ale_modelo6
-	#SolidBlock_Heat_conv3faces_Flux_n30
-	#Ale_Modelo6_placa
-	# 1-Poiseuille
-	# 2-Couette
-	# 3-DamBreak
-	# 4-DamBreak3D
-	#Cylinder_Test
-	#Plate-Yield
-	#Compression
-	#Compression_10
-	#Compression_12_solver_orig
-	#Compression_smallD
-	#Compression_smallL
-	#Compression_smallL_1side
-	#Compression_smallD_CNS
-	#Compression_10ts
-	#Compression_Elastic_CNS_10ts
-	#Compression_Elastic_CNS
-	#Cantilever
-	#Cantilever2
-	#Cantilever2_pl
-	#Elastic
+
 	main
-	#Heat_2D
-	# Traction
-	# 4-DamBreak3D
-	#Plate-Yield_hcorr
-	#Plate-Yield_CNS
-	#Plate-Yield_Hard
-	#Plate-Yield_CNS_Hard
-	#Plate-Yield_CNS_v2
-	#Plate-Yield_3d_al
-	#Plate-Yield_3d_al_CNS
-	#SolidBlock_Heat
-	#SolidBlock_Heat_CNS
-	#SolidBlock_Heat_conv3faces
-	#SolidBlock_Heat_source
-	#SolidBlock_Heat_conv3faces_Flux
-	#SolidBlock_Heat_source2
-	#SolidBlock_Heat_source2_boundpart
-	#Neighbour_Test
-	#Neighbour_Test_CNS
-	#"Source/WeldForm"
+
 )
 
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
@@ -97,23 +55,26 @@ add_executable(gpuweldform
 													cuNSearch/Utils/Timing.cpp
 													cuNSearch/Utils/IDFactory.cpp													
 													) 
-
-# add_executable(test_cuns 
-													# main_mech_cuns.cu
-													# Domain.cpp 
-													# Output.cpp
-													# Vector.cpp
-													# cuda/Domain_d.cu
-													# cuda/Thermal.cu
-													# cuNSearch/src/PointSet.cu
-													# cuNSearch/src/PointSetImplementation.cu
-													# cuNSearch/src/cuNSearch.cu
-													# cuNSearch/src/cuNSearchDeviceData.cu
-													# cuNSearch/src/cuNSearchKernels.cu
-													# cuNSearch/Utils/cuda_helper.cu
-													# cuNSearch/Utils/Timing.cpp
-													# cuNSearch/Utils/IDFactory.cpp
-													# ) 
+add_executable(test_surf 
+													#main_thermal.cu
+													test_surf.cu
+													Domain.cpp 
+													#NbSearch.cpp 
+													Output.cpp
+													Vector.cpp
+													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
+													cuda/Domain_d.cu
+													cuda/Thermal.cu
+													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
+													cuNSearch/src/PointSet.cu
+													cuNSearch/src/PointSetImplementation.cu
+													cuNSearch/src/cuNSearch.cu
+													cuNSearch/src/cuNSearchDeviceData.cu
+													cuNSearch/src/cuNSearchKernels.cu
+													cuNSearch/Utils/cuda_helper.cu
+													cuNSearch/Utils/Timing.cpp
+													cuNSearch/Utils/IDFactory.cpp													
+													) 
 
 
 #tensor and all functions defined in separate modulus

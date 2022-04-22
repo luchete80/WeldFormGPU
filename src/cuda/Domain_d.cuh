@@ -253,6 +253,12 @@ class Domain_d
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
 																													int KernelType, float XSPH);
+
+	__device__ /*__forceinline__*/inline void CalculateSurface(const uint *particlenbcount,
+																													const uint *neighborWriteOffsets,
+																													const uint *neighbors,
+																													const int &id);
+
 	__device__ void StressStrain(int i);
 	
 	__device__ void ApplyBCVel(int bcid, 
@@ -317,12 +323,18 @@ void __global__ inline CalcForcesKernel(
 																		double *strrate, double *rotrate,
 																		int particle_count);
 
-//TODO: pass all to Domain_d																		
+//TODO: pass all to Domain_d	
+// THIS IS WHICH CURRENTLY WORKING																	
 __global__ void CalcForcesKernel(	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
 																	const uint *neighbors,
 																	Domain_d *dom_d);
 
+__global__ void CalculateSurface(	const uint *particlenbcount,
+																	const uint *neighborWriteOffsets,
+																	const uint *neighbors,
+																	Domain_d *dom_d, const int &id);
+                                  
 __global__ void WholeVelocityKernel(Domain_d *dom_d);
 
 void __global__ CalcConvHeatKernel (double *dTdt,
