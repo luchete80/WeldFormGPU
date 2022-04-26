@@ -117,7 +117,10 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&TIR, 				6 * particle_count  * sizeof (double));	
 
 	cudaMalloc((void **)&max_deltat, 	particle_count  * sizeof (double));		
-	
+  
+  
+  /////////////CONTACT////////////////
+	cudaMalloc((void **)&normal, particle_count * sizeof (double3));	
 	
 	//////////////////////////
 	/// CORRECTIONS /////////
@@ -150,6 +153,13 @@ void Domain_d::SetDimension(const int &particle_count){
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
 }
 
+__device__ __host__ void Domain_d::CalculateTotMass(){
+  totmass = 0.;
+  for (int i=0;i<particle_count;i++){
+    totmass += m[i];
+  }
+  //totmass /=particle_count;
+}
 
 __host__ void Domain_d::SetFreePart(const Domain &dom){
 	bool *k_ =  new bool[particle_count];

@@ -206,12 +206,16 @@ class Domain_d
 	////////////////////////////////////
 	/////// CONTACT THINGS /////////////
 	////////////////////////////////////
+  int id_free_surf;
+  bool contact;
+  double totmass;
 	double 	max_contact_force;
-	double3 normal; 
+	double3 *normal; 
 	int **contneib;	//array of lists
 	int *contneib_part;	//1D array, faster
 	int *contneib_offs;	//Offset or count
 	double3 *contforce;	//SOA
+  int first_fem_particle_idx;
   
   int element;
   //Trimesh *trimesh;
@@ -258,6 +262,7 @@ class Domain_d
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
 																													const int &id);
+  __device__ __host__ void CalculateTotMass();                                                         
 
 	__device__ void StressStrain(int i);
 	
@@ -313,27 +318,10 @@ __device__ void CalcForcesExt(PartData_d *partdata);
 
 __global__ inline void CalcForcesKernelMember(PartData_d *partdata);
 
-void __global__ inline CalcForcesKernel(
-																		double3 *a, double *drho,				//OUTPUT
-																		double3 *x, double *h, double3* v,
-																		double *m, double *rho, double *FPMassC,
-																		double *Cs, double *P0,double *p, double *rho_0,
-																		int *neib_part, int *neib_offs,
-																		double *sigma,
-																		double *strrate, double *rotrate,
-																		int particle_count);
-
-//TODO: pass all to Domain_d	
-// THIS IS WHICH CURRENTLY WORKING																	
-__global__ void CalcForcesKernel(	const uint *particlenbcount,
-																	const uint *neighborWriteOffsets,
-																	const uint *neighbors,
-																	Domain_d *dom_d);
-
-__global__ void CalculateSurface(	const uint *particlenbcount,
-																	const uint *neighborWriteOffsets,
-																	const uint *neighbors,
-																	Domain_d *dom_d, const int &id);
+// __global__ void CalculateSurfaceKernel(	const uint *particlenbcount,
+																	// const uint *neighborWriteOffsets,
+																	// const uint *neighbors,
+																	// Domain_d *dom_d, const int &id);
                                   
 __global__ void WholeVelocityKernel(Domain_d *dom_d);
 

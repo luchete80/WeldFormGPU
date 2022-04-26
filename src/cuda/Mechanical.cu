@@ -8,6 +8,8 @@
 #include "tensor3.cu" //INLINE
 #include "Interaction.cu"
 
+#include "Geometry.cu"
+
 #include "cuNSearch.h"
 //For Writing file
 
@@ -546,7 +548,9 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		// CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
 		// CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)
 		// );
-  int count = 1;
+    
+  int count = 1; //step
+  
 	while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){
@@ -577,15 +581,12 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
 		CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
 		);
-		// CalcForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(
-																		// a, drho,				//OUTPUT
-																		// x, h, v,
-																		// m, rho, FPMassC,
-																		// Cs, P0,p, rho_0,
-																		// neib_part, neib_offs,
-																		// sigma,
-																		// strrate, rotrate,
-																		 // particle_count);
+    CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+		CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors),		    
+    10);
+
 		cudaDeviceSynchronize(); //REQUIRED!!!!
 		forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
 			
