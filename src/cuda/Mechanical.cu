@@ -551,7 +551,9 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
     
   int count = 1; //step
   
-	while (Time<tf) {
+  //totmass = 1.;
+  
+  while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){
 			//cout << "Searching nbs"<<endl; 
@@ -581,14 +583,20 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
 		CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
 		);
-    CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
-		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-		CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors),		    
-    10);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
 
-		cudaDeviceSynchronize(); //REQUIRED!!!!
-		forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
+    if (contact){
+      int id = 10;
+      CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors),		    
+      10,
+      totmass);
+      cudaDeviceSynchronize(); //REQUIRED!!!!
+		}
+    
+    forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
 			
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
@@ -605,6 +613,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 
 		
 		if (Time >= t_out) {		
+			cudaMemcpy(ID_h, ID, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	

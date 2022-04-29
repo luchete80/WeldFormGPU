@@ -261,9 +261,7 @@ class Domain_d
 	__device__ /*__forceinline__*/inline void CalculateSurface(const uint *particlenbcount,
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
-																													const int &id);
-  __device__ __host__ void CalculateTotMass();                                                         
-
+																													const int &id,const double &totmass);
 	__device__ void StressStrain(int i);
 	
 	__device__ void ApplyBCVel(int bcid, 

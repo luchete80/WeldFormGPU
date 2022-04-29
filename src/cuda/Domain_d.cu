@@ -153,14 +153,6 @@ void Domain_d::SetDimension(const int &particle_count){
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
 }
 
-__device__ __host__ void Domain_d::CalculateTotMass(){
-  totmass = 0.;
-  for (int i=0;i<particle_count;i++){
-    totmass += m[i];
-  }
-  //totmass /=particle_count;
-}
-
 __host__ void Domain_d::SetFreePart(const Domain &dom){
 	bool *k_ =  new bool[particle_count];
 	for (int i=0;i<particle_count;i++){
@@ -348,13 +340,14 @@ Domain_d::~Domain_d(){
 void Domain_d::WriteCSV(char const * FileKey){
 	FILE *f = fopen(FileKey,"w");;
 	
-	fprintf(f, "X, Y, Z, Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain\n");
+	fprintf(f, "ID, X, Y, Z, Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n", 
-							x_h[i].x,x_h[i].y,x_h[i].z, 
+		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n", 
+							ID_h[i],
+              x_h[i].x,x_h[i].y,x_h[i].z, 
               u_h[i].x,u_h[i].y,u_h[i].z,
 							v_h[i].x,v_h[i].y,v_h[i].z, 
 							a_h[i].x,a_h[i].y,a_h[i].z,

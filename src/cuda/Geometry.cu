@@ -11,21 +11,21 @@ namespace SPH {
 __global__ void CalculateSurfaceKernel(Domain_d *dom_d,	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
 																	const uint *neighbors,
-																	const int &id){
+																	const int &id, const double &totmass){
 	dom_d->CalculateSurface(
 	particlenbcount,
 	neighborWriteOffsets,
 	neighbors,
-	id);
+	id, dom_d->totmass);
 
 }
                                   
 // Calculate Free Surface (for contact and heat convection)
 void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
-																	const uint *neighborWriteOffsets,
-																	const uint *neighbors,
-                                  const int &id){
-	id_free_surf = id;
+                                                  const uint *neighborWriteOffsets,
+                                                  const uint *neighbors,
+                                                  const int &id, const double &totmass){
+	//id_free_surf = id;
 
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
@@ -34,7 +34,6 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
     int neibcount = particlenbcount[i];
     const uint writeOffset = neighborWriteOffsets[i];
     
-    double totmass=0.;
     
       for (int k=0;k < neibcount; k++) { //Or size
         //if fixed size i = part * NB + k
@@ -62,4 +61,5 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
 }
 
 }; //SPH
+
 #endif

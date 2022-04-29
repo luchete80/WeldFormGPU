@@ -35,6 +35,7 @@ SET(EXES
 
 include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 
+##------------THIS WORKS OK -------------------
 add_executable(gpuweldform 
 													#main_thermal.cu
 													main_mech.cu
@@ -55,7 +56,7 @@ add_executable(gpuweldform
 													cuNSearch/Utils/Timing.cpp
 													cuNSearch/Utils/IDFactory.cpp													
 													) 
-add_executable(test_surf 
+add_executable(test_contact 
 													#main_thermal.cu
 													test_surf.cu
 													Domain.cpp 
