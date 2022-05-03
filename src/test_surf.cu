@@ -180,6 +180,7 @@ int main(int argc, char **argv) //try
 		m[a] = dom.Particles[a]->Mass;
     mass +=m[a];
   }
+  mass /=dom.Particles.size();
   dom_d->totmass = mass;
 	cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
 		

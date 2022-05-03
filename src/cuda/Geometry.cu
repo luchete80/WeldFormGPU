@@ -30,7 +30,8 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
 	if ( i < particle_count ) {
-    int Dimension = 3; //TODO, put in another 
+    normal[i] = make_double3(0.,0.,0.);
+
     int neibcount = particlenbcount[i];
     const uint writeOffset = neighborWriteOffsets[i];
     
@@ -46,11 +47,13 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
         normal[i] += m[j] * xij; 
 
       }//
-
-      normal[i]*= 1./totmass;
+      
+      printf("totmass %lf\n",totmass);
+      //normal[i]*= 1./(totmass /**(double)particle_count*/); //Attention parenthesis, if not it crashes
       
       if ( length(normal[i]) >= 0.25 * h[i] && neibcount <= 46) {//3-114 Fraser {
         //if (!Particles[i]->not_write_surf_ID)
+        //printf("I: %d\n",i);
         ID[i] = id;
         //surf_part++;
       }
