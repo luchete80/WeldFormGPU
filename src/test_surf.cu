@@ -10,7 +10,7 @@
 #include <sstream>
 #include <fstream> 
 #include <iostream>
-#include "Mesh.h"
+// DO NOT INCLUDE MESH HERE
 
 //#include "Vector.h"
 
@@ -162,13 +162,16 @@ int main(int argc, char **argv) //try
 	mesh.AxisPlaneMesh(2,false,Vector(-0.5,-0.5, cyl_zmax),Vector(0.5,0.5, cyl_zmax),40);
 	//cout << "Plane z" << *mesh.node[0]<<endl;
   mesh.CalcSpheres(); //DONE ONCE
+  double hfac = 1.1;
+  //dom.AddTrimeshParticles(mesh, hfac, 11);
   
-	
-	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
+	//BEFORE ALLOCATING 
+  int particlecount = dom.Particles.size() + mesh.element.size();
+	dom_d->SetDimension(particlecount);	 //AFTER CREATING DOMAIN
   //SPH::Domain	dom;
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
 	double3 *x =  new double3 [dom.Particles.size()];
-	for (int i=0;i<dom.Particles.size();i++){
+	for (int i=0;i<dom.Particles.size();i++){ // Only of sph particles
 		//cout <<"i; "<<i<<endl;
 		//x[i] = make_double3(dom.Particles[i]->x);
 		x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));

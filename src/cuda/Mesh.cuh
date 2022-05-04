@@ -1,9 +1,9 @@
-#ifndef _MESH_H_
-#define _MESH_H_
+#ifndef _MESH_CUH_
+#define _MESH_CUH_
 
 namespace SPH{
 
-class Element{
+class Element_d{
 	public:
 	Element(){}
 	Element(const int &n1, const int &n2, const int &n3);
@@ -20,7 +20,7 @@ class Element{
 	//Mesh*		mesh;
 };
 
-class TriMesh{
+class TriMesh_d{
 	
 	public:
 

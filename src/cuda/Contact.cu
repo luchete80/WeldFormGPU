@@ -6,8 +6,6 @@
 namespace SPH{
 
 
-
-
 //Inputs
 //max_contact_force
 //Neighbours

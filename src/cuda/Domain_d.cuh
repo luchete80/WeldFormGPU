@@ -46,6 +46,7 @@
 #include "cuNSearch.h"
 #include "cuNSearchDeviceData.h"
 
+
 //C++ Enum used for easiness of coding in the input files
 
 //enum Viscosity_Eq_Type { Morris=0, Shao=1, Incompressible_Full=2, Takeda=3 };
@@ -57,6 +58,8 @@
 
 namespace SPH {
 
+
+class TriMesh;
 class Boundary;
 
 /******************************************/
@@ -218,7 +221,7 @@ class Domain_d
   int first_fem_particle_idx;
   
   int element;
-  //Trimesh *trimesh;
+  TriMesh *trimesh;
 	
 	/////////////////////////////////////////
 	///////// MEMBER FUNCTIONS /////////////
@@ -277,8 +280,9 @@ class Domain_d
   
   //Contact things 
   void __device__ inline CalcContactForces(/* int i*/);
-
-};
+  __host__ void AddTrimeshParticles(TriMesh &mesh, const float &hfac, const int &id);
+    
+}; 
 
 
 
@@ -374,5 +378,7 @@ __global__ void TimestepCheckKernel(const double &CFL,
 // __global__ void LastComputeAccelerationKernel(Domain_d &sd);
 
 }; // namespace SPH
+
+#include "Mesh.h"
 
 #endif // SPH_DOMAIN_H

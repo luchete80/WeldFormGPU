@@ -1,6 +1,7 @@
 // TODO: extend to all dirs
 //NOTE: DENSITY IS OF ELEMENTS
-inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens){
+//This also will be passed to device
+inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens){
 	int elemcount = dens * dens;
 	
 	double x1,x2,x3;

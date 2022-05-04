@@ -43,6 +43,7 @@
 
 #include "Vector.h"
 
+
 enum Kernels_Type { Qubic_Spline=0, Quintic=1, Quintic_Spline=2 ,Hyperbolic_Spline=3};
 //C++ Enum used for easiness of coding in the input files
 enum Viscosity_Eq_Type { Morris=0, Shao=1, Incompressible_Full=2, Takeda=3 };
@@ -50,6 +51,9 @@ enum Gradient_Type { Squared_density=0, Multiplied_density=1 };
 
 
 namespace SPH {
+
+class TriMesh;
+
 
 class Domain
 {
@@ -122,6 +126,9 @@ class Domain
 	inline void CalcConvHeat ();
 	inline void CalcPlasticWorkHeat();
 	inline void CalcGradCorrMatrix();	//BONET GRADIENT CORRECTION
+  
+  
+  __host__ void AddTrimeshParticles(const TriMesh &mesh, const float &hfac, const int &id);
 
 
 
@@ -201,6 +208,9 @@ class Domain
 	//iKernel m_kernel;
 	bool					m_isNbDataCleared;
 	bool						auto_ts;				//LUCIANO: Auto Time Stepping
+  
+  // CONTACT THINGS (ONLY FOR MESH GENERATION)
+  int first_fem_particle_idx;
 
 
 private:
