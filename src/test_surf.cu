@@ -158,9 +158,10 @@ int main(int argc, char **argv) //try
 
 	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + 1.000001 * dom.Particles[dom.Particles.size()-1]->h /*- 1.e-6*/;
 
-  TriMesh mesh;
-	mesh.AxisPlaneMesh(2,false,Vec3_t(-0.5,-0.5, cyl_zmax),Vec3_t(0.5,0.5, cyl_zmax),40);
-	cout << "Plane z" << *mesh.node[0]<<endl;
+  SPH::TriMesh mesh;
+	mesh.AxisPlaneMesh(2,false,Vector(-0.5,-0.5, cyl_zmax),Vector(0.5,0.5, cyl_zmax),40);
+	//cout << "Plane z" << *mesh.node[0]<<endl;
+  mesh.CalcSpheres(); //DONE ONCE
   
 	
 	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
