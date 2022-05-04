@@ -109,6 +109,18 @@ class Vector {
 		void print(void);
 };
 
+inline double dot (const Vector &v1, const Vector &v2){
+  return (v1(0)*v2(0)+v1(1)*v2(1)*+v1(2)*v2(2));
+}
+
+inline Vector cross(const Vector &a, const Vector &b){
+	Vector ret;
+	ret(0) = a(1)*b(2)-a(2)*b(1);
+	ret(1) = a(2)*b(0)-a(0)*b(2);
+	ret(2) = a(0)*b(1)-a(1)*b(0);
+	return ret;
+}
+
 float3 make_float3(const Vector &);
 double3 make_double3(const Vector &);
 float4 make_float4(const Vector &);

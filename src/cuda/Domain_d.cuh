@@ -206,7 +206,7 @@ class Domain_d
 	////////////////////////////////////
 	/////// CONTACT THINGS /////////////
 	////////////////////////////////////
-  int id_free_surf;
+  int id_free_surf, contact_surf_id;
   bool contact;
   double totmass;
 	double 	max_contact_force;
@@ -261,7 +261,7 @@ class Domain_d
 	__device__ /*__forceinline__*/inline void CalculateSurface(const uint *particlenbcount,
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
-																													const int &id,const double &totmass);
+																													/*const int &id, */const double &totmass);
 	__device__ void StressStrain(int i);
 	
 	__device__ void ApplyBCVel(int bcid, 
@@ -316,10 +316,6 @@ __device__ void CalcForcesExt(PartData_d *partdata);
 
 __global__ inline void CalcForcesKernelMember(PartData_d *partdata);
 
-// __global__ void CalculateSurfaceKernel(	const uint *particlenbcount,
-																	// const uint *neighborWriteOffsets,
-																	// const uint *neighbors,
-																	// Domain_d *dom_d, const int &id);
                                   
 __global__ void WholeVelocityKernel(Domain_d *dom_d);
 

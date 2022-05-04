@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream> 
 #include <iostream>
+#include "Mesh.h"
 
 //#include "Vector.h"
 
@@ -153,7 +154,14 @@ int main(int argc, char **argv) //try
   dom.GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
 	dom.AddCylinderLength(1, Vector(0.,0.,-L/10.), R, L + 2.*L/10.,  dx/2., rho, h, false); 
-	cout << "Particle count:" <<dom.Particles.size()<<endl;
+	cout << "Max z plane position: " <<dom.Particles[dom.Particles.size()-1]->x(2)<<endl;
+
+	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + 1.000001 * dom.Particles[dom.Particles.size()-1]->h /*- 1.e-6*/;
+
+  TriMesh mesh;
+	mesh.AxisPlaneMesh(2,false,Vec3_t(-0.5,-0.5, cyl_zmax),Vec3_t(0.5,0.5, cyl_zmax),40);
+	cout << "Plane z" << *mesh.node[0]<<endl;
+  
 	
 	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
   //SPH::Domain	dom;
@@ -180,7 +188,7 @@ int main(int argc, char **argv) //try
 		m[a] = dom.Particles[a]->Mass;
     mass +=m[a];
   }
-  mass /=dom.Particles.size();
+  //mass /= dom.Particles.size();
   dom_d->totmass = mass;
 	cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
 		

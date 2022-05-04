@@ -553,6 +553,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
   
   //totmass = 1.;
   
+  this->id_free_surf = 10;
+  
   while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){
@@ -584,20 +586,22 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
 		);
     cudaDeviceSynchronize(); //REQUIRED!!!!
-
+    
+    
     if (contact){
-      int id = 10;
+
       CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
       CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors),		    
-      10,
+      /*id,*/
       totmass);
       cudaDeviceSynchronize(); //REQUIRED!!!!
 		}
+    //cout << "end"<<endl;
     
     forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
-			
+    
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
 		cudaDeviceSynchronize();
@@ -605,9 +609,10 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
     if (Time < TAU) vbc = VMAX/TAU*Time;
     else            vbc = VMAX;
 		//double vbc = 1.0; 
+
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
-		
+
 		deltatmin = deltatint = deltat;
 		//Save before move (to be changed)
 

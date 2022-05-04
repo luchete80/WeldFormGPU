@@ -8,15 +8,15 @@
 
 namespace SPH {
   
-__global__ void CalculateSurfaceKernel(Domain_d *dom_d,	const uint *particlenbcount,
+__global__ inline void CalculateSurfaceKernel(Domain_d *dom_d,	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
 																	const uint *neighbors,
-																	const int &id, const double &totmass){
+																	/*const int &id, */const double &totmass){
 	dom_d->CalculateSurface(
 	particlenbcount,
 	neighborWriteOffsets,
 	neighbors,
-	id, dom_d->totmass);
+	/*id, */dom_d->totmass);
 
 }
                                   
@@ -24,7 +24,7 @@ __global__ void CalculateSurfaceKernel(Domain_d *dom_d,	const uint *particlenbco
 void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
                                                   const uint *neighborWriteOffsets,
                                                   const uint *neighbors,
-                                                  const int &id, const double &totmass){
+                                                  /*const int &id, */const double &totmass){
 	//id_free_surf = id;
 
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
@@ -42,22 +42,17 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
         int j = neighbors[writeOffset + k];
         //double h	= partdata->h[i]+P2->h)/2;
         double3 xij = x[i] - x[j];
-        double rij = length(xij);
-        double di=0.0,dj=0.0,mi=0.0,mj=0.0;
         normal[i] += m[j] * xij; 
 
       }//
-      
-      printf("totmass %lf\n",totmass);
-      //normal[i]*= 1./(totmass /**(double)particle_count*/); //Attention parenthesis, if not it crashes
-      
+      normal[i]*= ((double)particle_count/(totmass *(double)neibcount)); //Attention parenthesis, if not it crashes
+
       if ( length(normal[i]) >= 0.25 * h[i] && neibcount <= 46) {//3-114 Fraser {
-        //if (!Particles[i]->not_write_surf_ID)
-        //printf("I: %d\n",i);
-        ID[i] = id;
-        //surf_part++;
+        // //if (!Particles[i]->not_write_surf_ID)
+        // printf("I: %d\n",i);
+        ID[i] = id_free_surf; //THIS CRASH IS ASSIGNED BY PARAMETER
+        // //surf_part++;
       }
-    
   
   }//i < particle_count
   
