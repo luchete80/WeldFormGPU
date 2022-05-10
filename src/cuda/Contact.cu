@@ -2,17 +2,28 @@
 //contactforce = 0
 //In global initialize 
 // domain max_contact_force
+#include "Mesh.cuh"
 
 namespace SPH{
 
+__global__ void CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
+																	const uint *neighborWriteOffsets,
+																	const uint *neighbors,
+																	const int &id, const double &totmass){
+	dom_d->CalcContactForces(
+	particlenbcount,
+	neighborWriteOffsets,
+	neighbors);
 
-
-
+}
+                                  
 //Inputs
 //max_contact_force
 //Neighbours
 //vectors v
-void __device__ inline Domain_d::CalcContactForces(/* int i*/){
+void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
+                                                  const uint *neighborWriteOffsets,
+                                                  const uint *neighbors){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
 
 	double min_force_ts_=1000.;
@@ -33,6 +44,7 @@ void __device__ inline Domain_d::CalcContactForces(/* int i*/){
     int j = neighbors[writeOffset + k];
 		double3 xij;
 		double h,K;
+		int e = element[j]; //Index of mesh Element associated with node
 		// Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
 		//IT IS CONVENIENT TO FIX SINCE FSMPairs are significantly smaller
 		//cout << "Contact pair size: "<<ContPairs[k].Size()<<endl;
@@ -48,8 +60,9 @@ void __device__ inline Domain_d::CalcContactForces(/* int i*/){
 
 		//Check if SPH and fem particles are approaching each other
 		if (delta_ > 0 ){
-			Element* e = trimesh-> element[element[j]];
-			double pplane = e -> pplane; 
+			//HERE ELEMENT IS NOT AN OBJECT, THIS IS REPRESENTED AS SOA IN MESH CLASS
+			//EACH "RIGID" PARTICLE HAS AN ELEMENT ASOCIATED
+			double pplane = trimesh->pplane[e]; 
 			//cout<< "contact distance"<<Particles[P1]->h + pplane - dot (normal[j],	x[i])<<endl;
 
 			double deltat_cont = ( h[i] + pplane - dot (normal[j],	x[i]) ) / (-delta_);								//Eq 3-142 
@@ -59,7 +72,7 @@ void __device__ inline Domain_d::CalcContactForces(/* int i*/){
 			//Calculate time step for external forces
 			double dt_fext = contact_force_factor * (m[i] * 2. * length(v[i]) / length(contforce[i]) );	//Fraser 3-145
 			
-			contforce[i] = 0.; //RESET
+			contforce[i] = make_double3(0.); //RESET
 			
 			// if (dt_fext > deltat)
 				// cout << "Time step size ("<<deltat<<" is larger than max allowable contact forces step ("<<dt_fext<<")"<<endl;
@@ -72,11 +85,14 @@ void __device__ inline Domain_d::CalcContactForces(/* int i*/){
 				//Find a vector 
 				//Fraser 3-147
 				bool inside = true;
-				int i=0,j;			
-				while (i<3 && inside){
-					j = i+1;	if (j>2) j = 0;
-					double crit = dot (cross ( *trimesh->node[e -> node[j]] - *trimesh->node[e -> node[i]],
-																															Qj  - *trimesh->node[e -> node[i]]),
+				int l=0,m;			
+				while (l<3 && inside){
+					j = l+1;	if (m>2) m = 0;
+					// double crit = dot (cross ( *trimesh->node[e -> node[j]] - *trimesh->node[e -> node[i]],
+																															// Qj  - *trimesh->node[e -> node[i]]),
+														// normal[j]);
+					double crit = dot (cross ( trimesh->node[trimesh->elnode[3*e+m]] - trimesh->node[trimesh->elnode[3*e+l]],
+																															Qj  - trimesh->node[trimesh->elnode[3*e+l]]),
 														normal[j]);
 					if (crit < 0.0) inside = false;
 					i++;
@@ -91,7 +107,7 @@ void __device__ inline Domain_d::CalcContactForces(/* int i*/){
 					// DAMPING
 					//Calculate SPH and FEM elements stiffness (series)
 					//Since FEM is assumed as rigid, stiffness is simply the SPH one 
-					double kij = PFAC * Particles[P1]-> cont_stiff;
+					double kij = PFAC * cont_stiff[i];
 					double omega = sqrt (kij/m[i]);
 					double psi_cont = 2. * m[i] * omega * DFAC; // Fraser Eqn 3-158
 										
@@ -124,7 +140,7 @@ void __device__ inline Domain_d::CalcContactForces(/* int i*/){
 					a[i] += contforce[i] / m[i]; 
 					//cout << "contforce "<<contforce[i]<<endl;
 					
-					if (friction > 0.) {
+					if (friction_dyn > 0.) {
 						if ( norm (vr)  != 0.0 ){
 						// //TG DIRECTION
 							double3 tgforce = friction * norm(contforce[i]) * tgdir;

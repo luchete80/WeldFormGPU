@@ -57,6 +57,7 @@
 
 namespace SPH {
 
+class TriMesh;
 class Boundary;
 
 /******************************************/
@@ -206,19 +207,24 @@ class Domain_d
 	////////////////////////////////////
 	/////// CONTACT THINGS /////////////
 	////////////////////////////////////
-  int id_free_surf;
-  bool contact;
-  double totmass;
+  int 		id_free_surf;
+  bool 		contact;
+  double 	totmass;
 	double 	max_contact_force;
 	double3 *normal; 
-	int **contneib;	//array of lists
-	int *contneib_part;	//1D array, faster
-	int *contneib_offs;	//Offset or count
+	int 		**contneib;	//array of lists
+	int 		*contneib_part;	//1D array, faster
+	int 		*contneib_offs;	//Offset or count
+	double 	*cont_stiff
 	double3 *contforce;	//SOA
   int first_fem_particle_idx;
+	double contact_force_factor;
+	double PFAC,DFAC;
+	double fritcion_sta,fritcion_dyn;
   
-  int element;
-  //Trimesh *trimesh;
+	// TODO, EACH RIGID PARTICLE SHOULD 
+  int 		*element; //ELEMENT OF TRIMESH FROM "RIGID" PARTICLE, ALL FIRST PARTICLES ARE ZERO
+  TriMesh *trimesh;
 	
 	/////////////////////////////////////////
 	///////// MEMBER FUNCTIONS /////////////
@@ -262,6 +268,10 @@ class Domain_d
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
 																													const int &id,const double &totmass);
+	__device__ inline void CalcContactForces(const uint *particlenbcount,
+                                                  const uint *neighborWriteOffsets,
+                                                  const uint *neighbors);
+
 	__device__ void StressStrain(int i);
 	
 	__device__ void ApplyBCVel(int bcid, 

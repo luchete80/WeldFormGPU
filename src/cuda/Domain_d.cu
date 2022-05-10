@@ -148,7 +148,12 @@ void Domain_d::SetDimension(const int &particle_count){
 	}
 	int size = particle_count * sizeof(double);
 	cudaMemcpy(this->pl_strain, k_, size, cudaMemcpyHostToDevice);
-	delete k_;	
+	delete k_;
+	
+	// CONTACT THINGS
+	contact_force_factor =1.;
+	PFAC =0.8;
+	DFAC =0.2;
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
 }
