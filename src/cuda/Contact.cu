@@ -5,7 +5,7 @@
 //#include "Mesh.cuh"
 
 namespace SPH{
-__global__ inline void CalcContactNb(Domain_d *dom_d,
+__global__ inline void CalcContactNbKernel(Domain_d *dom_d,
 const uint *particlenbcount,
 const uint *neighborWriteOffsets,
 const uint *neighbors) {
@@ -22,9 +22,25 @@ const uint *neighborWriteOffsets,
 const uint *neighbors){
   
   int i = threadIdx.x + blockDim.x*blockIdx.x;	
-	int neibcount = particlenbcount[i];
-	const uint writeOffset = neighborWriteOffsets[i];
-  
+  if (i < first_fem_particle_idx ) {
+    int neibcount = particlenbcount[i];
+    const uint writeOffset = neighborWriteOffsets[i];
+    
+    for (int k=0;k < neibcount;k++) { //Or size
+      int j = neighbors[writeOffset + k];
+      double3 xij = x[i]-x[j];
+      //double h = h[i] + h[j];  //not necessary to take average
+
+      if ( (ID[i] == id_free_surf && ID[j] == contact_surf_id) /*||
+           (ID[j] == id_free_surf && ID[i] == contact_surf_id) */) {
+        /////if ( norm (Particles[P1]->x - Particles[P2]->x) < ( Particles[P1]->h + Particles[P2]->h ) ){ //2* cutoff being cutoff (h1+h2)/2
+        if ( length(xij) < h[i] ){
+          contneib_part[20*i + contneib_count[i]] = j;
+          contneib_count[i]++;
+        }
+      } //IDs OK
+    }//for k neighbours
+  }// i < fem index
 }
 
 

@@ -33,6 +33,8 @@
 
 #include "cuda/Functions.cuh"	//For EOS at Whole Vel
 
+#include "Mesh.h" //TO DELETE
+
 using namespace std;
 
 int iDivUp(int a, int b) // Round a / b to nearest higher integer value
@@ -967,5 +969,25 @@ inline void Domain::ClearNbData(){
 	// // //std::cout << "\n--------------Solving is finished---------------------------------------------------" << std::endl;
 
 // }
+
+void Domain::AddTrimeshParticles(const TriMesh &mesh, const float &hfac, const int &id){
+	
+	// first_fem_particle_idx = Particles.Size();
+	double Density =0.;
+	// double h;
+	bool Fixed = false;	//Always are fixed ...
+	// contact_surf_id = id;
+	// trimesh = &mesh;
+	
+	for ( int e = 0; e < mesh.element.size(); e++ ){
+		Vector pos = mesh.element[e]->centroid;
+		double h = hfac * mesh.element[e]->radius;
+		Particles.push_back(new Particle(id,pos,Vector(0,0,0),0.0,Density,h,Fixed));
+		// Particles[first_fem_particle_idx + e] -> normal  = mesh.element[e] -> normal;
+		// Particles[first_fem_particle_idx + e] -> element = e; 
+	}
+	// cout << Particles.Size() - first_fem_particle_idx << "particles added with ID " << contact_surf_id <<endl;
+	// cout << first_fem_particle_idx << " is the first solid particle index."<<endl;
+}
 
 }; // namespace SPH

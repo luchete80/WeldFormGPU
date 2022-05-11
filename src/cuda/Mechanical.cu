@@ -554,7 +554,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
   
   //totmass = 1.;
   
-  this->id_free_surf = 10;
+  this->id_free_surf = 1;
   
   while (Time<tf) {
 	
@@ -598,7 +598,16 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
       /*id,*/
       totmass);
       cudaDeviceSynchronize(); //REQUIRED!!!!
-		}
+      //
+      CalcContactNbKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)    
+      );
+      cudaDeviceSynchronize(); //REQUIRED!!!!    
+    }
+    
+    
     //cout << "end"<<endl;
     
     forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;

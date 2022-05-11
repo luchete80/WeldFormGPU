@@ -213,15 +213,19 @@ class Domain_d
   double totmass;
 	double 	max_contact_force;
 	double3 *normal; 
-	int 		**contneib;	//array of lists
-	int 		*contneib_part;	//1D array, faster
-	int 		*contneib_offs;	//Offset or count
-	double 	*cont_stiff;
-	double3 *contforce;	//SOA
-  int first_fem_particle_idx;
-	double contact_force_factor;
-	double PFAC,DFAC;
-	double fritcion_sta,fritcion_dyn;
+	int 		  **contneib;	//array of lists, NOT IN USE
+	
+  int 		  *contneib_part;	//1D array, faster, THESE ARE THE NEIGHBOURS ITSELF (OF THE SURFACE CONTACT)
+	int 		  *contneib_offs;	//Offset or count
+  int       *contneib_count; //REDUNDANCE WITH contneib_offs
+  
+	double 	  *cont_stiff;
+	double3   *contforce;	//SOA
+  int       first_fem_particle_idx;
+	double    contact_force_factor;
+	double    PFAC,DFAC;
+	double    fritcion_sta,fritcion_dyn;
+
   
 
 	// TODO, EACH RIGID PARTICLE SHOULD 

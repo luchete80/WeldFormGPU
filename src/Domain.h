@@ -128,7 +128,7 @@ class Domain
 	inline void CalcGradCorrMatrix();	//BONET GRADIENT CORRECTION
   
   
-  __host__ void AddTrimeshParticles(const TriMesh &mesh, const float &hfac, const int &id);
+  void AddTrimeshParticles(const TriMesh &mesh, const float &hfac, const int &id);
 
 
 

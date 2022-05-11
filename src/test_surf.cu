@@ -153,7 +153,7 @@ int main(int argc, char **argv) //try
 	dom.DomMin(0) = -L;
   dom.GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
-	dom.AddCylinderLength(1, Vector(0.,0.,-L/10.), R, L + 2.*L/10.,  dx/2., rho, h, false); 
+	dom.AddCylinderLength(0, Vector(0.,0.,-L/10.), R, L + 2.*L/10.,  dx/2., rho, h, false); 
 	cout << "Max z plane position: " <<dom.Particles[dom.Particles.size()-1]->x(2)<<endl;
 
 	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + 1.000001 * dom.Particles[dom.Particles.size()-1]->h /*- 1.e-6*/;
@@ -163,10 +163,11 @@ int main(int argc, char **argv) //try
 	//cout << "Plane z" << *mesh.node[0]<<endl;
   mesh.CalcSpheres(); //DONE ONCE
   double hfac = 1.1;
-  //dom.AddTrimeshParticles(mesh, hfac, 11);
-  
+  dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
+  cout << "Domain Size "<<dom.Particles.size()<<endl;
 	//BEFORE ALLOCATING 
-  int particlecount = dom.Particles.size() + mesh.element.size();
+  int particlecount = dom.Particles.size()/* + mesh.element.size()*/;
+  //cout << "Particles "<<
 	dom_d->SetDimension(particlecount);	 //AFTER CREATING DOMAIN
   //SPH::Domain	dom;
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
@@ -200,8 +201,8 @@ int main(int argc, char **argv) //try
      	// // double x;
 
 	//MODIFY
-	double *T 			=  new double [dom.Particles.size()];
-	int 	*BC_type 	=  new int 		[dom.Particles.size()];
+	double *T 			=  new double [particlecount];
+	int 	*BC_type 	=  new int 		[particlecount];
 	int bcpart = 0;
 	for (size_t a=0; a<dom.Particles.size(); a++){
 		double xx = dom.Particles[a]->x(0);
@@ -213,27 +214,28 @@ int main(int argc, char **argv) //try
 		}
 	}		
 	cout << "BC particles"<<bcpart<<endl;
-	cudaMemcpy(dom_d->T, T, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy(dom_d->BC_T, BC_type, dom.Particles.size() * sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(dom_d->T, T, particlecount * sizeof(double), cudaMemcpyHostToDevice);
+	cudaMemcpy(dom_d->BC_T, BC_type, particlecount * sizeof(int), cudaMemcpyHostToDevice);
 	
 	dom_d->Alpha = 0.0;//For all particles		
 	dom_d->SetShearModulus(G);	// 
-	for (size_t a=0; a<dom.Particles.size(); a++)
-	{
-		//dom.Particles[a]->G				= G; 
-		dom.Particles[a]->PresEq	= 0;
-		dom.Particles[a]->Cs			= Cs;
+	// for (size_t a=0; a< dom.Particles.size(); a++)
+	// {
+		// //dom.Particles[a]->G				= G; 
+		// dom.Particles[a]->PresEq	= 0;
+		// dom.Particles[a]->Cs			= Cs;
 
-		dom.Particles[a]->TI		= 0.3;
-		dom.Particles[a]->TIInitDist	= dx;
-		double z = dom.Particles[a]->x(2);
-		if ( z < 0 ){
-			dom.Particles[a]->ID=2;	
-		}
-		if ( z > L )
-			dom.Particles[a]->ID=3;
-	}
-	
+		// dom.Particles[a]->TI		= 0.3;
+		// dom.Particles[a]->TIInitDist	= dx;
+		// double z = dom.Particles[a]->x(2);
+		// if ( z < 0 ){
+			// dom.Particles[a]->ID=2;	
+		// }
+		// if ( z > L )
+			// dom.Particles[a]->ID=3;
+	// }
+  
+	//Problem is that domain 
 	dom_d->SetFreePart(dom); //All set to IsFree = true in this example
 	dom_d->SetID(dom); 
 	dom_d->SetCs(dom);
