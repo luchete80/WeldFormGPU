@@ -9,6 +9,7 @@
 #include "Interaction.cu"
 
 #include "Geometry.cu"
+#include "Contact.cu"
 
 #include "cuNSearch.h"
 //For Writing file
