@@ -1,0 +1,1 @@
+20220511 - Working on Contact Neighbuors. Written for constant offset (fized size 20). 
