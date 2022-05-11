@@ -63,6 +63,7 @@ add_executable(test_contact
 													#NbSearch.cpp 
 													Output.cpp
 													Vector.cpp
+                          Mesh.cpp
 													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
 													cuda/Domain_d.cu
 													cuda/Thermal.cu

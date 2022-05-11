@@ -1,6 +1,6 @@
 #include <iostream>
+#include "Mesh.h"
 using namespace std;
-
 namespace SPH {
 
 	
@@ -23,7 +23,7 @@ void TriMesh::CalcCentroids(){
 	
 }
 // TODO: extend to all dirs
-inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const Vector p1, const Vector p2,  const int &dens){
+void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const Vector p1, const Vector p2,  const int &dens){
 	int elemcount = dens * dens;
 	
 	double x1,x2,x3;
@@ -111,7 +111,7 @@ inline void TriMesh::AxisPlaneMesh(const int &axis, bool positaxisorent, const V
 
 //This is done once, Since mesh is rigid
 //Calculate radius and plane coefficient
-inline void TriMesh::CalcSpheres(){
+ void TriMesh::CalcSpheres(){
 	double max;
 	for (int e = 0; e < element.size(); e++){ 
 		max = 0.;
@@ -127,13 +127,13 @@ inline void TriMesh::CalcSpheres(){
 	
 }
 
-inline void TriMesh::UpdatePlaneCoeff(){
+ void TriMesh::UpdatePlaneCoeff(){
 	//Update pplane
 	for (int e = 0; e < element.size(); e++) 
 		element[e]-> pplane = dot(*node [element[e] -> node[element[e] ->nfar]],element[e] -> normal);
 
 }
-inline void TriMesh::CalcNormals(){
+ void TriMesh::CalcNormals(){
 	Vector u, v, w;
 	for (int e = 0; e < element.size(); e++) {
 			u = *node [element[e]->node[1]] - *node [element[e]->node[0]];
@@ -145,17 +145,17 @@ inline void TriMesh::CalcNormals(){
 	}
 }
 
-inline void TriMesh::ApplyConstVel(const Vector &v){
+ void TriMesh::ApplyConstVel(const Vector &v){
 		for (int n=0;n<node.size();n++)
 			*node_v[n] = v;
 }
 
-inline void TriMesh::CalcCentroidVelFromNodes(){
+ void TriMesh::CalcCentroidVelFromNodes(){
 	
 	
 }
 
-inline void TriMesh::UpdatePos(const double &dt){
+ void TriMesh::UpdatePos(const double &dt){
 	
 	//Seems to be More accurate to do this by node vel
 	//This is used by normals

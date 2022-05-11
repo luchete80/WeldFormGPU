@@ -216,7 +216,7 @@ class Domain_d
 	int 		**contneib;	//array of lists
 	int 		*contneib_part;	//1D array, faster
 	int 		*contneib_offs;	//Offset or count
-	double 	*cont_stiff
+	double 	*cont_stiff;
 	double3 *contforce;	//SOA
   int first_fem_particle_idx;
 	double contact_force_factor;
@@ -271,6 +271,11 @@ class Domain_d
 																													const uint *neighbors,
 
 																													/*const int &id, */const double &totmass);
+  
+  //CREATE NB LIST FROM ORIGINAL CONTACT NB LIST
+  __device__ inline void CalcContactNb(const uint *particlenbcount,
+                            const uint *neighborWriteOffsets,
+                            const uint *neighbors);
 
 	__device__ inline void CalcContactForces(const uint *particlenbcount,
                                                   const uint *neighborWriteOffsets,

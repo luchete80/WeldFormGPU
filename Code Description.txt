@@ -1,0 +1,4 @@
+
+
+Domain is defined in host and device. This is done in order to use the existing domain class.
+Like Domain, Trimesh is used 

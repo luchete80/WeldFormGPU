@@ -49,17 +49,16 @@ class TriMesh{
 	
 	Vector							v;						//Constant Uniform v
 	TriMesh();
-	inline void AxisPlaneMesh(const int &axis, bool positaxisorent, const Vector p1, const Vector p2, const int &dens);
-	inline void ApplyConstVel(const Vector &v);
-	inline void CalcCentroidVelFromNodes();
-	inline void UpdatePlaneCoeff();
-	inline void UpdatePos(const double &dt);
-	inline void CalcNormals();
-	inline void CalcSpheres();
+  void AxisPlaneMesh(const int &axis, bool positaxisorent, const Vector p1, const Vector p2, const int &dens);
+  void ApplyConstVel(const Vector &v);
+  void CalcCentroidVelFromNodes();
+  void UpdatePlaneCoeff();
+  void UpdatePos(const double &dt);
+  void CalcNormals();
+  void CalcSpheres();
 	void CalcCentroids();
 };
 
 };
-#include "Mesh.cpp"
 
 #endif

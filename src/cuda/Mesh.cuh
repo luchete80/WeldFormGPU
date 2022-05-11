@@ -3,34 +3,18 @@
 
 namespace SPH{
 
-class Element_d{
-	public:
-	Element(){}
-	Element(const int &n1, const int &n2, const int &n3);
-	
-	//SPHERE
-	double3 *centroid;	
-	double3 *normal;
-	double3 *v;					//At centroid
-	double 	radius;
-	int 		*node;		//3 per element
-	double 	pplane;			//In boundary elements, plane coefficient, useful for contact
-	int 		nfar;						//farthest away node from baricenter
-	//Sphere* centroid;
-	//Mesh*		mesh;
-};
-
+//Element is not anymore here, is everything flattened in mesh_d class
 class TriMesh_d{
 	
 	public:
 
-	Element 						elem_data;
+	//Element 						elem_data;
 	double3 						*node,node_v; //Positions and veloc, 
 	int									*elnode;			//3 per element
 	double 							*pplane;
 	
 	double							v;						//Constant Uniform v
-	TriMesh();
+	TriMesh_d();
 	inline void AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 &p2, const int &dens);
 	inline void ApplyConstVel(const double3 &v);
 	inline void CalcCentroidVelFromNodes();
