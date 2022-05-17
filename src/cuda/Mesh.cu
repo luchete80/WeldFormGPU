@@ -109,3 +109,9 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 	}
 
 }
+
+inline __device__ void TriMesh_d::UpdatePlaneCoeff(){
+	//Update pplan
+		pplane[i] = dot(*node [element[e] -> node[element[e] ->nfar]],element[e] -> normal);
+
+}
