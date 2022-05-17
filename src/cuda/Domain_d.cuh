@@ -225,6 +225,7 @@ class Domain_d
 	double    contact_force_factor;
 	double    PFAC,DFAC;
 	double    fritcion_sta,fritcion_dyn;
+  int       *contneib_count_h;
 
   
 

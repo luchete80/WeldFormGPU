@@ -5,8 +5,8 @@
 #include <chrono>
 //#include <time.h>       /* time_t, struct tm, difftime, time, mktime */
 #include <ctime> //Clock
-#include "Mesh.h"
 
+#include "Mesh.h"
 //Else (offset)
 //Allocating from host
 namespace SPH {
@@ -50,6 +50,9 @@ void Domain_d::SetDimension(const int &particle_count){
 	
 	cudaMalloc((void **)&dTdt	, particle_count * sizeof (double));
 	//printf("Size of dTdt: %d, particle count %d\n",sizeof(dTdt)/sizeof (double),particle_count);
+  
+  //Contact 
+  contneib_count_h = new int [particle_count];
 
 	//Nb data
 	cudaMalloc((void **)&neib_offs	, (particle_count + 1) * sizeof (int));
@@ -349,12 +352,12 @@ Domain_d::~Domain_d(){
 void Domain_d::WriteCSV(char const * FileKey){
 	FILE *f = fopen(FileKey,"w");;
 	
-	fprintf(f, "ID, X, Y, Z, Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain\n");
+	fprintf(f, "ID, X, Y, Z, Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain, ContNb\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n", 
+		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %d\n", 
 							ID_h[i],
               x_h[i].x,x_h[i].y,x_h[i].z, 
               u_h[i].x,u_h[i].y,u_h[i].z,
@@ -364,7 +367,8 @@ void Domain_d::WriteCSV(char const * FileKey){
 						rho_h[i],
 						p_h[i],
 						sigma_eq_h[i],
-						pl_strain_h[i]);
+						pl_strain_h[i],
+            contneib_count_h[i]);
 		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
 		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;
 	}

@@ -4,6 +4,8 @@
 // domain max_contact_force
 //#include "Mesh.cuh"
 
+#define MAX_NB_COUNT    20
+
 namespace SPH{
 __global__ inline void CalcContactNbKernel(Domain_d *dom_d,
 const uint *particlenbcount,
@@ -17,6 +19,8 @@ const uint *neighbors) {
   
 }
 
+//Up until now max nb count is 20, this is done in order to fix contneib_part
+//and to not reallocate dynamically each nb search
 __device__ inline void Domain_d::CalcContactNb(const uint *particlenbcount,
 const uint *neighborWriteOffsets,
 const uint *neighbors){
@@ -35,8 +39,8 @@ const uint *neighbors){
       if ( (ID[i] == id_free_surf && ID[j] == contact_surf_id) /*||
            (ID[j] == id_free_surf && ID[i] == contact_surf_id) */) {
         /////if ( norm (Particles[P1]->x - Particles[P2]->x) < ( Particles[P1]->h + Particles[P2]->h ) ){ //2* cutoff being cutoff (h1+h2)/2
-        if ( length(xij) < h[i] ){
-          contneib_part[20*i + contneib_count[i]] = j;
+        if ( length(xij) < 2.*h[i] ){
+          contneib_part[MAX_NB_COUNT*i + contneib_count[i]] = j;
           contneib_count[i]++;
         }
       } //IDs OK

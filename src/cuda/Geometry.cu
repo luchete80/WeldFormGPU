@@ -33,6 +33,7 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
     normal[i] = make_double3(0.,0.,0.);
 
     int neibcount = particlenbcount[i];
+    int nbcount_corr = 0; //WITHOUT CONTACT SURFACE!!
     const uint writeOffset = neighborWriteOffsets[i];
     
     
@@ -42,12 +43,15 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
         int j = neighbors[writeOffset + k];
         //double h	= partdata->h[i]+P2->h)/2;
         double3 xij = x[i] - x[j];
-        normal[i] += m[j] * xij; 
+        if (ID[j]!=contact_surf_id){  //EXCLUDE RIGID PAIRS!
+          normal[i] += m[j] * xij; 
+          nbcount_corr++;
+        }
 
       }//
-      normal[i]*= ((double)particle_count/(totmass *(double)neibcount)); //Attention parenthesis, if not it crashes
-
-      if ( length(normal[i]) >= 0.25 * h[i] && neibcount <= 46) {//3-114 Fraser {
+      //normal[i]*= ((double)particle_count/(totmass *(double)neibcount)); //Attention parenthesis, if not it crashes
+      normal[i]*= ((double)particle_count/(totmass *(double)nbcount_corr)); //Attention parenthesis, if not it crashes
+      if ( length(normal[i]) >= 0.25 * h[i] && nbcount_corr <= 46) {//3-114 Fraser {
         // //if (!Particles[i]->not_write_surf_ID)
         // printf("I: %d\n",i);
         ID[i] = id_free_surf; //THIS CRASH IS ASSIGNED BY PARAMETER

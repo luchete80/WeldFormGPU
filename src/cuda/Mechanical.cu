@@ -532,7 +532,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 	
 	bool is_yielding = false;
 	double max_pl_strain = 0.;
-
+  cout << "First Rigid Contact Particle: "<<first_fem_particle_idx<<endl;
+  
 	//First time find nbs
 	for (int i=0; i <particle_count;i++){
 	((Real3*)points)[i][0] = x_h[i].x;
@@ -582,15 +583,14 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		//This was in Original LastCompAcceleration
 		clock_beg_int = clock();
 		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this,
-		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-		CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-		CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
 		);
     cudaDeviceSynchronize(); //REQUIRED!!!!
     
     
     if (contact){
-
       CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
@@ -639,6 +639,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(rho_h, rho, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
 			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
+      
+      cudaMemcpy(contneib_count_h,contneib_count, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);
 			
 			char str[10];
 			sprintf(str, "out_%d.csv", count);

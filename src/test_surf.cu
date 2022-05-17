@@ -156,14 +156,17 @@ int main(int argc, char **argv) //try
 	dom.AddCylinderLength(0, Vector(0.,0.,-L/10.), R, L + 2.*L/10.,  dx/2., rho, h, false); 
 	cout << "Max z plane position: " <<dom.Particles[dom.Particles.size()-1]->x(2)<<endl;
 
-	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + 1.000001 * dom.Particles[dom.Particles.size()-1]->h /*- 1.e-6*/;
+	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + dom.Particles[dom.Particles.size()-1]->h - 1.e-2;
 
   SPH::TriMesh mesh;
 	mesh.AxisPlaneMesh(2,false,Vector(-0.5,-0.5, cyl_zmax),Vector(0.5,0.5, cyl_zmax),40);
 	//cout << "Plane z" << *mesh.node[0]<<endl;
   mesh.CalcSpheres(); //DONE ONCE
   double hfac = 1.1;
+  dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
   dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
+  dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
+  
   cout << "Domain Size "<<dom.Particles.size()<<endl;
 	//BEFORE ALLOCATING 
   int particlecount = dom.Particles.size()/* + mesh.element.size()*/;
