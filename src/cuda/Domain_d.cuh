@@ -59,6 +59,7 @@
 namespace SPH {
 
 class TriMesh;
+class TriMesh_d;
 class Boundary;
 
 /******************************************/
@@ -226,12 +227,14 @@ class Domain_d
 	double    PFAC,DFAC;
 	double    fritcion_sta,fritcion_dyn;
   int       *contneib_count_h;
+  double min_force_ts;
+  double friction_dyn;
 
   
 
 	// TODO, EACH RIGID PARTICLE SHOULD 
   int 		*element; //ELEMENT OF TRIMESH FROM "RIGID" PARTICLE, ALL FIRST PARTICLES ARE ZERO
-  TriMesh *trimesh;
+  TriMesh_d *trimesh;
 	
 	/////////////////////////////////////////
 	///////// MEMBER FUNCTIONS /////////////
@@ -302,7 +305,7 @@ class Domain_d
   
   //Contact things 
   void __device__ inline CalcContactForces(/* int i*/);
-  __host__ void AddTrimeshParticles(TriMesh &mesh, const float &hfac, const int &id);
+  __host__ void AddTrimeshParticles(TriMesh_d &mesh, const float &hfac, const int &id);
     
 }; 
 
