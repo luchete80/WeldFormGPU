@@ -23,6 +23,7 @@ const uint *neighbors){
   
   int i = threadIdx.x + blockDim.x*blockIdx.x;	
   if (i < first_fem_particle_idx ) {
+    contneib_count[i] = 0;
     int neibcount = particlenbcount[i];
     const uint writeOffset = neighborWriteOffsets[i];
     
