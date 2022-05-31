@@ -1,3 +1,4 @@
 20220511 - Working on Contact Neighbuors. Written for constant offset (fized size 20). 
 20220517 - Working on Contact Neighbours. Done! Now working OK with contact surface.
             Begingin to work with contact forces. 
+20220531 - Creating CUDA device mesh for contact, since forces refer to mesh elements. 

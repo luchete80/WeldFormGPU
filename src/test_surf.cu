@@ -3,6 +3,8 @@
 
 #include "cuda/Domain_d.cuh" 
 #include "cuda/Mechanical.cu" 
+#include "cuda/Mesh.cuh"
+#include "cuda/Mesh.cu"
 
 #define TAU		0.005
 #define VMAX	1.0
