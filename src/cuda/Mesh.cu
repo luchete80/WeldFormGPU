@@ -74,6 +74,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 	cudaMalloc((void **)&elnode 	, 	3 * elcount * sizeof (int));	
   int *elnode_h = new int[3*elcount];
   double3 *centroid_h = new double3[elcount];
+  double3 *normal_h   = new double3[elcount];
 	
 	for (size_t j = 0 ;j  < dens; j++ ) {
 				// cout <<"j, dens" <<j<<", "<<dens<<endl;
@@ -94,7 +95,6 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 				elcon[0][0] = n[0];elcon[0][1] = n[2];elcon[0][2] = n[1];
 				elcon[1][0] = n[1];elcon[1][1] = n[2];elcon[1][2] = n[3];				
 			}
-			//cout << "elnodes"<<endl;
 			for ( int e= 0; e<2;e++) { // 2 triangles
 				int elnodeid = 3*el;
 				//element.Push(new Element(elcon[e][0],elcon[e][1],elcon[e][2]));		
@@ -114,8 +114,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 		}// i for
 		
 	}
-  delete node;
-  delete node_h;
+
 	///////////////////////////////////////////
 	//// MESH GENERATION END
 	cout << endl<<"Done. Creating normals"<<endl;
@@ -123,11 +122,18 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 		double f=-1.;
 		if (positaxisorent) f= 1.;
 		//element[e] -> normal (axis) = f;
-		if (axis == 0)			normal[e].x = f;
-		else if (axis == 1)	normal[e].y = f;
-		else 								normal[e].z = f;
+		if (axis == 0)			normal_h[e].x = f;
+		else if (axis == 1)	normal_h[e].y = f;
+		else 								normal_h[e].z = f;
 	}
 
+  cudaMemcpy(elnode_h, elnode, elcount, cudaMemcpyHostToDevice);
+  cudaMemcpy(centroid_h, centroid, elcount, cudaMemcpyHostToDevice);
+  cudaMemcpy(normal_h, normal, elcount, cudaMemcpyHostToDevice);
+
+  delete node_h;
+  delete centroid_h;
+  delete normal_h;  
 }
 
 inline __device__ void TriMesh_d::UpdatePlaneCoeff(){
