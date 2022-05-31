@@ -167,6 +167,11 @@ int main(int argc, char **argv) //try
   dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
   dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
   
+  //TODO: Mesh has to be deleted
+  SPH::TriMesh_d mesh_d;
+  mesh_d.AxisPlaneMesh(2,false,make_double3(-0.5,-0.5, cyl_zmax),make_double3(0.5,0.5, cyl_zmax),40);
+  dom_d->trimesh = &mesh_d;
+  
   cout << "Domain Size "<<dom.Particles.size()<<endl;
 	//BEFORE ALLOCATING 
   int particlecount = dom.Particles.size()/* + mesh.element.size()*/;
