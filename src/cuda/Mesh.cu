@@ -132,6 +132,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   cudaMemcpy(normal_h, normal, elcount, cudaMemcpyHostToDevice);
 
   delete node_h;
+  delete elnode_h;
   delete centroid_h;
   delete normal_h;  
 }

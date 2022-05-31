@@ -53,8 +53,8 @@ const uint *neighbors){
 
 __global__ void CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
-																	const uint *neighbors,
-																	const int &id, const double &totmass){
+																	const uint *neighbors
+																	/*const int &id, const double &totmass*/){
 	dom_d->CalcContactForces(
 	particlenbcount,
 	neighborWriteOffsets,

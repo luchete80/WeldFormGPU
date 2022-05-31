@@ -605,6 +605,13 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
       CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)    
       );
       cudaDeviceSynchronize(); //REQUIRED!!!!    
+      
+      CalcContactForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors) 
+      );
+      cudaDeviceSynchronize();
     }
     
     
