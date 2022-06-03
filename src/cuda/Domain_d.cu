@@ -132,6 +132,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	//////////////////////////
 	/// CORRECTIONS /////////
 	cudaMalloc((void **)&VXSPH, 	particle_count  * sizeof (double3));		
+  
+  trimesh = NULL;
 	//cudaMalloc((void **)&partdata->dTdt,particle_count * sizeof (double)); //TODO, pass to PartData
 	
 	// cudaMalloc((void**)&ppArray_a, 10 * sizeof(int*));

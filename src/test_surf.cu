@@ -170,9 +170,10 @@ int main(int argc, char **argv) //try
   dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
   
   //TODO: Mesh has to be deleted
-  SPH::TriMesh_d mesh_d;
-  mesh_d.AxisPlaneMesh(2,false,make_double3(-0.5,-0.5, cyl_zmax),make_double3(0.5,0.5, cyl_zmax),40);
-  dom_d->trimesh = &mesh_d;
+  SPH::TriMesh_d *mesh_d;
+  gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+  mesh_d->AxisPlaneMesh(2,false,make_double3(-0.5,-0.5, cyl_zmax),make_double3(0.5,0.5, cyl_zmax),40);
+
   
   cout << "Domain Size "<<dom.Particles.size()<<endl;
 	//BEFORE ALLOCATING 
@@ -206,7 +207,7 @@ int main(int argc, char **argv) //try
   //mass /= dom.Particles.size();
   dom_d->totmass = mass;
 	cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
-		
+  
 		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
      	// // double x;
 
@@ -266,8 +267,7 @@ int main(int argc, char **argv) //try
 	cout << "Solving "<<endl;
 	//CheckData<<<1,1>>>(dom_d);
 	//cudaDeviceSynchronize(); //Crashes if not Sync!!!
-	
-	
+		
 
 	
 	cout << "Time Step: "<<dom_d->deltat<<endl;
@@ -280,6 +280,11 @@ int main(int argc, char **argv) //try
 	dom_d->auto_ts = true;
   dom_d->Alpha = 1.0;
   dom_d->friction_dyn = 0.15;
+  
+  dom_d->trimesh = mesh_d;
+  if (dom_d->trimesh ==NULL)
+    cout << "ERROR. No mesh defined"<<endl;
+  
 	dom_d->MechSolve(0.0101,1.0e-4);
   
   //First example

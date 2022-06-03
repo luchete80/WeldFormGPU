@@ -36,7 +36,7 @@ class TriMesh_d{
   
 };
 
-__global__ void MeshUpdateKernel(TriMesh_d *mesh_d, const double &dt);
+__global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, const double &dt);
 
 };//SPH
 

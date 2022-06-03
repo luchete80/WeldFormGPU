@@ -635,8 +635,12 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		//Save before move (to be changed)
     
     if (contact){
+      if (this->trimesh != NULL){
       MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
       cudaDeviceSynchronize();
+      } else {
+        cout << "No contact mesh defined."<<endl;
+      }
     }
 
 		

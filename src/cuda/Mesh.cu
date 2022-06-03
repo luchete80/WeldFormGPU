@@ -27,11 +27,11 @@ namespace SPH{
   // UpdatePlaneCoeff();   //pplane
 // }
 
-__global__ void MeshUpdateKernel(TriMesh_d *mesh_d, const double &dt) {
+__global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, const double &dt) {
  	mesh_d->Move(dt);
-  // mesh_d->CalcCentroids();
-  // mesh_d->CalcNormals();
-  // mesh_d->UpdatePlaneCoeff(); 
+  mesh_d->CalcCentroids();
+  mesh_d->CalcNormals();
+  mesh_d->UpdatePlaneCoeff(); 
 }
 
 //NOW THIS IS ZORIENTED, CHANGE TO EVERY PLANE
@@ -157,6 +157,8 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 		else 								normal_h[e].z = f;
 	}
   
+  m_v = m_w = make_double3(0.,0.,0.);
+  
   cudaMalloc((void **)&pplane , 	elemcount * sizeof (double));
   cudaMalloc((void **)&nfar   , 	elemcount * sizeof (int));
   
@@ -165,6 +167,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   cudaMemcpy(normal_h, normal, elemcount, cudaMemcpyHostToDevice);
 
   delete node_h;
+  delete node_vh;
   delete elnode_h;
   delete centroid_h;
   delete normal_h;  
@@ -221,12 +224,12 @@ inline __device__ void TriMesh_d::Move(const double &dt){
 
 	int n = threadIdx.x + blockDim.x*blockIdx.x; //Parallelize by node 
   if ( n < nodecount ){
-    //double3 vr 	= cross(m_w, node[n]);
-    // node_v[n] = m_v + vr;
-    // // for (int i=0;i<3;i++) {
-      // // if      ((*node[n])(i) < min(i)) min[i] = (*node[n])(i);
-      // // else if ((*node[n])(i) > max(i)) max[i] = (*node[n])(i);
-    // // } 
+    double3 vr 	= cross(m_w, node[n]);
+    node_v[n] = m_v + vr;
+    // for (int i=0;i<3;i++) {
+      // if      ((*node[n])(i) < min(i)) min[i] = (*node[n])(i);
+      // else if ((*node[n])(i) > max(i)) max[i] = (*node[n])(i);
+    // } 
     node[n] += (node_v[n])*dt;
 
 
