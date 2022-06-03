@@ -179,8 +179,8 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
               if ( length (vr)  != 0.0 ){
               // //TG DIRECTION
                 double3 tgforce = friction_dyn * length(contforce[i]) * tgdir;
-                a[i] += tgforce / m[i]; 
-                //cout << "tg force "<< tgforce <<endl;
+                a[i] -= tgforce / m[i]; 
+                printf("tg force %lf\n", tgforce.z); 
               }
             }
             

@@ -1,7 +1,39 @@
 // TODO: extend to all dirs
 //NOTE: DENSITY IS OF ELEMENTS
 //This also will be passed to device
+#include "Mesh.cuh"
+
 namespace SPH{
+// ORIGINAL CPU version
+// inline void TriMesh::Move(const double &dt){
+	// //Seems to be More accurate to do this by node vel
+	// //This is used by normals
+  // Vec3_t min = 1000.;
+  // Vec3_t max = -1000.;
+	// for (int n=0;n<node.Size();n++){
+    // Vec3_t vr 	= cross(m_w, *node[n]);
+    // *node_v[n] = m_v + vr;
+    // for (int i=0;i<3;i++) {
+      // if      ((*node[n])(i) < min(i)) min[i] = (*node[n])(i);
+      // else if ((*node[n])(i) > max(i)) max[i] = (*node[n])(i);
+    // } 
+		// *node[n] += (*node_v[n])*dt;
+	// }
+  
+  // //cout << "Min Max Node pos" << min<< "; " <<max<<endl;
+  
+  // CalcCentroids();
+  // CalcNormals();        //From node positions
+  // UpdatePlaneCoeff();   //pplane
+// }
+
+__global__ void MeshUpdateKernel(TriMesh_d *mesh_d, const double &dt) {
+ 	mesh_d->Move(dt);
+  // mesh_d->CalcCentroids();
+  // mesh_d->CalcNormals();
+  // mesh_d->UpdatePlaneCoeff(); 
+}
+
 //NOW THIS IS ZORIENTED, CHANGE TO EVERY PLANE
 inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens){
 	
@@ -24,9 +56,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   
 	//double dl = p(dir[0])/dens;	//Could be allowed 2 diff densities
   double dl = p.x/dens;
-  int nodecount = (dens+1)*(dens+1);
-  // node = new double3 [nodecount];
-  // node_v = new double3 [nodecount];
+  nodecount = (dens+1)*(dens+1);
   
   //Is it necessary to paralellize mesh nodes??
   cudaMalloc((void **)&node   , 	nodecount * sizeof (double3));
@@ -62,19 +92,19 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   cudaMemcpy(node_h, node, nodecount, cudaMemcpyHostToDevice);
   cudaMemcpy(node_vh, node_v, nodecount, cudaMemcpyHostToDevice);
 
-  cout << "Element count: "<<elcount << endl;  
+  cout << "Element count: "<<elemcount << endl;  
   cout << "done. Creating elements... ";
 	int n[4];
 	int el =0;
 	int i;
 	
-	int elcount = dens * dens * 2;
-	cudaMalloc((void **)&centroid , 	elcount * sizeof (double3));
-	cudaMalloc((void **)&normal 	, 	elcount * sizeof (double3));
-	cudaMalloc((void **)&elnode 	, 	3 * elcount * sizeof (int));	
-  int *elnode_h = new int[3*elcount];
-  double3 *centroid_h = new double3[elcount];
-  double3 *normal_h   = new double3[elcount];
+	elemcount = dens * dens * 2;
+	cudaMalloc((void **)&centroid , 	elemcount * sizeof (double3));
+	cudaMalloc((void **)&normal 	, 	elemcount * sizeof (double3));
+	cudaMalloc((void **)&elnode 	, 	3 * elemcount * sizeof (int));	
+  int *elnode_h = new int[3*elemcount];
+  double3 *centroid_h = new double3[elemcount];
+  double3 *normal_h   = new double3[elemcount];
 	
 	for (size_t j = 0 ;j  < dens; j++ ) {
 				// cout <<"j, dens" <<j<<", "<<dens<<endl;
@@ -118,7 +148,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 	///////////////////////////////////////////
 	//// MESH GENERATION END
 	cout << endl<<"Done. Creating normals"<<endl;
-	for (int e = 0; e < elcount; e++){ 
+	for (int e = 0; e < elemcount; e++){ 
 		double f=-1.;
 		if (positaxisorent) f= 1.;
 		//element[e] -> normal (axis) = f;
@@ -127,12 +157,12 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 		else 								normal_h[e].z = f;
 	}
   
-  cudaMalloc((void **)&pplane , 	elcount * sizeof (double));
-  cudaMalloc((void **)&nfar   , 	elcount * sizeof (int));
+  cudaMalloc((void **)&pplane , 	elemcount * sizeof (double));
+  cudaMalloc((void **)&nfar   , 	elemcount * sizeof (int));
   
-  cudaMemcpy(elnode_h, elnode, elcount, cudaMemcpyHostToDevice);
-  cudaMemcpy(centroid_h, centroid, elcount, cudaMemcpyHostToDevice);
-  cudaMemcpy(normal_h, normal, elcount, cudaMemcpyHostToDevice);
+  cudaMemcpy(elnode_h, elnode, elemcount, cudaMemcpyHostToDevice);
+  cudaMemcpy(centroid_h, centroid, elemcount, cudaMemcpyHostToDevice);
+  cudaMemcpy(normal_h, normal, elemcount, cudaMemcpyHostToDevice);
 
   delete node_h;
   delete elnode_h;
@@ -145,24 +175,25 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 inline __device__ void TriMesh_d::CalcSpheres(){
 	// double max;
   int e = threadIdx.x + blockDim.x*blockIdx.x;
-  double max = 0.;
-  double3 rv;
-  for (int n = 0 ;n < 3; n++){
-    rv = node[3*e+n] - centroid[e];
-    if (length(rv) > max) max = length(rv);
-    nfar[e] = n;
-  }
-	
-  //element[e]-> radius[e] = max;	//Fraser Eq 3-136
-	
-	UpdatePlaneCoeff();
-	
+  if (e < elemcount) {
+    double max = 0.;
+    double3 rv;
+    for (int n = 0 ;n < 3; n++){
+      rv = node[3*e+n] - centroid[e];
+      if (length(rv) > max) max = length(rv);
+      nfar[e] = n;
+    }
+    
+    //element[e]-> radius[e] = max;	//Fraser Eq 3-136
+    
+    UpdatePlaneCoeff();
+	}
 }
 
 inline __device__ void TriMesh_d::UpdatePlaneCoeff(){
 	//Update pplan
   int i = threadIdx.x + blockDim.x*blockIdx.x;
-  if (i < elcount) { //parallelize by element
+  if (i < elemcount) { //parallelize by element
     pplane[i] = dot(node[elnode[nfar[i]]],normal[i]);
   }
 }
@@ -170,14 +201,36 @@ inline __device__ void TriMesh_d::UpdatePlaneCoeff(){
 inline __device__ void TriMesh_d::CalcNormals(){
 	double3 u, v, w;
   int e = threadIdx.x + blockDim.x*blockIdx.x;
+  if (e < elemcount) {
+    u = node [elnode[3*e+1]] - node [elnode[3*e]];
+    v = node [elnode[3*e+2]] - node [elnode[3*e]];
+    w = cross(u,v);
+    normal[e] = w/length(w);
+    //Fraser Eqn 3.34
+    //Uj x Vj / |UjxVj|
+	}
+}
 
-  u = node [elnode[3*e+1]] - node [elnode[3*e]];
-  v = node [elnode[3*e+2]] - node [elnode[3*e]];
-  w = cross(u,v);
-  normal[e] = w/length(w);
-  //Fraser Eqn 3.34
-  //Uj x Vj / |UjxVj|
-	
+inline __device__ void TriMesh_d::CalcCentroids(){
+  int e = threadIdx.x + blockDim.x*blockIdx.x;
+  if (e < elemcount)
+    centroid[e] = ( node[elnode[3*e]] + node[elnode[3*e+1]] + node[elnode[3*e+2]]) / 3.; 
+}
+
+inline __device__ void TriMesh_d::Move(const double &dt){
+
+	int n = threadIdx.x + blockDim.x*blockIdx.x; //Parallelize by node 
+  if ( n < nodecount ){
+    //double3 vr 	= cross(m_w, node[n]);
+    // node_v[n] = m_v + vr;
+    // // for (int i=0;i<3;i++) {
+      // // if      ((*node[n])(i) < min(i)) min[i] = (*node[n])(i);
+      // // else if ((*node[n])(i) > max(i)) max[i] = (*node[n])(i);
+    // // } 
+    node[n] += (node_v[n])*dt;
+
+
+  }//n<nodecount
 }
 
 };

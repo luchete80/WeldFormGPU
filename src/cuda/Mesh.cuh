@@ -15,23 +15,29 @@ class TriMesh_d{
 	double3 						*node,*node_v; //Positions and veloc, 
 	int									*elnode;			//3 per element
 	double 							*pplane;
-  int                 elcount;
   //Element data, TODO: PASS TO ELEMDATA
   double3             *centroid,*normal;
   int                 *nfar;
+  double3             m_v,m_w;
+  int nodecount, elemcount;
   
 	
-	double							v;						//Constant Uniform v
+	//double							v;						//Constant Uniform v
 	TriMesh_d(){}
 	inline void AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens);
 	inline void ApplyConstVel(const double3 &v);
 	inline void CalcCentroidVelFromNodes();
 	inline __device__ void UpdatePlaneCoeff();
 	inline void UpdatePos(const double &dt);
-	inline __device__ void CalcNormals();
+	inline __device__ void Move(const double &dt);
+  inline __device__ void CalcNormals();
 	inline __device__ void CalcSpheres();
-	void CalcCentroids();
+	inline __device__ void CalcCentroids();
+  
 };
-};
+
+__global__ void MeshUpdateKernel(TriMesh_d *mesh_d, const double &dt);
+
+};//SPH
 
 #endif

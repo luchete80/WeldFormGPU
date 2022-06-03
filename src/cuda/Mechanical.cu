@@ -16,6 +16,7 @@
 
 //This is temporary since can be used a delta_pl_strain for each particle
 #define MIN_PS_FOR_NBSEARCH		1.e-6//TODO: MOVE TO CLASS MEMBER
+#include "Mesh.cuh"
 
 using namespace std;
 
@@ -632,6 +633,11 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 
 		deltatmin = deltatint = deltat;
 		//Save before move (to be changed)
+    
+    if (contact){
+      MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
+      cudaDeviceSynchronize();
+    }
 
 		
 		if (Time >= t_out) {		
