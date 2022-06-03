@@ -18,6 +18,8 @@ class TriMesh_d{
   int                 elcount;
   //Element data, TODO: PASS TO ELEMDATA
   double3             *centroid,*normal;
+  int                 *nfar;
+  
 	
 	double							v;						//Constant Uniform v
 	TriMesh_d(){}
@@ -26,8 +28,8 @@ class TriMesh_d{
 	inline void CalcCentroidVelFromNodes();
 	inline __device__ void UpdatePlaneCoeff();
 	inline void UpdatePos(const double &dt);
-	inline void CalcNormals();
-	inline void CalcSpheres();
+	inline __device__ void CalcNormals();
+	inline __device__ void CalcSpheres();
 	void CalcCentroids();
 };
 };

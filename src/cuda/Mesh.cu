@@ -126,7 +126,10 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 		else if (axis == 1)	normal_h[e].y = f;
 		else 								normal_h[e].z = f;
 	}
-
+  
+  cudaMalloc((void **)&pplane , 	elcount * sizeof (double));
+  cudaMalloc((void **)&nfar   , 	elcount * sizeof (int));
+  
   cudaMemcpy(elnode_h, elnode, elcount, cudaMemcpyHostToDevice);
   cudaMemcpy(centroid_h, centroid, elcount, cudaMemcpyHostToDevice);
   cudaMemcpy(normal_h, normal, elcount, cudaMemcpyHostToDevice);
@@ -137,10 +140,44 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   delete normal_h;  
 }
 
+//This is done once, Since mesh is rigid
+//Calculate radius and plane coefficient
+inline __device__ void TriMesh_d::CalcSpheres(){
+	// double max;
+  int e = threadIdx.x + blockDim.x*blockIdx.x;
+  double max = 0.;
+  double3 rv;
+  for (int n = 0 ;n < 3; n++){
+    rv = node[3*e+n] - centroid[e];
+    if (length(rv) > max) max = length(rv);
+    nfar[e] = n;
+  }
+	
+  //element[e]-> radius[e] = max;	//Fraser Eq 3-136
+	
+	UpdatePlaneCoeff();
+	
+}
+
 inline __device__ void TriMesh_d::UpdatePlaneCoeff(){
 	//Update pplan
-	//	pplane[i] = dot(*node [element[e] -> node[element[e] ->nfar]],element[e] -> normal);
+  int i = threadIdx.x + blockDim.x*blockIdx.x;
+  if (i < elcount) { //parallelize by element
+    pplane[i] = dot(node[elnode[nfar[i]]],normal[i]);
+  }
+}
 
+inline __device__ void TriMesh_d::CalcNormals(){
+	double3 u, v, w;
+  int e = threadIdx.x + blockDim.x*blockIdx.x;
+
+  u = node [elnode[3*e+1]] - node [elnode[3*e]];
+  v = node [elnode[3*e+2]] - node [elnode[3*e]];
+  w = cross(u,v);
+  normal[e] = w/length(w);
+  //Fraser Eqn 3.34
+  //Uj x Vj / |UjxVj|
+	
 }
 
 };
