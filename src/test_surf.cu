@@ -281,10 +281,12 @@ int main(int argc, char **argv) //try
   dom_d->Alpha = 1.0;
   dom_d->friction_dyn = 0.15;
   
-  dom_d->trimesh = mesh_d;
+  dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
   if (dom_d->trimesh ==NULL)
     cout << "ERROR. No mesh defined"<<endl;
   
+  
+  dom_d->trimesh->SetVel(make_double3(0.,0.,-1.0));
 	dom_d->MechSolve(0.0101,1.0e-4);
   
   //First example
