@@ -150,6 +150,18 @@ __global__ void UpdateVelKernel(Domain_d *dom, const double &dt) {
   dom->UpdateVel(dt);
 }
 
+__device__ inline void Domain_d::UpdatePos(const double &dt){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+		
+	if ( i < particle_count ) {
+    	x[i] += dt*v[i];   
+  }
+}
+
+__global__ void UpdatePosKernel(Domain_d *dom, const double &dt) {
+  dom->UpdatePos(dt);
+}
+
 __global__ void UpdateDensityKernel(Domain_d *dom, const double &dt) {
   dom->UpdateDensity(dt);
 }

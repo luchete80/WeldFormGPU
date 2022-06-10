@@ -193,11 +193,8 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
       CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
 		);
     cudaDeviceSynchronize(); //REQUIRED!!!!
-    UpdateDensityKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
-		);
+    
+    UpdateDensityKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);		
     cudaDeviceSynchronize(); //REQUIRED!!!!
     
     if (contact){
@@ -225,12 +222,13 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 		}
 
 		//Move particle and then calculate streses and strains ()
-		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
-														rho, rhoa, rhob, drho,
-														x, a,
-														u, /*Mat3_t I, */deltat,
-														isfirst_step, particle_count);	
-		cudaDeviceSynchronize(); //REQUIRED!!!!
+		// MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
+														// rho, rhoa, rhob, drho,
+														// x, a,
+														// u, /*Mat3_t I, */deltat,
+														// isfirst_step, particle_count);	
+		UpdatePosKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
 
 		//If kernel is the external, calculate pressure
 		//Calculate pressure!

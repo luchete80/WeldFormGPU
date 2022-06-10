@@ -290,7 +290,8 @@ __device__                      inline void CalcDensInc(
 __device__ inline void UpdateDensity(const double &dt);
   
   __device__ inline void UpdateVel(const double &dt);
-                                                          
+  __device__ inline void UpdatePos(const double &dt);
+  
 	__device__ /*__forceinline__*/inline void CalcRateTensors(const uint *particlenbcount,
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors);
