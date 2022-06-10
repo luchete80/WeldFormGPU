@@ -186,7 +186,14 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
     
+    //TODO: MOVE TO A SINGLE HOST DOMAIN FUNCTION
     CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+		);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
+    UpdateDensityKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
       CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		

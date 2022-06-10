@@ -162,12 +162,12 @@ __device__ inline void Domain_d::UpdateDensity(const double &dt){
 }
 
 __host__ inline void Domain_d::CalcDensity(const double &dt, int blocksPerGrid,int threadsPerBlock){
-    CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
-		);
-    cudaDeviceSynchronize(); //REQUIRED!!!!
+    // CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      // CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      // CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      // CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+		// );
+    // cudaDeviceSynchronize(); //REQUIRED!!!!
     
 }
 
