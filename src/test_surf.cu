@@ -3,6 +3,7 @@
 
 #include "cuda/Domain_d.cuh" 
 #include "cuda/Mechanical.cu" 
+#include "cuda/KickDriftSolver.cu" 
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
 

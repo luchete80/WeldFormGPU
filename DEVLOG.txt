@@ -4,3 +4,4 @@
 20220531 - Creating CUDA device mesh for contact, since forces refer to mesh elements. 
 20220603 - Working with contact. Parallelizing mesh creation and update. 
 20220608 - Added Mesh move command. 
+20220610 - Added TensorRate function 

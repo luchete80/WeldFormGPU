@@ -245,6 +245,7 @@ class Domain_d
 	__host__ void ThermalSolve(const double &tf);
 
 	__host__ void MechSolve(const double &tf, const double &dt_out);
+  __host__ void MechKickDriftSolve(const double &tf, const double &dt_out);
 	
 	//General
 	__host__ void SetDensity (const double &k);
@@ -269,10 +270,19 @@ class Domain_d
 	//MAIN MECHANICAL FUNCTIONS ARE THESE THREE (Start Acc & Whole Velocity are not)
 	__device__ __forceinline__ void PrimaryComputeAcceleration ();	
 	__device__ __forceinline__ void LastComputeAcceleration();
-	__device__ /*__forceinline__*/inline void CalcForce2233(const uint *particlenbcount,
+	__device__ /*__forceinline__*/inline void CalcForce2233 (const uint *particlenbcount,
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
 																													int KernelType, float XSPH);
+
+	__device__ /*__forceinline__*/inline void CalcAccel (const uint *particlenbcount,
+																													const uint *neighborWriteOffsets,
+																													const uint *neighbors,
+																													int KernelType, float XSPH);
+                                                          
+	__device__ /*__forceinline__*/inline void CalcRateTensors(const uint *particlenbcount,
+																													const uint *neighborWriteOffsets,
+																													const uint *neighbors);
 
 	__device__ /*__forceinline__*/inline void CalculateSurface(const uint *particlenbcount,
 																													const uint *neighborWriteOffsets,
