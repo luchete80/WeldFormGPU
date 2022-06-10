@@ -279,11 +279,15 @@ class Domain_d
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
 																													int KernelType, float XSPH);
-__device__                      inline void CalcDens(
+                                                          
+__host__  inline void CalcDensity(const double &dt, int blocksPerGrid,int threadsPerBlock); //calculate and update density: TODO: DO NOT UPDATE KERNEL
+
+__device__                      inline void CalcDensInc(
                                                     const uint *particlenbcount,
                                                     const uint *neighborWriteOffsets,
                                                     const uint *neighbors,
                                                     int KernelType);
+__device__ inline void UpdateDensity(const double &dt);
   
   __device__ inline void UpdateVel(const double &dt);
                                                           

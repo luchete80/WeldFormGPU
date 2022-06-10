@@ -136,7 +136,7 @@ __device__ inline void Domain_d::CalcAccel(
 }
 
 
-__global__ inline void CalcDensKernel(Domain_d *dom_d,
+__global__ inline void CalcDensIncKernel(Domain_d *dom_d,
 	const uint *particlenbcount,
 	const uint *neighborWriteOffsets,
 	const uint *neighbors){
@@ -149,7 +149,7 @@ __global__ inline void CalcDensKernel(Domain_d *dom_d,
 }
 
 
-__device__ inline void Domain_d::CalcDens(
+__device__ inline void Domain_d::CalcDensInc(
 	const uint *particlenbcount,
 	const uint *neighborWriteOffsets,
 	const uint *neighbors,

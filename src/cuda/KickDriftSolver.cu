@@ -185,9 +185,13 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
-
-		deltatmin = deltatint = deltat;
-		//Save before move (to be changed)
+    
+    CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+		);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
     
     if (contact){
       if (this->trimesh != NULL){

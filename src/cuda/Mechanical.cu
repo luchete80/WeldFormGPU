@@ -8,6 +8,8 @@
 #include "tensor3.cu" //INLINE
 #include "Interaction.cu"
 
+#include "InteractionAlt.cuh"
+
 #include "Geometry.cu"
 #include "Contact.cu"
 
@@ -146,6 +148,27 @@ __device__ inline void Domain_d::UpdateVel(const double &dt){
 
 __global__ void UpdateVelKernel(Domain_d *dom, const double &dt) {
   dom->UpdateVel(dt);
+}
+
+__global__ void UpdateDensityKernel(Domain_d *dom, const double &dt) {
+  dom->UpdateDensity(dt);
+}
+
+__device__ inline void Domain_d::UpdateDensity(const double &dt){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;	
+	if ( i < particle_count ) {
+    	rho[i] += dt*drho[i];   
+  } 
+}
+
+__host__ inline void Domain_d::CalcDensity(const double &dt, int blocksPerGrid,int threadsPerBlock){
+    CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+		);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
+    
 }
 
 //IS NOT NECESSARY TO PASS ENTIRE DOMAIN!
