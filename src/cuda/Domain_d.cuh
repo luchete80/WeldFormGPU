@@ -279,6 +279,13 @@ class Domain_d
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
 																													int KernelType, float XSPH);
+__device__                      inline void CalcDens(
+                                                    const uint *particlenbcount,
+                                                    const uint *neighborWriteOffsets,
+                                                    const uint *neighbors,
+                                                    int KernelType);
+  
+  __device__ inline void UpdateVel(const double &dt);
                                                           
 	__device__ /*__forceinline__*/inline void CalcRateTensors(const uint *particlenbcount,
 																													const uint *neighborWriteOffsets,
@@ -400,6 +407,8 @@ __global__ void CalcMinTimeStepKernel(Domain_d *dom);
 __global__ void TimestepCheckKernel(const double &CFL,
 																double *h,
 																double *Cs);
+                                
+__global__ void UpdateVelKernel(Domain_d *dom, const double &dt);
 
 	/* const double &Dimension*/
 

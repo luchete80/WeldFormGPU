@@ -35,7 +35,6 @@ __device__ inline void Domain_d::CalcAccel(
 	tensor3 StrainRateSum,RotationRateSum;
 	
 	a[i]		=	make_double3(0.,0.,0.);
-	drho[i]	= 0.0;
 	
 	clear(RotationRateSum);
 	clear(StrainRateSum);
@@ -128,29 +127,101 @@ __device__ inline void Domain_d::CalcAccel(
 			//omp_set_lock(&P1->my_lock);
 			VXSPH[i] += XSPH*mj/(0.5f*(di+dj))*K*(-vij);
 		}		
-		
-		
-		double3 temp = make_double3(0.0);
-		double temp1 = 0.0;
-		
-		//if (GradientType == 0)
-		// if (i == 1250)
-			// printf("Particle 1250 Time %.4e, Sigmaizz %f , Sigmajzz %f\n",Time, Sigmai(2,2),Sigmaj(2,2));
-
-		temp = ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /* TIij */) * (GK*xij);		
-		double3 gkxij = GK*xij;
-    
-		//if (Dimension == 2) temp(2) = 0.0;
-		temp1 = dot( vij , GK*xij );
 
 		// Locking the particle 1 for updating the properties
-		a[i] 		+= mj * temp;
-		drho[i]	+= mj * (di/dj) * temp1;
+		a[i] 		+= mj * ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /* TIij */) * (GK*xij);
 		}//neibcount
 
 	}//i < partcount
 }
 
+
+__global__ inline void CalcDensKernel(Domain_d *dom_d,
+	const uint *particlenbcount,
+	const uint *neighborWriteOffsets,
+	const uint *neighbors){
+	//int i = threadIdx.x + blockDim.x*blockIdx.x;
+	dom_d->CalcAccel(
+	particlenbcount,
+	neighborWriteOffsets,
+	neighbors,
+	0,0.0);
+}
+
+
+__device__ inline void Domain_d::CalcDens(
+	const uint *particlenbcount,
+	const uint *neighborWriteOffsets,
+	const uint *neighbors,
+	int KernelType
+	)
+{
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+	
+	if ( i < particle_count ) {
+	int Dimension = 3; //TODO, put in another 
+	int neibcount = particlenbcount[i];
+	const uint writeOffset = neighborWriteOffsets[i];
+	
+	drho[i]	= 0.0;
+	
+	for (int k=0;k < neibcount; k++) { //Or size
+		//if fixed size i = part * NB + k
+		//int j = neib[i][k];
+		int j = neighbors[writeOffset + k];
+		//double h	= partdata->h[i]+P2->h)/2;
+		double3 xij = x[i] - x[j];
+		double rij = length(xij);
+		double di=0.0,dj=0.0,mi=0.0,mj=0.0;
+		
+		if (!IsFree[i]) {
+			di = DensitySolid(PresEq[i], Cs[j], P0[j],p[i], rho_0[j]);
+			mi = FPMassC[i] * m[j];
+		} else {
+			di = rho[i];
+			mi = m[i];
+		}
+		if (!IsFree[j]) {
+			dj = DensitySolid (PresEq[i], Cs[i], P0[i],p[j], rho_0[i]);
+			mj = FPMassC[j] * m[i];
+		} else {
+			dj = rho[j];
+			mj = m[j];
+		}
+
+		double3 vij	= v[i] - v[j];
+		double h_ = (h[i] + h[j])/2.0;
+			
+		//double GK	= GradKernel(Dimension, KernelType, rij/h, h);
+		double GK	= GradKernel(3, KernelType, rij/h_, h_);
+		double K	= Kernel(3, 0, rij/h_, h_);
+    
+		// NoSlip BC velocity correction 		////////////////////////////////
+		double3 vab = make_double3(0.0);
+		if (IsFree[i]*IsFree[j]) {
+			vab = vij;
+		} else {
+			if (NoSlip[i] || NoSlip[j] ) {
+				// No-Slip velocity correction
+				if (IsFree[i])	vab = v[i] - (2.0f*v[j]- NSv[j]); 
+				else vab = (2.0f*v[i]- NSv[i]) - v[j];
+			}
+			// Please check
+			if (!(NoSlip[i] || NoSlip[j])) {
+				if (IsFree[i]) vab = v[i] - v[j]; else vab = v[i] - v[j];
+//				if (IsFree[i]) vab.x = v[i](0) + v[j]b(0); else vab.x = -v[i]b(0) - v[j](0);
+			}
+		} //Are not both fixed
+
+		double temp1 = 0.0;
+    
+		//if (Dimension == 2) temp(2) = 0.0;
+		temp1 = dot( vij , GK*xij );
+		drho[i]	+= mj * (di/dj) * temp1;
+		}//neibcount
+
+	}//i < partcount
+}
 
 ///////////////////////////////////
 //////// CalcRateTensors: FOR KICKDRIFT SOLVER WHERE TENSOR ARE CALCULATED AFTER 

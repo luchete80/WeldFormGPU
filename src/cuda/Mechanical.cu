@@ -136,6 +136,18 @@ __device__ void Domain_d::PrimaryComputeAcceleration (/*int i*/) {
 	}//i<part_count
 }
 
+__device__ inline void Domain_d::UpdateVel(const double &dt){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+		
+	if ( i < particle_count ) {
+    	v[i] += dt*a[i];   
+  }
+}
+
+__global__ void UpdateVelKernel(Domain_d *dom, const double &dt) {
+  dom->UpdateVel(dt);
+}
+
 //IS NOT NECESSARY TO PASS ENTIRE DOMAIN!
 void __global__ MoveKernelExt(double3 *v, double3 *va, double3 *vb,
 													double *rho, double *rhoa, double *rhob,double *drho,

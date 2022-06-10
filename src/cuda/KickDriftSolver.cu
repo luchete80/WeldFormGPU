@@ -135,13 +135,13 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 		//cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
 		//This was in Original LastCompAcceleration
 		clock_beg_int = clock();
-		CalcForcesKernel	<<<blocksPerGrid,threadsPerBlock >>>(this,
+		CalcAccelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
       CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
 		);
     cudaDeviceSynchronize(); //REQUIRED!!!!
-    
+
     
     if (contact){
       CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
@@ -171,6 +171,9 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
     //cout << "end"<<endl;
     
     forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
+    //update half of vel
+    UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat/2.);
+    cudaDeviceSynchronize();
     
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
@@ -195,7 +198,48 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
       }
     }
 
+					
+		//TODO: CHANGE this to an interleaved reduction or something like that (see #84)
+		if (!is_yielding){
+			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
+			for (int i=0;i<particle_count;i++){
+				if ( pl_strain_h[i] > max_pl_strain )
+					max_pl_strain = pl_strain_h[i];
+			}
+			
+			if ( max_pl_strain > MIN_PS_FOR_NBSEARCH ){
+				is_yielding = true;
+				cout << "Now is yielding"<<endl;
+			}
+		}
+
+		//Move particle and then calculate streses and strains ()
+		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
+														rho, rhoa, rhob, drho,
+														x, a,
+														u, /*Mat3_t I, */deltat,
+														isfirst_step, particle_count);	
+		cudaDeviceSynchronize(); //REQUIRED!!!!
+
+		//If kernel is the external, calculate pressure
+		//Calculate pressure!
+		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
+		cudaDeviceSynchronize();
+		// StressStrainExtKernel(sigma,	//OUTPUT
+																									// double *strain,*straina,*strainb, //OUTPUT
+																									// //INPUT
+																									// double *p, double *rotrate, 
+																									// double* shearstress,double* shearstressa, double* shearstressb,
+												
+																									// double dt, int particle_count);
+		clock_beg_int = clock();
+		StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+		cudaDeviceSynchronize();
+		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
 		
+		if (isfirst_step) isfirst_step = false;
+		Time +=deltat;		
+	
 		if (Time >= t_out) {		
 			cudaMemcpy(ID_h, ID, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
@@ -233,71 +277,6 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 			}
 			cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
 		}
-					
-		//TODO: CHANGE this to an interleaved reduction or something like that (see #84)
-		if (!is_yielding){
-			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
-			for (int i=0;i<particle_count;i++){
-				if ( pl_strain_h[i] > max_pl_strain )
-					max_pl_strain = pl_strain_h[i];
-			}
-			
-			if ( max_pl_strain > MIN_PS_FOR_NBSEARCH ){
-				is_yielding = true;
-				cout << "Now is yielding"<<endl;
-			}
-		}
-	
-		if (auto_ts){
-			CalcMinTimeStepKernel<<< blocksPerGrid,threadsPerBlock >>> (this);
-			cudaDeviceSynchronize();
-			
-			// cudaMemcpy(max_deltat_h, max_deltat, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
-			// double max_dt=1000.;
-			// int part;
-			// for (int i=0;i<particle_count;i++){
-				// if ( max_deltat_h[i] < max_dt ){
-					// max_dt = max_deltat_h[i];
-					// deltatmin = max_dt;
-					// part = i;
-				// }
-			// }
-			//cout << "Max delta t (safe): " << max_dt<<"in particle "<<part<< ", parallel: "<<deltatmin<<endl;
-			AdaptiveTimeStep();
-			//cout << "Auto TS is on. Time Step size: "<<deltat<<endl;
-		}
-
-		//Move particle and then calculate streses and strains ()
-		MoveKernelExt<<<blocksPerGrid,threadsPerBlock >>> (v, va,vb,
-														rho, rhoa, rhob, drho,
-														x, a,
-														u, /*Mat3_t I, */deltat,
-														isfirst_step, particle_count);	
-		cudaDeviceSynchronize(); //REQUIRED!!!!
-
-		//If kernel is the external, calculate pressure
-		//Calculate pressure!
-		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
-		cudaDeviceSynchronize();
-		// StressStrainExtKernel(sigma,	//OUTPUT
-																									// double *strain,*straina,*strainb, //OUTPUT
-																									// //INPUT
-																									// double *p, double *rotrate, 
-																									// double* shearstress,double* shearstressa, double* shearstressb,
-												
-																									// double dt, int particle_count);
-		clock_beg_int = clock();
-		StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
-		cudaDeviceSynchronize();
-		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
-		
-		if (isfirst_step) isfirst_step = false;
-		Time +=deltat;		
-		
-		//TODO: Pass toPartData
-		//CalcForcesMember	<<<blocksPerGrid,threadsPerBlock >>>(partdata);
-		//MechSolveKernel<<< >>>();
-
 		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
 		step ++;
 		//cout<<"--------------------------- END STEP, Time"<<Time <<", --------------------------"<<endl; 
