@@ -110,11 +110,12 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
   
   this->id_free_surf = 1;
   
-  
+  cout << "particle_count "<<particle_count<<endl;
   SetVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,make_double3(0.,0.,0.));
   cudaDeviceSynchronize(); 
   
   cout << "Main Loop "<<endl;
+  
   while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){
@@ -172,143 +173,142 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
     }
     
     
-    cout << "updating vel"<<endl;
+
     
     // forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
     // //update half of vel
     UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat/2.);
     cudaDeviceSynchronize();
-    // cout <<" applying bc"<<endl;
-		// //IMPOSE BC!
-		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
-		// cudaDeviceSynchronize();
-    // // double vbc;
-    // // if (Time < TAU) vbc = VMAX/TAU*Time;
-    // // else            vbc = VMAX;
-		// double vbc = 1.0; 
+		//IMPOSE BC!
+		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
+		cudaDeviceSynchronize();
+    // double vbc;
+    // if (Time < TAU) vbc = VMAX/TAU*Time;
+    // else            vbc = VMAX;
+		double vbc = 1.0; 
 
-		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
-		// cudaDeviceSynchronize();
+		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
+		cudaDeviceSynchronize();
     
-    // // //TODO: MOVE TO A SINGLE HOST DOMAIN FUNCTION
-    // // // CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
-      // // // CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-      // // // CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      // // // CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
-		// // // );
-    // // // cudaDeviceSynchronize(); //REQUIRED!!!!
+    ////////TODO: MOVE TO A SINGLE HOST DOMAIN FUNCTION
+    CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+		);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
        
-    /////Like CPU version, this is calculated with density. 
-    // cout << "calculating tensor rate "<<endl;
-    // CalcRateTensorsDensKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
-      // CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-      // CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      // CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
-		// );
-    // cudaDeviceSynchronize(); //REQUIRED!!!!
-    // cout << "done "<<endl;
+    ///////Like CPU version, this is calculated with density. 
+    UpdateDensityKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);		
+    cudaDeviceSynchronize(); //REQUIRED!!!!
+
+    CalcRateTensorsKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+		);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
+
     
-    // cout << "updating density"<<endl;
-    // UpdateDensityKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);		
-    // cudaDeviceSynchronize(); //REQUIRED!!!!
-    // cout << "done."<<endl;
     
-    // if (contact){
-      // cout << "contact is active "<<endl;
-      // if (this->trimesh != NULL){
-      // MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
-      // cudaDeviceSynchronize();
-      // } else {
-        // cout << "No contact mesh defined."<<endl;
-      // }
-    // }
+    if (contact){
+      cout << "contact is active "<<endl;
+      if (this->trimesh != NULL){
+      MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
+      cudaDeviceSynchronize();
+      } else {
+        cout << "No contact mesh defined."<<endl;
+      }
+    }
 
 					
-		// //TODO: CHANGE this to an interleaved reduction or something like that (see #84)
-		// if (!is_yielding){
-      // cout << "Updating pl strain "<<endl;
-			// cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
-			// for (int i=0;i<particle_count;i++){
-				// if ( pl_strain_h[i] > max_pl_strain )
-					// max_pl_strain = pl_strain_h[i];
-			// }
+		//TODO: CHANGE this to an interleaved reduction or something like that (see #84)
+		if (!is_yielding){
+			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
+			for (int i=0;i<particle_count;i++){
+				if ( pl_strain_h[i] > max_pl_strain )
+					max_pl_strain = pl_strain_h[i];
+			}
 			
-			// if ( max_pl_strain > MIN_PS_FOR_NBSEARCH ){
-				// is_yielding = true;
-				// cout << "Now is yielding"<<endl;
-			// }
-		// }
-    // cout << "done " <<endl;
+			if ( max_pl_strain > MIN_PS_FOR_NBSEARCH ){
+				is_yielding = true;
+				cout << "Now is yielding"<<endl;
+			}
+		}
+
+		UpdatePosKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
+
+    UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat/2.);
+    cudaDeviceSynchronize();
+		//IMPOSE BC!
+		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
+		cudaDeviceSynchronize();
+    // double vbc;
+    // if (Time < TAU) vbc = VMAX/TAU*Time;
+    // else            vbc = VMAX;
 
 
-    // // cout << "updating position "<<endl;
-		// // UpdatePosKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
-    // // cudaDeviceSynchronize(); //REQUIRED!!!!
-
+		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
+		cudaDeviceSynchronize();
     
-		// // //If kernel is the external, calculate pressure
-		// // //Calculate pressure!
-		// // PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
-		// // cudaDeviceSynchronize();
-		// // // StressStrainExtKernel(sigma,	//OUTPUT
-																									// // // double *strain,*straina,*strainb, //OUTPUT
-																									// // // //INPUT
-																									// // // double *p, double *rotrate, 
-																									// // // double* shearstress,double* shearstressa, double* shearstressb,
-												
-																									// // // double dt, int particle_count);
-		// // clock_beg_int = clock();
-		// // StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
-		// // cudaDeviceSynchronize();
-		// // stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
-		
-		// if (isfirst_step) isfirst_step = false;
-		// Time +=deltat;		
-	
-		// if (Time >= t_out) {		
-			// cudaMemcpy(ID_h, ID, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);	
-			// cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
-			// cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
-			// cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
-			// cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
-			
-			// cudaMemcpy(p_h, p, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
-			
-			// cudaMemcpy(rho_h, rho, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
-			// cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
-			// cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
-      
-      // cudaMemcpy(contneib_count_h,contneib_count, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);
-			
-			// char str[10];
-			// sprintf(str, "out_%d.csv", count);
-      // count++;
-			// WriteCSV(str);
-			
-			// t_out += dt_out;
-			// time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
-			// cout << "Time "<<Time<<", GPU time "<<time_spent<<endl;
-			// cout << "Current time step: "<< deltat << endl;
-			// cout << "Forces calc: "			<<forces_time<<endl;
-			// cout << "Stresses calc: "		<<stress_time<<endl;
-			
-			// double3 max= make_double3(0.,0.,0.);
-			// for (int i=0;i<particle_count;i++){
-				// //cout << "Particle " << i << "Vel: "<< v_h[i].x<<", "<<v_h[i].y<< ", "<< v_h[i].z<<endl;
-				// //cout << "Particle " << i << "Acc: "<< a_h[i].x<<", "<<a_h[i].y<< ", "<< a_h[i].z<<endl;
-				// if (u_h[i].x>max.x) max.x = u_h[i].x;
-				// if (u_h[i].y>max.y) max.y = u_h[i].y;
-				// if (u_h[i].z>max.z) max.z = u_h[i].z;
-			// }
-			// cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
-		// }
-		// time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
-		// step ++;
-		// //cout<<"--------------------------- END STEP, Time"<<Time <<", --------------------------"<<endl; 
+		//If kernel is the external, calculate pressure
+		//Calculate pressure!
+		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
+		cudaDeviceSynchronize();
 
-		// ts_i ++;
-		// if ( ts_i > (ts_nb_inc - 1) ) 
-			// ts_i = 0;
+		clock_beg_int = clock();
+		StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+		cudaDeviceSynchronize();
+		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
+		
+		if (isfirst_step) isfirst_step = false;
+		Time +=deltat;		
+	
+		if (Time >= t_out) {		
+			cudaMemcpy(ID_h, ID, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			
+			cudaMemcpy(p_h, p, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+			
+			cudaMemcpy(rho_h, rho, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
+			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
+      
+      cudaMemcpy(contneib_count_h,contneib_count, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);
+			
+			char str[10];
+			sprintf(str, "out_%d.csv", count);
+      count++;
+			WriteCSV(str);
+			
+			t_out += dt_out;
+			time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
+			cout << "Time "<<Time<<", GPU time "<<time_spent<<endl;
+			cout << "Current time step: "<< deltat << endl;
+			cout << "Forces calc: "			<<forces_time<<endl;
+			cout << "Stresses calc: "		<<stress_time<<endl;
+			
+			double3 max= make_double3(0.,0.,0.);
+			for (int i=0;i<particle_count;i++){
+				//cout << "Particle " << i << "Vel: "<< v_h[i].x<<", "<<v_h[i].y<< ", "<< v_h[i].z<<endl;
+				//cout << "Particle " << i << "Acc: "<< a_h[i].x<<", "<<a_h[i].y<< ", "<< a_h[i].z<<endl;
+				if (u_h[i].x>max.x) max.x = u_h[i].x;
+				if (u_h[i].y>max.y) max.y = u_h[i].y;
+				if (u_h[i].z>max.z) max.z = u_h[i].z;
+			}
+			cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
+		}
+		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
+		step ++;
+		//cout<<"--------------------------- END STEP, Time"<<Time <<", --------------------------"<<endl; 
+
+		ts_i ++;
+		if ( ts_i > (ts_nb_inc - 1) ) 
+			ts_i = 0;
 		
 	}//while <tf
 

@@ -171,7 +171,15 @@ int main(int argc, char **argv) //try
 	int size = dom.Particles.size() * sizeof(double3);
 	cout << "Copying to device..."<<endl;
 	cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
+
+
+	for (int i=0;i<dom.Particles.size();i++){
+		x[i] = make_double3(0.,0.,0.);
+	}
+	cudaMemcpy(dom_d->v, x, size, cudaMemcpyHostToDevice);
+  
 	cout << "copied"<<endl;
+
 	
 	cout << "Setting values"<<endl;
 	dom_d->SetDensity(rho);
@@ -254,7 +262,7 @@ int main(int argc, char **argv) //try
 	dom_d->auto_ts = true;
   dom_d->Alpha = 1.0;
 	//dom_d->MechSolve(0.0101,1.0e-4);
-  dom_d->MechKickDriftSolve(0.0101,1.e-4);
+  dom_d->MechKickDriftSolve(0.0101,0.0101);
   
   //First example
   // dom_d->deltat = 1.0e-7;

@@ -226,18 +226,18 @@ __device__ inline void Domain_d::CalcDensInc(
 ///////////////////////////////////
 //////// CalcRateTensors: FOR KICKDRIFT SOLVER WHERE TENSOR ARE CALCULATED AFTER 
 
-__global__ inline void CalcRateTensorsDensKernel(Domain_d *dom_d,
+__global__ inline void CalcRateTensorsKernel(Domain_d *dom_d,
 	const uint *particlenbcount,
 	const uint *neighborWriteOffsets,
 	const uint *neighbors){
 	//int i = threadIdx.x + blockDim.x*blockIdx.x;
-	dom_d->CalcRateTensorsDens(
+	dom_d->CalcRateTensors(
 	particlenbcount,
 	neighborWriteOffsets,
 	neighbors);
 }
 
-__device__ /*__forceinline__*/inline void Domain_d::CalcRateTensorsDens(const uint *particlenbcount,
+__device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *particlenbcount,
                                                         const uint *neighborWriteOffsets,
                                                         const uint *neighbors){
                                                           

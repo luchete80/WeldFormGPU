@@ -138,7 +138,7 @@ __device__ void Domain_d::PrimaryComputeAcceleration (/*int i*/) {
 	}//i<part_count
 }
 
-__device__ inline void Domain_d::UpdateVel(const double &dt){
+__device__ inline void Domain_d::UpdateVel(double dt){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 		
 	if ( i < particle_count ) {
@@ -146,23 +146,22 @@ __device__ inline void Domain_d::UpdateVel(const double &dt){
   }
 }
 
-__global__ inline void UpdateVelKernel(Domain_d *dom, const double &dt) {
+__global__ inline void UpdateVelKernel(Domain_d *dom, double dt) {
   dom->UpdateVel(dt);
 }
 
-__device__ inline void Domain_d::SetVel(double3 &vi){
+__device__ inline void Domain_d::SetVel(double3 vi){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
-		
 	if ( i < particle_count ) {
     	v[i] = vi;   
   }
 }
 
-__global__ void SetVelKernel(Domain_d *dom,  double3 &v){
+__global__ void SetVelKernel(Domain_d *dom,  double3 v){
   dom->SetVel(v);
 }
 
-__device__ inline void Domain_d::UpdatePos(const double &dt){
+__device__ inline void Domain_d::UpdatePos(double dt){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 		
 	if ( i < particle_count ) {
@@ -170,15 +169,15 @@ __device__ inline void Domain_d::UpdatePos(const double &dt){
   }
 }
 
-__global__ void UpdatePosKernel(Domain_d *dom, const double &dt) {
+__global__ void UpdatePosKernel(Domain_d *dom, double dt) {
   dom->UpdatePos(dt);
 }
 
-__global__ void UpdateDensityKernel(Domain_d *dom, const double &dt) {
+__global__ void UpdateDensityKernel(Domain_d *dom, double dt) {
   dom->UpdateDensity(dt);
 }
 
-__device__ inline void Domain_d::UpdateDensity(const double &dt){
+__device__ inline void Domain_d::UpdateDensity(double dt){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
 	if ( i < particle_count ) {
     	rho[i] += dt*drho[i];   
