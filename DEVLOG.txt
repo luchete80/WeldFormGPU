@@ -5,3 +5,4 @@
 20220603 - Working with contact. Parallelizing mesh creation and update. 
 20220608 - Added Mesh move command. 
 20220610 - Added TensorRate function 
+20220613 - Working with kickdrift solver. Added RateTensor calculation.
