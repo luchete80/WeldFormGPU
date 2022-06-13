@@ -258,8 +258,6 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 	clear(StrainRateSum);
 	clear(RotationRateSum);
 	
-	drho[i]	= 0.0;
-	
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
@@ -344,8 +342,6 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 
 			StrainRateSum 	= StrainRateSum + mj_dj * StrainRate;
 			RotationRateSum = RotationRateSum + mj_dj * RotationRate;
-
-      drho[i]	+= mj * (di/dj) *  dot( vij , GK*xij );
       
 		}//neibcount
 

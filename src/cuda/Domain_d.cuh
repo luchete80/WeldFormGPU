@@ -314,6 +314,7 @@ __device__ inline void UpdateDensity(double dt);
 
 
 	__device__ void StressStrain(int i);
+	__device__ void StressStrainOne(int i);
 	
 	__device__ void ApplyBCVel(int bcid, 
 														double3 bcv);
@@ -407,6 +408,7 @@ __global__ void ApplyBCVelExtKernel(double *v,
 __global__ void ApplyBCVelKernel (Domain_d *dom, int bcid, double3 bcv);
 
 __global__ inline void StressStrainKernel(Domain_d *dom);
+__global__ inline void StressStrainKickDriftKernel(Domain_d *dom);
 
 __global__ void CalcMinTimeStepKernel(Domain_d *dom);
 

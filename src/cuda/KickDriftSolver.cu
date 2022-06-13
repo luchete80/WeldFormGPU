@@ -258,7 +258,7 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 		cudaDeviceSynchronize();
 
 		clock_beg_int = clock();
-		StressStrainKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+		StressStrainKickDriftKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
 		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
 		

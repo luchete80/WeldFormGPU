@@ -437,9 +437,81 @@ __device__ void Domain_d::StressStrain(int i) {
 	}//particle count
 }
 
+//////// DO NOT USE A AND B, THIS IS USED BY KICKDRIFT /////////////
+__device__ void Domain_d::StressStrainOne(int i) {
+	
+	//int i = threadIdx.x + blockDim.x*blockIdx.x;
+	double dep = 0.;
+	
+	if ( i < particle_count ) {	
+		//Pressure = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
+
+		// Jaumann rate terms
+		tensor3 RotationRateT,SRT,RS;
+		tensor3 RotationRate;
+		tensor3 StrainRate;
+		tensor3 ShearStress,ShearStressa,ShearStressb;
+		tensor3 Sigma;
+		tensor3 Strain,Straina,Strainb;
+		
+		double temprr[6],tempss[6],tempsr[6];
+		double tempssa[6],tempssb[6];
+		for (int k=0;k<6;k++){ //First the diagonal
+			temprr[k] = rotrate[6*i+k];
+			tempss[k] = shearstress[6*i+k];
+			tempsr[k] = strrate[6*i+k];
+		}
+		ShearStress   = FromFlatSym (tempss);	
+		StrainRate    = FromFlatSym(tempsr);
+		RotationRate  = FromFlatAntiSym(temprr);
+
+		RotationRateT = Trans(RotationRate);
+		
+		SRT = ShearStress * RotationRateT;
+		RS = RotationRate * ShearStress;
+
+		ShearStress	= deltat*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate.xx+StrainRate.yy+StrainRate.zz)*Identity())+SRT+RS) + ShearStress;	
+
+				
+		double J2	= 0.5*(ShearStressa.xx*ShearStressa.xx + 2.0*ShearStressa.xy*ShearStressa.yx +
+					2.0*ShearStressa.xz*ShearStressa.zx + ShearStressa.yy*ShearStressa.yy +
+					2.0*ShearStressa.yz*ShearStressa.zy + ShearStressa.zz*ShearStressa.zz);
+
+    //Scale back, Fraser Eqn 3-53
+		double sig_trial = sqrt(3.0*J2); 
+    if ( sigma_y[i] < sig_trial ) ShearStress = sigma_y[i]/sig_trial * ShearStress; //Yielding      
+    //std::min((Sigmay/sqrt(3.0*J2)),1.0)*ShearStressa;
+		
+		sigma_eq[i] = sig_trial;	
+		
+		if ( sig_trial > sigma_y[i]) {
+			dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
+			pl_strain[i] += dep;	
+      //printf("Particle %d, dep %.1e, sigtrial %.1e\n",i,dep,sig_trial);
+			sigma_eq[i] = sigma_y[i];
+		}
+
+    
+		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
+
+		Strain	= deltat * StrainRate + Strain;
+
+		///// OUTPUT TO Flatten arrays
+		ToFlatSymPtr(Sigma, sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM		
+		ToFlatSymPtr(Strain, 	strain,6*i);		
+		ToFlatSymPtr(ShearStress, shearstress,6*i);
+
+	}//particle count
+}
+
 __global__ void StressStrainKernel(Domain_d *dom){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	dom->StressStrain(i);
+}
+
+__global__ void StressStrainKickDriftKernel(Domain_d *dom){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+	dom->StressStrainOne(i);
 }
 
 #define TAU		0.005
