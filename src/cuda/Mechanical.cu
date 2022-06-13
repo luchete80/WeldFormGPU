@@ -166,6 +166,7 @@ __device__ inline void Domain_d::UpdatePos(double dt){
 		
 	if ( i < particle_count ) {
     	x[i] += dt*v[i];   
+      u[i] += dt*v[i];
   }
 }
 
