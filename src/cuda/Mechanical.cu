@@ -146,8 +146,20 @@ __device__ inline void Domain_d::UpdateVel(const double &dt){
   }
 }
 
-__global__ void UpdateVelKernel(Domain_d *dom, const double &dt) {
+__global__ inline void UpdateVelKernel(Domain_d *dom, const double &dt) {
   dom->UpdateVel(dt);
+}
+
+__device__ inline void Domain_d::SetVel(double3 &vi){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+		
+	if ( i < particle_count ) {
+    	v[i] = vi;   
+  }
+}
+
+__global__ void SetVelKernel(Domain_d *dom,  double3 &v){
+  dom->SetVel(v);
 }
 
 __device__ inline void Domain_d::UpdatePos(const double &dt){

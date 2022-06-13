@@ -141,11 +141,11 @@ __global__ inline void CalcDensIncKernel(Domain_d *dom_d,
 	const uint *neighborWriteOffsets,
 	const uint *neighbors){
 	//int i = threadIdx.x + blockDim.x*blockIdx.x;
-	dom_d->CalcAccel(
+	dom_d->CalcDensInc(
 	particlenbcount,
 	neighborWriteOffsets,
 	neighbors,
-	0,0.0);
+	0);
 }
 
 
@@ -226,18 +226,18 @@ __device__ inline void Domain_d::CalcDensInc(
 ///////////////////////////////////
 //////// CalcRateTensors: FOR KICKDRIFT SOLVER WHERE TENSOR ARE CALCULATED AFTER 
 
-__global__ inline void CalcRateTensorsKernel(Domain_d *dom_d,
+__global__ inline void CalcRateTensorsDensKernel(Domain_d *dom_d,
 	const uint *particlenbcount,
 	const uint *neighborWriteOffsets,
 	const uint *neighbors){
 	//int i = threadIdx.x + blockDim.x*blockIdx.x;
-	dom_d->CalcRateTensors(
+	dom_d->CalcRateTensorsDens(
 	particlenbcount,
 	neighborWriteOffsets,
 	neighbors);
 }
 
-__device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *particlenbcount,
+__device__ /*__forceinline__*/inline void Domain_d::CalcRateTensorsDens(const uint *particlenbcount,
                                                         const uint *neighborWriteOffsets,
                                                         const uint *neighbors){
                                                           
@@ -258,7 +258,6 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 	clear(StrainRateSum);
 	clear(RotationRateSum);
 	
-	a[i]		=	make_double3(0.,0.,0.);
 	drho[i]	= 0.0;
 	
 	for (int k=0;k < neibcount; k++) { //Or size
@@ -269,11 +268,21 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
 		double di=0.0,dj=0.0,mi=0.0,mj=0.0;
-		
-		mi = FPMassC[i] * m[j];
 
-		dj = rho[j];
-		mj = m[j];
+		if (!IsFree[i]) {
+			di = DensitySolid(PresEq[i], Cs[j], P0[j],p[i], rho_0[j]);
+			mi = FPMassC[i] * m[j];
+		} else {
+			di = rho[i];
+			mi = m[i];
+		}
+		if (!IsFree[j]) {
+			dj = DensitySolid (PresEq[i], Cs[i], P0[i],p[j], rho_0[i]);
+			mj = FPMassC[j] * m[i];
+		} else {
+			dj = rho[j];
+			mj = m[j];
+		}
 
 		double3 vij	= v[i] - v[j];
 		double h_ = (h[i] + h[j])/2.0;
@@ -336,6 +345,8 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 			StrainRateSum 	= StrainRateSum + mj_dj * StrainRate;
 			RotationRateSum = RotationRateSum + mj_dj * RotationRate;
 
+      drho[i]	+= mj * (di/dj) *  dot( vij , GK*xij );
+      
 		}//neibcount
 
 		///// OUTPUT TO Flatten arrays

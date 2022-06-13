@@ -11,6 +11,10 @@
 #include <fstream> 
 #include <iostream>
 
+#include "cuda/KickDriftSolver.cu"
+#include "cuda/Mesh.cuh"
+#include "cuda/Mesh.cu"
+
 //#include "Vector.h"
 
 
@@ -141,7 +145,7 @@ int main(int argc, char **argv) //try
 
   double timestep = (0.2*h/(Cs));
 
-	// cout<<"t  = "<<timestep<<endl;
+	cout<<"deltat  = "<<timestep<<endl;
 	// cout<<"Cs = "<<Cs<<endl;
 	// cout<<"K  = "<<K<<endl;
 	// cout<<"G  = "<<G<<endl;
@@ -249,7 +253,8 @@ int main(int argc, char **argv) //try
   dom_d->deltat = timestep;
 	dom_d->auto_ts = true;
   dom_d->Alpha = 1.0;
-	dom_d->MechSolve(0.0101,1.0e-4);
+	//dom_d->MechSolve(0.0101,1.0e-4);
+  dom_d->MechKickDriftSolve(0.0101,1.e-4);
   
   //First example
   // dom_d->deltat = 1.0e-7;
