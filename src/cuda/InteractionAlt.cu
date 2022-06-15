@@ -245,13 +245,9 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 	
 	if ( i < particle_count ) {
 	int Dimension = 3; //TODO, put in another 
-	int neibcount;
-	#ifdef FIXED_NBSIZE
-	neibcount = neib_offs[i];
-	#else
-	neibcount =	neib_offs[i+1] - neib_offs[i];
-	#endif
-	//printf("Solving\n");
+	int neibcount = particlenbcount[i];
+	const uint writeOffset = neighborWriteOffsets[i];
+  
 	tensor3 StrainRate,RotationRate;
 	tensor3 StrainRateSum,RotationRateSum;
 	
@@ -260,9 +256,8 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 	
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
-		//int j = neib[i][k];
-		int j = NEIB(i,k);
-		//double h	= partdata->h[i]+P2->h)/2;
+    int j = neighbors[writeOffset + k];
+
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
 		double di=0.0,dj=0.0,mi=0.0,mj=0.0;
@@ -333,7 +328,6 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 		RotationRate.zy = -RotationRate.yz;
 		//RotationRate	  	= -0.5 * GK * RotationRate; //THIS OPERATOR FAILS
 		RotationRate	  	= RotationRate * (-0.5 * GK);
-		
 
 		double3 temp = make_double3(0.0);
 		double temp1 = 0.0;
@@ -344,7 +338,6 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 			RotationRateSum = RotationRateSum + mj_dj * RotationRate;
       
 		}//neibcount
-
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(RotationRateSum, rotrate,6*i);
 		ToFlatSymPtr(StrainRateSum, strrate,6*i);	//Is the same for antisymm, stores upper diagonal

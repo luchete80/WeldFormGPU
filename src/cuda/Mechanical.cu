@@ -450,7 +450,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
 		tensor3 RotationRateT,SRT,RS;
 		tensor3 RotationRate;
 		tensor3 StrainRate;
-		tensor3 ShearStress,ShearStressa,ShearStressb;
+		tensor3 ShearStress;
 		tensor3 Sigma;
 		tensor3 Strain,Straina,Strainb;
 		
@@ -464,7 +464,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
 		ShearStress   = FromFlatSym (tempss);	
 		StrainRate    = FromFlatSym(tempsr);
 		RotationRate  = FromFlatAntiSym(temprr);
-
+   // printf(" Strain rate xx %f \n",StrainRate.zz);
 		RotationRateT = Trans(RotationRate);
 		
 		SRT = ShearStress * RotationRateT;
@@ -473,9 +473,9 @@ __device__ void Domain_d::StressStrainOne(int i) {
 		ShearStress	= deltat*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate.xx+StrainRate.yy+StrainRate.zz)*Identity())+SRT+RS) + ShearStress;	
 
 				
-		double J2	= 0.5*(ShearStressa.xx*ShearStressa.xx + 2.0*ShearStressa.xy*ShearStressa.yx +
-					2.0*ShearStressa.xz*ShearStressa.zx + ShearStressa.yy*ShearStressa.yy +
-					2.0*ShearStressa.yz*ShearStressa.zy + ShearStressa.zz*ShearStressa.zz);
+		double J2	= 0.5*(ShearStress.xx*ShearStress.xx + 2.0*ShearStress.xy*ShearStress.yx +
+					2.0*ShearStress.xz*ShearStress.zx + ShearStress.yy*ShearStress.yy +
+					2.0*ShearStress.yz*ShearStress.zy + ShearStress.zz*ShearStress.zz);
 
     //Scale back, Fraser Eqn 3-53
 		double sig_trial = sqrt(3.0*J2); 
