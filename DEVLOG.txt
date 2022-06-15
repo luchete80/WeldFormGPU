@@ -6,3 +6,4 @@
 20220608 - Added Mesh move command. 
 20220610 - Added TensorRate function 
 20220613 - Working with kickdrift solver. Added RateTensor calculation.
+20220615 - Working on kickdrift solver. Fixed some error in stresses calc.
