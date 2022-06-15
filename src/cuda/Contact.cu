@@ -77,16 +77,17 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
 	max_contact_force = 0.;
 	double min_contact_force = 1000.;
 	int inside_pairs = 0;
-
+  //printf("test\n");
   if (i < first_fem_particle_idx ) {  
     // CONTACT OFFSET IS FIX BY NOW
     int neibcount = contneib_count[i];
   
-    // printf("neibcount %d\n",neibcount);
+    //printf("neibcount %d\n",neibcount);
     // printf("Nb indexed,i:%d\n",i);
     // In this Weldform GPU version, is clear than i is SPH particle and 2 is RIGID PARTICLE
     for (int k=0;k < neibcount;k++) { //Or size
       int j = contneib_part[i*MAX_NB_COUNT+k];
+      //printf("j neib %d: \n",j);
       //int j = neighbors[writeOffset + k];
       double3 xij;
       double K;
@@ -113,7 +114,7 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
 
         double deltat_cont = ( h[i] + pplane - dot (normal[j],	x[i]) ) / (-delta_);								//Eq 3-142 
         double3 Ri = x[i] + deltat_cont * vr;	//Eq 3-139 Ray from SPH particle in the rel velocity direction
-
+        //printf("delta %f \n",delta_);
         
         contforce[i] = make_double3(0.); //RESET
         
@@ -173,7 +174,7 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
                 this -> min_force_ts = min_force_ts_;
             }
             a[i] += contforce[i] / m[i]; 
-            //cout << "contforce "<<contforce[i]<<endl;
+            printf("contforce %f\n",contforce[i].x);
             
             if (friction_dyn > 0.) {
               if ( length (vr)  != 0.0 ){
