@@ -23,7 +23,7 @@ Is hevaily based on:
 
 1) Install Visual Studio Community [2019](https://visualstudio.microsoft.com/es/vs/older-downloads/) (Not tested on 2022 yet) 
 2) Install [cmake](https://cmake.org/download/)
-3) Download and install CUDA [compilers](https://developer.nvidia.com/cuda-downloads)
+3) Download and install CUDA [compilers](https://developer.nvidia.com/cuda-downloads) (tested only on 11.4 version)
 4) Set CUDA compiler path on CMD: set CUDA_PATH="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4"
 5) Create a direcory for built binaries
 6) Run make.bat (located here on root directory), to set MSVC env vars
