@@ -13,7 +13,8 @@ void __device__ inline Domain_d::CalcIntEnergy(){
           shearstress[4]*strrate[4] +
           shearstress[5]*strrate[5] )
           );
-    int_energy_sum[i] += dint_energy_dt * deltat;
+    int_energy[i] += dint_energy_dt * deltat;
+    int_energy_sum += int_energy[i];
   }      
 }
 

@@ -305,6 +305,7 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 				if (u_h[i].z>max.z) max.z = u_h[i].z;
 			}
 			cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
+      cout << "Int Energy "<< int_energy_sum<<endl;
 		}
 		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
 		step ++;

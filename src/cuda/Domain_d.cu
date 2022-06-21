@@ -131,8 +131,8 @@ void Domain_d::SetDimension(const int &particle_count){
   
   //////////////////////////
   ///// ENERGY /////////////
-  cudaMalloc((void **)&int_energy_sum,   particle_count * sizeof (double));
-  cudaMalloc((void **)&kin_energy_sum,   particle_count * sizeof (double));
+  cudaMalloc((void **)&int_energy,   particle_count * sizeof (double));
+  cudaMalloc((void **)&kin_energy,   particle_count * sizeof (double));
 	
 	//////////////////////////
 	/// CORRECTIONS /////////
@@ -170,7 +170,7 @@ void Domain_d::SetDimension(const int &particle_count){
 	DFAC =0.2;
   contact = false;
   
-  SetDouble(this->int_energy_sum,0.);
+  SetDouble(this->int_energy,0.);
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
 }

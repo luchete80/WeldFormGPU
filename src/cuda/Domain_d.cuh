@@ -238,7 +238,8 @@ class Domain_d
 	
   /////////////////////////////////////////
   //////////// ENERGY THINGS //////////////
-  double    *int_energy_sum, *kin_energy_sum;
+  double    *int_energy, *kin_energy;
+  double    int_energy_sum, kin_energy_sum;
   
   
 	/////////////////////////////////////////
