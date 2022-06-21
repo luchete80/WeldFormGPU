@@ -236,6 +236,11 @@ class Domain_d
   int 		*element; //ELEMENT OF TRIMESH FROM "RIGID" PARTICLE, ALL FIRST PARTICLES ARE ZERO
   TriMesh_d *trimesh;
 	
+  /////////////////////////////////////////
+  //////////// ENERGY THINGS //////////////
+  double    *int_energy_sum;
+  
+  
 	/////////////////////////////////////////
 	///////// MEMBER FUNCTIONS /////////////
 	Domain_d(){isfirst_step=true;};
@@ -330,6 +335,9 @@ __device__ inline void UpdateDensity(double dt);
   //Contact things 
   void __device__ inline CalcContactForces(/* int i*/);
   __host__ void AddTrimeshParticles(TriMesh_d &mesh, const float &hfac, const int &id);
+  
+  // ENERGY 
+  void __device__ inline CalcIntEnergy();
     
 }; 
 

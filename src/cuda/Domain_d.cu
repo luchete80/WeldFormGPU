@@ -128,6 +128,10 @@ void Domain_d::SetDimension(const int &particle_count){
   cudaMalloc((void **)&contneib_count,  particle_count * sizeof (int));
   cudaMalloc((void **)&contneib_part,   particle_count * 20 * sizeof (int));
   cudaMalloc((void **)&contneib_offs,   particle_count * sizeof (int));
+  
+  //////////////////////////
+  ///// ENERGY /////////////
+  cudaMalloc((void **)&int_energy_sum,   particle_count * sizeof (double));
 	
 	//////////////////////////
 	/// CORRECTIONS /////////

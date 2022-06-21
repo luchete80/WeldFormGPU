@@ -16,6 +16,7 @@
 //This is temporary since can be used a delta_pl_strain for each particle
 #define MIN_PS_FOR_NBSEARCH		1.e-6//TODO: MOVE TO CLASS MEMBER
 #include "Mesh.cuh"
+#include "Energy.cu"
 
 using namespace std;
 namespace SPH{
@@ -261,7 +262,10 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 		StressStrainKickDriftKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
 		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
-		
+    
+    CalcIntEnergyKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+		cudaDeviceSynchronize();
+    
 		if (isfirst_step) isfirst_step = false;
 		Time +=deltat;		
 	
