@@ -23,7 +23,6 @@ Is hevaily based on Kirk Fraser [Thesis](https://constellation.uqac.ca/4246/1/Fr
 5) Create a direcory for building libraries binaries
 6) Run make.bat (located here on root directory), to set MSVC env vars
 7) Clone this repo (for example to c:\WeldFormGPU\src)
-8) Inside binaries library run: 
-   cmake c:\WeldFormGPU\src -G "NMake Makefiles"
-   nmake.exe
+8) Inside binaries library run: cmake c:\WeldFormGPU\src -G "NMake Makefiles"
+9) Inside binaries library run: nmake.exe
 
