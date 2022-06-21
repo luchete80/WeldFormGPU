@@ -132,6 +132,7 @@ void Domain_d::SetDimension(const int &particle_count){
   //////////////////////////
   ///// ENERGY /////////////
   cudaMalloc((void **)&int_energy_sum,   particle_count * sizeof (double));
+  cudaMalloc((void **)&kin_energy_sum,   particle_count * sizeof (double));
 	
 	//////////////////////////
 	/// CORRECTIONS /////////
@@ -168,6 +169,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	PFAC =0.8;
 	DFAC =0.2;
   contact = false;
+  
+  SetDouble(this->int_energy_sum,0.);
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
 }
@@ -199,6 +202,17 @@ __host__ void Domain_d::SetCs(const Domain &dom){
 	}
 	int size = particle_count * sizeof(double);
 	cudaMemcpy(this->Cs, k_, size, cudaMemcpyHostToDevice);
+	delete k_;	
+}
+
+//TODO: MOVE TO TEMPLATE
+__host__ void Domain_d::SetDouble(double *arr, double val){
+	int *k_ =  new int[particle_count];
+	for (int i=0;i<particle_count;i++){
+		k_[i] = val;
+	}
+	int size = particle_count * sizeof(double);
+	cudaMemcpy(arr, k_, size, cudaMemcpyHostToDevice);
 	delete k_;	
 }
 

@@ -238,7 +238,7 @@ class Domain_d
 	
   /////////////////////////////////////////
   //////////// ENERGY THINGS //////////////
-  double    *int_energy_sum;
+  double    *int_energy_sum, *kin_energy_sum;
   
   
 	/////////////////////////////////////////
@@ -263,6 +263,8 @@ class Domain_d
 	__host__ void SetFreePart(const Domain &dom);
 	__host__ void SetShearModulus(const double &);
 	__host__ void SetID(const Domain &dom);
+  
+  __host__ void SetDouble (double *arr, double val);
 	
 	//Mechanical
 	__host__ void SetCs(const Domain &dom);
@@ -338,6 +340,10 @@ __device__ inline void UpdateDensity(double dt);
   
   // ENERGY 
   void __device__ inline CalcIntEnergy();
+  void __device__ inline CalcKinEnergy( const uint *particlenbcount,
+                                        const uint *neighborWriteOffsets,
+                                        const uint *neighbors,
+                                        int KernelType);
     
 }; 
 
