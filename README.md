@@ -20,9 +20,10 @@ Is hevaily based on Kirk Fraser [Thesis](https://constellation.uqac.ca/4246/1/Fr
 2) Install [cmake](https://cmake.org/download/)
 3) Download and install CUDA [compilers](https://developer.nvidia.com/cuda-downloads) (tested only on 11.4 version)
 4) Set CUDA compiler path on CMD: set CUDA_PATH="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4"
-5) Create a direcory for built binaries
+5) Create a direcory for building libraries binaries
 6) Run make.bat (located here on root directory), to set MSVC env vars
 7) Clone this repo (for example to c:\WeldFormGPU\src)
-8) Run cmake c:\WeldFormGPU\src -G "NMake Makefiles"
-9) Run nmake.exe
+8) Inside binaries library run: 
+   cmake c:\WeldFormGPU\src -G "NMake Makefiles"
+   nmake.exe
 
