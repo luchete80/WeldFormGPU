@@ -11,10 +11,7 @@ Has been exclusively adapted to solid mechaincs, and it includes:
 
 ![alt text](https://github.com/luchete80/WeldForm/blob/master/compression.PNG)
 
-Is hevaily based on: 
-
-1) [PersianSPH](https://github.com/mghkorzani/persiansph) - Maziar Gholami Korzani and Sergio Galindo Torres
-2) Kirk Fraser [Thesis](https://constellation.uqac.ca/4246/1/Fraser_uqac_0862D_10345.pdf) and [works](https://pdfs.semanticscholar.org/b09e/8c8023d56b130cc6fa5314cb66bce364df8e.pdf) on SPH model of FSW
+Is hevaily based on Kirk Fraser [Thesis](https://constellation.uqac.ca/4246/1/Fraser_uqac_0862D_10345.pdf) and [works](https://pdfs.semanticscholar.org/b09e/8c8023d56b130cc6fa5314cb66bce364df8e.pdf) on SPH model of FSW
 
 
 ## Building Instructions
