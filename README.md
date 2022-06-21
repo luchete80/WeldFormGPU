@@ -1,7 +1,5 @@
 WeldFormGPU is the GPU version of [WeldForm](https://github.com/luchete80/WeldForm)
 
-Not tested on Linux yet.
-
 ## Features
 Has been exclusively adapted to solid mechaincs, and it includes:
 
@@ -29,5 +27,5 @@ Is hevaily based on:
 6) Run make.bat (located here on root directory), to set MSVC env vars
 7) Clone this repo (for example to c:\WeldFormGPU\src)
 8) Run cmake c:\WeldFormGPU\src -G "NMake Makefiles"
-9) Run nmake.exe 
+9) Run nmake.exe
 
