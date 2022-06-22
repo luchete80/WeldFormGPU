@@ -16,7 +16,11 @@
 //This is temporary since can be used a delta_pl_strain for each particle
 #define MIN_PS_FOR_NBSEARCH		1.e-6//TODO: MOVE TO CLASS MEMBER
 #include "Mesh.cuh"
+#include "Mesh.cuh"
 #include "Energy.cu"
+
+#define TAU		0.005
+#define VMAX	10.0
 
 using namespace std;
 namespace SPH{
@@ -183,10 +187,10 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
 		cudaDeviceSynchronize();
-    // double vbc;
-    // if (Time < TAU) vbc = VMAX/TAU*Time;
-    // else            vbc = VMAX;
-		double vbc = 1.0; 
+    double vbc;
+    if (Time < TAU) vbc = VMAX/TAU*Time;
+    else            vbc = VMAX;
+		//double vbc = 1.0; 
 
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
@@ -291,21 +295,24 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 			
 			t_out += dt_out;
 			time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
-			cout << "Time "<<Time<<", GPU time "<<time_spent<<endl;
+			cout << "-------------------------\nTime "<<Time<<", GPU time "<<time_spent<<endl;
 			cout << "Current time step: "<< deltat << endl;
 			cout << "Forces calc: "			<<forces_time<<endl;
 			cout << "Stresses calc: "		<<stress_time<<endl;
 			
 			double3 max= make_double3(0.,0.,0.);
+      double max_ps = 0.;
 			for (int i=0;i<particle_count;i++){
 				//cout << "Particle " << i << "Vel: "<< v_h[i].x<<", "<<v_h[i].y<< ", "<< v_h[i].z<<endl;
 				//cout << "Particle " << i << "Acc: "<< a_h[i].x<<", "<<a_h[i].y<< ", "<< a_h[i].z<<endl;
 				if (u_h[i].x>max.x) max.x = u_h[i].x;
 				if (u_h[i].y>max.y) max.y = u_h[i].y;
 				if (u_h[i].z>max.z) max.z = u_h[i].z;
+        if ( pl_strain_h[i] > max_ps) max_ps = pl_strain_h[i];
 			}
-			cout << "Max disp "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
-      cout << "Int Energy "<< int_energy_sum<<endl;
+			cout << "Max disp: "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
+      cout << "Max pl_strain: "<<max_ps<<endl;
+      //cout << "Int Energy "<< int_energy_sum<<endl;
 		}
 		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
 		step ++;

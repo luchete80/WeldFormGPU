@@ -5,7 +5,7 @@
 #include "cuda/Mechanical.cu" 
 
 #define TAU		0.005
-#define VMAX	1.0
+#define VMAX	10.0
 
 #include <sstream>
 #include <fstream> 
@@ -146,7 +146,7 @@ int main(int argc, char **argv) //try
   double timestep = (0.2*h/(Cs));
 
 	cout<<"deltat  = "<<timestep<<endl;
-	// cout<<"Cs = "<<Cs<<endl;
+	cout<<"Cs = "<<Cs<<endl;
 	// cout<<"K  = "<<K<<endl;
 	// cout<<"G  = "<<G<<endl;
 	// cout<<"Fy = "<<Fy<<endl;
@@ -265,7 +265,8 @@ int main(int argc, char **argv) //try
   
   //New solver
   dom_d->auto_ts = false;
-  timestep = (0.4*h/(Cs));
+  timestep = (0.3*h/(Cs+VMAX));
+  dom_d->deltat = timestep;
   dom_d->MechKickDriftSolve(0.0101,1.0e-4);
   
   //First example
