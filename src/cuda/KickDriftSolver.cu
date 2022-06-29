@@ -279,6 +279,8 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+      cudaMemcpy(nb_h, CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts), 
+                          sizeof(unsigned int) * particle_count, cudaMemcpyDeviceToHost);	
 			
 			cudaMemcpy(p_h, p, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
 			
