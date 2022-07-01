@@ -246,6 +246,10 @@ class Domain_d
 	///////// MEMBER FUNCTIONS /////////////
 	Domain_d(){isfirst_step=true;};
 	Domain_d(const int &particle_count);
+  
+	void __host__ /*__device__*/ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
+								double r, double Density, double h, bool Fixed);
+                
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
 	__host__ void Set_h(const double &);
 	__host__ void ThermalSolve(const double &tf);

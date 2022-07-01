@@ -64,6 +64,7 @@ add_executable(main_mech
 													Vector.cpp
                           Mesh.cpp
 													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
+                          cuda/Geom.cu
 													cuda/Domain_d.cu
 													#cuda/Thermal.cu
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
