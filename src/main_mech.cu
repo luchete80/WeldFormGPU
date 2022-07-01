@@ -265,7 +265,7 @@ int main(int argc, char **argv) //try
   
   //New solver
   dom_d->auto_ts = false;
-  timestep = (0.4*h/(Cs+VMAX));
+  timestep = (0.2*h/(Cs+VMAX));
   dom_d->deltat = timestep;
   dom_d->MechKickDriftSolve(0.0101,1.0e-4);
   
