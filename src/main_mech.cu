@@ -11,7 +11,8 @@
 #include <fstream> 
 #include <iostream>
 
-#include "cuda/KickDriftSolver.cu"
+//#include "cuda/KickDriftSolver.cu"
+#include "cuda/SolverLeapfrog.cu"
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
 
@@ -259,15 +260,16 @@ int main(int argc, char **argv) //try
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
   
   dom_d->deltat = timestep;
-	dom_d->auto_ts = true;
+	dom_d->auto_ts = false;
   dom_d->Alpha = 1.0;
 	//dom_d->MechSolve(0.0101,1.0e-4);
   
   //New solver
   dom_d->auto_ts = false;
-  timestep = (0.2*h/(Cs+VMAX));
+  timestep = (1.0*h/(Cs+VMAX));
   dom_d->deltat = timestep;
-  dom_d->MechKickDriftSolve(0.0101,1.0e-4);
+  //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
+  dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
   
   //First example
   // dom_d->deltat = 1.0e-7;

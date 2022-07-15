@@ -256,6 +256,7 @@ class Domain_d
 
 	__host__ void MechSolve(const double &tf, const double &dt_out);
   __host__ void MechKickDriftSolve(const double &tf, const double &dt_out);
+  __host__ void MechLeapfrogSolve(const double &tf, const double &dt_out);
 	
 	//General
 	__host__ void SetDensity (const double &k);
