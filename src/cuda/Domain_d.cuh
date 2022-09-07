@@ -204,6 +204,8 @@ class Domain_d
 	double3 	*NSv;	///< Velocity of the fixed particle for no-slip BC
 	
 	int 			*ID, *ID_h;
+  
+  int *SMPairs;  //Flattened pairs
 	
 	
 	////////////////////////////////////
