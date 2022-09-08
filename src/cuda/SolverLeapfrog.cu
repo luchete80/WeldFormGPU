@@ -25,7 +25,7 @@
 using namespace std;
 namespace SPH{
   
-void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
+void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
 
 	int N = particle_count;
 	int threadsPerBlock = 256; //Or BlockSize
@@ -178,11 +178,12 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
     }
     
     
-
-    
+    double dt;
+    if (isfirst_step) dt = deltat/2.0;
+    else              dt = deltat;
     // forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
     // //update half of vel
-    UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat/2.);
+    UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,dt);
     cudaDeviceSynchronize();
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
@@ -243,19 +244,6 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
 
 		UpdatePosKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
     cudaDeviceSynchronize(); //REQUIRED!!!!
-
-    UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat/2.);
-    cudaDeviceSynchronize();
-		//IMPOSE BC!
-		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
-		cudaDeviceSynchronize();
-    // double vbc;
-    // if (Time < TAU) vbc = VMAX/TAU*Time;
-    // else            vbc = VMAX;
-
-
-		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
-		cudaDeviceSynchronize();
     
 		//If kernel is the external, calculate pressure
 		//Calculate pressure!

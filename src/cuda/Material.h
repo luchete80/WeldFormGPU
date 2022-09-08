@@ -23,11 +23,11 @@ class Material_{
 	public:
 	Material_(){}
 	Material_(const Elastic_ el):elastic_m(el){}
-	virtual inline double CalcTangentModulus(){};
-	virtual inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp){};
-	virtual inline double CalcTangentModulus(const double &strain){};
-	virtual inline double CalcYieldStress();
-	virtual inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp){}
+	virtual __device__ inline double CalcTangentModulus(){};
+	virtual __device__ inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp){};
+	virtual __device__ inline double CalcTangentModulus(const double &strain){};
+	virtual __device__ inline double CalcYieldStress();
+	virtual __device__ inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp){}
 	const Elastic_& Elastic()const{return elastic_m;}
 };
 

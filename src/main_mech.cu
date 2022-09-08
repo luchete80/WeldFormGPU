@@ -5,13 +5,14 @@
 #include "cuda/Mechanical.cu" 
 
 #define TAU		0.005
-#define VMAX	1.0
+#define VMAX	10.0
 
 #include <sstream>
 #include <fstream> 
 #include <iostream>
 
-#include "cuda/KickDriftSolver.cu"
+//#include "cuda/KickDriftSolver.cu"
+#include "cuda/SolverLeapfrog.cu"
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
 
@@ -143,10 +144,10 @@ int main(int argc, char **argv) //try
 
 	double Cs	= sqrt(K/rho);
 
-  double timestep = (0.2*h/(Cs));
+  double timestep = (0.4*h/(Cs));
 
 	cout<<"deltat  = "<<timestep<<endl;
-	// cout<<"Cs = "<<Cs<<endl;
+	cout<<"Cs = "<<Cs<<endl;
 	// cout<<"K  = "<<K<<endl;
 	// cout<<"G  = "<<G<<endl;
 	// cout<<"Fy = "<<Fy<<endl;
@@ -259,14 +260,16 @@ int main(int argc, char **argv) //try
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
   
   dom_d->deltat = timestep;
-	dom_d->auto_ts = true;
+	dom_d->auto_ts = false;
   dom_d->Alpha = 1.0;
 	//dom_d->MechSolve(0.0101,1.0e-4);
   
   //New solver
   dom_d->auto_ts = false;
-  timestep = (0.4*h/(Cs));
-  dom_d->MechKickDriftSolve(0.0101,1.0e-4);
+  timestep = (1.0*h/(Cs+VMAX));
+  dom_d->deltat = timestep;
+  //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
+  dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
   
   //First example
   // dom_d->deltat = 1.0e-7;

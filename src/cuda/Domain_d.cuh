@@ -129,7 +129,7 @@ class Domain_d
 	double3* u;
 	
 	double3 *a_h, *x_h, *v_h, *u_h;
-	
+	unsigned int *nb_h;
 	PartData_d *partdata;
   	
 	//Time things
@@ -248,12 +248,17 @@ class Domain_d
 	///////// MEMBER FUNCTIONS /////////////
 	Domain_d(){isfirst_step=true;};
 	Domain_d(const int &particle_count);
+  
+	void __host__ /*__device__*/ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
+								double r, double Density, double h, bool Fixed);
+                
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
 	__host__ void Set_h(const double &);
 	__host__ void ThermalSolve(const double &tf);
 
 	__host__ void MechSolve(const double &tf, const double &dt_out);
   __host__ void MechKickDriftSolve(const double &tf, const double &dt_out);
+  __host__ void MechLeapfrogSolve(const double &tf, const double &dt_out);
 	
 	//General
 	__host__ void SetDensity (const double &k);

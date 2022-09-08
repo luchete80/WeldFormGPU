@@ -37,6 +37,7 @@ void Domain_d::SetDimension(const int &particle_count){
 	v_h =  new double3 [particle_count];
 	u_h =  new double3 [particle_count];
 	a_h =  new double3 [particle_count];
+  nb_h = new unsigned int [particle_count];
 	
   ID_h =  new int    [particle_count];
 	
@@ -373,12 +374,12 @@ Domain_d::~Domain_d(){
 void Domain_d::WriteCSV(char const * FileKey){
 	FILE *f = fopen(FileKey,"w");;
 	
-	fprintf(f, "ID, X, Y, Z, Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain, ContNb\n");
+	fprintf(f, "ID, X, Y, Z, Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain, Nb, ContNb\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %d\n", 
+		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %d, %d\n", 
 							ID_h[i],
               x_h[i].x,x_h[i].y,x_h[i].z, 
               u_h[i].x,u_h[i].y,u_h[i].z,
@@ -389,6 +390,7 @@ void Domain_d::WriteCSV(char const * FileKey){
 						p_h[i],
 						sigma_eq_h[i],
 						pl_strain_h[i],
+            nb_h[i],
             contneib_count_h[i]);
 		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
 		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;

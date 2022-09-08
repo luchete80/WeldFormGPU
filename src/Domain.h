@@ -130,7 +130,7 @@ class Domain
   
   inline void CalcPairPosList();
   void CheckParticlePairs();
-  
+  void InitReductionArraysOnce();
   
   void AddTrimeshParticles(const TriMesh &mesh, const float &hfac, const int &id);
 
