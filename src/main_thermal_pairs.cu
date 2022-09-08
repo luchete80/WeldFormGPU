@@ -197,8 +197,10 @@ int main(int argc, char **argv) //try
 	int *nb = new int[dom.Particles.size()]; //nb count of each particle
 	for (int i = 0; i < dom.Particles.size(); ++i) nb[i] = 0;
 	//THIS WILL BE DONE IN SEARCH
+  int totpairs = 0;
 	for ( int k = 0; k < dom.Nproc ; k++) {
 		cout<< "pair size"<<dom.SMPairs[k].size()<<endl;
+    totpairs+=dom.SMPairs[k].size();
 		for (int a=0; a<dom.SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
 			//cout << "a,k: "<<a<<" "<<k<<endl;
 			nb2d[dom.SMPairs[k][a].first] [nb[dom.SMPairs[k][a].first]]  = dom.SMPairs[k][a].second;
@@ -209,6 +211,20 @@ int main(int argc, char **argv) //try
 			nbcount+=2; // Total nb count (for flattened array)
 		}
 	}
+  //cudaMalloc((void **)&dom_d->SMPairs, 2 * totpairs * sizeof (int));
+	int* pairs_temp = new int [2 * totpairs];
+  int pair = 0;
+	for ( int k = 0; k < dom.Nproc ; k++) {
+		for (int a=0; a<dom.SMPairs[k].size();a++) {//Same Material Pairs, Similar to Domain::LastComputeAcceleration ()
+			pairs_temp[2*pair  ] = dom.SMPairs[k][a].first;
+      pairs_temp[2*pair+1] = dom.SMPairs[k][a].second;
+      pair++;
+    }
+  }
+  //cudaMemcpy(pairs_temp, dom_d->SMPairs, 2 * totpairs * sizeof(int), cudaMemcpyHostToDevice);
+  //delete pairs_temp;
+  
+    
 	cout << "NbCount[0] "<< nb[0]<<endl;
 	cout << "Done."<<endl;
 	

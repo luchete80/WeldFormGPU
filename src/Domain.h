@@ -43,6 +43,7 @@
 
 #include "Vector.h"
 
+#define MAX_NB_PER_PART 100
 
 enum Kernels_Type { Qubic_Spline=0, Quintic=1, Quintic_Spline=2 ,Hyperbolic_Spline=3};
 //C++ Enum used for easiness of coding in the input files
@@ -126,6 +127,9 @@ class Domain
 	inline void CalcConvHeat ();
 	inline void CalcPlasticWorkHeat();
 	inline void CalcGradCorrMatrix();	//BONET GRADIENT CORRECTION
+  
+  inline void CalcPairPosList();
+  void CheckParticlePairs();
   
   
   void AddTrimeshParticles(const TriMesh &mesh, const float &hfac, const int &id);
@@ -212,6 +216,20 @@ class Domain
   // CONTACT THINGS (ONLY FOR MESH GENERATION)
   int first_fem_particle_idx;
 
+    //NEW: For parallel sum/reduction
+    std::vector<size_t> first_pair_perproc;                   // Almost like pair count        
+    int pair_count;                                                   //var names as stated as Nishimura (2015) ipl is njgi 
+    std::vector < std::pair<int,int> >     pair_test,pair_ord;                    //OLY FOR TESTING
+    //Array< Array <size_t> >               ilist_SM,jlist_SM;          // Size [Pairs] i and j particles of pair list [l], already flattened
+    std::vector < size_t >                ipair_SM,jpair_SM;          //[Particles]// This is nb count for each particle i<j and j>i (called njgi) FLATTENED
+    std::vector < size_t >                ipl_SM;                     // [Particles] position of link/pair (nb sum), called s_jgi in 1991 paper
+    std::vector < std::vector <size_t>  > Aref;                      // Entry[Particle ,nb], indicates link
+    std::vector < std::vector <size_t>  > Anei;                      //[Particles][MAX_NB_PER_PART] neighbiour list for j > i
+    //std::vector <Vec3_t>                  pair_force;
+    std::vector <double>                  temp_force;
+    std::vector <double>                  pair_densinc;
+    //std::vector <Mat3_t>                  pair_StrainRate;
+    //std::vector <Mat3_t>                  pair_RotRate;    
 
 private:
 	void Periodic_X_Correction	(Vector & x, double const & h, Particle * P1, Particle * P2);		//Corrects xij for the periodic boundary condition
