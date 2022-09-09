@@ -307,6 +307,7 @@ __device__ inline void UpdateDensity(double dt);
   
   __device__ inline void UpdateVel(double dt);
   __device__ inline void UpdatePos(double dt);
+  __device__ inline void UpdatePosFraser(double dt);
   __device__ inline void SetVel(double3 v);
   
 	__device__ /*__forceinline__*/inline void CalcRateTensors(const uint *particlenbcount,
@@ -442,6 +443,7 @@ __global__ void TimestepCheckKernel(const double &CFL,
 __global__ inline void SetVelKernel(Domain_d *dom, double3 v);
 __global__ inline void UpdateVelKernel(Domain_d *dom, double dt);
 __global__ inline void UpdatePosKernel(Domain_d *dom, double dt);
+__global__ inline void UpdatePosFraserKernel(Domain_d *dom, double dt);
 
 	/* const double &Dimension*/
 

@@ -174,6 +174,22 @@ __global__ void UpdatePosKernel(Domain_d *dom, double dt) {
   dom->UpdatePos(dt);
 }
 
+//THIS UPDATES POSITION FROM VELOCITY AND ACCEL, NOT ONLY VELOCITY
+__device__ inline void Domain_d::UpdatePosFraser(double dt){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;
+		
+	if ( i < particle_count ) {
+    double3 u_ = dt * v[i] + 0.5 * a[i] * dt * dt;
+    	x[i] += u_;   
+      u[i] += u_;
+  }
+}
+
+__global__ void UpdatePosFraserKernel(Domain_d *dom, double dt) {
+  dom->UpdatePosFraser(dt);
+}
+
+
 __global__ void UpdateDensityKernel(Domain_d *dom, double dt) {
   dom->UpdateDensity(dt);
 }

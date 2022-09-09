@@ -146,6 +146,36 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 		//cout<<"--------------------------- BEGIN STEP "<<step<<" --------------------------"<<endl; 
 		//This was in Original LastCompAcceleration
 		clock_beg_int = clock();
+
+    ////////TODO: MOVE TO A SINGLE HOST DOMAIN FUNCTION
+    CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+		);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
+       
+    ///////Like CPU version, this is calculated with density. 
+    UpdateDensityKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);		
+    cudaDeviceSynchronize(); //REQUIRED!!!!
+
+    CalcRateTensorsKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
+		);
+    cudaDeviceSynchronize(); //REQUIRED!!!!
+
+		//If kernel is the external, calculate pressure
+		//Calculate pressure!
+		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
+		cudaDeviceSynchronize();
+
+		clock_beg_int = clock();
+		StressStrainKickDriftKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+		cudaDeviceSynchronize();
+		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
+    
 		CalcAccelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
@@ -182,37 +212,19 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     
     // forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
     // //update half of vel
-    UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat/2.);
-    cudaDeviceSynchronize();
-		//IMPOSE BC!
-		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
-		cudaDeviceSynchronize();
-    double vbc;
-    if (Time < TAU) vbc = VMAX/TAU*Time;
-    else            vbc = VMAX;
-		//double vbc = 1.0; 
+    // UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat/2.);
+    // cudaDeviceSynchronize();
+		// //IMPOSE BC!
+		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
+		// cudaDeviceSynchronize();
+    // double vbc;
+    // if (Time < TAU) vbc = VMAX/TAU*Time;
+    // else            vbc = VMAX;
+		// //double vbc = 1.0; 
 
-		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
-		cudaDeviceSynchronize();
+		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
+		// cudaDeviceSynchronize();
     
-    ////////TODO: MOVE TO A SINGLE HOST DOMAIN FUNCTION
-    CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
-		);
-    cudaDeviceSynchronize(); //REQUIRED!!!!
-       
-    ///////Like CPU version, this is calculated with density. 
-    UpdateDensityKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);		
-    cudaDeviceSynchronize(); //REQUIRED!!!!
-
-    CalcRateTensorsKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)		
-		);
-    cudaDeviceSynchronize(); //REQUIRED!!!!
 
     
     
@@ -240,32 +252,24 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 				cout << "Now is yielding"<<endl;
 			}
 		}
+    
 
-		UpdatePosKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
+		UpdatePosFraserKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
     cudaDeviceSynchronize(); //REQUIRED!!!!
 
-    UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat/2.);
+    UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
     cudaDeviceSynchronize();
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
 		cudaDeviceSynchronize();
-    // double vbc;
-    // if (Time < TAU) vbc = VMAX/TAU*Time;
-    // else            vbc = VMAX;
 
-
+    double vbc;
+    if (Time < TAU) vbc = VMAX/TAU*Time;
+    else            vbc = VMAX;
+    
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
     
-		//If kernel is the external, calculate pressure
-		//Calculate pressure!
-		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
-		cudaDeviceSynchronize();
-
-		clock_beg_int = clock();
-		StressStrainKickDriftKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
-		cudaDeviceSynchronize();
-		stress_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
     
     CalcIntEnergyKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
