@@ -42,7 +42,7 @@
 // #include <cmath>
 
 #include "Vector.h"
-
+#define NONLOCK_SUM
 #define MAX_NB_PER_PART 100
 
 enum Kernels_Type { Qubic_Spline=0, Quintic=1, Quintic_Spline=2 ,Hyperbolic_Spline=3};

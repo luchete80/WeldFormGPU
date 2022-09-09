@@ -394,15 +394,15 @@ inline void Domain::YZPlaneCellsNeighbourSearch(int q1) {
 
 void Domain::InitReductionArraysOnce(){
   //ipair_SM
-  ipl_SM.resize(Particles.Size()); //NOT USED
+  ipl_SM.resize(Particles.size()); //NOT USED
   
-  ipair_SM.resize(Particles.Size());
-  jpair_SM.resize(Particles.Size());
+  ipair_SM.resize(Particles.size());
+  jpair_SM.resize(Particles.size());
   
   
   first_pair_perproc.resize(Nproc);
   std::vector<size_t> nei(MAX_NB_PER_PART);
-  for (int i=0;i<Particles.Size();i++){
+  for (int i=0;i<Particles.size();i++){
     Anei.push_back(nei);
     Aref.push_back(nei);
   }
