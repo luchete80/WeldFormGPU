@@ -53,12 +53,14 @@ const uint *neighbors){
 
 __global__ void CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
-																	const uint *neighbors
+																	const uint *neighbors,
+                                  double *cont_forces
 																	/*const int &id, const double &totmass*/){
 	dom_d->CalcContactForces(
 	particlenbcount,
 	neighborWriteOffsets,
-	neighbors);
+	neighbors,
+  cont_forces);
 
 }
                
@@ -68,7 +70,8 @@ __global__ void CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbc
 //vectors v
 void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
                                                   const uint *neighborWriteOffsets,
-                                                  const uint *neighbors){
+                                                  const uint *neighbors,
+                                                  double *cont_forces){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
 
 	double min_force_ts_=1000.;
