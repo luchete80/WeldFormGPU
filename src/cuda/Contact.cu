@@ -74,7 +74,7 @@ inline void __global__ UpdateContactParticlesKernel(Domain_d *dom){
 inline void __device__ Domain_d::UpdateContactParticles(){
 
   int e = threadIdx.x + blockDim.x*blockIdx.x;	
-  if (e < trimesh->nodecount) {
+  if (e < trimesh->elemcount) {
 
     //int e = element[i];
     double3 vv = make_double3(0.);
