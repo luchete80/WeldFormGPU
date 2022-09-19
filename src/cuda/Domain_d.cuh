@@ -348,6 +348,8 @@ __device__ inline void UpdateDensity(double dt);
   void __device__ inline CalcContactForces(/* int i*/);
   __host__ void AddTrimeshParticles(TriMesh_d &mesh, const float &hfac, const int &id);
   
+  inline void __device__ UpdateContactParticles();  
+  
   // ENERGY 
   void __device__ inline CalcIntEnergy();
   void __device__ inline CalcKinEnergy( const uint *particlenbcount,
@@ -358,6 +360,7 @@ __device__ inline void UpdateDensity(double dt);
 }; 
 
 
+inline void __global__ UpdateContactParticlesKernel(Domain_d *dom);
 
 __global__ void CheckData(Domain_d *dom);
 

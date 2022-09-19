@@ -50,8 +50,45 @@ const uint *neighbors){
   }// i < fem index
 }
 
+inline void __global__ UpdateContactParticlesKernel(Domain_d *dom){
+  dom->UpdateContactParticles();
+}
 
-__global__ void CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
+//inline void __device__ Domain_d::UpdateContactParticles(){
+  // for (int m=0; m<trimesh.size();m++){
+    // for ( int e = 0; e < trimesh[m]->element.Size(); e++ ){
+      // Vec3_t v = 0.;
+      // for (int en = 0;en<3;en++)
+        // v += *trimesh[m] -> node_v[trimesh[m]->element[e] ->node[en]];
+      // Particles[first_fem_particle_idx[m] + e] -> v = 
+      // Particles[first_fem_particle_idx[m] + e] -> va = 
+      // Particles[first_fem_particle_idx[m] + e] -> vb = v/3.;
+      // Particles[first_fem_particle_idx[m] + e] -> a = 0.; 
+      // Particles[first_fem_particle_idx[m] + e] -> normal  = trimesh[m]->element[e] -> normal;
+      // //cout << "v "<< v/3.<<", n "<<Particles[first_fem_particle_idx + e] -> normal<<endl;
+    // } 
+  // }
+//}
+
+//TODO: CHANGE TO SEVERAL CONTACT SURFACES 
+// inline void __device__ Domain_d::UpdateContactParticles(){
+
+  // int i = threadIdx.x + blockDim.x*blockIdx.x;	
+  // //if (i < ) {
+    // //for ( int e = 0; e < trimesh->element.Size(); e++ ){
+    // int e = element[i];
+    // double3 vv = make_double3(0.);
+    // for (int en = 0; en<3; en++)
+      // vv = v + *trimesh -> node_v[trimesh->elnode[3*e+en]];
+    // v [first_fem_particle_idx + e]= vv/3.;
+      // //Particles[first_fem_particle_idx + e] -> a = 0.; 
+      // //Particles[first_fem_particle_idx + e] -> normal  = trimesh->element[e] -> normal;
+  // //  }
+  // //}
+// }
+
+
+void CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
 																	const uint *neighbors
 																	/*const int &id, const double &totmass*/){
@@ -97,6 +134,9 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
       //cout << "Contact pair size: "<<ContPairs[k].Size()<<endl;
 
       double3 vr = v[i] - v[j];		//Fraser 3-137
+      //printf("particle 2 vr %f %f %f\n",v[j].x, v[j].y,v[j].z);
+      // if (k==0)
+        // printf("particle 2 (%d) x %f %f %f\n",j, x[j].x, x[j].y, x[j].z);
       //cout << "Particle P1v: "<<v[i]<<endl;
       //cout << "Particle P2v: "<<Particles[P2]->v<<endl;
       //ok, FEM Particles normals can be calculated by two ways, the one used to
@@ -105,7 +145,7 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
       double delta_ = - dot( normal[j] , vr);	//Penetration rate, Fraser 3-138
       
 
-      //Check if SPH and fem particles are approaching each other
+      // //Check if SPH and fem particles are approaching each other
       if (delta_ > 0 ){
         //HERE ELEMENT IS NOT AN OBJECT, THIS IS REPRESENTED AS SOA IN MESH CLASS
         //EACH "RIGID" PARTICLE HAS AN ELEMENT ASOCIATED
@@ -118,78 +158,78 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
         
         contforce[i] = make_double3(0.); //RESET
         
-        // if (dt_fext > deltat)
-          // cout << "Time step size ("<<deltat<<" is larger than max allowable contact forces step ("<<dt_fext<<")"<<endl;
-        if (deltat_cont < deltat){ //Originaly //	if (deltat_cont < std::min(deltat,dt_fext) 
+        // // if (dt_fext > deltat)
+          // // cout << "Time step size ("<<deltat<<" is larger than max allowable contact forces step ("<<dt_fext<<")"<<endl;
+        // if (deltat_cont < deltat){ //Originaly //	if (deltat_cont < std::min(deltat,dt_fext) 
         
-          //cout << "Inside dt contact" <<endl;
-          //Find point of contact Qj
-          double3 Qj = x[i] + (v[i] * deltat_cont) - ( h[i] * normal[j]); //Fraser 3-146
-          //Check if it is inside triangular element
-          //Find a vector 
-          //Fraser 3-147
-          bool inside = true;
-          int l=0,n;			
-          while (l<3 && inside){
-            n = l+1;	if (n>2) n = 0;
-            // double crit = dot (cross ( *trimesh->node[e -> node[j]] - *trimesh->node[e -> node[i]],
-                                                                // Qj  - *trimesh->node[e -> node[i]]),
+          // //cout << "Inside dt contact" <<endl;
+          // //Find point of contact Qj
+          // double3 Qj = x[i] + (v[i] * deltat_cont) - ( h[i] * normal[j]); //Fraser 3-146
+          // //Check if it is inside triangular element
+          // //Find a vector 
+          // //Fraser 3-147
+          // bool inside = true;
+          // int l=0,n;			
+          // while (l<3 && inside){
+            // n = l+1;	if (n>2) n = 0;
+            // // double crit = dot (cross ( *trimesh->node[e -> node[j]] - *trimesh->node[e -> node[i]],
+                                                                // // Qj  - *trimesh->node[e -> node[i]]),
+                              // // normal[j]);
+            // double crit = dot (cross ( trimesh->node[trimesh->elnode[3*e+n]] - trimesh->node[trimesh->elnode[3*e+l]],
+                                                                // Qj  - trimesh->node[trimesh->elnode[3*e+l]]),
                               // normal[j]);
-            double crit = dot (cross ( trimesh->node[trimesh->elnode[3*e+n]] - trimesh->node[trimesh->elnode[3*e+l]],
-                                                                Qj  - trimesh->node[trimesh->elnode[3*e+l]]),
-                              normal[j]);
-            if (crit < 0.0) inside = false;
-            i++;
-          }
+            // if (crit < 0.0) inside = false;
+            // i++;
+          // }
           
-          if (inside ) { //Contact point inside element, contact proceeds
+          // if (inside ) { //Contact point inside element, contact proceeds
 
-            //Calculate penetration depth (Fraser 3-49)
-            double delta = (deltat - deltat_cont) * delta_;
-            //cout << "delta: "<<delta<<endl;
+            // //Calculate penetration depth (Fraser 3-49)
+            // double delta = (deltat - deltat_cont) * delta_;
+            // //cout << "delta: "<<delta<<endl;
 
-            // DAMPING
-            //Calculate SPH and FEM elements stiffness (series)
-            //Since FEM is assumed as rigid, stiffness is simply the SPH one 
-            double kij = PFAC * cont_stiff[i];
-            double omega = sqrt (kij/m[i]);
-            double psi_cont = 2. * m[i] * omega * DFAC; // Fraser Eqn 3-158
+            // // DAMPING
+            // //Calculate SPH and FEM elements stiffness (series)
+            // //Since FEM is assumed as rigid, stiffness is simply the SPH one 
+            // double kij = PFAC * cont_stiff[i];
+            // double omega = sqrt (kij/m[i]);
+            // double psi_cont = 2. * m[i] * omega * DFAC; // Fraser Eqn 3-158
                       
-            // TANGENTIAL COMPONENNT
-            // Fraser Eqn 3-167
-            // TODO - recalculate vr here too!
-            double3 tgvr = vr + delta_ * normal[j];  // -dot(vr,normal) * normal
-            double3 tgdir = tgvr / length(tgvr);
+            // // TANGENTIAL COMPONENNT
+            // // Fraser Eqn 3-167
+            // // TODO - recalculate vr here too!
+            // double3 tgvr = vr + delta_ * normal[j];  // -dot(vr,normal) * normal
+            // double3 tgdir = tgvr / length(tgvr);
 
-            contforce[i] = (kij * delta - psi_cont * delta_) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
-            double force2 = dot(contforce[i],contforce[i]);
+            // contforce[i] = (kij * delta - psi_cont * delta_) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
+            // double force2 = dot(contforce[i],contforce[i]);
             
-            // if (force2 > (1.e10))
-              // contforce[i] = 1.e5;
-            double dt_fext = contact_force_factor * (m[i] * 2. * length(v[i]) / length(contforce[i]));////Fraser 3-145
+            // // if (force2 > (1.e10))
+              // // contforce[i] = 1.e5;
+            // double dt_fext = contact_force_factor * (m[i] * 2. * length(v[i]) / length(contforce[i]));////Fraser 3-145
 
-            if (dt_fext < min_force_ts_){
-              min_force_ts_ = dt_fext;
-              if (dt_fext > 0)
-                this -> min_force_ts = min_force_ts_;
-            }
-            a[i] += contforce[i] / m[i]; 
-            //printf("contforce %f\n",contforce[i].x);
+            // if (dt_fext < min_force_ts_){
+              // min_force_ts_ = dt_fext;
+              // if (dt_fext > 0)
+                // this -> min_force_ts = min_force_ts_;
+            // }
+            // a[i] += contforce[i] / m[i]; 
+            // //printf("contforce %f\n",contforce[i].x);
             
-            if (friction_dyn > 0.) {
-              if ( length (vr)  != 0.0 ){
-              // //TG DIRECTION
-                double3 tgforce = friction_dyn * length(contforce[i]) * tgdir;
-                a[i] -= tgforce / m[i]; 
-                //printf("tg force %lf\n", tgforce.z); 
-              }
-            }
+            // if (friction_dyn > 0.) {
+              // if ( length (vr)  != 0.0 ){
+              // // //TG DIRECTION
+                // double3 tgforce = friction_dyn * length(contforce[i]) * tgdir;
+                // a[i] -= tgforce / m[i]; 
+                // //printf("tg force %lf\n", tgforce.z); 
+              // }
+            // }
             
-            if   (force2 > max_contact_force ) max_contact_force = force2;
-            else if (force2 < min_contact_force ) min_contact_force = force2;
-            inside_pairs++;
-          }// if inside
-        } //deltat <min
+            // if   (force2 > max_contact_force ) max_contact_force = force2;
+            // else if (force2 < min_contact_force ) min_contact_force = force2;
+            // inside_pairs++;
+          // }// if inside
+        // } //deltat <min
 
       }//delta_ > 0 : PARTICLES ARE APPROACHING EACH OTHER
 
