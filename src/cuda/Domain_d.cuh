@@ -327,7 +327,8 @@ __device__ inline void UpdateDensity(double dt);
 
 	__device__ inline void CalcContactForces(const uint *particlenbcount,
                                                   const uint *neighborWriteOffsets,
-                                                  const uint *neighbors);
+                                                  const uint *neighbors,
+                                                  double *cont_forces);
 
 
 	__device__ void StressStrain(int i);

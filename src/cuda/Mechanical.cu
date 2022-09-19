@@ -704,6 +704,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
   //totmass = 1.;
   
   this->id_free_surf = 1;
+  double *cont_forces;
   
   while (Time<tf) {
 	
@@ -757,7 +758,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
       CalcContactForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors) 
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors),
+      cont_forces
       );
       cudaDeviceSynchronize();
     }
