@@ -79,7 +79,7 @@ inline void __device__ Domain_d::UpdateContactParticles(){
     //int e = element[i];
     double3 vv = make_double3(0.);
     for (int en = 0; en<3; en++){
-      printf("particle %d \n",i);
+      //printf("particle %d \n",i);
       //printf ("node %d \n",trimesh->elnode[3*e+en]);
       // if (trimesh->elnode[3*e+en] < trimesh->nodecount )
       vv += trimesh -> node_v[trimesh->elnode[3*e+en]];
