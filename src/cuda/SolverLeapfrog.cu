@@ -227,6 +227,9 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
       } else {
         cout << "No contact mesh defined."<<endl;
       }
+      
+      UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this);
+      cudaDeviceSynchronize();
     }
 
 					

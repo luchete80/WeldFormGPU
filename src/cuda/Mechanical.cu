@@ -790,6 +790,8 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
       } else {
         cout << "No contact mesh defined."<<endl;
       }
+      UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this);
+      cudaDeviceSynchronize();
     }
 
 		

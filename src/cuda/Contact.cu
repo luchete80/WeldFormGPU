@@ -71,24 +71,31 @@ inline void __global__ UpdateContactParticlesKernel(Domain_d *dom){
 //}
 
 //TODO: CHANGE TO SEVERAL CONTACT SURFACES 
-// inline void __device__ Domain_d::UpdateContactParticles(){
+inline void __device__ Domain_d::UpdateContactParticles(){
 
-  // int i = threadIdx.x + blockDim.x*blockIdx.x;	
-  // //if (i < ) {
-    // //for ( int e = 0; e < trimesh->element.Size(); e++ ){
-    // int e = element[i];
-    // double3 vv = make_double3(0.);
-    // for (int en = 0; en<3; en++)
-      // vv = v + *trimesh -> node_v[trimesh->elnode[3*e+en]];
-    // v [first_fem_particle_idx + e]= vv/3.;
-      // //Particles[first_fem_particle_idx + e] -> a = 0.; 
-      // //Particles[first_fem_particle_idx + e] -> normal  = trimesh->element[e] -> normal;
-  // //  }
-  // //}
-// }
+  int i = threadIdx.x + blockDim.x*blockIdx.x;	
+  if (i >= first_fem_particle_idx && i < particle_count) {
+    //for ( int e = 0; e < trimesh->element.Size(); e++ ){
+    int e = element[i];
+    double3 vv = make_double3(0.);
+    for (int en = 0; en<3; en++){
+      printf("particle %d \n",i);
+      //printf ("node %d \n",trimesh->elnode[3*e+en]);
+      // if (trimesh->elnode[3*e+en] < trimesh->nodecount )
+      // vv += trimesh -> node_v[trimesh->elnode[3*e+en]];
+      // else 
+        // printf("error \n");
+    }
+    
+    //printf(" particle %d , v %f %f %f \n", i, vv.x, vv.y, vv.z);
+    //v [i] = vv/3.;
+    //a [i] = make_double3(0.);
+    //normal[first_fem_particle_idx + e] = 
+  }
+}
 
 
-void CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
+void __global__ CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
 																	const uint *neighbors,
                                   double *cont_forces

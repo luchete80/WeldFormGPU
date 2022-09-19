@@ -4,6 +4,7 @@
 #include "cuda/Domain_d.cuh" 
 #include "cuda/Mechanical.cu" 
 #include "cuda/KickDriftSolver.cu" 
+//#include "cuda/SolverLeapfrog.cu"
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
 
@@ -289,6 +290,7 @@ int main(int argc, char **argv) //try
   
   dom_d->trimesh->SetVel(make_double3(0.,0.,-1.0));
 	dom_d->MechSolve(0.0101,1.0e-4);
+  //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
   
   //First example
   // dom_d->deltat = 1.0e-7;
