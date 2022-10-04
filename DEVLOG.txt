@@ -11,3 +11,6 @@
 ---------------------------------------------------------
 20220908 - Begining to add Nishimura reduction to work with pairs
 20220919 - Working on Contact, founded that velocity is not updated. 
+20221004 - Corrected some memory allocation bugs in contact.
+           Changed to Wang contact.
+           Found error in normal calculation.
