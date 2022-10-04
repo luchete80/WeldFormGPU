@@ -98,24 +98,24 @@ inline void __device__ Domain_d::UpdateContactParticles(){
 void __global__ CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
 																	const uint *neighbors,
-                                  double *cont_forces
+                                  double3 *cont_forces
 																	/*const int &id, const double &totmass*/){
-	dom_d->CalcContactForces(
+	dom_d->CalcContactForcesWang(
 	particlenbcount,
 	neighborWriteOffsets,
 	neighbors,
   cont_forces);
 
 }
-               
+//WANG ET AL, FRICTION COEFFICIENT APPROACH    
 //Inputs
 //max_contact_force
 //Neighbours
 //vectors v
-void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
+void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcount,
                                                   const uint *neighborWriteOffsets,
                                                   const uint *neighbors,
-                                                  double *cont_forces){
+                                                  double3 *cont_forces){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
 
 	double min_force_ts_=1000.;
@@ -149,24 +149,25 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
         // printf("particle 2 (%d) x %f %f %f\n",j, x[j].x, x[j].y, x[j].z);
       //cout << "Particle P1v: "<<v[i]<<endl;
       //cout << "Particle P2v: "<<Particles[P2]->v<<endl;
+      
       //ok, FEM Particles normals can be calculated by two ways, the one used to
       //calculate SPH ones, and could be given by mesh input
       //delta_ Is the projection of relative velocity 
       double delta_ = - dot( normal[j] , vr);	//Penetration rate, Fraser 3-138
       
+      double3 x_pred = x[i] + v[i] * deltat + a[i] * deltat * deltat/2.;
+      //printf("xpred %f %f %f\n", x_pred.x, x_pred.y, x_pred.z);
+      printf ("pplane: %f", trimesh->pplane[e]);
+      double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
+      //printf("dist %f\n", dist);
+      if (dist < h[i]) {
 
-      // //Check if SPH and fem particles are approaching each other
-      if (delta_ > 0 ){
-        //HERE ELEMENT IS NOT AN OBJECT, THIS IS REPRESENTED AS SOA IN MESH CLASS
-        //EACH "RIGID" PARTICLE HAS AN ELEMENT ASOCIATED
-        double pplane = trimesh->pplane[e]; 
-        //cout<< "contact distance"<<Particles[P1]->h + pplane - dot (normal[j],	x[i])<<endl;
-
-        double deltat_cont = ( h[i] + pplane - dot (normal[j],	x[i]) ) / (-delta_);								//Eq 3-142 
-        double3 Ri = x[i] + deltat_cont * vr;	//Eq 3-139 Ray from SPH particle in the rel velocity direction
-        //printf("delta %f \n",delta_);
+        // // double deltat_cont = ( h[i] + pplane - dot (normal[j],	x[i]) ) / (-delta_);								//Eq 3-142 
+        // // double3 Ri = x[i] + deltat_cont * vr;	//Eq 3-139 Ray from SPH particle in the rel velocity direction
+        // // //printf("delta %f \n",delta_);
         
-        contforce[i] = make_double3(0.); //RESET
+        //contforce[i] = make_double3(0.); //RESET
+        //cont_forces[i] = make_double3(0.,0.,0.); //RESET
         
         // // if (dt_fext > deltat)
           // // cout << "Time step size ("<<deltat<<" is larger than max allowable contact forces step ("<<dt_fext<<")"<<endl;
@@ -174,10 +175,11 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
         
           // //cout << "Inside dt contact" <<endl;
           // //Find point of contact Qj
-          // double3 Qj = x[i] + (v[i] * deltat_cont) - ( h[i] * normal[j]); //Fraser 3-146
-          // //Check if it is inside triangular element
-          // //Find a vector 
-          // //Fraser 3-147
+          //This is in Fraser algorithm
+          //double3 Qj = x[i] - dist * normal[j];
+          // // //Check if it is inside triangular element
+          // // //Find a vector 
+          // // //Fraser 3-147
           // bool inside = true;
           // int l=0,n;			
           // while (l<3 && inside){
@@ -194,55 +196,53 @@ void __device__ inline Domain_d::CalcContactForces(const uint *particlenbcount,
           
           // if (inside ) { //Contact point inside element, contact proceeds
 
-            // //Calculate penetration depth (Fraser 3-49)
-            // double delta = (deltat - deltat_cont) * delta_;
-            // //cout << "delta: "<<delta<<endl;
+            // // //Calculate penetration depth (Fraser 3-49)
+            // double delta = h[i] - dist;
+            // // //cout << "delta: "<<delta<<endl;
 
-            // // DAMPING
-            // //Calculate SPH and FEM elements stiffness (series)
-            // //Since FEM is assumed as rigid, stiffness is simply the SPH one 
-            // double kij = PFAC * cont_stiff[i];
-            // double omega = sqrt (kij/m[i]);
-            // double psi_cont = 2. * m[i] * omega * DFAC; // Fraser Eqn 3-158
+            // // // DAMPING
+            // // //Calculate SPH and FEM elements stiffness (series)
+            // // //Since FEM is assumed as rigid, stiffness is simply the SPH one 
+            // double kij = PFAC * 2.0 * m[i] / (deltat * deltat);
+            // //double omega = sqrt (kij/m[i]);
+            // double psi_cont = kij * delta; // Fraser Eqn 3-158
                       
-            // // TANGENTIAL COMPONENNT
-            // // Fraser Eqn 3-167
-            // // TODO - recalculate vr here too!
-            // double3 tgvr = vr + delta_ * normal[j];  // -dot(vr,normal) * normal
-            // double3 tgdir = tgvr / length(tgvr);
+            // // // TANGENTIAL COMPONENNT
+            // // // Fraser Eqn 3-167
+            // // // TODO - recalculate vr here too!
+            // // double3 tgvr = vr + delta_ * normal[j];  // -dot(vr,normal) * normal
+            // // double3 tgdir = tgvr / length(tgvr);
 
-            // contforce[i] = (kij * delta - psi_cont * delta_) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
-            // double force2 = dot(contforce[i],contforce[i]);
+            // contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
+            // // double force2 = dot(contforce[i],contforce[i]);
             
-            // // if (force2 > (1.e10))
-              // // contforce[i] = 1.e5;
-            // double dt_fext = contact_force_factor * (m[i] * 2. * length(v[i]) / length(contforce[i]));////Fraser 3-145
+            // // // if (force2 > (1.e10))
+              // // // contforce[i] = 1.e5;
+            // // double dt_fext = contact_force_factor * (m[i] * 2. * length(v[i]) / length(contforce[i]));////Fraser 3-145
 
-            // if (dt_fext < min_force_ts_){
-              // min_force_ts_ = dt_fext;
-              // if (dt_fext > 0)
-                // this -> min_force_ts = min_force_ts_;
-            // }
+            // // if (dt_fext < min_force_ts_){
+              // // min_force_ts_ = dt_fext;
+              // // if (dt_fext > 0)
+                // // this -> min_force_ts = min_force_ts_;
+            // // }
             // a[i] += contforce[i] / m[i]; 
             // //printf("contforce %f\n",contforce[i].x);
             
-            // if (friction_dyn > 0.) {
-              // if ( length (vr)  != 0.0 ){
-              // // //TG DIRECTION
-                // double3 tgforce = friction_dyn * length(contforce[i]) * tgdir;
-                // a[i] -= tgforce / m[i]; 
-                // //printf("tg force %lf\n", tgforce.z); 
-              // }
-            // }
+            // // if (friction_dyn > 0.) {
+              // // if ( length (vr)  != 0.0 ){
+              // // // //TG DIRECTION
+                // // double3 tgforce = friction_dyn * length(contforce[i]) * tgdir;
+                // // a[i] -= tgforce / m[i]; 
+                // // //printf("tg force %lf\n", tgforce.z); 
+              // // }
+            // // }
             
-            // if   (force2 > max_contact_force ) max_contact_force = force2;
-            // else if (force2 < min_contact_force ) min_contact_force = force2;
-            // inside_pairs++;
-          // }// if inside
+            // // if   (force2 > max_contact_force ) max_contact_force = force2;
+            // // else if (force2 < min_contact_force ) min_contact_force = force2;
+            // // inside_pairs++;
+        // }// if inside
         // } //deltat <min
-
-      }//delta_ > 0 : PARTICLES ARE APPROACHING EACH OTHER
-
+      } //dist <h
     }//neibcount	for (int k=0;k < neibcount;k++) { //Or size
   
   } //i<first fem index

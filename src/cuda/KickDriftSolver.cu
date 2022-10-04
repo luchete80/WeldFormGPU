@@ -120,7 +120,7 @@ void Domain_d::MechKickDriftSolve(const double &tf, const double &dt_out){
   cudaDeviceSynchronize(); 
   
   cout << "Main Loop "<<endl;
-  double *cont_forces;
+  double3 *cont_forces;
   
   while (Time<tf) {
 	

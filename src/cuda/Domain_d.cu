@@ -124,11 +124,12 @@ void Domain_d::SetDimension(const int &particle_count){
   
   
   /////////////CONTACT////////////////
-	cudaMalloc((void **)&normal, particle_count * sizeof (double3));	
+	cudaMalloc((void **)&normal,          particle_count * sizeof (double3));	
   
   cudaMalloc((void **)&contneib_count,  particle_count * sizeof (int));
   cudaMalloc((void **)&contneib_part,   particle_count * 20 * sizeof (int));
   cudaMalloc((void **)&contneib_offs,   particle_count * sizeof (int));
+  cudaMalloc((void **)&contforce,       particle_count * sizeof (double3));
   
   //////////////////////////
   ///// ENERGY /////////////

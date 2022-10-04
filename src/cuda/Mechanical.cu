@@ -704,7 +704,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
   //totmass = 1.;
   
   this->id_free_surf = 1;
-  double *cont_forces;
+  double3 *cont_forces =  new double3 [particle_count];
   
   while (Time<tf) {
 	
