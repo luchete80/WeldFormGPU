@@ -462,14 +462,16 @@ __host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const float &hfac, 
 	bool Fixed = false;	//Always are fixed ...
 	contact_surf_id = id;
 	trimesh = &mesh;
-	
-	// for ( int e = 0; e < mesh.element.size(); e++ ){
+	//TODO: MAKE SEVERAL ONE PER MESH
+  //cudaMalloc((void **)&element,       mesh.element.size() * sizeof (int));
+  
+	//for ( int e = 0; e < mesh.element.size(); e++ ){
 		// Vector pos = mesh.element[e]->centroid;
 		// h = hfac * mesh.element[e]->radius;
 		// Particles.Push(new Particle(id,pos,Vector(0,0,0),0.0,Density,h,Fixed));
 		// Particles[first_fem_particle_idx + e] -> normal  = mesh.element[e] -> normal;
 		// Particles[first_fem_particle_idx + e] -> element = e; 
-	// }
+	//}
 	// cout << Particles.size() - first_fem_particle_idx << "particles added with ID " << contact_surf_id <<endl;
 	// cout << first_fem_particle_idx << " is the first solid particle index."<<endl;
 }
