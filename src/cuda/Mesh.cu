@@ -89,8 +89,8 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 		}
 		x2+=dl;
 	}
-  cudaMemcpy(node, node_h,    nodecount, cudaMemcpyHostToDevice);
-  cudaMemcpy(node_v, node_vh, nodecount, cudaMemcpyHostToDevice);
+  cudaMemcpy(node, node_h,    nodecount * sizeof (double3), cudaMemcpyHostToDevice);
+  cudaMemcpy(node_v, node_vh, nodecount * sizeof (double3), cudaMemcpyHostToDevice);
 
   cout << "Element count: "<<elemcount << endl;  
   cout << "done. Creating elements... ";

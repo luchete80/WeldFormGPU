@@ -760,6 +760,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
       );
       cudaDeviceSynchronize(); //REQUIRED!!!!    
       
+      //cout << "Calc contact forces "<<endl;
       CalcContactForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),

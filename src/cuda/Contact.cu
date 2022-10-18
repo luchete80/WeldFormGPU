@@ -164,7 +164,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       //printf("xpred %f %f %f\n", x_pred.x, x_pred.y, x_pred.z);
       //printf ("pplane: %f", trimesh->pplane[e]);
       double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
-      printf("normal j %f %f %f\n", normal[j].x, normal[j].y, normal[j].z);
+      printf("normal j %d %f %f %f\n", j, normal[j].x, normal[j].y, normal[j].z);
       //printf("dist %f\n", dist);
       if (dist < h[i]) {
 
