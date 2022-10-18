@@ -3,6 +3,7 @@
 //This also will be passed to device
 #include "Mesh.cuh"
 
+#define PRINT_V(v) printf("%f %f %f\n",v.x,v.y,v.z);
 namespace SPH{
 // ORIGINAL CPU version
 // inline void TriMesh::Move(const double &dt){
@@ -163,7 +164,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   cudaMalloc((void **)&pplane , 	elemcount * sizeof (double));
   cudaMalloc((void **)&nfar   , 	elemcount * sizeof (int));
   
-  cudaMemcpy(elnode, elnode_h, elemcount * sizeof(int), cudaMemcpyHostToDevice);
+  cudaMemcpy(elnode, elnode_h, 3 * elemcount * sizeof(int), cudaMemcpyHostToDevice);
   cudaMemcpy(centroid, centroid_h, elemcount * sizeof(double3), cudaMemcpyHostToDevice);
   cudaMemcpy(normal, normal_h, elemcount * sizeof(double3), cudaMemcpyHostToDevice);
 
@@ -198,7 +199,9 @@ inline __device__ void TriMesh_d::UpdatePlaneCoeff(){
 	//Update pplan
   int i = threadIdx.x + blockDim.x*blockIdx.x;
   if (i < elemcount) { //parallelize by element
-    pplane[i] = dot(node[elnode[nfar[i]]],normal[i]);
+    //printf("elnode %f %f %f \n",elnode[3*i+nfar[i]].x,elnode[3*i+nfar[i]].y,elnode[3*i+nfar[i]].z);
+    pplane[i] = dot(node[elnode[3*i]+nfar[i]],normal[i]);
+    //printf("pplane %f \n",pplane[i]);
   }
 }
 
@@ -232,9 +235,13 @@ inline __device__ void TriMesh_d::Move(const double &dt){
       // if      ((*node[n])(i) < min(i)) min[i] = (*node[n])(i);
       // else if ((*node[n])(i) > max(i)) max[i] = (*node[n])(i);
     // } 
+    //printf("Node vel %f %f %f \n",node_v[n].x,node_v[n].y,node_v[n].z);
+    //printf("dt %f\n",dt);
+    //PRINT_V(node[n]);
+    printf("bef %f %f %f , after %f%f%f, dt %f\n",node[n].x, node[n].y,node[n].z,(node[n]+(node_v[n])*dt).x,(node[n]+(node_v[n])*dt).y,(node[n]+(node_v[n])*dt).z);
     node[n] += (node_v[n])*dt;
-
-
+    printf("after \n");
+    PRINT_V(node[n]);
   }//n<nodecount
 }
 
@@ -246,7 +253,6 @@ inline __device__ void TriMesh_d::CheckNormals(){
   int e = threadIdx.x + blockDim.x*blockIdx.x;
   //printf("CheckNormals: %d, elemcount %d\n", e, elemcount);
   if (e < elemcount){
-    if (normal[e].z < 0.0)
     printf("%d %f %f %f\n", e, normal[e].x,normal[e].y,normal[e].z);
   }  
 }

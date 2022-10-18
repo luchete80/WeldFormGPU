@@ -164,7 +164,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       //printf("xpred %f %f %f\n", x_pred.x, x_pred.y, x_pred.z);
       //printf ("pplane: %f", trimesh->pplane[e]);
       double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
-      printf("normal j %d %f %f %f\n", j, normal[j].x, normal[j].y, normal[j].z);
+      //printf("normal j %d %f %f %f\n", j, normal[j].x, normal[j].y, normal[j].z);
       //printf("dist %f\n", dist);
       if (dist < h[i]) {
 
@@ -184,6 +184,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
           // //Fraser 3-147
           bool inside = true;
           int l=0,n;		   
+          //printf("Entering while \n");
           while (l<3 && inside){
             n = l+1;	if (n>2) n = 0;
             // double crit = dot (cross ( *trimesh->node[e -> node[j]] - *trimesh->node[e -> node[i]],
@@ -195,6 +196,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             if (crit < 0.0) inside = false;
             l++;
           }
+          //printf("Outside while\n");
           
           if (inside ) { //Contact point inside element, contact proceeds
 
@@ -216,6 +218,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             // double3 tgdir = tgvr / length(tgvr);
 
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
+            //cont_forces[i] = contforce[i];
+            
             // double force2 = dot(contforce[i],contforce[i]);
             
             // // if (force2 > (1.e10))

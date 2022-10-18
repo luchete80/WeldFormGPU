@@ -14,3 +14,4 @@
 20221004 - Corrected some memory allocation bugs in contact.
            Changed to Wang contact.
            Found error in normal calculation.
+20221018 - Closed issues #98 and #99, normals and mesh update.

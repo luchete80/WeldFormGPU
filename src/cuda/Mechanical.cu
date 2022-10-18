@@ -787,11 +787,18 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		cudaDeviceSynchronize();
 
 		deltatmin = deltatint = deltat;
+    cout << "deltat "<<deltat<<endl;
 		//Save before move (to be changed)
-    
+
+  //DO THIS FOR SEVERAL MESHES
+	////////////////////////////
+  // int tpb = 256; //Or BlockSize
+	// int bpg =				// Or gridsize
+	// (trimesh-> + tpb - 1) / tpb;
+  
     if (contact){
       if (this->trimesh != NULL){
-      //cout <<"Mesh update "<<endl;
+      cout <<"Mesh update ******************"<<endl;
       MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
       cudaDeviceSynchronize();
       } else {
