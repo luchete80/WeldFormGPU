@@ -200,12 +200,12 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
 
             // //Calculate penetration depth (Fraser 3-49)
             double delta = h[i] - dist;
-            printf("delta: %f\n", delta);
+            //printf("delta: %f\n", delta);
             // // DAMPING
             // //Calculate SPH and FEM elements stiffness (series)
             // //Since FEM is assumed as rigid, stiffness is simply the SPH one 
             double kij = 2.0 * m[i] / (deltat * deltat);
-            printf("deltat, kij %f %f\n", deltat, kij); 
+            //printf("deltat, kij %f %f\n", deltat, kij); 
             //double omega = sqrt (kij/m[i]);
             double psi_cont = kij * delta; // Fraser Eqn 3-158
                       
@@ -227,7 +227,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
               // if (dt_fext > 0)
                 // this -> min_force_ts = min_force_ts_;
             // }
-            printf("contforce %f %f %f ", contforce[i].x,contforce[i].y,contforce[i].z);
+            //printf("contforce %f %f %f ", contforce[i].x,contforce[i].y,contforce[i].z);
             a[i] += contforce[i] / m[i]; 
             //printf("contforce %f\n",contforce[i].x);
             

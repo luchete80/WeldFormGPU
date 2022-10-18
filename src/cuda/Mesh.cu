@@ -163,9 +163,9 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   cudaMalloc((void **)&pplane , 	elemcount * sizeof (double));
   cudaMalloc((void **)&nfar   , 	elemcount * sizeof (int));
   
-  cudaMemcpy(elnode, elnode_h, elemcount, cudaMemcpyHostToDevice);
-  cudaMemcpy(centroid, centroid_h, elemcount, cudaMemcpyHostToDevice);
-  cudaMemcpy(normal, normal_h, elemcount, cudaMemcpyHostToDevice);
+  cudaMemcpy(elnode, elnode_h, elemcount * sizeof(int), cudaMemcpyHostToDevice);
+  cudaMemcpy(centroid, centroid_h, elemcount * sizeof(double3), cudaMemcpyHostToDevice);
+  cudaMemcpy(normal, normal_h, elemcount * sizeof(double3), cudaMemcpyHostToDevice);
 
   delete node_h;
   delete node_vh;
@@ -246,7 +246,8 @@ inline __device__ void TriMesh_d::CheckNormals(){
   int e = threadIdx.x + blockDim.x*blockIdx.x;
   //printf("CheckNormals: %d, elemcount %d\n", e, elemcount);
   if (e < elemcount){
-    printf("%f %f %f\n", normal[e].x,normal[e].y,normal[e].z);
+    if (normal[e].z < 0.0)
+    printf("%d %f %f %f\n", e, normal[e].x,normal[e].y,normal[e].z);
   }  
 }
 
