@@ -30,7 +30,7 @@ class TriMesh_d{
 	inline void CalcCentroidVelFromNodes();
 	inline __device__ void UpdatePlaneCoeff();
 	inline void UpdatePos(const double &dt);
-	inline __device__ void Move(const double &dt);
+	inline __device__ void Move(double dt);
   inline __device__ void CalcNormals();
 	inline __device__ void CalcSpheres();
 	inline __device__ void CalcCentroids();
@@ -39,7 +39,7 @@ class TriMesh_d{
   
 };
 
-__global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, const double &dt);
+__global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt);
 
 __global__ inline void CheckNormalsKernel(TriMesh_d *mesh_d);
 };//SPH

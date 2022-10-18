@@ -284,7 +284,7 @@ int main(int argc, char **argv) //try
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
   
   dom_d->deltat = timestep;
-	dom_d->auto_ts = true;
+	dom_d->auto_ts = false;
   dom_d->Alpha = 1.0;
   dom_d->friction_dyn = 0.15;
 
