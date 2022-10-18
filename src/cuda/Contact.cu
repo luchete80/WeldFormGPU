@@ -90,7 +90,8 @@ inline void __device__ Domain_d::UpdateContactParticles(){
     //printf(" particle %d , v %f %f %f \n", i, vv.x, vv.y, vv.z);
     v [first_fem_particle_idx + e] = vv/3.;
     a [first_fem_particle_idx + e] = make_double3(0.);
-    //normal[first_fem_particle_idx + e] = 
+    normal[first_fem_particle_idx + e] = trimesh -> normal[e];
+    //printf("mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
   }
 }
 

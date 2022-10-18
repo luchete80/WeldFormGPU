@@ -176,13 +176,25 @@ int main(int argc, char **argv) //try
   SPH::TriMesh_d *mesh_d;
   gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
   mesh_d->AxisPlaneMesh(2,false,make_double3(-0.5,-0.5, cyl_zmax),make_double3(0.5,0.5, cyl_zmax),40);
-
   
   cout << "Domain Size "<<dom.Particles.size()<<endl;
 	//BEFORE ALLOCATING 
   int particlecount = dom.Particles.size()/* + mesh.element.size()*/;
   //cout << "Particles "<<
 	dom_d->SetDimension(particlecount);	 //AFTER CREATING DOMAIN
+
+  dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+  if (dom_d->trimesh ==NULL)
+    cout << "ERROR. No mesh defined"<<endl;
+  
+	int N = mesh_d->elemcount;
+	int threadsPerBlock = 256; //Or BlockSize
+	int blocksPerGrid =				// Or gridsize
+	(N + threadsPerBlock - 1) / threadsPerBlock;
+    CheckNormalsKernel<<< blocksPerGrid,threadsPerBlock >>>(mesh_d);
+    cudaDeviceSynchronize();
+  //}     
+  
   //SPH::Domain	dom;
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
 	double3 *x =  new double3 [dom.Particles.size()];
@@ -284,8 +296,7 @@ int main(int argc, char **argv) //try
   dom_d->Alpha = 1.0;
   dom_d->friction_dyn = 0.15;
   
-  dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
-  if (dom_d->trimesh ==NULL)
+  dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST  if (dom_d->trimesh ==NULL)
     cout << "ERROR. No mesh defined"<<endl;
   
   

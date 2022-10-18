@@ -34,11 +34,14 @@ class TriMesh_d{
   inline __device__ void CalcNormals();
 	inline __device__ void CalcSpheres();
 	inline __device__ void CalcCentroids();
+  inline __device__ void CheckNormals();
+  
   
 };
 
 __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, const double &dt);
 
+__global__ inline void CheckNormalsKernel(TriMesh_d *mesh_d);
 };//SPH
 
 #endif

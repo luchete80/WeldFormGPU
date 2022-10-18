@@ -45,10 +45,12 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
         double3 xij = x[i] - x[j];
         if (ID[j]!=contact_surf_id){  //EXCLUDE RIGID PAIRS!
           normal[i] += m[j] * xij; 
+          //printf("particle %d Nb %d xij: %f %f %f \n", i, j, xij.x, xij.y, xij.z);
           nbcount_corr++;
         }
 
       }//
+      //printf("particle %d normal : %f %f %f , nb %d\n", i, normal[i].x, normal[i].y, normal[i].z, nbcount_corr);
       //normal[i]*= ((double)particle_count/(totmass *(double)neibcount)); //Attention parenthesis, if not it crashes
       normal[i]*= ((double)particle_count/(totmass *(double)nbcount_corr)); //Attention parenthesis, if not it crashes
       if ( length(normal[i]) >= 0.25 * h[i] && nbcount_corr <= 46) {//3-114 Fraser {

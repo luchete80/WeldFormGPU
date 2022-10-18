@@ -89,8 +89,8 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 		}
 		x2+=dl;
 	}
-  cudaMemcpy(node_h, node, nodecount, cudaMemcpyHostToDevice);
-  cudaMemcpy(node_vh, node_v, nodecount, cudaMemcpyHostToDevice);
+  cudaMemcpy(node, node_h,    nodecount, cudaMemcpyHostToDevice);
+  cudaMemcpy(node_v, node_vh, nodecount, cudaMemcpyHostToDevice);
 
   cout << "Element count: "<<elemcount << endl;  
   cout << "done. Creating elements... ";
@@ -155,6 +155,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 		if (axis == 0)			normal_h[e].x = f;
 		else if (axis == 1)	normal_h[e].y = f;
 		else 								normal_h[e].z = f;
+    //cout << "normal_h[e] "<<normal_h[e].x << ", " << normal_h[e].y << ", " <<normal_h[e].z<<endl;
 	}
   
   m_v = m_w = make_double3(0.,0.,0.);
@@ -162,9 +163,9 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   cudaMalloc((void **)&pplane , 	elemcount * sizeof (double));
   cudaMalloc((void **)&nfar   , 	elemcount * sizeof (int));
   
-  cudaMemcpy(elnode_h, elnode, elemcount, cudaMemcpyHostToDevice);
-  cudaMemcpy(centroid_h, centroid, elemcount, cudaMemcpyHostToDevice);
-  cudaMemcpy(normal_h, normal, elemcount, cudaMemcpyHostToDevice);
+  cudaMemcpy(elnode, elnode_h, elemcount, cudaMemcpyHostToDevice);
+  cudaMemcpy(centroid, centroid_h, elemcount, cudaMemcpyHostToDevice);
+  cudaMemcpy(normal, normal_h, elemcount, cudaMemcpyHostToDevice);
 
   delete node_h;
   delete node_vh;
@@ -209,6 +210,7 @@ inline __device__ void TriMesh_d::CalcNormals(){
     v = node [elnode[3*e+2]] - node [elnode[3*e]];
     w = cross(u,v);
     normal[e] = w/length(w);
+    //printf("CalcNormal %d %f %f %f\n",e, normal[e].x,normal[e].y,normal[e].z);
     //Fraser Eqn 3.34
     //Uj x Vj / |UjxVj|
 	}
@@ -234,6 +236,18 @@ inline __device__ void TriMesh_d::Move(const double &dt){
 
 
   }//n<nodecount
+}
+
+__global__ inline void CheckNormalsKernel(TriMesh_d *mesh_d){
+  mesh_d->CheckNormals();
+}
+
+inline __device__ void TriMesh_d::CheckNormals(){
+  int e = threadIdx.x + blockDim.x*blockIdx.x;
+  //printf("CheckNormals: %d, elemcount %d\n", e, elemcount);
+  if (e < elemcount){
+    printf("%f %f %f\n", normal[e].x,normal[e].y,normal[e].z);
+  }  
 }
 
 };

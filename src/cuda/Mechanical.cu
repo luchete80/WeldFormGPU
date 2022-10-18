@@ -705,7 +705,12 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
   
   this->id_free_surf = 1;
   double3 *cont_forces =  new double3 [particle_count];
-  
+
+  //normals are not defined
+  if (contact){
+    UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this);
+    cudaDeviceSynchronize();
+  }      
   while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){
@@ -785,6 +790,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
     
     if (contact){
       if (this->trimesh != NULL){
+      //cout <<"Mesh update "<<endl;
       MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
       cudaDeviceSynchronize();
       } else {
