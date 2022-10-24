@@ -218,7 +218,7 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
     
     
     if (contact){
-      cout << "contact is active "<<endl;
+      //cout << "contact is active "<<endl;
       if (this->trimesh != NULL){
       MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
       cudaDeviceSynchronize();
