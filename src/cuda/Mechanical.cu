@@ -196,7 +196,7 @@ __global__ void UpdateDensityKernel(Domain_d *dom, double dt) {
 
 __device__ inline void Domain_d::UpdateDensity(double dt){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
-	if ( i < particle_count ) {
+	if ( i < solid_particle_count ) {
     	rho[i] += dt*drho[i];   
   } 
 }

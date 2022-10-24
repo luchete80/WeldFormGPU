@@ -183,6 +183,8 @@ void Domain_d::SetDimension(const int &particle_count){
   contact = false;
   
   SetDouble(this->int_energy,0.);
+  
+  solid_part_count = particle_count;
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
 }

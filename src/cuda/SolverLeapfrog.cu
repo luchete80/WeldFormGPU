@@ -120,7 +120,11 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
   cudaDeviceSynchronize(); 
   
   cout << "Main Loop "<<endl;
-  
+
+  int pcount = particle_count;
+  if (contact)
+    pcount = solid_part_count;
+      
   while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){
@@ -252,7 +256,7 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
     
 		//If kernel is the external, calculate pressure
 		//Calculate pressure!
-		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,particle_count);
+		PressureKernelExt<<<blocksPerGrid,threadsPerBlock >>>(p,PresEq,Cs,P0,rho,rho_0,pcount);
 		cudaDeviceSynchronize();
 
 		clock_beg_int = clock();
@@ -267,21 +271,21 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
 		Time +=deltat;		
 	
 		if (Time >= t_out) {		
-			cudaMemcpy(ID_h, ID, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(ID_h, ID, sizeof(int) * pcount, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(x_h, x, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(u_h, u, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(v_h, v, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(a_h, a, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
       cudaMemcpy(nb_h, CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts), 
                           sizeof(unsigned int) * particle_count, cudaMemcpyDeviceToHost);	
 			
 			cudaMemcpy(p_h, p, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
 			
-			cudaMemcpy(rho_h, rho, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
-			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
+			cudaMemcpy(rho_h, rho, sizeof(double) * count, cudaMemcpyDeviceToHost);
+			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * count, cudaMemcpyDeviceToHost);
       
-      cudaMemcpy(contneib_count_h,contneib_count, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);
+      cudaMemcpy(contneib_count_h,contneib_count, sizeof(int) * count, cudaMemcpyDeviceToHost);
 			
 			char str[10];
 			sprintf(str, "out_%d.csv", count);

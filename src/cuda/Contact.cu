@@ -126,6 +126,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
   if (i < first_fem_particle_idx ) {  
     // CONTACT OFFSET IS FIX BY NOW
     int neibcount = contneib_count[i];
+    contforce[i] = make_double3(0.,0.,0.);
   
     //printf("i, first fem part, neibcount %d\n",neibcount);
     // printf("Nb indexed,i:%d\n",i);
