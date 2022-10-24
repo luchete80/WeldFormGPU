@@ -124,6 +124,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
 	int inside_pairs = 0;
   //printf("test\n");
   if (i < first_fem_particle_idx ) {  
+    contforce[i] = make_double3(0.); //RESET
     // CONTACT OFFSET IS FIX BY NOW
     int neibcount = contneib_count[i];
     contforce[i] = make_double3(0.,0.,0.);
@@ -170,7 +171,6 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
         // double3 Ri = x[i] + deltat_cont * vr;	//Eq 3-139 Ray from SPH particle in the rel velocity direction
         // //printf("delta %f \n",delta_);
         
-        contforce[i] = make_double3(0.); //RESET
         //cont_forces[i] = make_double3(0.,0.,0.); //RESET
 
           //cout << "Inside dt contact" <<endl;
