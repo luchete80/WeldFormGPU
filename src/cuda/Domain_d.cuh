@@ -129,7 +129,8 @@ class Domain_d
 	double3* u;
 	
 	double3 *a_h, *x_h, *v_h, *u_h;
-	unsigned int *nb_h;
+	
+  unsigned int *nb_h;
 	PartData_d *partdata;
   	
 	//Time things
@@ -224,7 +225,7 @@ class Domain_d
   int       *contneib_count; //REDUNDANCE WITH contneib_offs
   
 	double 	  *cont_stiff;
-	double3   *contforce;	//SOA
+	double3   *contforce, *contforce_h;	//SOA
   int       first_fem_particle_idx;
   int       solid_part_count;
 	double    contact_force_factor;

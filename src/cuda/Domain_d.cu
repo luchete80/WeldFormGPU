@@ -131,6 +131,8 @@ void Domain_d::SetDimension(const int &particle_count){
   cudaMalloc((void **)&contneib_offs,   particle_count * sizeof (int));
   cudaMalloc((void **)&contforce,       particle_count * sizeof (double3));
   
+  contforce_h = new double3 [particle_count];
+  
   //////////////////////////
   ///// ENERGY /////////////
   cudaMalloc((void **)&int_energy,   particle_count * sizeof (double));
@@ -387,12 +389,12 @@ Domain_d::~Domain_d(){
 void Domain_d::WriteCSV(char const * FileKey){
 	FILE *f = fopen(FileKey,"w");;
 	
-	fprintf(f, "ID, X, Y, Z, Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain, Nb, ContNb\n");
+	fprintf(f, "ID, X, Y, Z, Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain, Nb, ContNb, CFx CFy CFz\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %d, %d\n", 
+		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %d, %d, %.6e, %.6e, %.6e\n", 
 							ID_h[i],
               x_h[i].x,x_h[i].y,x_h[i].z, 
               u_h[i].x,u_h[i].y,u_h[i].z,
@@ -404,7 +406,8 @@ void Domain_d::WriteCSV(char const * FileKey){
 						sigma_eq_h[i],
 						pl_strain_h[i],
             nb_h[i],
-            contneib_count_h[i]);
+            contneib_count_h[i],
+            contforce_h[i].x,contforce_h[i].y,contforce_h[i].z);
 		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
 		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;
 	}
