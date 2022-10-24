@@ -459,7 +459,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
 	//int i = threadIdx.x + blockDim.x*blockIdx.x;
 	double dep = 0.;
 	
-	if ( i < particle_count ) {	
+	if ( i < solid_part_count ) {	
 		//Pressure = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
 
 		// Jaumann rate terms

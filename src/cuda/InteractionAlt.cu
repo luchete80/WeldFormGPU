@@ -25,7 +25,7 @@ __device__ inline void Domain_d::CalcAccel(
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
-	if ( i < particle_count ) {
+	if ( i < solid_part_count ) {
 	int Dimension = 3; //TODO, put in another 
 	int neibcount = particlenbcount[i];
 	const uint writeOffset = neighborWriteOffsets[i];
@@ -158,7 +158,7 @@ __device__ inline void Domain_d::CalcDensInc(
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
-	if ( i < particle_count ) {
+	if ( i < solid_part_count ) {
 	int Dimension = 3; //TODO, put in another 
 	int neibcount = particlenbcount[i];
 	const uint writeOffset = neighborWriteOffsets[i];
@@ -243,7 +243,7 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
                                                           
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
-	if ( i < particle_count ) {
+	if ( i < solid_part_count ) {
 	int Dimension = 3; //TODO, put in another 
 	int neibcount = particlenbcount[i];
 	const uint writeOffset = neighborWriteOffsets[i];

@@ -212,6 +212,7 @@ class Domain_d
 	/////// CONTACT THINGS /////////////
 	////////////////////////////////////
   int id_free_surf, contact_surf_id;
+  bool *not_write_surf_ID; //Necesary in all particles?
   bool contact;
   double totmass;
 	double 	max_contact_force;
@@ -225,6 +226,7 @@ class Domain_d
 	double 	  *cont_stiff;
 	double3   *contforce;	//SOA
   int       first_fem_particle_idx;
+  int       solid_part_count;
 	double    contact_force_factor;
 	double    PFAC,DFAC;
 	double    fritcion_sta,fritcion_dyn;

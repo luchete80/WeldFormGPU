@@ -170,6 +170,7 @@ int main(int argc, char **argv) //try
   mesh.CalcSpheres(); //DONE ONCE
   double hfac = 1.1;
   dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+  dom_d->solid_part_count = dom.Particles.size();
   dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
   dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
   
@@ -238,21 +239,25 @@ int main(int argc, char **argv) //try
 	
 	dom_d->Alpha = 0.0;//For all particles		
 	dom_d->SetShearModulus(G);	// 
-	// for (size_t a=0; a< dom.Particles.size(); a++)
-	// {
-		// //dom.Particles[a]->G				= G; 
-		// dom.Particles[a]->PresEq	= 0;
-		// dom.Particles[a]->Cs			= Cs;
-
-		// dom.Particles[a]->TI		= 0.3;
-		// dom.Particles[a]->TIInitDist	= dx;
-		// double z = dom.Particles[a]->x(2);
-		// if ( z < 0 ){
-			// dom.Particles[a]->ID=2;	
-		// }
+  
+  bool *not_write = new bool[dom_d->first_fem_particle_idx];
+  for (int i=0;i< dom_d->first_fem_particle_idx;i++){
+    not_write[i] = false;
+  }
+  cout << "Defining surface "<<endl;
+	for (size_t a=0; a< dom_d->first_fem_particle_idx; a++)
+	{
+		double z = dom.Particles[a]->x(2);
+		if ( z < 0 ){
+			dom.Particles[a]->ID=2;	
+      not_write[a] = true;
+		}
 		// if ( z > L )
 			// dom.Particles[a]->ID=3;
-	// }
+	}
+  cout << "Copying "<<endl;
+  
+  cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx * sizeof(bool), cudaMemcpyHostToDevice);
   
 	//Problem is that domain 
 	dom_d->SetFreePart(dom); //All set to IsFree = true in this example
@@ -290,8 +295,8 @@ int main(int argc, char **argv) //try
   dom_d->friction_dyn = 0.2;
 
   
-  
-  dom_d->trimesh->SetVel(make_double3(0.,0.,-1.0));
+  //INSIDE MECHANICAL
+  //dom_d->trimesh->SetVel(make_double3(0.,0.,-1.0));
 	//dom_d->MechSolve(0.0101,1.0e-4);
   //dom_d->MechFraserSolve(0.0101,1.0e-4);
   dom_d->MechLeapfrogSolve(0.0101,1.0e-4);

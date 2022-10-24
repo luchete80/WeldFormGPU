@@ -192,6 +192,8 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
     if (Time < TAU) vbc = VMAX/TAU*Time;
     else            vbc = VMAX;
 		//double vbc = 1.0; 
+    
+    trimesh->SetVel(make_double3(0.,0.,-vbc));
 
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();

@@ -139,6 +139,7 @@ void Domain_d::SetDimension(const int &particle_count){
 	//////////////////////////
 	/// CORRECTIONS /////////
 	cudaMalloc((void **)&VXSPH, 	particle_count  * sizeof (double3));		
+
   
   trimesh = NULL;
 	//cudaMalloc((void **)&partdata->dTdt,particle_count * sizeof (double)); //TODO, pass to PartData
@@ -165,6 +166,15 @@ void Domain_d::SetDimension(const int &particle_count){
 	int size = particle_count * sizeof(double);
 	cudaMemcpy(this->pl_strain, k_, size, cudaMemcpyHostToDevice);
 	delete k_;
+  
+  //Change to first particle
+  cudaMalloc((void **)&not_write_surf_ID, 	particle_count  * sizeof (bool));		
+  bool *surf = new bool[particle_count];
+  for (int i=0;i<particle_count;i++){
+    surf[i] = false;
+  }
+  cudaMemcpy(not_write_surf_ID, surf,  particle_count * sizeof(bool), cudaMemcpyHostToDevice);
+
 	
 	// CONTACT THINGS
 	contact_force_factor =1.;
