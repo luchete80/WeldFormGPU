@@ -120,7 +120,6 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
   cudaDeviceSynchronize(); 
   
   cout << "Main Loop "<<endl;
-  double *cont_forces;
   
   while (Time<tf) {
 	
@@ -173,8 +172,7 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
       CalcContactForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors,
-      cont_forces) 
+      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors) 
       );
       cudaDeviceSynchronize();
     }

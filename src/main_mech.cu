@@ -269,13 +269,15 @@ int main(int argc, char **argv) //try
   timestep = (1.0*h/(Cs+VMAX));
   dom_d->deltat = timestep;
   //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
+  //LEAPFROG IS WORKING WITH ALPHA = 1
+  //KICKDRIFT IS NOT 
   dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
   
   //First example
   // dom_d->deltat = 1.0e-7;
 	// dom_d->auto_ts = false;
   // dom_d->Alpha = 1.0;
-	// dom_d->MechSolve(0.00101,1.0e-4);
+	//dom_d->MechSolve(0.00101,1.0e-4);
 
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	

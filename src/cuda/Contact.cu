@@ -98,14 +98,12 @@ inline void __device__ Domain_d::UpdateContactParticles(){
 
 void __global__ CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
-																	const uint *neighbors,
-                                  double3 *cont_forces
+																	const uint *neighbors
 																	/*const int &id, const double &totmass*/){
 	dom_d->CalcContactForcesWang(
 	particlenbcount,
 	neighborWriteOffsets,
-	neighbors,
-  cont_forces);
+	neighbors);
 
 }
 //WANG ET AL, FRICTION COEFFICIENT APPROACH    
@@ -115,8 +113,7 @@ void __global__ CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbc
 //vectors v
 void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcount,
                                                   const uint *neighborWriteOffsets,
-                                                  const uint *neighbors,
-                                                  double3 *cont_forces){
+                                                  const uint *neighbors){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
 
 	double min_force_ts_=1000.;
