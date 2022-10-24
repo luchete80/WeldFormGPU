@@ -787,7 +787,7 @@ void Domain_d::MechSolve(const double &tf, const double &dt_out){
 		cudaDeviceSynchronize();
 
 		deltatmin = deltatint = deltat;
-    cout << "deltat "<<deltat<<endl;
+    //cout << "deltat "<<deltat<<endl;
 		//Save before move (to be changed)
 
   //DO THIS FOR SEVERAL MESHES

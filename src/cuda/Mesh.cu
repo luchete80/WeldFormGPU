@@ -201,7 +201,7 @@ inline __device__ void TriMesh_d::UpdatePlaneCoeff(){
   if (i < elemcount) { //parallelize by element
     //printf("elnode %f %f %f \n",elnode[3*i+nfar[i]].x,elnode[3*i+nfar[i]].y,elnode[3*i+nfar[i]].z);
     pplane[i] = dot(node[elnode[3*i]+nfar[i]],normal[i]);
-    printf("pplane %f \n",pplane[i]);
+    //printf("pplane %f \n",pplane[i]);
   }
 }
 
@@ -235,10 +235,7 @@ inline __device__ void TriMesh_d::Move(double dt){
       // if      ((*node[n])(i) < min(i)) min[i] = (*node[n])(i);
       // else if ((*node[n])(i) > max(i)) max[i] = (*node[n])(i);
     // } 
-    //printf("Node vel %f %f %f \n",node_v[n].x,node_v[n].y,node_v[n].z);
-    //printf("dt %f\n",dt);
-    //PRINT_V(node[n]);
-    printf("bef %f %f %f , after %f%f%f, dt %.6e\n",node[n].x, node[n].y,node[n].z,(node[n]+(node_v[n])*dt).x,(node[n]+(node_v[n])*dt).y,(node[n]+(node_v[n])*dt).z);
+
     node[n] += (node_v[n])*dt;
     //printf("after \n");
     //PRINT_V(node[n]); 

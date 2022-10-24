@@ -158,10 +158,10 @@ int main(int argc, char **argv) //try
 	dom.DomMin(0) = -L;
   dom.GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
-	dom.AddCylinderLength(0, Vector(0.,0.,-L/10.), R, L + 2.*L/10.,  dx/2., rho, h, false); 
+	dom.AddCylinderLength(0, Vector(0.,0.,-L/20.), R, L + 2.*L/20.,  dx/2., rho, h, false); 
 	cout << "Max z plane position: " <<dom.Particles[dom.Particles.size()-1]->x(2)<<endl;
 
-	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + dom.Particles[dom.Particles.size()-1]->h - 1.e-2;
+	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + 1.000001 * dom.Particles[dom.Particles.size()-1]->h ;
 
   SPH::TriMesh mesh;
 	mesh.AxisPlaneMesh(2,false,Vector(-0.5,-0.5, cyl_zmax),Vector(0.5,0.5, cyl_zmax),40);
