@@ -282,14 +282,14 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
 			
 			cudaMemcpy(p_h, p, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
 			
-			cudaMemcpy(rho_h, rho, sizeof(double) * count, cudaMemcpyDeviceToHost);
-			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * count, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * count, cudaMemcpyDeviceToHost);
+			cudaMemcpy(rho_h, rho, sizeof(double) * pcount, cudaMemcpyDeviceToHost);
+			cudaMemcpy(sigma_eq_h, sigma_eq, sizeof(double) * pcount, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * pcount, cudaMemcpyDeviceToHost);
       
-      cudaMemcpy(contneib_count_h,contneib_count, sizeof(int) * count, cudaMemcpyDeviceToHost);
+      cudaMemcpy(contneib_count_h,contneib_count, sizeof(int) * pcount, cudaMemcpyDeviceToHost);
       
       if (contact)
-        cudaMemcpy(contforce_h, contforce, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+        cudaMemcpy(contforce_h, contforce, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
 			
 			char str[10];
 			sprintf(str, "out_%d.csv", count);
