@@ -171,7 +171,7 @@ int main(int argc, char **argv) //try
   double hfac = 1.1;
   dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
   dom_d->solid_part_count = dom.Particles.size();
-  //dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
+  dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
   dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
   
   //TODO: Mesh has to be deleted
@@ -285,13 +285,15 @@ int main(int argc, char **argv) //try
 	
 	cout << "Time Step: "<<dom_d->deltat<<endl;
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
-  dom_d->contact = false;
+  dom_d->contact = true;
 	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
   
-  dom_d->deltat = timestep;
 	dom_d->auto_ts = false;
   dom_d->Alpha = 0.7;
+  timestep = dom_d->Alpha*h/(Cs+VMAX);
+  dom_d->deltat = timestep;
+  
   dom_d->friction_dyn = 0.2;
 
   

@@ -17,3 +17,5 @@
 20221018 - Closed issues #98 and #99, normals and mesh update.
 20221024 - Cleaning some comments. Finally mesh is moving, but MEchSolve does not work with such big CFL.
            Added not write ID for contact surface
+20221025 - Detected  wrong time step in contact problem
+           Added contact forces in leapfrog solver (THE ONLY ONE WHICH WORKS UP UNTIL NOW)
