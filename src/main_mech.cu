@@ -157,7 +157,7 @@ int main(int argc, char **argv) //try
 	dom.DomMin(0) = -L;
   dom.GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
-	dom.AddCylinderLength(1, Vector(0.,0.,-L/10.), R, L + 2.*L/10.,  dx/2., rho, h, false); 
+	dom.AddCylinderLength(1, Vector(0.,0.,-L/20.), R, L + 2.*L/20.,  dx/2., rho, h, false); 
 	cout << "Particle count:" <<dom.Particles.size()<<endl;
 	
 	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN

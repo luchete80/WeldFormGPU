@@ -127,7 +127,6 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
     contforce[i] = make_double3(0.); //RESET
     // CONTACT OFFSET IS FIX BY NOW
     int neibcount = contneib_count[i];
-    contforce[i] = make_double3(0.,0.,0.);
   
     //printf("i, first fem part, neibcount %d\n",neibcount);
     // printf("Nb indexed,i:%d\n",i);
@@ -230,7 +229,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
                 // this -> min_force_ts = min_force_ts_;
             // }
             //printf("contforce %f %f %f ", contforce[i].x,contforce[i].y,contforce[i].z);
-            a[i] += contforce[i] / m[i]; 
+            a[i] += (contforce[i] / m[i]); 
             //printf("contforce %f\n",contforce[i].x);
             
             // if (friction_dyn > 0.) {

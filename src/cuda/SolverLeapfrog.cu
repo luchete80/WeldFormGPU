@@ -58,7 +58,7 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
 	
 	vector < Real3> pos;
   // positions.reserve(dom.Particles.size());
-	for (unsigned int i = 0; i < particle_count; i++) {
+	for (unsigned int i = 0; i < solid_part_count; i++) {
     std::array<Real, 3> x ={{ x_h[i].x,
                               x_h[i].y,
                               x_h[i].z
@@ -93,7 +93,7 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
   cout << "First Rigid Contact Particle: "<<first_fem_particle_idx<<endl;
   
 	//First time find nbs
-	for (int i=0; i <particle_count;i++){
+	for (int i=0; i <solid_part_count;i++){
 	((Real3*)points)[i][0] = x_h[i].x;
 	((Real3*)points)[i][1] = x_h[i].y;
 	((Real3*)points)[i][2] = x_h[i].z;
@@ -132,7 +132,7 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
 			/////////////////////////////////////////
 			// UPDATE POINTS POSITIONS
 			//TODO: THIS HAS TO BE DONE WITH KERNEL
-			for (int i=0; i <particle_count;i++){
+			for (int i=0; i <solid_part_count;i++){
 			((Real3*)points)[i][0] = x_h[i].x;
 			((Real3*)points)[i][1] = x_h[i].y;
 			((Real3*)points)[i][2] = x_h[i].z;
@@ -197,11 +197,11 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
     else            vbc = VMAX;
 		//double vbc = 1.0; 
     
-    if (contact)
-      trimesh->SetVel(make_double3(0.,0.,-vbc));
+    // if (contact)
+      // trimesh->SetVel(make_double3(0.,0.,-vbc));
 
-		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
-		// cudaDeviceSynchronize();
+		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
+		cudaDeviceSynchronize();
     
     ////////TODO: MOVE TO A SINGLE HOST DOMAIN FUNCTION
     CalcDensIncKernel<<<blocksPerGrid,threadsPerBlock >>>(this,

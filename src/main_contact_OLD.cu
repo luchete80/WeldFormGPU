@@ -4,17 +4,19 @@
 #include "cuda/Domain_d.cuh" 
 #include "cuda/Mechanical.cu" 
 
+//#include "cuda/KickDriftSolver.cu" 
+#include "cuda/SolverLeapfrog.cu"
+//#include "cuda/SolverFraser.cu"
+#include "cuda/Mesh.cuh"
+#include "cuda/Mesh.cu"
+
 #define TAU		0.005
-#define VMAX	10.0
+#define VMAX	1.0
 
 #include <sstream>
 #include <fstream> 
 #include <iostream>
-
-//#include "cuda/KickDriftSolver.cu"
-#include "cuda/SolverLeapfrog.cu"
-#include "cuda/Mesh.cuh"
-#include "cuda/Mesh.cu"
+// DO NOT INCLUDE MESH HERE
 
 //#include "Vector.h"
 
@@ -144,10 +146,10 @@ int main(int argc, char **argv) //try
 
 	double Cs	= sqrt(K/rho);
 
-  double timestep = (0.4*h/(Cs));
+  double timestep = (0.2*h/(Cs));
 
-	cout<<"deltat  = "<<timestep<<endl;
-	cout<<"Cs = "<<Cs<<endl;
+	// cout<<"t  = "<<timestep<<endl;
+	// cout<<"Cs = "<<Cs<<endl;
 	// cout<<"K  = "<<K<<endl;
 	// cout<<"G  = "<<G<<endl;
 	// cout<<"Fy = "<<Fy<<endl;
@@ -157,44 +159,38 @@ int main(int argc, char **argv) //try
 	dom.DomMin(0) = -L;
   dom.GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
-	dom.AddCylinderLength(1, Vector(0.,0.,-L/20.), R, L + 2.*L/20.,  dx/2., rho, h, false); 
-	cout << "Particle count:" <<dom.Particles.size()<<endl;
-  
-  /************************* NEW CONTACT THING *////////////////////////////////////////////
-  	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + 1.000001 * dom.Particles[dom.Particles.size()-1]->h ;
+	dom.AddCylinderLength(0, Vector(0.,0.,-L/20.), R, L + 2.*L/20.,  dx/2., rho, h, false); 
+	// cout << "Max z plane position: " <<dom.Particles[dom.Particles.size()-1]->x(2)<<endl;
 
-  SPH::TriMesh mesh;
-	mesh.AxisPlaneMesh(2,false,Vector(-0.5,-0.5, cyl_zmax),Vector(0.5,0.5, cyl_zmax),40);
-	//cout << "Plane z" << *mesh.node[0]<<endl;
-  mesh.CalcSpheres(); //DONE ONCE
-  double hfac = 1.1;
-  dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+	// double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + 1.000001 * dom.Particles[dom.Particles.size()-1]->h ;
+
+  // SPH::TriMesh mesh;
+	// mesh.AxisPlaneMesh(2,false,Vector(-0.5,-0.5, cyl_zmax),Vector(0.5,0.5, cyl_zmax),40);
+	// //cout << "Plane z" << *mesh.node[0]<<endl;
+  // mesh.CalcSpheres(); //DONE ONCE
+  // double hfac = 1.1;
+  // dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
   dom_d->solid_part_count = dom.Particles.size();
-  dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
-  dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
+  // dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
+  // dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
   
-  //TODO: Mesh has to be deleted
-  SPH::TriMesh_d *mesh_d;
-  gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
-  mesh_d->AxisPlaneMesh(2,false,make_double3(-0.5,-0.5, cyl_zmax),make_double3(0.5,0.5, cyl_zmax),40);
+  // //TODO: Mesh has to be deleted
+  // SPH::TriMesh_d *mesh_d;
+  // gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+  // mesh_d->AxisPlaneMesh(2,false,make_double3(-0.5,-0.5, cyl_zmax),make_double3(0.5,0.5, cyl_zmax),40);
   
-  cout << "Domain Size "<<dom.Particles.size()<<endl;
-	//BEFORE ALLOCATING 
+  // cout << "Domain Size "<<dom.Particles.size()<<endl;
+	// //BEFORE ALLOCATING 
   int particlecount = dom.Particles.size();
   // //cout << "Particles "<<
 	dom_d->SetDimension(particlecount);	 //AFTER CREATING DOMAIN
 
-  dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
-  if (dom_d->trimesh ==NULL)
-    cout << "ERROR. No mesh defined"<<endl;
+  // dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+  // if (dom_d->trimesh ==NULL)
+    // cout << "ERROR. No mesh defined"<<endl;
   
-  /********************************** END NEW CONTACT THING */////////////////////////////////
-	
-	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
-  //SPH::Domain	dom;
-	//double3 *x =  (double3 *)malloc(dom.Particles.size());
 	double3 *x =  new double3 [dom.Particles.size()];
-	for (int i=0;i<dom.Particles.size();i++){
+	for (int i=0;i<dom.Particles.size();i++){ // Only of sph particles
 		//cout <<"i; "<<i<<endl;
 		//x[i] = make_double3(dom.Particles[i]->x);
 		x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));
@@ -202,15 +198,12 @@ int main(int argc, char **argv) //try
 	int size = dom.Particles.size() * sizeof(double3);
 	cout << "Copying to device..."<<endl;
 	cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
-
-
 	for (int i=0;i<dom.Particles.size();i++){
 		x[i] = make_double3(0.,0.,0.);
 	}
 	cudaMemcpy(dom_d->v, x, size, cudaMemcpyHostToDevice);
   
 	cout << "copied"<<endl;
-
 	
 	cout << "Setting values"<<endl;
 	dom_d->SetDensity(rho);
@@ -218,16 +211,21 @@ int main(int argc, char **argv) //try
 	cout << "done."<<endl;
 
 	double *m =  new double [dom.Particles.size()];
-	for (size_t a=0; a<dom.Particles.size(); a++)
+  double mass = 0.;
+	for (size_t a=0; a<dom.Particles.size(); a++){
 		m[a] = dom.Particles[a]->Mass;
+    mass +=m[a];
+  }
+  //mass /= dom.Particles.size();
+  dom_d->totmass = mass;
 	cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
-		
+  
 		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
      	// // double x;
 
 	//MODIFY
-	double *T 			=  new double [dom.Particles.size()];
-	int 	*BC_type 	=  new int 		[dom.Particles.size()];
+	double *T 			=  new double [particlecount];
+	int 	*BC_type 	=  new int 		[particlecount];
 	int bcpart = 0;
 	for (size_t a=0; a<dom.Particles.size(); a++){
 		double xx = dom.Particles[a]->x(0);
@@ -239,27 +237,33 @@ int main(int argc, char **argv) //try
 		}
 	}		
 	cout << "BC particles"<<bcpart<<endl;
-	cudaMemcpy(dom_d->T, T, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);
-	cudaMemcpy(dom_d->BC_T, BC_type, dom.Particles.size() * sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(dom_d->T, T, particlecount * sizeof(double), cudaMemcpyHostToDevice);
+	cudaMemcpy(dom_d->BC_T, BC_type, particlecount * sizeof(int), cudaMemcpyHostToDevice);
 	
 	dom_d->Alpha = 0.0;//For all particles		
 	dom_d->SetShearModulus(G);	// 
-	for (size_t a=0; a<dom.Particles.size(); a++)
-	{ 
-		//dom.Particles[a]->G				= G; 
-		dom.Particles[a]->PresEq	= 0;
-		dom.Particles[a]->Cs			= Cs;
-
-		dom.Particles[a]->TI		= 0.3;
-		dom.Particles[a]->TIInitDist	= dx;
+  
+  bool *not_write = new bool[dom_d->first_fem_particle_idx];
+  for (int i=0;i< dom_d->first_fem_particle_idx;i++){
+    not_write[i] = false;
+  }
+  cout << "Defining surface "<<endl;
+	for (size_t a=0; a< dom_d->first_fem_particle_idx; a++)
+	{
 		double z = dom.Particles[a]->x(2);
 		if ( z < 0 ){
 			dom.Particles[a]->ID=2;	
+      not_write[a] = true;
 		}
 		if ( z > L )
 			dom.Particles[a]->ID=3;
+      not_write[a] = true;  
 	}
-	
+  cout << "Copying "<<endl;
+  
+  cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx * sizeof(bool), cudaMemcpyHostToDevice);
+  
+	//Problem is that domain 
 	dom_d->SetFreePart(dom); //All set to IsFree = true in this example
 	dom_d->SetID(dom); 
 	dom_d->SetCs(dom);
@@ -280,35 +284,33 @@ int main(int argc, char **argv) //try
 	cout << "Solving "<<endl;
 	//CheckData<<<1,1>>>(dom_d);
 	//cudaDeviceSynchronize(); //Crashes if not Sync!!!
-	
-	
+		
 
 	
 	cout << "Time Step: "<<dom_d->deltat<<endl;
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
+  dom_d->contact = false;
 	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
   
-  dom_d->deltat = timestep;
 	dom_d->auto_ts = false;
-  dom_d->Alpha = 1.0;
-	//dom_d->MechSolve(0.0101,1.0e-4);
-  
-  //New solver
-  dom_d->auto_ts = false;
-  timestep = (1.0*h/(Cs+VMAX));
+  dom_d->Alpha = 0.7;
+  timestep = dom_d->Alpha*h/(Cs+VMAX);
   dom_d->deltat = timestep;
-  //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
-  //LEAPFROG IS WORKING WITH ALPHA = 1
-  //KICKDRIFT IS NOT 
+  
+  dom_d->friction_dyn = 0.2;
+
+  
+  //INSIDE MECHANICAL
+  //dom_d->trimesh->SetVel(make_double3(0.,0.,-1.0));
+	//dom_d->MechSolve(0.0101,1.0e-4);
+  //dom_d->MechFraserSolve(0.0101,1.0e-4);
   dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
   
   //First example
   // dom_d->deltat = 1.0e-7;
 	// dom_d->auto_ts = false;
   // dom_d->Alpha = 1.0;
-	//dom_d->MechSolve(0.00101,1.0e-4);
-
 
 	cudaMemcpy(T, dom_d->T, sizeof(double) * dom.Particles.size(), cudaMemcpyDeviceToHost);	
 	

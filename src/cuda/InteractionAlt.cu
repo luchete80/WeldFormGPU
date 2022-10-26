@@ -41,7 +41,9 @@ __device__ inline void Domain_d::CalcAccel(
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
+
 		int j = neighbors[writeOffset + k];
+    if (ID[j] != contact_surf_id){
 		//double h	= partdata->h[i]+P2->h)/2;
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
@@ -130,6 +132,8 @@ __device__ inline void Domain_d::CalcAccel(
 
 		// Locking the particle 1 for updating the properties
 		a[i] 		+= mj * ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /* TIij */) * (GK*xij);
+    
+    }//if != rigid surface
 		}//neibcount
 
 	}//i < partcount
@@ -169,6 +173,7 @@ __device__ inline void Domain_d::CalcDensInc(
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
 		int j = neighbors[writeOffset + k];
+    if (ID[j] != contact_surf_id){
 		//double h	= partdata->h[i]+P2->h)/2;
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
@@ -218,7 +223,8 @@ __device__ inline void Domain_d::CalcDensInc(
 		//if (Dimension == 2) temp(2) = 0.0;
 		temp1 = dot( vij , GK*xij );
 		drho[i]	+= mj * (di/dj) * temp1;
-		}//neibcount
+		}//j!=solid
+    }//neibcount
 
 	}//i < partcount
 }
@@ -257,6 +263,8 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 	for (int k=0;k < neibcount; k++) { //Or size
 		//if fixed size i = part * NB + k
     int j = neighbors[writeOffset + k];
+    
+    if (ID[j] != contact_surf_id){
 
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
@@ -336,7 +344,8 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 
 			StrainRateSum 	= StrainRateSum + mj_dj * StrainRate;
 			RotationRateSum = RotationRateSum + mj_dj * RotationRate;
-      
+    
+    } //j!=rigid solid
 		}//neibcount
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(RotationRateSum, rotrate,6*i);
