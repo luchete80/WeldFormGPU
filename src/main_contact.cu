@@ -190,7 +190,6 @@ int main(int argc, char **argv) //try
   
   /********************************** END NEW CONTACT THING */////////////////////////////////
 	
-	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
   //SPH::Domain	dom;
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
 	double3 *x =  new double3 [dom.Particles.size()];
@@ -244,21 +243,26 @@ int main(int argc, char **argv) //try
 	
 	dom_d->Alpha = 0.0;//For all particles		
 	dom_d->SetShearModulus(G);	// 
-	for (size_t a=0; a<dom.Particles.size(); a++)
-	{ 
-		//dom.Particles[a]->G				= G; 
-		dom.Particles[a]->PresEq	= 0;
-		dom.Particles[a]->Cs			= Cs;
+  
 
-		dom.Particles[a]->TI		= 0.3;
-		dom.Particles[a]->TIInitDist	= dx;
+  bool *not_write = new bool[dom_d->first_fem_particle_idx];
+  for (int i=0;i< dom_d->first_fem_particle_idx;i++){
+    not_write[i] = false;
+  }
+  cout << "Defining surface "<<endl;
+	for (size_t a=0; a< dom_d->first_fem_particle_idx; a++) {
+    dom.Particles[a]->Cs			= Cs;  //THIS IS CRUCIAL
 		double z = dom.Particles[a]->x(2);
 		if ( z < 0 ){
 			dom.Particles[a]->ID=2;	
+      not_write[a] = true;
 		}
 		if ( z > L )
 			dom.Particles[a]->ID=3;
+      not_write[a] = true;  
 	}
+  
+  cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx * sizeof(bool), cudaMemcpyHostToDevice);
 	
 	dom_d->SetFreePart(dom); //All set to IsFree = true in this example
 	dom_d->SetID(dom); 
@@ -291,12 +295,12 @@ int main(int argc, char **argv) //try
   
   dom_d->deltat = timestep;
 	dom_d->auto_ts = false;
-  dom_d->Alpha = 1.0;
+  dom_d->contact = true;
+  dom_d->Alpha = 0.7;
 	//dom_d->MechSolve(0.0101,1.0e-4);
   
   //New solver
-  dom_d->auto_ts = false;
-  timestep = (1.0*h/(Cs+VMAX));
+  timestep = (dom_d->Alpha*h/(Cs+VMAX));
   dom_d->deltat = timestep;
   //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
   //LEAPFROG IS WORKING WITH ALPHA = 1
