@@ -22,4 +22,4 @@
            Contact problema Working normally without contact mesh. 
            PROBLEM WAS IN NOT SETTING Particles[i]->Cs
 20221028 - Contact is still with problems. 
-           Added function to apply BC 
+           Added GeneralAfter and UserAcc function to apply BC 
