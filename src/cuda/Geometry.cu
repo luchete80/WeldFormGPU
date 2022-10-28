@@ -6,6 +6,8 @@
 #include "tensor.cuh"
 #include "tensor3.cu" //INLINE
 
+#include <iostream>
+  
 namespace SPH {
   
 __global__ inline void CalculateSurfaceKernel(Domain_d *dom_d,	const uint *particlenbcount,

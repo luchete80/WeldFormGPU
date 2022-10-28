@@ -157,7 +157,8 @@ int main(int argc, char **argv) //try
 	dom.DomMin(0) = -L;
   dom.GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
-	dom.AddCylinderLength(1, Vector(0.,0.,-L/20.), R, L + 2.*L/20.,  dx/2., rho, h, false); 
+  //NEVER USE 1 IN CONTACT PROBLEMS (IS CONTACT SURFACE ID)
+	dom.AddCylinderLength(0, Vector(0.,0.,-L/20.), R, L + 2.*L/20.,  dx/2., rho, h, false); 
 	cout << "Particle count:" <<dom.Particles.size()<<endl;
   
   /************************* NEW CONTACT THING *////////////////////////////////////////////
@@ -257,9 +258,9 @@ int main(int argc, char **argv) //try
 			dom.Particles[a]->ID=2;	
       not_write[a] = true;
 		}
-		if ( z > L )
-			dom.Particles[a]->ID=3;
-      not_write[a] = true;  
+		// if ( z > L )
+			// dom.Particles[a]->ID=3;
+      // not_write[a] = true;  
 	}
   
   cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx * sizeof(bool), cudaMemcpyHostToDevice);

@@ -158,6 +158,7 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
     cudaDeviceSynchronize(); //REQUIRED!!!!
     
     if (contact){
+      //cout << "Calc surface "<<endl;
       CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),

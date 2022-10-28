@@ -96,6 +96,7 @@ class Domain;
 class Domain_d
 {
 	public:
+  typedef void (*PtDom) (Domain & dom);
 	///////////////////////////////////
 	///////////// NEIGHBOR THING //////
 	
