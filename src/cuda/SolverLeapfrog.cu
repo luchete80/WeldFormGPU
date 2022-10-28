@@ -28,8 +28,8 @@ namespace SPH{
 void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
 
 	int N = particle_count;
-	int threadsPerBlock = 256; //Or BlockSize
-	int blocksPerGrid =				// Or gridsize
+	threadsPerBlock = 256; //Or BlockSize
+	blocksPerGrid =				// Or gridsize
 	(N + threadsPerBlock - 1) / threadsPerBlock;
   Time =0.;
 	
@@ -186,10 +186,14 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
     double dt;
     if (isfirst_step) dt = deltat/2.0;
     else              dt = deltat;
+    
+   
     // forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
     // //update half of vel
     UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,dt);
     cudaDeviceSynchronize();
+
+    GeneralAfter(*this);
 		//IMPOSE BC!
 		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
 		cudaDeviceSynchronize();

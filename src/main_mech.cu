@@ -19,40 +19,17 @@
 //#include "Vector.h"
 
 
-void UserAcc(SPH::Domain & domi)
+void UserAcc(SPH::Domain_d & domi)
 {
-	// double vtraction;
+		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 2, make_double3(0.,0.,0.));
+		cudaDeviceSynchronize();
+    double vbc;
+    if (domi.Time < TAU) vbc = VMAX/TAU*domi.Time;
+    else            vbc = VMAX;
 
-	// if (domi.getTime() < TAU ) 
-		// vtraction = VMAX/TAU * domi.getTime();
-	// else
-		// vtraction = VMAX;
-	
-	// #pragma omp parallel for schedule (static) num_threads(domi.Nproc)
-
-	// #ifdef __GNUC__
-	// for (size_t i=0; i<domi.Particles.size(); i++)
-	// #else
-	// for (int i=0; i<domi.Particles.size(); i++)
-	// #endif
-	
-	// {
-		// if (domi.Particles[i]->ID == 3)
-		// {
-			// domi.Particles[i]->a		= Vector(0.0,0.0,0.0);
-			// domi.Particles[i]->v		= Vector(0.0,0.0,vtraction);
-			// domi.Particles[i]->va		= Vector(0.0,0.0,vtraction);
-			// domi.Particles[i]->vb		= Vector(0.0,0.0,vtraction);
-// //			domi.Particles[i]->VXSPH	= Vector(0.0,0.0,0.0);
-		// }
-		// if (domi.Particles[i]->ID == 2)
-		// {
-			// domi.Particles[i]->a		= Vector(0.0,0.0,0.0);
-			// domi.Particles[i]->v		= Vector(0.0,0.0,0.0);
-			// domi.Particles[i]->vb		= Vector(0.0,0.0,0.0);
-			// domi.Particles[i]->VXSPH	= Vector(0.0,0.0,0.0);
-		// }
-	// }
+		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 3, make_double3(0.,0.,-vbc));
+		cudaDeviceSynchronize();
+    
 }
 
 void report_gpu_mem()
@@ -155,7 +132,7 @@ int main(int argc, char **argv) //try
 	// dom.GeneralAfter = & UserAcc;
 	dom.DomMax(0) = L;
 	dom.DomMin(0) = -L;
-  dom.GeneralAfter = & UserAcc;
+  dom_d->GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
 	dom.AddCylinderLength(1, Vector(0.,0.,-L/20.), R, L + 2.*L/20.,  dx/2., rho, h, false); 
 	cout << "Particle count:" <<dom.Particles.size()<<endl;
@@ -258,6 +235,8 @@ int main(int argc, char **argv) //try
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
 	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
+  
+  dom_d->GeneralAfter = &UserAcc;
   
   dom_d->deltat = timestep;
 	dom_d->auto_ts = false;

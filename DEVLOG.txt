@@ -21,3 +21,5 @@
            Added contact forces in leapfrog solver (THE ONLY ONE WHICH WORKS UP UNTIL NOW)
            Contact problema Working normally without contact mesh. 
            PROBLEM WAS IN NOT SETTING Particles[i]->Cs
+20221028 - Contact is still with problems. 
+           Added function to apply BC 

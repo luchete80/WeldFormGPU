@@ -96,7 +96,7 @@ class Domain;
 class Domain_d
 {
 	public:
-  typedef void (*PtDom) (Domain & dom);
+  typedef void (*PtDom) (Domain_d & dom);
 	///////////////////////////////////
 	///////////// NEIGHBOR THING //////
 	
@@ -109,6 +109,8 @@ class Domain_d
 	int *neib_count; //Optional
 	int *neibcount;	//Useful??
 	int particle_count;
+  
+  int threadsPerBlock, blocksPerGrid;
 	
 	
 	//cuNSearch::PointSet part_pointset; 	// IN THE FUTURE IS GOOD TO HAVE NEIGHBOUR DEVICE DATA WHICH IS IN DEVICE	
@@ -342,6 +344,9 @@ __device__ inline void UpdateDensity(double dt);
 	__host__ void WriteCSV(char const * FileKey);
 	__device__ void CalcMinTimeStep();
 	__host__ void AdaptiveTimeStep();
+  
+  PtDom					GeneralAfter;	///< Pointer to a function: to modify particles properties after CalcForce function
+  
  ////////////////////////
 	
 
