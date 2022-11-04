@@ -23,3 +23,7 @@
            PROBLEM WAS IN NOT SETTING Particles[i]->Cs
 20221028 - Contact is still with problems. 
            Added GeneralAfter and UserAcc function to apply BC 
+--------------------------------------------------------------
+20221104 - ERROR found in interaction with contact problems. 
+           There was an exception in contact_surf_id but it was only for j particle! 
+           

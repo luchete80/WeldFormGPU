@@ -43,7 +43,12 @@ __device__ inline void Domain_d::CalcAccel(
 		//int j = neib[i][k];
 
 		int j = neighbors[writeOffset + k];
-    if (ID[j] != contact_surf_id){
+        bool pass = true;    
+    if (contact){
+      pass = false;
+      if (ID[j] != contact_surf_id && ID[i] != contact_surf_id) pass = true;
+    }    
+    if (pass){
 		//double h	= partdata->h[i]+P2->h)/2;
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
@@ -173,7 +178,12 @@ __device__ inline void Domain_d::CalcDensInc(
 		//if fixed size i = part * NB + k
 		//int j = neib[i][k];
 		int j = neighbors[writeOffset + k];
-    if (ID[j] != contact_surf_id){
+        bool pass = true;    
+    if (contact){
+      pass = false;
+      if (ID[j] != contact_surf_id && ID[i] != contact_surf_id) pass = true;
+    }    
+    if (pass){
 		//double h	= partdata->h[i]+P2->h)/2;
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
@@ -264,8 +274,16 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 		//if fixed size i = part * NB + k
     int j = neighbors[writeOffset + k];
     
-    if (ID[j] != contact_surf_id){
-
+    if (ID[i] == contact_surf_id)
+      printf("i particle on CONTACT SURFACE\n");
+    
+    bool pass = true;    
+    if (contact){
+      pass = false;
+      if (ID[j] != contact_surf_id && ID[i] != contact_surf_id) pass = true;
+    }    
+    if (pass){
+    
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
 		double di=0.0,dj=0.0,mi=0.0,mj=0.0;

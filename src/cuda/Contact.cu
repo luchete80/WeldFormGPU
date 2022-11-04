@@ -38,7 +38,7 @@ const uint *neighbors){
       double3 xij = x[i]-x[j];
       //double h = h[i] + h[j];  //not necessary to take average
 
-      if ( (ID[i] == id_free_surf && ID[j] == contact_surf_id) /*||
+      if ( /*(ID[i] == id_free_surf &&*/( ID[j] == contact_surf_id) /*||
            (ID[j] == id_free_surf && ID[i] == contact_surf_id) */) {
         /////if ( norm (Particles[P1]->x - Particles[P2]->x) < ( Particles[P1]->h + Particles[P2]->h ) ){ //2* cutoff being cutoff (h1+h2)/2
         if ( length(xij) < 2.*h[i] ){
