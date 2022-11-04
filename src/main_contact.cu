@@ -146,7 +146,7 @@ int main(int argc, char **argv) //try
   mesh.CalcSpheres(); //DONE ONCE
   double hfac = 1.1;
   dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
-  int solid_count = dom.Particles.size();
+  int solid_count = dom.Particles.size(); //BEFORE ADDING CONTACT MESH
   
   dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
   dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
