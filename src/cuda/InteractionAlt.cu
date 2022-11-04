@@ -259,8 +259,8 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
                                                           
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	
-	// if ( i < solid_part_count ) {
-    // printf("i %d, solid part count %d \n", i, solid_part_count );
+	if ( i < solid_part_count ) {
+
 	int Dimension = 3; //TODO, put in another 
 	int neibcount = particlenbcount[i];
 	const uint writeOffset = neighborWriteOffsets[i];
