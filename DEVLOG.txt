@@ -26,4 +26,4 @@
 --------------------------------------------------------------
 20221104 - ERROR found in interaction with contact problems. 
            There was an exception in contact_surf_id but it was only for j particle! 
-           
+           Solid part count was wrongly set. Remove from set dimension.

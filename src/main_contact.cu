@@ -146,7 +146,8 @@ int main(int argc, char **argv) //try
   mesh.CalcSpheres(); //DONE ONCE
   double hfac = 1.1;
   dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
-  dom_d->solid_part_count = dom.Particles.size();
+  int solid_count = dom.Particles.size();
+  
   dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
   dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
   
@@ -160,7 +161,7 @@ int main(int argc, char **argv) //try
   int particlecount = dom.Particles.size();
   // //cout << "Particles "<<
 	dom_d->SetDimension(particlecount);	 //AFTER CREATING DOMAIN
-
+  dom_d->solid_part_count = solid_count;  //AFTER SET DIMENSION
   dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
   if (dom_d->trimesh ==NULL)
     cout << "ERROR. No mesh defined"<<endl;
