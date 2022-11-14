@@ -47,8 +47,11 @@ __device__ inline void Domain_d::CalcAccel(
     if (contact){
       pass = false;
       if (ID[j] != contact_surf_id && ID[i] != contact_surf_id) pass = true;
-    }    
+    }   
+    
     if (pass){
+    if (ID[j] == contact_surf_id)
+      printf("CALC RATE TENSORS, j particle, %d on CONTACT SURFACE\n", i);
 		//double h	= partdata->h[i]+P2->h)/2;
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
@@ -275,15 +278,16 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
 		//if fixed size i = part * NB + k
     int j = neighbors[writeOffset + k];
     
-    // if (ID[i] == contact_surf_id)
-      // printf("i particle, %d on CONTACT SURFACE\n", i);
-    
+   
     bool pass = true;    
     if (contact){
       pass = false;
-      if (ID[j] != contact_surf_id && ID[i] != contact_surf_id) pass = true;
+      if (ID[j] != contact_surf_id ) pass = true;
     }    
     if (pass){
+
+    if (ID[j] == contact_surf_id)
+      printf("CALC RATE TENSORS, j particle, %d on CONTACT SURFACE\n", i);
     
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
