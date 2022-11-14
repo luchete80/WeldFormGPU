@@ -12,7 +12,8 @@
 #include <iostream>
 
 //#include "cuda/KickDriftSolver.cu"
-#include "cuda/SolverLeapfrog.cu"
+//#include "cuda/SolverLeapfrog.cu"
+#include "cuda/SolverFraser.cu"
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
 
@@ -250,7 +251,8 @@ int main(int argc, char **argv) //try
   //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
   //LEAPFROG IS WORKING WITH ALPHA = 1
   //KICKDRIFT IS NOT 
-  dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
+  //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
+  dom_d->MechFraserSolve(0.0101,1.0e-4);
   
   //First example
   // dom_d->deltat = 1.0e-7;
