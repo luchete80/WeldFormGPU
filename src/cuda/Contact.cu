@@ -225,7 +225,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
                 
             ////// TANGENTIAL FORCE //////    
             if (friction_sta > 0.){
-              double3 du = x_pred - x[i] - v[j] * deltat ;            
+              double3 du = x_pred - x[i] - v[j] * deltat ;  
+              //printf ("vj %f %f %f\n",v[j].x,v[j].y,v[j].z);
               double3 delta_tg = du - dot(du, normal[j])* normal[j];
               double3 tg_force = kij * delta_tg;
               
@@ -238,20 +239,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
                 a[i] -= tgforce_dyn / m[i];
               }
             }
-            //printf("contforce %f\n",contforce[i].x);
-            
-            // if (friction_dyn > 0.) {
-              // if ( length (vr)  != 0.0 ){
-              // // //TG DIRECTION
-                // double3 tgforce = friction_dyn * length(contforce[i]) * tgdir;
-                // a[i] -= tgforce / m[i]; 
-                // //printf("tg force %lf\n", tgforce.z); 
-              // }
-            // }
-            
-            // if   (force2 > max_contact_force ) max_contact_force = force2;
-            // else if (force2 < min_contact_force ) min_contact_force = force2;
-            // inside_pairs++;
+
         }// if inside
 
       } //dist <h

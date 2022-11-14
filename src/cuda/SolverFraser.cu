@@ -259,17 +259,8 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 
     UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
     cudaDeviceSynchronize();
-		//IMPOSE BC!
-		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
-		cudaDeviceSynchronize();
-
-    double vbc;
-    if (Time < TAU) vbc = VMAX/TAU*Time;
-    else            vbc = VMAX;
     
-		ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
-		cudaDeviceSynchronize();
-    
+    GeneralAfter(*this);
     
     CalcIntEnergyKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
