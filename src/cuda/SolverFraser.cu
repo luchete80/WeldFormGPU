@@ -205,31 +205,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
       CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors) 
       );
       cudaDeviceSynchronize();
-    }
-    
-    
 
-    
-    // forces_time += (double)(clock() - clock_beg_int) / CLOCKS_PER_SEC;
-    // //update half of vel
-    // UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat/2.);
-    // cudaDeviceSynchronize();
-		// //IMPOSE BC!
-		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
-		// cudaDeviceSynchronize();
-    // double vbc;
-    // if (Time < TAU) vbc = VMAX/TAU*Time;
-    // else            vbc = VMAX;
-		// //double vbc = 1.0; 
-
-		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
-		// cudaDeviceSynchronize();
-    
-
-    
-    
-    if (contact){
-      cout << "contact is active "<<endl;
       if (this->trimesh != NULL){
       MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
       cudaDeviceSynchronize();
@@ -237,6 +213,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
         cout << "No contact mesh defined."<<endl;
       }
     }
+    
 
 					
 		//TODO: CHANGE this to an interleaved reduction or something like that (see #84)
@@ -252,15 +229,33 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 				cout << "Now is yielding"<<endl;
 			}
 		}
-    
 
+		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
+		// cudaDeviceSynchronize();
+    // double vbc;
+    // if (Time < TAU) vbc = VMAX/TAU*Time;
+    // else            vbc = VMAX;
+
+		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
+		// cudaDeviceSynchronize();
+    GeneralAfter(*this); //SET BCS
+    
 		UpdatePosFraserKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
     cudaDeviceSynchronize(); //REQUIRED!!!!
 
     UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
     cudaDeviceSynchronize();
     
-    GeneralAfter(*this);
+    GeneralAfter(*this); //REINFORCE AGAIN
+    
+		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
+		// cudaDeviceSynchronize();
+    // //double vbc;
+    // if (Time < TAU) vbc = VMAX/TAU*Time;
+    // else            vbc = VMAX;
+
+		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
+		// cudaDeviceSynchronize();
     
     CalcIntEnergyKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();

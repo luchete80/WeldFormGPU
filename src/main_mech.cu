@@ -239,7 +239,6 @@ int main(int argc, char **argv) //try
   
   dom_d->GeneralAfter = &UserAcc;
   
-  dom_d->deltat = timestep;
 	dom_d->auto_ts = false;
   dom_d->Alpha = 1.0;
 	//dom_d->MechSolve(0.0101,1.0e-4);
