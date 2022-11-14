@@ -206,6 +206,7 @@ __host__ void Domain_d::SetID(const Domain &dom){
 	for (int i=0;i<particle_count;i++){
 		k_[i] = dom.Particles[i]->ID;
 	}
+  cout << "Copying "<<particle_count<<" particles id"<<endl;
 	int size = particle_count * sizeof(int);
 	cudaMemcpy(this->ID, k_, size, cudaMemcpyHostToDevice);
 	delete k_;	

@@ -25,7 +25,7 @@ void UserAcc(SPH::Domain_d & domi)
     double vbc;
     if (domi.Time < TAU) vbc = VMAX/TAU*domi.Time;
     else            vbc = VMAX;
-
+    
     domi.trimesh->SetVel(make_double3(0.,0.,-vbc));
     
 }

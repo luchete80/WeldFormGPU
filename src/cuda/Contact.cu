@@ -87,7 +87,7 @@ inline void __device__ Domain_d::UpdateContactParticles(){
         // printf("error \n");
     }
     
-    //printf(" particle %d , v %f %f %f \n", i, vv.x, vv.y, vv.z);
+    //printf(" particle %d , v %f %f %f \n", e, vv.x, vv.y, vv.z);
     v [first_fem_particle_idx + e] = vv/3.;
     a [first_fem_particle_idx + e] = make_double3(0.);
     normal[first_fem_particle_idx + e] = trimesh -> normal[e];

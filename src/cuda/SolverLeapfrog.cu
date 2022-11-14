@@ -277,11 +277,11 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
 		Time +=deltat;		
 	
 		if (Time >= t_out) {		
-			cudaMemcpy(ID_h, ID, sizeof(int) * pcount, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(x_h, x, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(u_h, u, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(v_h, v, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
-			cudaMemcpy(a_h, a, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(ID_h, ID, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(x_h, x, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(u_h, u, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(v_h, v, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
       cudaMemcpy(nb_h, CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts), 
                           sizeof(unsigned int) * particle_count, cudaMemcpyDeviceToHost);	
 			
