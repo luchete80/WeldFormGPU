@@ -123,7 +123,9 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
 	double min_contact_force = 1000.;
 	int inside_pairs = 0;
   //printf("test\n");
-  if (i < first_fem_particle_idx ) {  
+  if (i < first_fem_particle_idx ) {  //i particle is from SOLID domain, j are always rigid 
+
+    
     contforce[i] = make_double3(0.); //RESET
     // CONTACT OFFSET IS FIX BY NOW
     int neibcount = contneib_count[i];
@@ -135,6 +137,9 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       int j = contneib_part[i*MAX_NB_COUNT+k];
       //printf("j neib %d: \n",j);
       //int j = neighbors[writeOffset + k];
+      if (ID[j] != contact_surf_id)
+        printf("CONTACT, j particle, %d on CONTACT SURFACE\n", i);
+      
       double3 xij;
       double K;
       //int e = element[j]; //Index of mesh Element associated with node
@@ -213,23 +218,26 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             // // TODO - recalculate vr here too!
             // double3 tgvr = vr + delta_ * normal[j];  // -dot(vr,normal) * normal
             // double3 tgdir = tgvr / length(tgvr);
-
+            
+            //Normal Force
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
-            //cont_forces[i] = contforce[i];
-            
-            // double force2 = dot(contforce[i],contforce[i]);
-            
-            // // if (force2 > (1.e10))
-              // // contforce[i] = 1.e5;
-            // double dt_fext = contact_force_factor * (m[i] * 2. * length(v[i]) / length(contforce[i]));////Fraser 3-145
-
-            // if (dt_fext < min_force_ts_){
-              // min_force_ts_ = dt_fext;
-              // if (dt_fext > 0)
-                // this -> min_force_ts = min_force_ts_;
-            // }
-            //printf("contforce %f %f %f ", contforce[i].x,contforce[i].y,contforce[i].z);
-            a[i] += (contforce[i] / m[i]); 
+            a[i] += (contforce[i] / m[i]);     
+                
+            ////// TANGENTIAL FORCE //////    
+            if (friction_sta > 0.){
+              double3 du = x_pred - x[i] - v[j] * deltat ;            
+              double3 delta_tg = du - dot(du, normal[j])* normal[j];
+              double3 tg_force = kij * delta_tg;
+              
+              //double dS = pow(m[i]/rho[i],0.33333); //Fraser 3-119
+              if (length(tg_force) < friction_sta * length(contforce[i]) ){ //STATIC; NO SLIP
+                a[i] -= tg_force / m[i];   
+              } else {
+                double3 tgforce_dyn = friction_dyn * length(contforce[i]) * tg_force/length(tg_force);
+                contforce[i] -= tgforce_dyn;
+                a[i] -= tgforce_dyn / m[i];
+              }
+            }
             //printf("contforce %f\n",contforce[i].x);
             
             // if (friction_dyn > 0.) {

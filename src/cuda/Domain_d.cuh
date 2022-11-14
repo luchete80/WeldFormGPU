@@ -236,7 +236,7 @@ class Domain_d
 	double    fritcion_sta,fritcion_dyn;
   int       *contneib_count_h;
   double min_force_ts;
-  double friction_dyn;
+  double friction_sta, friction_dyn;
 
   
 
