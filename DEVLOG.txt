@@ -30,3 +30,5 @@
 20221114 - Error copying particle v, a, and x to host. BUT rarely, this change
            CONTACT STILL WITH ERROR, DISPLACEMENTS ARE WRONG(ASSYMETRIC TO THE SIDE)
            ADDING FRICTION
+20221115 - Fixed bug in fraser solver with user defined bc
+           Corrected BUG in Fraser Contact Solver. There was no updated rigid particles. 

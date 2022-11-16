@@ -22,12 +22,13 @@
 
 void UserAcc(SPH::Domain_d & domi)
 {
+   //cout << "Applying BC"<<endl;
 		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 2, make_double3(0.,0.,0.));
 		cudaDeviceSynchronize();
     double vbc;
     if (domi.Time < TAU) vbc = VMAX/TAU*domi.Time;
     else            vbc = VMAX;
-
+    //cout << "vbc "<<vbc<<endl;
 		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 3, make_double3(0.,0.,-vbc));
 		cudaDeviceSynchronize();
     
@@ -135,7 +136,7 @@ int main(int argc, char **argv) //try
 	dom.DomMin(0) = -L;
   dom_d->GeneralAfter = & UserAcc;
 	cout << "Creating Domain"<<endl;
-	dom.AddCylinderLength(1, Vector(0.,0.,-L/20.), R, L + 2.*L/20.,  dx/2., rho, h, false); 
+	dom.AddCylinderLength(1, Vector(0.,0.,-L/10.), R, L + 2.*L/10.,  dx/2., rho, h, false); 
 	cout << "Particle count:" <<dom.Particles.size()<<endl;
 	
 	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
@@ -251,7 +252,8 @@ int main(int argc, char **argv) //try
   //LEAPFROG IS WORKING WITH ALPHA = 1
   //KICKDRIFT IS NOT 
   //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
-  dom_d->MechFraserSolve(0.0101,1.0e-4);
+  dom_d->MechFraserSolve(5*timestep,timestep);
+  //dom_d->MechFraserSolve(0.0101,1.0e-4);
   
   //First example
   // dom_d->deltat = 1.0e-7;

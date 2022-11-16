@@ -12,7 +12,8 @@
 #include <iostream>
 
 //#include "cuda/KickDriftSolver.cu"
-#include "cuda/SolverLeapfrog.cu"
+//#include "cuda/SolverLeapfrog.cu"
+#include "cuda/SolverFraser.cu"
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
 
@@ -26,8 +27,12 @@ void UserAcc(SPH::Domain_d & domi)
     if (domi.Time < TAU) vbc = VMAX/TAU*domi.Time;
     else            vbc = VMAX;
     
+    if (domi.contact)
     domi.trimesh->SetVel(make_double3(0.,0.,-vbc));
-    
+    else {
+      ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 3, make_double3(0.,0.,-vbc));
+      cudaDeviceSynchronize();
+    }
 }
 
 
@@ -235,9 +240,10 @@ int main(int argc, char **argv) //try
 			dom.Particles[a]->ID=2;	
       not_write[a] = true;
 		}
-		// if ( z > L )
+		// if ( z > L ){
 			// dom.Particles[a]->ID=3;
       // not_write[a] = true;  
+    // }
 	}
   
   cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx * sizeof(bool), cudaMemcpyHostToDevice);
@@ -268,15 +274,12 @@ int main(int argc, char **argv) //try
 	
 	cout << "Time Step: "<<dom_d->deltat<<endl;
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
-	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
-	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
-  
-  dom_d->deltat = timestep;
+
 	dom_d->auto_ts = false;
   dom_d->contact = true;
   dom_d->Alpha = 0.7;
   
-  dom_d->friction_sta =   dom_d->friction_dyn = 0.2;
+  //dom_d->friction_sta =   dom_d->friction_dyn = 0.2;
 	//dom_d->MechSolve(0.0101,1.0e-4);
   
   //New solver
@@ -285,7 +288,9 @@ int main(int argc, char **argv) //try
   //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
   //LEAPFROG IS WORKING WITH ALPHA = 1
   //KICKDRIFT IS NOT 
-  dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
+  //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
+  dom_d->MechFraserSolve(0.0101,1.0e-4);
+  //dom_d->MechFraserSolve(5*timestep,timestep);
   
   //First example
   // dom_d->deltat = 1.0e-7;

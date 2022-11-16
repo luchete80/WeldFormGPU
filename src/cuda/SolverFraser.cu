@@ -28,8 +28,8 @@ namespace SPH{
 void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 
 	int N = particle_count;
-	int threadsPerBlock = 256; //Or BlockSize
-	int blocksPerGrid =				// Or gridsize
+	threadsPerBlock = 256; //Or BlockSize
+	blocksPerGrid =				// Or gridsize
 	(N + threadsPerBlock - 1) / threadsPerBlock;
   Time =0.;
 	
@@ -205,13 +205,6 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
       CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors) 
       );
       cudaDeviceSynchronize();
-
-      if (this->trimesh != NULL){
-      MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
-      cudaDeviceSynchronize();
-      } else {
-        cout << "No contact mesh defined."<<endl;
-      }
     }
     
 
@@ -229,15 +222,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 				cout << "Now is yielding"<<endl;
 			}
 		}
-
-		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
-		// cudaDeviceSynchronize();
-    // double vbc;
-    // if (Time < TAU) vbc = VMAX/TAU*Time;
-    // else            vbc = VMAX;
-
-		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
-		// cudaDeviceSynchronize();
+    
     GeneralAfter(*this); //SET BCS
     
 		UpdatePosFraserKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
@@ -246,20 +231,22 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     UpdateVelKernel<<<blocksPerGrid,threadsPerBlock >>>(this,deltat);
     cudaDeviceSynchronize();
     
-    GeneralAfter(*this); //REINFORCE AGAIN
-    
-		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 2, make_double3(0.,0.,0.));
-		// cudaDeviceSynchronize();
-    // //double vbc;
-    // if (Time < TAU) vbc = VMAX/TAU*Time;
-    // else            vbc = VMAX;
-
-		// ApplyBCVelKernel	<<<blocksPerGrid,threadsPerBlock >>>(this, 3, make_double3(0.,0.,-vbc));
-		// cudaDeviceSynchronize();
+    GeneralAfter(*this); //REINFORCE BCs AGAIN
     
     CalcIntEnergyKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
+
+    if (this->trimesh != NULL){
+    MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
+    cudaDeviceSynchronize();
+    } else {
+      cout << "No contact mesh defined."<<endl;
+    }
     
+    UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this);
+    cudaDeviceSynchronize();
+
+      
 		if (isfirst_step) isfirst_step = false;
 		Time +=deltat;		
 	
