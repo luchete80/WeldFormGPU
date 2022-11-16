@@ -482,13 +482,14 @@ int calcHalfPartCount(const double &r, const double &R, const int xinc){
 	return ypartcount;
 }
 
-void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
-									double r, double Density, double h, bool Fixed) {
+
+inline void Domain::AddCylinderLength(int tag, Vec3_t const & V, double Rxy, double Lz, 
+									double r, double Density, double h, bool Fixed, bool ghost) { //ghost refers to symmetry at bottom z coordinate
 
 //	Util::Stopwatch stopwatch;
-    //std::cout << "\n--------------Generating particles by CylinderBoxLength with defined length of particles-----------" << std::endl;
+    std::cout << "\n--------------Generating particles by CylinderBoxLength with defined length of particles-----------" << std::endl;
 
-    size_t PrePS = Particles.size();
+    size_t PrePS = Particles.Size();
 
     double xp,yp;
     size_t i,j;
@@ -504,18 +505,36 @@ void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz,
 	//MIN CONFIG IS 4 PARTICLES; ALWAYS NUM PARTICLES IS PAIR
 	numpartxy = calcHalfPartCount(r, Rxy, 1);
 	
+	//// GHOST THING
+
+	int ghost_rows = 3; 
+
+	int xy_ghost_part_count[ghost_rows];
 	//cout << "X/Y Particles: " << numpartxy<<endl;
 	//yp=pos;
 	int numypart,numxpart;
 	int xinc,yinc,yinc_sign;
 	
-    if (Dimension==3) {
+	int id_part=0;
+	
+  if (Dimension==3) {
+		int part_per_row = 0;
     	//Cubic packing
 		double zp;
 		size_t k=0;
-		zp = V(2);
+		zp = V(2)+r;
+		//Calculate row count for non ghost particles
+		while (zp <= (V(2)+Lz -r)){
+			k++; 
+      zp += 2.*r;      
+		}
+		cout << "Particle Row count: "<< k << endl;
+    cout << "Max z particle: "<<zp - 2.*r<<endl;
+		int last_nonghostrow = k;
+		
+		k = 0;zp = V(2) + r;
 
-		while (zp <= (V(2)+Lz-r)) {
+		while (zp <= (V(2)+Lz -r)) {
 			j = 0;
 			yp = V(1) - r - (2.*r*(numpartxy - 1) ); //First increment is radius, following ones are 2r
 			//cout << "y Extreme: "<<yp<<endl;
@@ -530,9 +549,12 @@ void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz,
 				//cout << "xpart: "<< numxpart<<endl;
 				xp = V(0) - r - (2.*r*(numxpart - 1) ); //First increment is radius, following ones are 2r
 				for (i=0; i<2*numxpart;i++) {
-					//if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
+					//if (random) Particles.Push(new Particle(tag,Vec3_t((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vec3_t(0,0,0),0.0,Density,h,Fixed));
 					//	else    
-					Particles.push_back(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));
+					Particles.Push(new Particle(tag,Vec3_t(xp,yp,zp),Vec3_t(0,0,0),0.0,Density,h,Fixed));
+					if (zp == V(2)+r)
+						part_per_row++;
+					id_part++;
 					xp += 2.*r;
 				}
 				yp += 2.*r;
@@ -543,30 +565,68 @@ void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz,
 				}
 			}
 			k++;
-			zp = V(2) + (2.0*k+1)*r;
+      zp += 2.*r;
+		}
+		cout << "Particles per row: "<<part_per_row<<endl;
+		
+    zp = V(2) - r;
+		//Insert ghost pairs relation
+		if (ghost){
+      //// Z PLANE, BOTTOM COORDINATE /////
+      cout << "inserting z ghost particles at z bottom..."<<endl;
+      //z Symm particles
+      int sym_part;
+      int part = 0;
+      id_part = Particles.Size(); //REDUNDANT
+
+      for (int zinc = 0; zinc < ghost_rows ;zinc++){
+        for (int xy = 0; xy < part_per_row;xy++){
+          xp = Particles[part]->x(0);
+          yp = Particles[part]->x(1);
+          //zp = Particles[part]->x(2);
+          Particles.Push(new Particle(tag,Vec3_t(xp,yp,zp),Vec3_t(0,0,0),0.0,Density,h,Fixed));				
+          Particles[id_part]->inner_mirr_part = part;
+          //Particles[id_part]->ID = -50;
+          //cout << "part , sym"<<part<<", "<<id_part<<endl;
+          Particles[id_part]->ghost_plane_axis = 2;
+          Particles[id_part]->not_write_surf_ID = true; //TO NOT BE WRITTEN BY OUTER SURFACE CALC
+          
+          //ONLY FOR TESTING SYMMETRY PLANES!
+          //Particles[id_part]->ID = Particles[id_part]->ghost_plane_axis; //ONLY FOR TESTING IN PARAVIEW!   
+          GhostPairs.Push(std::make_pair(part,id_part));
+          
+          id_part++;
+          part++;
+        }
+        zp -= 2.0*r;
+      }
+		////// PARALLELIZE!
 		}
 		///////Calculate particles' mass in 3D
-		// Vector temp, Max=V;
-		// for (size_t i=PrePS; i<Particles.size(); i++) {
+		// Vec3_t temp, Max=V;
+		// for (size_t i=PrePS; i<Particles.Size(); i++) {
 			// if (Particles[i]->x(0) > Max(0)) Max(0) = Particles[i]->x(0);
 			// if (Particles[i]->x(1) > Max(1)) Max(1) = Particles[i]->x(1);
 			// if (Particles[i]->x(2) > Max(2)) Max(2) = Particles[i]->x(2);
 		// }
 		// Max +=r;
 		// temp = Max-V;
-		// double Mass = temp(0)*temp(1)*temp(2)*Density/(Particles.size()-PrePS);
+		// double Mass = temp(0)*temp(1)*temp(2)*Density/(Particles.Size()-PrePS);
 		
+    solid_part_count = Particles.Size();
+    
 		double Vol = M_PI * Rxy * Rxy * Lz;		
-		//double Mass = Vol * Density / (Particles.size()-PrePS);
-		double Mass = Vol * Density /Particles.size();
+		//double Mass = Vol * Density / (Particles.Size()-PrePS);
+		double Mass = Vol * Density /Particles.Size();
 		
+		cout << "Total Particle count: " << Particles.Size() <<endl;
 		cout << "Particle mass: " << Mass <<endl;
 
 		#pragma omp parallel for num_threads(Nproc)
 		#ifdef __GNUC__
-		for (size_t i=0; i<Particles.size(); i++)	//Like in Domain::Move
+		for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
 		#else
-		for (int i=0; i<Particles.size(); i++)//Like in Domain::Move
+		for (int i=0; i<Particles.Size(); i++)//Like in Domain::Move
 		#endif
 		{
 			Particles[i]->Mass = Mass;
@@ -576,7 +636,6 @@ void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz,
 
 	R = r;
 }
-
 inline void Domain::AddTractionProbeLength(int tag, Vector const & V, double Rxy, double Lz_side,
 											double Lz_neckmin,double Lz_necktot,double Rxy_center,
 											double r, double Density, double h, bool Fixed) {
