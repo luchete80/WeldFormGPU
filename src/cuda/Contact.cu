@@ -212,6 +212,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             //printf("deltat, kij %f %f\n", deltat, kij); 
             //double omega = sqrt (kij/m[i]);
             double psi_cont = kij * delta; // Fraser Eqn 3-158
+            
+            //printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
                       
             // // TANGENTIAL COMPONENNT
             // // Fraser Eqn 3-167
@@ -222,7 +224,11 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             //Normal Force
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
             a[i] += (contforce[i] / m[i]);     
-                
+            if (abs(contforce[i].x)>1.0e-3 || abs(contforce[i].y)>1.0e-3 ){
+              printf("CONTACT FORCE x != 0!!!\n");
+              printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
+            }
+              
             ////// TANGENTIAL FORCE //////    
             // if (friction_sta > 0.){
               // double3 du = x_pred - x[i] - v[j] * deltat ;  
