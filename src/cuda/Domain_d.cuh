@@ -132,6 +132,7 @@ class Domain_d
 	double3* u;
 	
 	double3 *a_h, *x_h, *v_h, *u_h;
+  double3 *normal_h;
 	
   unsigned int *nb_h;
 	PartData_d *partdata;

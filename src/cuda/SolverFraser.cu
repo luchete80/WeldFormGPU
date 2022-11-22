@@ -120,6 +120,10 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
   cudaDeviceSynchronize(); 
   
   cout << "Main Loop "<<endl;
+
+  int pcount = particle_count;
+  if (contact)
+    pcount = solid_part_count;
   
   while (Time<tf) {
 	
@@ -266,6 +270,11 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
       
       cudaMemcpy(contneib_count_h,contneib_count, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);
+      if (contact)
+        cudaMemcpy(contforce_h, contforce, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
+			cudaMemcpy(normal_h, normal, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
+
+
 			
 			char str[10];
 			sprintf(str, "out_%d.csv", count);
