@@ -27,8 +27,10 @@ void UserAcc(SPH::Domain_d & domi)
     if (domi.Time < TAU) vbc = VMAX/TAU*domi.Time;
     else            vbc = VMAX;
     
-    if (domi.contact)
-    domi.trimesh->SetVel(make_double3(0.,0.,-vbc));
+    if (domi.contact){
+      domi.trimesh->SetVel(make_double3(0.,0.,-vbc));
+      cudaDeviceSynchronize();
+    }
     else {
       ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 3, make_double3(0.,0.,-vbc));
       cudaDeviceSynchronize();

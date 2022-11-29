@@ -34,3 +34,6 @@
            Corrected BUG in Fraser Contact Solver. There was no updated rigid particles. 
 20221122 - Write normals to output
            Added Normals to Solver Fraser
+20221129 - Working on contact. Problem is in contact forces, since with only displacements and same Nbs are ok.
+           New problem found on normals. 
+           Several  rigid body normals are zero.

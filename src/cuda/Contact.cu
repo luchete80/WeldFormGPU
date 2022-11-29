@@ -75,7 +75,7 @@ inline void __device__ Domain_d::UpdateContactParticles(){
 
   int e = threadIdx.x + blockDim.x*blockIdx.x;	
   if (e < trimesh->elemcount) {
-
+    //printf("UPDATING e %d\n",e);
     //int e = element[i];
     double3 vv = make_double3(0.);
     for (int en = 0; en<3; en++){
@@ -90,6 +90,8 @@ inline void __device__ Domain_d::UpdateContactParticles(){
     //printf(" particle %d , v %f %f %f \n", e, vv.x, vv.y, vv.z);
     v [first_fem_particle_idx + e] = vv/3.;
     a [first_fem_particle_idx + e] = make_double3(0.);
+    if (length(normal[e])<1.0e-3)
+      printf("UPDATING ERROR ZERO mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
     normal[first_fem_particle_idx + e] = trimesh -> normal[e];
     //printf("mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
   }
@@ -166,6 +168,16 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       double3 x_pred = x[i] + v[i] * deltat + a[i] * deltat * deltat/2.;
       //printf("xpred %f %f %f\n", x_pred.x, x_pred.y, x_pred.z);
       //printf ("pplane: %f", trimesh->pplane[e]);
+      
+      normal[j] = trimesh->normal[e];
+      
+      // printf("j %d Normal j %f %f %f \n", j, normal[j].x,normal[j].y,normal[j].z);
+      // if (length(normal[j])<1.0e-3)
+        // printf("NORMAL CALC ERROR in particle %d. ZERO, Normal j %.6e %.6e %.6e\nNormal e %.6e %.6e %.6e\n",j,
+      // normal[j].x,normal[j].y,normal[j].z,
+      // trimesh->normal[e].x,trimesh->normal[e].y,trimesh->normal[e].z);
+      //normal[j] = make_double3(0.,0.,-1.);
+      
       double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
       //printf("normal j %d %f %f %f\n", j, normal[j].x, normal[j].y, normal[j].z);
       //printf("dist %f\n", dist);
@@ -224,10 +236,10 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             //Normal Force
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
             a[i] += (contforce[i] / m[i]);     
-            if (abs(contforce[i].x)>1.0e-3 || abs(contforce[i].y)>1.0e-3 ){
-              printf("CONTACT FORCE x != 0!!!\n");
-              printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
-            }
+            // if (abs(contforce[i].x)>1.0e-3 || abs(contforce[i].y)>1.0e-3 ){
+              // printf("CONTACT FORCE x != 0!!!\n");
+              // printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
+            // }
               
             ////// TANGENTIAL FORCE //////    
             // if (friction_sta > 0.){
