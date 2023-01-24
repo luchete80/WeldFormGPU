@@ -281,7 +281,7 @@ int main(int argc, char **argv) //try
   dom_d->contact = true;
   dom_d->Alpha = 0.7;
   
-  //dom_d->friction_sta =   dom_d->friction_dyn = 0.2;
+  dom_d->friction_sta =   dom_d->friction_dyn = 0.2;
 	//dom_d->MechSolve(0.0101,1.0e-4);
   
   //New solver
