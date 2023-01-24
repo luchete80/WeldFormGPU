@@ -247,9 +247,10 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
       cout << "No contact mesh defined."<<endl;
     }
     
-    UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this);
-    cudaDeviceSynchronize();
-
+    if (contact) {
+      UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this);
+      cudaDeviceSynchronize();
+    }
       
 		if (isfirst_step) isfirst_step = false;
 		Time +=deltat;		
