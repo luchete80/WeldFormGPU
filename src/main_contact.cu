@@ -278,7 +278,7 @@ int main(int argc, char **argv) //try
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
 
 	dom_d->auto_ts = false;
-  dom_d->contact = false;
+  dom_d->contact = true;
   dom_d->Alpha = 0.7;
   
   dom_d->friction_sta =   dom_d->friction_dyn = 0.2;

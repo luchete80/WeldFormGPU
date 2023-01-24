@@ -50,8 +50,8 @@ __device__ inline void Domain_d::CalcAccel(
     }   
     
     if (pass){
-    if (ID[j] == contact_surf_id)
-      printf("CALC RATE TENSORS, j particle, %d on CONTACT SURFACE\n", i);
+    // if (ID[j] == contact_surf_id)
+      // printf("CALC RATE TENSORS, j particle, %d on CONTACT SURFACE\n", i);
 		//double h	= partdata->h[i]+P2->h)/2;
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
@@ -286,8 +286,8 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
     }    
     if (pass){
 
-    if (ID[j] == contact_surf_id)
-      printf("CALC RATE TENSORS, j particle, %d on CONTACT SURFACE\n", i);
+    // if (ID[j] == contact_surf_id)
+      // printf("CALC RATE TENSORS, j particle, %d on CONTACT SURFACE\n", i);
     
 		double3 xij = x[i] - x[j];
 		double rij = length(xij);
