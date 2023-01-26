@@ -122,9 +122,16 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
   cout << "Main Loop "<<endl;
 
   int pcount = particle_count;
-  if (contact)
+  if (contact){
     pcount = solid_part_count;
-  
+    //THIS IS DONE OUTSIDE MAIN LOOP IN WELDFORM CPU VERSION
+    if (this->trimesh != NULL){
+      printf("Calculating plane coefficients...\n");
+      CalcSpheresKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh);
+      cudaDeviceSynchronize();
+    }
+    else printf("MESH NOT DEFINED\n");
+  }
   while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){
@@ -202,6 +209,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
       CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)    
       );
       cudaDeviceSynchronize(); //REQUIRED!!!!    
+
       
       CalcContactForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),

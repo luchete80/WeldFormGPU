@@ -175,6 +175,7 @@ int main(int argc, char **argv) //try
   if (dom_d->trimesh ==NULL)
     cout << "ERROR. No mesh defined"<<endl;
   
+  
   /********************************** END NEW CONTACT THING */////////////////////////////////
 	
   //SPH::Domain	dom;
@@ -196,7 +197,7 @@ int main(int argc, char **argv) //try
 	cudaMemcpy(dom_d->v, x, size, cudaMemcpyHostToDevice);
   
 	cout << "copied"<<endl;
-
+  
 	
 	cout << "Setting values"<<endl;
 	dom_d->SetDensity(rho);

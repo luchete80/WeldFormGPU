@@ -40,6 +40,7 @@ class TriMesh_d{
 };
 
 __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt);
+__global__ inline void CalcSpheresKernel(TriMesh_d *mesh_d);
 
 __global__ inline void CheckNormalsKernel(TriMesh_d *mesh_d);
 };//SPH

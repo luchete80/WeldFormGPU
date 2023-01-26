@@ -97,7 +97,6 @@ inline void __device__ Domain_d::UpdateContactParticles(){
   }
 }
 
-
 void __global__ CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbcount,
 																	const uint *neighborWriteOffsets,
 																	const uint *neighbors
@@ -113,6 +112,11 @@ void __global__ CalcContactForcesKernel(Domain_d *dom_d,	const uint *particlenbc
 //max_contact_force
 //Neighbours
 //vectors v
+//////////////////////////////// 
+//// From Wang: Simulating frictional contact in smoothed particle hydrodynamics
+//// https://link.springer.com/article/10.1007/s11431-013-5262-x
+//// Wang, Wu, GU, HUA, Science China 2013
+////////////////////////////////
 void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcount,
                                                   const uint *neighborWriteOffsets,
                                                   const uint *neighbors){
@@ -171,7 +175,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       
       normal[j] = trimesh->normal[e];
       
-      // printf("j %d Normal j %f %f %f \n", j, normal[j].x,normal[j].y,normal[j].z);
+      
       // if (length(normal[j])<1.0e-3)
         // printf("NORMAL CALC ERROR in particle %d. ZERO, Normal j %.6e %.6e %.6e\nNormal e %.6e %.6e %.6e\n",j,
       // normal[j].x,normal[j].y,normal[j].z,
@@ -240,8 +244,13 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
               // printf("CONTACT FORCE x != 0!!!\n");
               // printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
             // }
-            printf("Particle %i, contforce %f %f %f \n", i, contforce[i].x, contforce[i].y, contforce[i].z);
-              
+            // if (i == 11062){
+            // printf("Particle %i, x_pred %f %f %f, contforce %f %f %f \n", i, x_pred.x, x_pred.y,x_pred.z,contforce[i].x, contforce[i].y, contforce[i].z);
+            // printf("x: %f %f %f \n", x[i].x,x[i].y,x[i].z);
+            // printf("dist: %f\n", dist);
+            // printf("pplane: %f\n", trimesh->pplane[e]);
+            // printf("j %d Normal j %f %f %f \n", j, normal[j].x,normal[j].y,normal[j].z);
+            // }
             ////// TANGENTIAL FORCE //////    
             if (friction_sta > 0.){
               double3 du = x_pred - x[i] - v[j] * deltat ;  

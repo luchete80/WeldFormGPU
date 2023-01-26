@@ -199,6 +199,11 @@ inline __device__ void TriMesh_d::CalcSpheres(){
 	}
 }
 
+__global__ inline void CalcSpheresKernel(TriMesh_d *mesh_d) {
+  mesh_d->CalcSpheres();
+  
+}
+
 inline __device__ void TriMesh_d::UpdatePlaneCoeff(){
 	//Update pplan
   int i = threadIdx.x + blockDim.x*blockIdx.x;
