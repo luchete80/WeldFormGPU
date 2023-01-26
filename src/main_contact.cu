@@ -286,7 +286,7 @@ int main(int argc, char **argv) //try
     dom_d->contact = true;
   dom_d->Alpha = 0.7;
   
-  dom_d->friction_sta =   dom_d->friction_dyn = 0.2;
+  dom_d->friction_sta =   dom_d->friction_dyn = 0.;
 	//dom_d->MechSolve(0.0101,1.0e-4);
   
   //New solver
@@ -295,9 +295,10 @@ int main(int argc, char **argv) //try
   //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
   //LEAPFROG IS WORKING WITH ALPHA = 1
   //KICKDRIFT IS NOT 
-  //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
-  dom_d->MechFraserSolve(0.0101,1.0e-4);
-  //dom_d->MechFraserSolve(5*timestep,timestep);
+
+  //dom_d->MechFraserSolve(0.0101,1.0e-4);
+  //FOR DEBUG PURPOSES
+  dom_d->MechFraserSolve(5*timestep,timestep);
   
   //First example
   // dom_d->deltat = 1.0e-7;

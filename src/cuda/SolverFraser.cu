@@ -283,7 +283,11 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
         cudaMemcpy(contforce_h, contforce, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(normal_h, normal, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
 
-
+      //TODO: MAKE A LIST WITH CONTACT PARTICLES
+      double cont_force_sum = 0.;
+      for (int i=0;i<particle_count;i++)
+        if (ID_h[i]==id_free_surf)
+          cont_force_sum+=length(contforce_h[i]);
 			
 			char str[10];
 			sprintf(str, "out_%d.csv", count);
@@ -309,6 +313,8 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 			}
 			cout << "Max disp: "<< max.x<<", "<<max.y<<", "<<max.z<<endl;
       cout << "Max pl_strain: "<<max_ps<<endl;
+      if (contact)
+        cout << "Contact Force Sum: "<< cont_force_sum << endl;
       //cout << "Int Energy "<< int_energy_sum<<endl;
 		}
 		time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;	
