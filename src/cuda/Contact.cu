@@ -240,6 +240,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
               // printf("CONTACT FORCE x != 0!!!\n");
               // printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
             // }
+            printf("Particle %i, contforce %f %f %f \n", i, contforce[i].x, contforce[i].y, contforce[i].z);
               
             ////// TANGENTIAL FORCE //////    
             if (friction_sta > 0.){

@@ -37,3 +37,6 @@
 20221129 - Working on contact. Problem is in contact forces, since with only displacements and same Nbs are ok.
            New problem found on normals. 
            Several  rigid body normals are zero.
+           
+--------------------------------------------------------------
+20220126 - Giving the option to change to contact or not in contact example.

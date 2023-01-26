@@ -17,6 +17,8 @@
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
 
+bool contact = true;
+
 //#include "Vector.h"
 
 void UserAcc(SPH::Domain_d & domi)
@@ -242,10 +244,11 @@ int main(int argc, char **argv) //try
 			dom.Particles[a]->ID=2;	
       not_write[a] = true;
 		}
-		// if ( z > L ){
-			// dom.Particles[a]->ID=3;
-      // not_write[a] = true;  
-    // }
+    if (!contact)
+      if ( z > L ){
+        dom.Particles[a]->ID=3;
+        not_write[a] = true;  
+      }
 	}
   
   cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx * sizeof(bool), cudaMemcpyHostToDevice);
@@ -278,7 +281,8 @@ int main(int argc, char **argv) //try
 	WriteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
 
 	dom_d->auto_ts = false;
-  dom_d->contact = true;
+  if (contact)
+    dom_d->contact = true;
   dom_d->Alpha = 0.7;
   
   dom_d->friction_sta =   dom_d->friction_dyn = 0.2;
