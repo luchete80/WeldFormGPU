@@ -14,7 +14,7 @@ class TriMesh_d{
 	//Element 						elem_data;
 	double3 						*node,*node_v; //Positions and veloc, 
 	int									*elnode;			//3 per element
-	double 							*pplane;
+	double 							*pplane; //Only for testing
   //Element data, TODO: PASS TO ELEMDATA
   double3             *centroid,*normal;
   int                 *nfar;
