@@ -239,7 +239,7 @@ class Domain_d
   double min_force_ts;
   double friction_sta, friction_dyn;
 
-  
+  double *test, *test_h; //FOR TESTING
 
 	// TODO, EACH RIGID PARTICLE SHOULD 
   int 		*element; //ELEMENT OF TRIMESH FROM "RIGID" PARTICLE, ALL FIRST PARTICLES ARE ZERO
@@ -296,12 +296,12 @@ class Domain_d
 	__device__ /*__forceinline__*/inline void CalcForce2233 (const uint *particlenbcount,
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
-																													int KernelType, float XSPH);
+																													int KernelType, double XSPH);
 
 	__device__ /*__forceinline__*/inline void CalcAccel (const uint *particlenbcount,
 																													const uint *neighborWriteOffsets,
 																													const uint *neighbors,
-																													int KernelType, float XSPH);
+																													int KernelType, double XSPH);
                                                           
 __host__  inline void CalcDensity(const double &dt, int blocksPerGrid,int threadsPerBlock); //calculate and update density: TODO: DO NOT UPDATE KERNEL
 
@@ -356,7 +356,7 @@ __device__ inline void UpdateDensity(double dt);
   
   //Contact things 
   void __device__ inline CalcContactForces(/* int i*/);
-  __host__ void AddTrimeshParticles(TriMesh_d &mesh, const float &hfac, const int &id);
+  __host__ void AddTrimeshParticles(TriMesh_d &mesh, const double &hfac, const int &id);
   
   inline void __device__ UpdateContactParticles();  
   

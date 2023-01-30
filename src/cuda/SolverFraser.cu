@@ -132,6 +132,9 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     }
     else printf("MESH NOT DEFINED\n");
   }
+  
+  //ONLY FOR TESTING 
+  test_h = new double [particle_count];
   while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){

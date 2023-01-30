@@ -139,12 +139,15 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
     //printf("i, first fem part, neibcount %d\n",neibcount);
     // printf("Nb indexed,i:%d\n",i);
     // In this Weldform GPU version, is clear than i is SPH particle and 2 is RIGID PARTICLE
+    //if (i==11301) {printf("Partcile 11301, nb count %d\n",neibcount);}
     for (int k=0;k < neibcount;k++) { //Or size
       int j = contneib_part[i*MAX_NB_COUNT+k];
       //printf("j neib %d: \n",j);
       //int j = neighbors[writeOffset + k];
       if (ID[j] != contact_surf_id)
         printf("CONTACT, j particle, %d on CONTACT SURFACE\n", i);
+      
+      
       
       double3 xij;
       double K;
@@ -244,12 +247,10 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
               // printf("CONTACT FORCE x != 0!!!\n");
               // printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
             // }
-            printf("dist %f, delta: %.4e, h %f kij %f abscf %.4e \n", dist,delta, h[i], kij, length(contforce[i]));
+            //printf("dist %f, delta: %.4e, h %f kij %f abscf %.4e \n", dist,delta, h[i], kij, length(contforce[i]));
             if (length(contforce[i])>0.0 && length(contforce[i]) < 30.){
-            printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
-
-            //printf("pplane: %f\n", trimesh->pplane[e]);
-            //printf("j %d Normal j %f %f %f \n", j, normal[j].x,normal[j].y,normal[j].z);
+            //if (i==11301) {
+              printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
             }
             ////// TANGENTIAL FORCE //////    
             if (friction_sta > 0.){

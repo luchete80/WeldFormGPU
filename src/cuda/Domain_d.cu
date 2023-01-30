@@ -61,6 +61,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&neib_part	, (particle_count * 100) * sizeof (int));
 	
 	cudaMalloc((void **)&partdata, sizeof(PartData_d));
+  
+  cudaMalloc((void **)&test, sizeof(particle_count)* sizeof (double));
 	
 	////////////////////////////
 	/////// SPH ////////////////
@@ -433,7 +435,7 @@ __device__ void Domain_d::CalcMinTimeStep(){
 		if (i<particle_count){
 			double test	= 0.0;
 			deltatmin	= deltatint;
-			float sqrt_h_a = 0.0025;
+			double sqrt_h_a = 0.0025;
 			//Appears to be safe
 			//https://stackoverflow.com/questions/8416374/several-threads-writing-the-same-value-in-the-same-global-memory-location
 	
@@ -473,7 +475,7 @@ __host__ void Domain_d::AdaptiveTimeStep(){
 }
 
 //If this is called, all particle has to be reallocated
-__host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const float &hfac, const int &id){
+__host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const double &hfac, const int &id){
 	
 	first_fem_particle_idx = particle_count;
 	double Density =0.;

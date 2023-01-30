@@ -20,7 +20,7 @@ __device__ inline void Domain_d::CalcAccel(
 	const uint *neighborWriteOffsets,
 	const uint *neighbors,
 	int KernelType,
-	float XSPH
+	double XSPH
 	)
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;

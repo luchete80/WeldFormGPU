@@ -42,3 +42,4 @@
 20220126 - Giving the option to change to contact or not in contact example.
            FIXED ERROR in contact with huge dorces found in pplane.
            ADDED Contact Force Sum at exit.
+20220130 - Removing float from calculations.

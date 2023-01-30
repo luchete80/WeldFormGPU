@@ -67,7 +67,7 @@ __device__ void CalcForcesExt(PartData_d *partdata){
 __device__ /*inline*/ void PartData_d::CalcForce2233(
 	/* const double &Dimension*/
 	int KernelType,
-	float XSPH)
+	double XSPH)
 {
 }
 
@@ -79,7 +79,7 @@ __device__ inline void Domain_d::CalcForce2233(
 	const uint *neighbors,
 	/* const double &Dimension*/
 	int KernelType,
-	float XSPH
+	double XSPH
 	)
 {
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
