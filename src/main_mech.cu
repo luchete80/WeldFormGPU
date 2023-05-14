@@ -252,8 +252,8 @@ int main(int argc, char **argv) //try
   //LEAPFROG IS WORKING WITH ALPHA = 1
   //KICKDRIFT IS NOT 
   //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
-  dom_d->MechFraserSolve(5*timestep,timestep);
-  //dom_d->MechFraserSolve(0.0101,1.0e-4);
+  //dom_d->MechFraserSolve(5*timestep,timestep);
+  dom_d->MechFraserSolve(0.0101,1.0e-3);
   
   //First example
   // dom_d->deltat = 1.0e-7;

@@ -250,12 +250,14 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     
     CalcIntEnergyKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
-
-    if (this->trimesh != NULL){
-    MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
-    cudaDeviceSynchronize();
-    } else {
-      cout << "No contact mesh defined."<<endl;
+    
+    if (contact){
+      if (this->trimesh != NULL){
+      MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
+      cudaDeviceSynchronize();
+      } else {
+        cout << "No contact mesh defined."<<endl;
+      }
     }
     
     if (contact) {
