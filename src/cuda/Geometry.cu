@@ -57,7 +57,7 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
       // if (i==0)
         // printf("particle %d normal : %f %f %f , nb %d totmass %f\n", i, normal[i].x, normal[i].y, normal[i].z, nbcount_corr, totmass);
       
-      normal[i]*= ((double)particle_count/(totmass *(double)neibcount)); //Attention parenthesis, if not it crashes
+      normal[i]*= ((double)particle_count/(totmass *(double)nbcount_corr)); //Attention parenthesis, if not it crashes
       //normal[i]*= 1./totmass;
       // if (i==0)
         // printf("particle %d normal : %f %f %f , nb %d length %f\n", i, normal[i].x, normal[i].y, normal[i].z, nbcount_corr, length (normal[i]));
