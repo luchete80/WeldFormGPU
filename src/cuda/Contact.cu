@@ -90,8 +90,8 @@ inline void __device__ Domain_d::UpdateContactParticles(){
     //printf(" particle %d , v %f %f %f \n", e, vv.x, vv.y, vv.z);
     v [first_fem_particle_idx + e] = vv/3.;
     a [first_fem_particle_idx + e] = make_double3(0.);
-    if (length(normal[e])<1.0e-3)
-      printf("UPDATING ERROR ZERO mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
+    // if (length(normal[e])<1.0e-3)
+      // printf("UPDATING ERROR ZERO mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
     normal[first_fem_particle_idx + e] = trimesh -> normal[e];
     //printf("mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
   }
@@ -248,10 +248,10 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
               // printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
             // }
             //printf("dist %f, delta: %.4e, h %f kij %f abscf %.4e \n", dist,delta, h[i], kij, length(contforce[i]));
-            if (length(contforce[i])>0.0 && length(contforce[i]) < 30.){
-            //if (i==11301) {
-              printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
-            }
+            // if (length(contforce[i])>0.0 && length(contforce[i]) < 30.){
+            // //if (i==11301) {
+              // printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
+            // }
             ////// TANGENTIAL FORCE //////    
             if (friction_sta > 0.){
               double3 du = x_pred - x[i] - v[j] * deltat ;  

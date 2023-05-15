@@ -39,7 +39,9 @@
            Several  rigid body normals are zero.
            
 --------------------------------------------------------------
-20220126 - Giving the option to change to contact or not in contact example.
+20230126 - Giving the option to change to contact or not in contact example.
            FIXED ERROR in contact with huge dorces found in pplane.
            ADDED Contact Force Sum at exit.
-20220130 - Removing float from calculations.
+20230130 - Removing float from calculations.
+--------------------------------------------------------------
+20230515 - Fixed totmass (zero normal value). Still with errors in normal length

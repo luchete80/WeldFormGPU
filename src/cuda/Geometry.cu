@@ -47,14 +47,20 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
         double3 xij = x[i] - x[j];
         if (ID[j]!=contact_surf_id){  //EXCLUDE RIGID PAIRS!
           normal[i] += m[j] * xij; 
-          //printf("particle %d Nb %d xij: %f %f %f \n", i, j, xij.x, xij.y, xij.z);
+          // if (i==0)
+          // printf("particle %d Nb %d xij: %f %f %f mj %f\n", i, j, xij.x, xij.y, xij.z, m[j]);
           nbcount_corr++;
         }
 
       }//
 
-      //normal[i]*= ((double)particle_count/(totmass *(double)neibcount)); //Attention parenthesis, if not it crashes
-      normal[i]*= ((double)particle_count/(totmass *(double)nbcount_corr)); //Attention parenthesis, if not it crashes
+      // if (i==0)
+        // printf("particle %d normal : %f %f %f , nb %d totmass %f\n", i, normal[i].x, normal[i].y, normal[i].z, nbcount_corr, totmass);
+      
+      normal[i]*= ((double)particle_count/(totmass *(double)neibcount)); //Attention parenthesis, if not it crashes
+      //normal[i]*= 1./totmass;
+      // if (i==0)
+        // printf("particle %d normal : %f %f %f , nb %d length %f\n", i, normal[i].x, normal[i].y, normal[i].z, nbcount_corr, length (normal[i]));
       if ( length(normal[i]) >= 0.25 * h[i] && nbcount_corr <= 46) {//3-114 Fraser {
         if (!not_write_surf_ID[i])
           ID[i] = id_free_surf; //THIS CRASH IS ASSIGNED BY PARAMETER

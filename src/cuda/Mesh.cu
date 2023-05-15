@@ -225,7 +225,7 @@ inline __device__ void TriMesh_d::CalcNormals(){
     if (length(normal[e])<1.0e-3)
       printf("ERROR: ZERO normal. Calc error in element %d\n",e);
     // if (normal[e].y !=0. ||normal[e].x != 0.){
-      // printf("CalcNormal %d %.6e %.6e %.6e\n u %.6e %.6e %.6e \n %.6e %.6e %.6e\n",e, normal[e].x,normal[e].y,normal[e].z,u.x,u.y,u.z,v.x,v.y,v.z);
+      //printf("CalcNormal %d %.6e %.6e %.6e\n u %.6e %.6e %.6e \n %.6e %.6e %.6e\n",e, normal[e].x,normal[e].y,normal[e].z,u.x,u.y,u.z,v.x,v.y,v.z);
 
       // //printf("elnodes z coord %.6e %.6e %.6e\n", node[elnode[3*e]].z,node[elnode[3*e+1]].z,node[elnode[3*e+2]].z);
     // }

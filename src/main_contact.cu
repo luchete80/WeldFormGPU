@@ -205,9 +205,13 @@ int main(int argc, char **argv) //try
 	cout << "done."<<endl;
 
 	double *m =  new double [dom.Particles.size()];
-	for (size_t a=0; a<dom.Particles.size(); a++)
+  double totmass = 0.;
+	for (size_t a=0; a<dom.Particles.size(); a++){
 		m[a] = dom.Particles[a]->Mass;
+    totmass +=m[a];
+  }
 	cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
+  cudaMemcpy(&dom_d->totmass, &totmass, sizeof(double),cudaMemcpyHostToDevice);
 		
 		// // std::cout << "Particle Number: "<< dom.Particles.size() << endl;
      	// // double x;
@@ -296,9 +300,9 @@ int main(int argc, char **argv) //try
   //LEAPFROG IS WORKING WITH ALPHA = 1
   //KICKDRIFT IS NOT 
 
-  //dom_d->MechFraserSolve(0.0101,1.0e-4);
+  dom_d->MechFraserSolve(0.0101,1.0e-4);
   //FOR DEBUG PURPOSES
-  dom_d->MechFraserSolve(5*timestep,timestep);
+  //dom_d->MechFraserSolve(5*timestep,timestep);
   
   //First example
   // dom_d->deltat = 1.0e-7;
