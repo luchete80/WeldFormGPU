@@ -187,8 +187,10 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       
       double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
       //printf("normal j %d %f %f %f\n", j, normal[j].x, normal[j].y, normal[j].z);
-      //printf("dist %f\n", dist);
+      //printf("OUTSIDE part %d pplane %f,dist %.5e, h %f\n", i, trimesh->pplane[e], dist, h[i]);
       if (dist < h[i]) {
+        //printf ("INSIDE part %d pplane %f, dist: %f, h %f \n", i,trimesh->pplane[e],dist, h[i]);
+        //printf("INSIDE part %d dist %\n", i,dist);
 
         // double deltat_cont = ( h[i] + pplane - dot (normal[j],	x[i]) ) / (-delta_);								//Eq 3-142 
         // double3 Ri = x[i] + deltat_cont * vr;	//Eq 3-139 Ray from SPH particle in the rel velocity direction
@@ -243,6 +245,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             //Normal Force
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
             a[i] += (contforce[i] / m[i]);     
+            //printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
             // if (abs(contforce[i].x)>1.0e-3 || abs(contforce[i].y)>1.0e-3 ){
               // printf("CONTACT FORCE x != 0!!!\n");
               // printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
@@ -253,21 +256,21 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
               // printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
             // }
             ////// TANGENTIAL FORCE //////    
-            if (friction_sta > 0.){
-              double3 du = x_pred - x[i] - v[j] * deltat ;  
-              //printf ("vj %f %f %f\n",v[j].x,v[j].y,v[j].z);
-              double3 delta_tg = du - dot(du, normal[j])* normal[j];
-              double3 tg_force = kij * delta_tg;
+            // if (friction_sta > 0.){
+              // double3 du = x_pred - x[i] - v[j] * deltat ;  
+              // //printf ("vj %f %f %f\n",v[j].x,v[j].y,v[j].z);
+              // double3 delta_tg = du - dot(du, normal[j])* normal[j];
+              // double3 tg_force = kij * delta_tg;
               
-              //double dS = pow(m[i]/rho[i],0.33333); //Fraser 3-119
-              if (length(tg_force) < friction_sta * length(contforce[i]) ){ //STATIC; NO SLIP
-                a[i] -= tg_force / m[i];   
-              } else {
-                double3 tgforce_dyn = friction_dyn * length(contforce[i]) * tg_force/length(tg_force);
-                contforce[i] -= tgforce_dyn;
-                a[i] -= tgforce_dyn / m[i];
-              }
-            }
+              // //double dS = pow(m[i]/rho[i],0.33333); //Fraser 3-119
+              // if (length(tg_force) < friction_sta * length(contforce[i]) ){ //STATIC; NO SLIP
+                // a[i] -= tg_force / m[i];   
+              // } else {
+                // double3 tgforce_dyn = friction_dyn * length(contforce[i]) * tg_force/length(tg_force);
+                // contforce[i] -= tgforce_dyn;
+                // a[i] -= tgforce_dyn / m[i];
+              // }
+            // }
 
         }// if inside
 

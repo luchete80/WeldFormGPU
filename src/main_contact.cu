@@ -302,7 +302,7 @@ int main(int argc, char **argv) //try
 
   //dom_d->MechFraserSolve(0.0101,1.0e-4);
   //FOR DEBUG PURPOSES
-  dom_d->MechFraserSolve(5*timestep,timestep);
+  dom_d->MechFraserSolve(4*timestep,timestep);
   
   //First example
   // dom_d->deltat = 1.0e-7;
