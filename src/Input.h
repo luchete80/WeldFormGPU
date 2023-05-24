@@ -3,9 +3,10 @@
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-#include <matvec.h>
+//#include <matvec.h>
 
 #include <iomanip>	//ONY FOR GCC!!
+#include "cuda_runtime.h"
 
 
 template <typename T>
@@ -31,14 +32,14 @@ bool readValue(const nlohmann::json &j, T &v)
 // }
 
 //template <typename T>
-bool readVector(const nlohmann::json &j, Vec3_t &vec)
+bool readVector(const nlohmann::json &j, double3 &vec)
 {
 	if (j.is_null())
 		return false;
 
 	std::vector<double> values = j.get< std::vector<double> >();
-	for (unsigned int i = 0; i < values.size(); i++)
-		vec[i] = values[i];
+	//for (unsigned int i = 0; i < values.size(); i++)
+		vec = make_double3(values[0],values[1],values[2]);
 	return true;
 }
 
@@ -79,8 +80,8 @@ protected:
 		/** \brief Struct for an AABB */
 		struct Box
 		{
-			Vec3_t m_minX;
-			Vec3_t m_maxX;
+			double3 m_minX;
+			double3 m_maxX;
 		};
 
 		/** \brief Struct to store a fluid object */
@@ -88,10 +89,10 @@ protected:
 		{
 			std::string id;
 			std::string samplesFile;
-			Vec3_t translation;
-			Vec3_t rotation;
-			Vec3_t scale;
-			Vec3_t initialVelocity;
+			double3 translation;
+			double3 rotation;
+			double3 scale;
+			double3 initialVelocity;
 			//unsigned char mode;
 			//bool invert;
 			//std::array<unsigned int, 3> resolutionSDF;
