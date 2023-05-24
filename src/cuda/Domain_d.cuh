@@ -179,6 +179,8 @@ class Domain_d
 	double *rhoa,*rhob,*drho;
 	double3 *va,*vb;
 	//
+  
+  double *eff_strain_rate;
 	
 	//STRESS AND STRAIN TENSORS
 	double *sigma; //To convert after to tensor;

@@ -488,7 +488,12 @@ __device__ void Domain_d::StressStrainOne(int i) {
 
 		ShearStress	= deltat*(2.0*G[i]*(StrainRate-1.0/3.0*(StrainRate.xx+StrainRate.yy+StrainRate.zz)*Identity())+SRT+RS) + ShearStress;	
 
-				
+    eff_strain_rate[i] = sqrt ( 	0.5*( (StrainRate.xx-StrainRate.yy)*(StrainRate.xx-StrainRate.yy) +
+                                (StrainRate.yy-StrainRate.zz)*(StrainRate.yy-StrainRate.zz) +
+                                (StrainRate.zz-StrainRate.xx)*(StrainRate.zz-StrainRate.xx)) + 
+                          3.0 * (StrainRate.xy*StrainRate.xy + StrainRate.yz*StrainRate.yz + StrainRate.zx*StrainRate.zx)
+                        );
+                        
 		double J2	= 0.5*(ShearStress.xx*ShearStress.xx + 2.0*ShearStress.xy*ShearStress.yx +
 					2.0*ShearStress.xz*ShearStress.zx + ShearStress.yy*ShearStress.yy +
 					2.0*ShearStress.yz*ShearStress.zy + ShearStress.zz*ShearStress.zz);
