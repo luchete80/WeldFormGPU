@@ -46,6 +46,7 @@
 #include "cuNSearch.h"
 #include "cuNSearchDeviceData.h"
 
+//#include "Material.cuh"
 
 //C++ Enum used for easiness of coding in the input files
 

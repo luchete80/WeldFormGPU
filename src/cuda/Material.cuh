@@ -1,5 +1,5 @@
-#ifndef _MATERIAL_H_
-#define _MATERIAL_H_
+#ifndef _MATERIAL_CUH_
+#define _MATERIAL_CUH_
 
 class Particle;
 
@@ -53,9 +53,9 @@ public Material_{
 	//as part of the metal plasticity material definition.
 	JohnsonCook(const double &a, const double &b, const double &c, const double &eps_0):
 	A(a),B(b),C(c){}
-	inline double CalcYieldStress(){}	
-	inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp);	
-	inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp);
+	inline double __device__ CalcYieldStress(){}	
+	inline double __device__ CalcYieldStress(const double &strain, const double &strain_rate, const double &temp);	
+	inline double __device__ CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp);
 };
 
 class Hollomon:
@@ -73,11 +73,11 @@ public Material_{
 	K(k_), m(m_){ eps0 = eps0_;}
 	Hollomon(const Elastic_ &el, const double eps0_, const double &k_, const double &m_):
 	Material_(el),K(k_), m(m_){ eps0 = eps0_;}
-	inline double CalcTangentModulus(const double &strain);
-	inline double CalcYieldStress(){}	
-	inline double CalcYieldStress(const double &strain);	
+	inline double __device__ CalcTangentModulus(const double &strain);
+	inline double __device__ CalcYieldStress(){}	
+	inline double __device__ CalcYieldStress(const double &strain);	
 };
 
-#include "Material.cpp"
+#include "Material.cu"
 
 #endif

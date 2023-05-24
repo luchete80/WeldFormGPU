@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////
 //sy = [A + B(epl^n)] [1 + C ln(e_dot pl/e_dot 0) (1 - pow)]
 
-inline double JohnsonCook::CalcYieldStress(const double &strain, const double &strain_rate, const double &temp)	{
+inline double __device__ JohnsonCook::CalcYieldStress(const double &strain, const double &strain_rate, const double &temp)	{
 	double T_h = (temp - T_t) / (T_m - T_t);
 	double sr = strain_rate;
 	if (strain_rate == 0.0)
@@ -16,7 +16,7 @@ inline double JohnsonCook::CalcYieldStress(const double &strain, const double &s
 
 #include<iostream>
 using namespace std;
-inline double JohnsonCook::CalcTangentModulus(const double &plstrain, const double &strain_rate, const double &temp)	{
+inline double __device__ JohnsonCook::CalcTangentModulus(const double &plstrain, const double &strain_rate, const double &temp)	{
 	double sy, T_h;
   //cout << "n, B, C, eps_0, T_t, m"<<n<<", "<<B<<", "<<C<<"eps0, "<<eps_0<<", "<<", "<<T_t<<", "<<m<<endl;
 	T_h = (temp - T_t) / (T_m - T_t);
@@ -42,14 +42,14 @@ Material_(el),K(k_), m(m_) {
   }
 }  
   
-inline double Hollomon::CalcYieldStress(const double &strain)	{
+inline double __device__ Hollomon::CalcYieldStress(const double &strain)	{
   double sy;
   if (strain + eps0 > eps1) sy = K*pow(strain + eps0, m); //plateau surpassed. If no plateau, eps1=eps0 so 
   else                      sy = sy0; 
 	return sy;
 }	
 
-inline double Hollomon::CalcTangentModulus(const double &strain) {
+inline double __device__ Hollomon::CalcTangentModulus(const double &strain) {
 	double Et;
   if (strain + eps0 > eps1) Et = K*m*pow(strain + eps0, (m-1.0));
   else                      Et = 0.;
