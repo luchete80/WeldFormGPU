@@ -30,7 +30,12 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&Tb		, particle_count * sizeof (double));
 	
 	cudaMalloc((void **)&BC_T, particle_count * sizeof (int));
-	
+
+
+	// cudaMalloc((void **)&T_inf , particle_count * sizeof (double));
+	// cudaMalloc((void **)&q_conv, particle_count * sizeof (double));
+	// cudaMalloc((void **)&h_conv, particle_count * sizeof (double));	
+  
 	//Host things
 	T_h =  new double  [particle_count];
 	x_h =  new double3 [particle_count];

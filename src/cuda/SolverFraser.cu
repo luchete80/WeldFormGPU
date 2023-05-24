@@ -248,6 +248,10 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     
     GeneralAfter(*this); //REINFORCE BCs AGAIN
     
+    //TODO: Remaining plastic work heat here
+    
+    ThermalCalcs(deltat);
+    
     CalcIntEnergyKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
     

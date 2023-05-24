@@ -158,6 +158,9 @@ class Domain_d
 	//THERMAL
 	double *T, *Ta, *Tb, *dTdt;
 	double *T_h;	//host (for finding max, writing)
+  
+  double T_inf,h_conv_double; //TODO:DELETE THIS AND CHANGE BY PARTICLE
+  //double *q_conv,*T_inf,*h_conv;				//Different heat source terms
 	
 	double *k_T, *cp_T,*h_conv;
 	
@@ -240,6 +243,9 @@ class Domain_d
   double friction_sta, friction_dyn;
 
   double *test, *test_h; //FOR TESTING
+  
+  
+  bool thermal_solver;
 
 	// TODO, EACH RIGID PARTICLE SHOULD 
   int 		*element; //ELEMENT OF TRIMESH FROM "RIGID" PARTICLE, ALL FIRST PARTICLES ARE ZERO
@@ -250,10 +256,9 @@ class Domain_d
   double    *int_energy, *kin_energy;
   double    int_energy_sum, kin_energy_sum;
   
-  
 	/////////////////////////////////////////
 	///////// MEMBER FUNCTIONS /////////////
-	Domain_d(){isfirst_step=true;};
+	Domain_d(){isfirst_step=true;thermal_solver=false;};
 	Domain_d(const int &particle_count);
   
 	void __host__ /*__device__*/ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
@@ -289,6 +294,7 @@ class Domain_d
 	__host__ void Domain_d::CopyData(const Domain &dom);
 	__device__ void CheckData();
 	__device__ void CalcThermalTimeStep();
+  __host__ void ThermalCalcs(const double &dt);
 
 	//MAIN MECHANICAL FUNCTIONS ARE THESE THREE (Start Acc & Whole Velocity are not)
 	__device__ __forceinline__ void PrimaryComputeAcceleration ();	

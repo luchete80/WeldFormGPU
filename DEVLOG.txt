@@ -45,3 +45,4 @@
 20230130 - Removing float from calculations.
 --------------------------------------------------------------
 20230515 - Fixed totmass (zero normal value). Still with errors in normal length
+20230524 - Working with thermal coupling adding thermalcalcs step function

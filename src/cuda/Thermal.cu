@@ -62,6 +62,41 @@ void __global__ CalcConvHeatKernel (double *dTdt,
 		}
 	}
 }
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// THIS IS EXTRACTED FROM THERMAL SOLVE ////////////
+//////////////////////////////// TODO: REDUCE THERMAL SOLVE AND CALL THIS ////////
+__host__ void Domain_d::ThermalCalcs(const double &dt){
+  if (thermal_solver){
+		ThermalSolveKernel<<<blocksPerGrid,threadsPerBlock>>>(dTdt,	
+																		x, h, //Vector has some problems
+																		m, rho, 
+																		T, k_T, cp_T,
+																		neib_part, neib_offs,
+																		particle_count);
+		cudaDeviceSynchronize(); //REQUIRED!!!!
+	
+		CalcConvHeatKernel <<< blocksPerGrid,threadsPerBlock >>> (dTdt,
+												m, rho, cp_T,
+												T, T_inf,
+												BC_T,
+												h_conv_double,
+												particle_count);
+		cudaDeviceSynchronize();
+												
+		//cout << "Kernel called"<<endl;
+		 if (isfirst_step) {
+			TempCalcLeapfrogFirst<<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
+																			 dTdt, deltat, particle_count);	
+			cudaDeviceSynchronize(); //After ANY COMMAND!!!!
+			isfirst_step = false;
+		} else {
+			TempCalcLeapfrog <<< blocksPerGrid,threadsPerBlock >>>(T, Ta, Tb,
+																			 dTdt, deltat, particle_count);		
+			cudaDeviceSynchronize();
+		}
+		  
+  }//if thermal_solver
+}
 
 void __global__ ThermalSolveKernel (double *dTdt,
 																		double3 *x, double *h,
@@ -185,7 +220,7 @@ __host__ void Domain_d::ThermalSolve(const double &tf){
 	
 		CalcConvHeatKernel <<< blocksPerGrid,threadsPerBlock >>> (dTdt,
 												m, rho, cp_T,
-												T, t_inf,
+												T, T_inf,
 												BC_T,
 												h_conv,
 												particle_count);
