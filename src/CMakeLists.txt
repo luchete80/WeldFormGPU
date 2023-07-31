@@ -85,13 +85,31 @@ add_executable(main_mech
 													# cuNSearch/Utils/IDFactory.cpp													
 													# )                          
 
-# add_executable(main_contact 
-													# main_contact.cu
+add_executable(main_contact 
+													main_contact.cu
+													Domain.cpp 
+													#NbSearch.cpp 
+													Output.cpp
+													Vector.cpp
+                          Mesh.cpp
+													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
+													cuda/Domain_d.cu
+													cuda/Thermal.cu
+													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
+													cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
+													cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu
+													cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
+													cuNSearch/Utils/IDFactory.cpp													
+													)   
+
+
+# add_executable(main_thermal 
+													# main_thermal.cu
 													# Domain.cpp 
 													# #NbSearch.cpp 
 													# Output.cpp
 													# Vector.cpp
-                          # Mesh.cpp
+                          # cuda/thermal.cu
 													# #TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
 													# cuda/Domain_d.cu
 													# #cuda/Thermal.cu
@@ -100,25 +118,7 @@ add_executable(main_mech
 													# cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu
 													# cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
 													# cuNSearch/Utils/IDFactory.cpp													
-													# )   
-
-
-add_executable(main_thermal 
-													main_thermal.cu
-													Domain.cpp 
-													#NbSearch.cpp 
-													Output.cpp
-													Vector.cpp
-                          cuda/thermal.cu
-													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
-													cuda/Domain_d.cu
-													#cuda/Thermal.cu
-													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
-													cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
-													cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu
-													cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
-													cuNSearch/Utils/IDFactory.cpp													
-													)
+													# )
                           
 
 # add_executable(main_pairs 

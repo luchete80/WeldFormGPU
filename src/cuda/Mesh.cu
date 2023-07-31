@@ -152,13 +152,15 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   cout << "elem count "<<elemcount<<endl;
 	for (int e = 0; e < elemcount; e++){ 
 		double f=-1.;
+    normal_h[e].x = normal_h[e].y = normal_h[e].z = 0.0;
 		if (positaxisorent) f= 1.;
 		//element[e] -> normal (axis) = f;
 		if (axis == 0)			normal_h[e].x = f;
 		else if (axis == 1)	normal_h[e].y = f;
 		else 								normal_h[e].z = f;
     
-    if (length(normal_h[e])<1.0e-3) cout << "ERROR. ZERO NORMAL"<<endl;
+    // if (length(normal_h[e])<1.0e-3) cout << "ERROR. ZERO NORMAL"<<endl;
+    // if (normal_h[e].y > 1.0e-10) cout << "ERROR. NORMAL Y NOT ZERO"<<endl;    
     
     //cout << "normal_h[e] "<<normal_h[e].x << ", " << normal_h[e].y << ", " <<normal_h[e].z<<endl;
 	}
@@ -222,10 +224,10 @@ inline __device__ void TriMesh_d::CalcNormals(){
     v = node [elnode[3*e+2]] - node [elnode[3*e]];
     w = cross(u,v);
     normal[e] = w/length(w);
-    if (length(normal[e])<1.0e-3)
-      printf("ERROR: ZERO normal. Calc error in element %d\n",e);
-    // if (normal[e].y !=0. ||normal[e].x != 0.){
-      //printf("CalcNormal %d %.6e %.6e %.6e\n u %.6e %.6e %.6e \n %.6e %.6e %.6e\n",e, normal[e].x,normal[e].y,normal[e].z,u.x,u.y,u.z,v.x,v.y,v.z);
+    // if (length(normal[e])<1.0e-3)
+      // printf("ERROR: ZERO normal. Calc error in element %d\n",e);
+    // if (abs(normal[e].y) >1.0e-10 || abs(normal[e].x) > 1.0e-10)
+      // printf("CalcNormal %d %.6e %.6e %.6e\n u %.6e %.6e %.6e \n %.6e %.6e %.6e\n",e, normal[e].x,normal[e].y,normal[e].z,u.x,u.y,u.z,v.x,v.y,v.z);
 
       // //printf("elnodes z coord %.6e %.6e %.6e\n", node[elnode[3*e]].z,node[elnode[3*e+1]].z,node[elnode[3*e+2]].z);
     // }
