@@ -245,7 +245,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             
             //Normal Force
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
-            contforce[i].x = contforce[i].y = 0.0; ///// TO TEST BAD CONTACT
+            //contforce[i].x = contforce[i].y = 0.0; ///// TO TEST BAD CONTACT
             a[i] += (contforce[i] / m[i]);     
 
           // if (abs(contforce[i].x) > 1.0e-10 || abs(contforce[i].y) > 1.0e-10)

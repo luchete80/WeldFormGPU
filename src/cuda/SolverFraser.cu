@@ -280,6 +280,14 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
       cudaMemcpy(nb_h, CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts), 
                           sizeof(unsigned int) * particle_count, cudaMemcpyDeviceToHost);	
+                          
+      cout << "TEST "<<endl;
+      int max_nb, max_id;
+      max_nb = max_id = 0;
+      for (int i=0;i<particle_count;i++){
+        if (nb_h[i]>max_nb){max_nb=nb_h[i];max_id = i;}
+      }
+      cout << "MAX TOTAL NB COUNT: "<<max_nb<<"IN PARTICLE "<<max_id<<endl; 
 			
 			cudaMemcpy(p_h, p, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	
 			
@@ -288,8 +296,10 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(pl_strain_h, pl_strain, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);
       
       cudaMemcpy(contneib_count_h,contneib_count, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);
-      if (contact)
+      if (contact){
         cudaMemcpy(contforce_h, contforce, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
+        cout << "cont nb at max nb particle "<<contneib_count_h[max_id]<<endl;
+      }
 			cudaMemcpy(normal_h, normal, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
       
       if (thermal_solver)
