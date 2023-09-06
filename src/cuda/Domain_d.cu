@@ -260,7 +260,18 @@ __host__ void Domain_d::SetDouble(double *arr, double val){
 	delete k_;	
 }
 
+// template <typename T>
+// __host__ void Domain_d::SetType(T* arr, double val){
+	// T *k_ =  new T[particle_count];
+	// for (int i=0;i<particle_count;i++){
+		// k_[i] = val;
+	// }
+	// int size = particle_count * sizeof(T);
+	// cudaMemcpy(arr, k_, size, cudaMemcpyHostToDevice);
+	// delete k_;	
+// }
 
+// template __host__ void Domain_d::SetType<double>(double *arr, double val);
 
 void Domain_d::CheckData(){
 	printf("dTdt partdta: %d",sizeof(this->dTdt)/sizeof(double));
