@@ -36,9 +36,23 @@ void UserAcc(SPH::Domain_d & domi)
 
 void report_gpu_mem()
 {
-    size_t free, total;
-    cudaMemGetInfo(&free, &total);
-    std::cout << "Free = " << free << " Total = " << total <<std::endl;
+  size_t free, total;
+  cudaMemGetInfo(&free, &total);
+  std::cout << "Free = " << free << " Total = " << total <<std::endl;
+  
+  float free_m,total_m,used_m;
+  
+
+  free_m =(uint)free/1048576.0 ;
+
+  total_m=(uint)total/1048576.0;
+
+  used_m=total_m-free_m;
+
+  //printf ( "  mem free %d .... %f MB mem total %d....%f MB mem used %f MB\n",free_t,free_m,total_t,total_m,used_m);
+  
+  std::cout << "  mem free "<< free_m <<" MB mem total" << total_m <<" MB mem used "<< used_m<<"MB"<<endl;
+    
 }
 
 
@@ -118,7 +132,7 @@ int main(int argc, char **argv) //try
 	G	= 2.5902e10;
 	
 	//dx = 0.030; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
-  dx = 0.015; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
+  dx = 0.008; //THIS IS FOR TESTING Original 6,5mm, 8mm 10mm, 12,5 and 15mm
 	h	= dx*1.2; //Very important
 
 	double Cs	= sqrt(K/rho);

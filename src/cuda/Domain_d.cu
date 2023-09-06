@@ -7,6 +7,7 @@
 #include <ctime> //Clock
 
 #include "Mesh.h"
+#include "cudautils.cuh"
 //Else (offset)
 //Allocating from host
 namespace SPH {
@@ -22,20 +23,21 @@ void Domain_d::SetDimension(const int &particle_count){
 	
 	///////////
 	//THERMAL //
-	cudaMalloc((void **)&k_T, 	particle_count * sizeof (double));
-	cudaMalloc((void **)&cp_T, 	particle_count * sizeof (double));
-		
-	cudaMalloc((void **)&T		, particle_count * sizeof (double));
-	cudaMalloc((void **)&Ta		, particle_count * sizeof (double));
-	cudaMalloc((void **)&Tb		, particle_count * sizeof (double));
-	
-	cudaMalloc((void **)&BC_T, particle_count * sizeof (int));
+  if (thermal_solver){
+    cudaMalloc((void **)&k_T, 	particle_count * sizeof (double));
+    cudaMalloc((void **)&cp_T, 	particle_count * sizeof (double));
+      
+    cudaMalloc((void **)&T		, particle_count * sizeof (double));
+    cudaMalloc((void **)&Ta		, particle_count * sizeof (double));
+    cudaMalloc((void **)&Tb		, particle_count * sizeof (double));
+    
+    cudaMalloc((void **)&BC_T, particle_count * sizeof (int));
 
 
-	// cudaMalloc((void **)&T_inf , particle_count * sizeof (double));
-	// cudaMalloc((void **)&q_conv, particle_count * sizeof (double));
-	// cudaMalloc((void **)&h_conv, particle_count * sizeof (double));	
-  
+    // cudaMalloc((void **)&T_inf , particle_count * sizeof (double));
+    // cudaMalloc((void **)&q_conv, particle_count * sizeof (double));
+    // cudaMalloc((void **)&h_conv, particle_count * sizeof (double));	
+  }  
 	//Host things
 	T_h =  new double  [particle_count];
 	x_h =  new double3 [particle_count];
@@ -84,8 +86,12 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&vb, particle_count * sizeof (double3));
 	
 	cudaMalloc((void **)&p, 			particle_count * sizeof (double));	
+  
+  report_gpu_mem_();
+  
 	/// DensitySolid ///
 	//DensitySolid (PresEq[i], Cs[i], P0[i],p[j], rho_0[i]);
+  cout << "Allocating  state vars "<<endl;
 	cudaMalloc((void **)&PresEq, 	particle_count  * sizeof (double));	
 	cudaMalloc((void **)&Cs, 			particle_count  * sizeof (double));		
 	cudaMalloc((void **)&P0, 			particle_count  * sizeof (double));		
