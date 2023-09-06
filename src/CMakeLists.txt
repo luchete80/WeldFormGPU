@@ -79,6 +79,7 @@ add_executable(main_contact
                           Mesh.cpp
 													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
 													cuda/Domain_d.cu
+                          cuda/cudautils.cu
 													cuda/Thermal.cu
 													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
 													cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu

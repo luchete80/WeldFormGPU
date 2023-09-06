@@ -44,6 +44,7 @@ const uint *neighbors){
         if ( length(xij) < 2.*h[i] ){
           contneib_part[MAX_NB_COUNT*i + contneib_count[i]] = j;
           contneib_count[i]++;
+          if (contneib_count[i]>MAX_NB_COUNT) printf("ERROR, MAX CONTACT NB COUNT REACHED. \n");
         }
       } //IDs OK
     }//for k neighbours
@@ -244,6 +245,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             
             //Normal Force
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
+            contforce[i].x = contforce[i].y = 0.0; ///// TO TEST BAD CONTACT
             a[i] += (contforce[i] / m[i]);     
 
           // if (abs(contforce[i].x) > 1.0e-10 || abs(contforce[i].y) > 1.0e-10)
