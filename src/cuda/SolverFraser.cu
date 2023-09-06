@@ -292,6 +292,8 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
         cudaMemcpy(contforce_h, contforce, sizeof(double3) * pcount, cudaMemcpyDeviceToHost);	
 			cudaMemcpy(normal_h, normal, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
       
+      if (thermal_solver)
+        cudaMemcpy(T_h, T, sizeof(double) * particle_count, cudaMemcpyDeviceToHost);	      
 
       //TODO: MAKE A LIST WITH CONTACT PARTICLES
       double cont_force_sum = 0.;

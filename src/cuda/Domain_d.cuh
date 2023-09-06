@@ -289,6 +289,8 @@ class Domain_d
 	__host__ void SetID(const Domain &dom);
   
   __host__ void SetDouble (double *arr, double val);
+  template <typename T>
+  __host__ void SetType(T *arr, double val);
 	
 	//Mechanical
 	__host__ void SetCs(const Domain &dom);
