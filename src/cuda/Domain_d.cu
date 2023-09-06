@@ -100,8 +100,8 @@ void Domain_d::SetDimension(const int &particle_count){
 
 	cudaMalloc((void **)&G, 	particle_count  * sizeof (double));	
 	
-	cudaMalloc((void **)&rhoa, 	particle_count  * sizeof (double));	
-	cudaMalloc((void **)&rhob, 	particle_count  * sizeof (double));	
+	// cudaMalloc((void **)&rhoa, 	particle_count  * sizeof (double));	
+	// cudaMalloc((void **)&rhob, 	particle_count  * sizeof (double));	
 	cudaMalloc((void **)&drho, 	particle_count  * sizeof (double));		
 	
 	// STRESS AND STRAIN TENSORS - FLATTENED ARRAY!!!!

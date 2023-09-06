@@ -526,6 +526,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
 }
 
 __global__ void StressStrainKernel(Domain_d *dom){
+  printf("DEPRECATED. SSA AND SSB NOT ALLOCATED ANYMORE\n");
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
 	dom->StressStrain(i);
 }
