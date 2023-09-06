@@ -111,16 +111,16 @@ void Domain_d::SetDimension(const int &particle_count){
   
 	
 	cudaMalloc((void **)&shearstress	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
-	cudaMalloc((void **)&shearstressa	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
-	cudaMalloc((void **)&shearstressb	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
+	// cudaMalloc((void **)&shearstressa	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
+	// cudaMalloc((void **)&shearstressb	, particle_count  * 6 * sizeof (double));		 //ANTISYMM
 
 	cudaMalloc((void **)&sigma_eq		, particle_count  * sizeof (double));		
 	cudaMalloc((void **)&pl_strain	, particle_count  * sizeof (double));	
 	cudaMalloc((void **)&sigma_y		, particle_count  * sizeof (double));		
 	
 	cudaMalloc((void **)&strain		, particle_count  * 6 * sizeof (double));		
-	cudaMalloc((void **)&straina	, particle_count  * 6 * sizeof (double));		
-	cudaMalloc((void **)&strainb	, particle_count  * 6 * sizeof (double));		
+	// cudaMalloc((void **)&straina	, particle_count  * 6 * sizeof (double));		
+	// cudaMalloc((void **)&strainb	, particle_count  * 6 * sizeof (double));		
   
   cudaMalloc((void **)&eff_strain_rate	, particle_count  * sizeof (double));		
 	
