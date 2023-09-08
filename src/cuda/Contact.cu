@@ -178,7 +178,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       //printf("xpred %f %f %f\n", x_pred.x, x_pred.y, x_pred.z);
       //printf ("pplane: %f", trimesh->pplane[e]);
       
-      normal[j] = trimesh->normal[e];
+      //normal[j] = trimesh->normal[e];
       
       
       // if (length(normal[j])<1.0e-3)
@@ -187,7 +187,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       // trimesh->normal[e].x,trimesh->normal[e].y,trimesh->normal[e].z);
       //normal[j] = make_double3(0.,0.,-1.);
       
-      double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
+//      double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
+      double dist = dot (normal[j],x[i])  - trimesh->pplane[e];
       //printf("normal j %d %f %f %f\n", j, normal[j].x, normal[j].y, normal[j].z);
       //printf("OUTSIDE part %d pplane %f,dist %.5e, h %f\n", i, trimesh->pplane[e], dist, h[i]);
       if (dist <= h[i]) {
@@ -246,7 +247,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             //Normal Force
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
             //contforce[i].x = contforce[i].y = 0.0; ///// TO TEST BAD CONTACT
-            a[i] += (contforce[i] / m[i]);  
+            a[i] += (contforce[i] / m[i]);
+            a[i].x = a[i].y = 0.0;
             // //NORMALS NOT RIGHT. IF REPLACING a[i] BY THIS IS OK
              // a[i].x = a[i].y = 0.0; ///// TO TEST BAD CONTACT
              // a[i].z = -1000;
@@ -265,7 +267,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             //printf("dist %f, delta: %.4e, h %f kij %f abscf %.4e \n", dist,delta, h[i], kij, length(contforce[i]));
             //if (length(contforce[i])>0.0 && length(contforce[i]) < 30.){
             //if (i==11301) {
-            printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
+            //printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
             //}
             ////// TANGENTIAL FORCE //////    
             // if (friction_sta > 0.){
