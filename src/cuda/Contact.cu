@@ -265,7 +265,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             //printf("dist %f, delta: %.4e, h %f kij %f abscf %.4e \n", dist,delta, h[i], kij, length(contforce[i]));
             //if (length(contforce[i])>0.0 && length(contforce[i]) < 30.){
             //if (i==11301) {
-            //printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
+            printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
             //}
             ////// TANGENTIAL FORCE //////    
             // if (friction_sta > 0.){
