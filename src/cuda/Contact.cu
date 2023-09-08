@@ -136,7 +136,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
     contforce[i] = make_double3(0.); //RESET
     // CONTACT OFFSET IS FIX BY NOW
     int neibcount = contneib_count[i];
-  
+    
+    int test = 0; //Should be once per nb
     //printf("i, first fem part, neibcount %d\n",neibcount);
     // printf("Nb indexed,i:%d\n",i);
     // In this Weldform GPU version, is clear than i is SPH particle and 2 is RIGID PARTICLE
@@ -192,7 +193,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       if (dist <= h[i]) {
         //printf ("INSIDE part %d pplane %f, dist: %f, h %f \n", i,trimesh->pplane[e],dist, h[i]);
         //printf("INSIDE part %d dist %\n", i,dist);
-
+        
         // double deltat_cont = ( h[i] + pplane - dot (normal[j],	x[i]) ) / (-delta_);								//Eq 3-142 
         // double3 Ri = x[i] + deltat_cont * vr;	//Eq 3-139 Ray from SPH particle in the rel velocity direction
         // //printf("delta %f \n",delta_);
@@ -223,7 +224,6 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
           //printf("Outside while\n");
           
           if (inside ) { //Contact point inside element, contact proceeds
-
             // //Calculate penetration depth (Fraser 3-49)
             double delta = h[i] - dist;
             //printf("delta: %f\n", delta);
@@ -246,8 +246,13 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             //Normal Force
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
             //contforce[i].x = contforce[i].y = 0.0; ///// TO TEST BAD CONTACT
-            a[i] += (contforce[i] / m[i]);     
-
+            a[i] += (contforce[i] / m[i]);  
+            // //NORMALS NOT RIGHT. IF REPLACING a[i] BY THIS IS OK
+             // a[i].x = a[i].y = 0.0; ///// TO TEST BAD CONTACT
+             // a[i].z = -1000;
+           
+            test++;
+            
           // if (abs(contforce[i].x) > 1.0e-10 || abs(contforce[i].y) > 1.0e-10)
             // printf("NORMAL CALC ERROR in particle %d. ZERO, Normal j %.6e %.6e %.6e\nNormal e %.6e %.6e %.6e\n",j,
           // normal[j].x,normal[j].y,normal[j].z,
@@ -258,10 +263,10 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
               // printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
             // }
             //printf("dist %f, delta: %.4e, h %f kij %f abscf %.4e \n", dist,delta, h[i], kij, length(contforce[i]));
-            // if (length(contforce[i])>0.0 && length(contforce[i]) < 30.){
-            // //if (i==11301) {
-            //  printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
-            // }
+            //if (length(contforce[i])>0.0 && length(contforce[i]) < 30.){
+            //if (i==11301) {
+            //printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
+            //}
             ////// TANGENTIAL FORCE //////    
             // if (friction_sta > 0.){
               // double3 du = x_pred - x[i] - v[j] * deltat ;  
@@ -283,7 +288,9 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
 
       } //dist <h
     }//neibcount	for (int k=0;k < neibcount;k++) { //Or size
-  
+    
+    //if(test == 0) printf ("NO CONTACT FORCE APPLIED");
+    if(test > 1)  printf ("ERROR. MORE THAT ONCE PER PARTICLE");  
   } //i<first fem index
 	//Correct time step!
 //	std::min(deltat,dt_fext)

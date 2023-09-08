@@ -226,9 +226,10 @@ inline __device__ void TriMesh_d::CalcNormals(){
     normal[e] = w/length(w);
     // if (length(normal[e])<1.0e-3)
       // printf("ERROR: ZERO normal. Calc error in element %d\n",e);
-    // if (abs(normal[e].y) >1.0e-10 || abs(normal[e].x) > 1.0e-10)
-      // printf("CalcNormal %d %.6e %.6e %.6e\n u %.6e %.6e %.6e \n %.6e %.6e %.6e\n",e, normal[e].x,normal[e].y,normal[e].z,u.x,u.y,u.z,v.x,v.y,v.z);
-
+    // if (abs(normal[e].y) >1.0e-5 || abs(normal[e].x) > 1.0e-5)
+      // printf("CalcNormal %d %.6e %.6e %.6e\n u %.6e %.6e %.6e \n v %.6e %.6e %.6e\n",e, normal[e].x,normal[e].y,normal[e].z,u.x,u.y,u.z,v.x,v.y,v.z);
+    normal[e].x = normal[e].y = 0.0;
+    normal[e].z = -1.0;
       // //printf("elnodes z coord %.6e %.6e %.6e\n", node[elnode[3*e]].z,node[elnode[3*e+1]].z,node[elnode[3*e+2]].z);
     // }
     //Fraser Eqn 3.34
