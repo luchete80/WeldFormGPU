@@ -20,6 +20,8 @@
 
 #include "Domain.h"
 #include "Input.h"
+#include <fstream>
+#include <iostream>
 
 // #include "InteractionAlt.cpp"
 // #include "Mesh.h"
@@ -83,13 +85,14 @@ using namespace SPH;
   // }//contact
 // }
 
-int main(int argc, char **argv) try {
+int main(int argc, char **argv)
+{
 
 	if (argc > 1) {
 		string inputFileName=argv[1];	
-		std::ifstream i(argv[1]);
+		std::ifstream ifs(argv[1]);
 		json j;
-		i >> j;
+		ifs >> j;
 		
 		nlohmann::json config 		= j["Configuration"];
 		nlohmann::json material 	= j["Materials"];
@@ -102,7 +105,7 @@ int main(int argc, char **argv) try {
 		nlohmann::json ics 			= j["InitialConditions"];
 
 		
-		// SPH::Domain	dom;
+		SPH::Domain	dom; //TODO: DELETE THIS AND PASS TO DOMAIN
 		
 		// dom.Dimension	= 3;
 		
@@ -143,7 +146,7 @@ int main(int argc, char **argv) try {
 
      	// //dom.XSPH	= 0.5; //Very important
 
-        // double dx,r,h;
+    double dx,r,h;
 
 
 		// readValue(config["particleRadius"], r);
@@ -156,9 +159,9 @@ int main(int argc, char **argv) try {
 		// //////////////
 		// // MATERIAL //
 		// //////////////
-		// double rho,E,nu,K,G,Cs,Fy;
-    // double Et, Ep;  //Hardening (only for bilinear and multilear)
-    // std::vector<double> c;
+		double rho,E,nu,K,G,Cs,Fy;
+    double Et, Ep;  //Hardening (only for bilinear and multilear)
+    std::vector<double> c;
     // c.resize(10);
     // string mattype = "Bilinear";
     // cout << "Reading Material.."<<endl;
@@ -236,23 +239,23 @@ int main(int argc, char **argv) try {
     // /////////////-/////////////////////////////////////////////////////////////////////////////////
 		// // DOMAIN //
 		// ////////////
-		// Vec3_t start,L;
-    // int id;
-		// string domtype = "Box";
-    // int matID;
-    // string gridCS = "Cartesian";
-    // bool sym[] = {false,false,false};
-		// readValue(domblock[0]["id"], 	id);
-		// readVector(domblock[0]["start"], 	start);
-		// cout << "Reading Domain dim" << endl;  readVector(domblock[0]["dim"], 	L);
-		// cout << "Reading Domain type" << endl; readValue(domblock[0]["type"], 	domtype); //0: Box
-    // cout << "Reading Domain mat id" << endl;  readValue(domblock[0]["matID"], 	matID); //0: Box
-    // cout << "Grid Coordinate System" << endl;  readValue(domblock[0]["gridCoordSys"], 	gridCS); //0: Box
-    // readBoolVector(domblock[0]["sym"], 	sym); //0: Box
-        // for (int i=0;i<3;i++) {//TODO: Increment by Start Vector
+		double3 start,L;
+    int id;
+		string domtype = "Box";
+    int matID;
+    string gridCS = "Cartesian";
+    bool sym[] = {false,false,false};
+		readValue(domblock[0]["id"], 	id);
+		readVector(domblock[0]["start"], 	start);
+		cout << "Reading Domain dim" << endl;  readVector(domblock[0]["dim"], 	L);
+		cout << "Reading Domain type" << endl; readValue(domblock[0]["type"], 	domtype); //0: Box
+    cout << "Reading Domain mat id" << endl;  readValue(domblock[0]["matID"], 	matID); //0: Box
+    cout << "Grid Coordinate System" << endl;  readValue(domblock[0]["gridCoordSys"], 	gridCS); //0: Box
+    readBoolVector(domblock[0]["sym"], 	sym); //0: Box
+     for (int i=0;i<3;i++) {//TODO: Increment by Start Vector
 			// dom.DomMax(0) = L[i];
 			// dom.DomMin(0) = -L[i];
-		// }		
+		}		
 
 
 		
@@ -267,12 +270,12 @@ int main(int argc, char **argv) try {
       // cout << "Dimension also could be set in config section." <<endl;
     // }
     
-		// cout << "Dimensions: "<<endl;
-		// PRINTVEC(L)
-		// if (domtype == "Box"){
-      // cout << "Adding Box ..."<<endl;      
-			// dom.AddBoxLength(id ,start, L[0] , L[1],  L[2] , r ,rho, h, 1 , 0 , false, false );		
-		// }
+		cout << "Dimensions: "<<endl;
+		//PRINTVEC(L)
+		if (domtype == "Box"){
+      cout << "Adding Box ..."<<endl;      
+			dom.AddBoxLength(id ,start, L.x , L.y,  L.z , r ,rho, h, 1 , 0 , false, false );		
+		}
 		// else if (domtype == "Cylinder"){
       // cout << "Adding Cylinder";      
 			// if (sym[0] && sym[1]){
@@ -513,4 +516,4 @@ int main(int argc, char **argv) try {
     return 0;
 }
 
-MECHSYS_CATCH
+

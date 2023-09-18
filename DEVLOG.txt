@@ -46,3 +46,6 @@
 --------------------------------------------------------------
 20230515 - Fixed totmass (zero normal value). Still with errors in normal length
 20230524 - Working with thermal coupling adding thermalcalcs step function
+--------------------------------------------------------------
+20230911 - Found Error in contact. Changing predictor gives different results.
+20230918 - Working on input file
