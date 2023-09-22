@@ -9,6 +9,7 @@
 #include "Mesh.cuh"
 
 #define HTOL 1.0e-6
+#define DFAC 0.0
 
 namespace SPH{
 __global__ inline void CalcContactNbKernel(Domain_d *dom_d,
@@ -229,6 +230,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
           if (inside ) { //Contact point inside element, contact proceeds
             // //Calculate penetration depth (Fraser 3-49)
             double delta = h[i] - dist;
+            double delta_ = - dot( normal[j] , vr);	//Penetration rate, Fraser 3-138
             //printf("delta: %f\n", delta);
             // // DAMPING
             // //Calculate SPH and FEM elements stiffness (series)
@@ -236,7 +238,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             double kij = 2.0 * m[i] / (deltat * deltat);
             //printf("deltat, kij %f %f\n", deltat, kij); 
             //double omega = sqrt (kij/m[i]);
-            double psi_cont = kij * delta; // Fraser Eqn 3-158
+            //double psi_cont = kij * delta; // Fraser Eqn 3-158
             
             //printf("Normal j %f %f %f \n", normal[j].x,normal[j].y,normal[j].z);
                       
@@ -246,8 +248,13 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             // double3 tgvr = vr + delta_ * normal[j];  // -dot(vr,normal) * normal
             // double3 tgdir = tgvr / length(tgvr);
             
+
+						double omega = sqrt (kij/m[i]);
+						double psi_cont = 2. * m[i] * omega * DFAC; // Fraser Eqn 3-158
+
             //Normal Force
-            contforce[i] = 0.4*(kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
+            contforce[i] = (0.4*kij * delta - psi_cont * delta_) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
+            
             //contforce[i].x = contforce[i].y = 0.0; ///// TO TEST BAD CONTACT
             a[i] += (contforce[i] / m[i]);
             //a[i].x = a[i].y = 0.0;
