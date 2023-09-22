@@ -212,7 +212,7 @@ inline __device__ void TriMesh_d::UpdatePlaneCoeff(){
   if (i < elemcount) { //parallelize by element
     //printf("elnode %f %f %f \n",elnode[3*i+nfar[i]].x,elnode[3*i+nfar[i]].y,elnode[3*i+nfar[i]].z);
     pplane[i] = dot(node[elnode[3*i]+nfar[i]],normal[i]);
-    //printf("pplane %f \n",pplane[i]);
+    //printf("pplane %.8e \n",pplane[i]);
   }
 }
 
