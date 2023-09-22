@@ -46,3 +46,5 @@
 --------------------------------------------------------------
 20230515 - Fixed totmass (zero normal value). Still with errors in normal length
 20230524 - Working with thermal coupling adding thermalcalcs step function
+--------------------------------------------------------------
+20230922 - Invert contact nb BEFORE contact
