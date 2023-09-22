@@ -91,6 +91,13 @@ add_executable(main_contact
 													cuNSearch/Utils/IDFactory.cpp													
 													)   
 
+add_executable(WeldFormGPU
+                        WeldFormGPU.cpp
+                        Domain.cpp 
+													Output.cpp
+													Vector.cpp
+                          Mesh.cpp
+              )
 
 # add_executable(main_thermal 
 													# main_thermal.cu
