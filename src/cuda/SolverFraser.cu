@@ -206,6 +206,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
       totmass);
       cudaDeviceSynchronize(); //REQUIRED!!!!
       //
+      if ( ts_i == 0){
       CalcContactNbKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
@@ -213,7 +214,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
       );
       cudaDeviceSynchronize(); //REQUIRED!!!!    
 
-      
+      }
       CalcContactForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
@@ -319,7 +320,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 			t_out += dt_out;
 			time_spent = (double)(clock() - clock_beg) / CLOCKS_PER_SEC;
 			cout << "-------------------------\nTime "<<Time<<", GPU time "<<time_spent<<endl;
-			cout << "Current time step: "<< deltat << endl;
+			cout << "Current step: "<< step + 1 << ", time: "<<deltat << endl;
 			cout << "Forces calc: "			<<forces_time<<endl;
 			cout << "Stresses calc: "		<<stress_time<<endl;
 			

@@ -8,6 +8,8 @@
 
 #include "Mesh.cuh"
 
+#define HTOL 1.0e-6
+
 namespace SPH{
 __global__ inline void CalcContactNbKernel(Domain_d *dom_d,
 const uint *particlenbcount,
@@ -179,7 +181,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       //printf ("pplane: %f", trimesh->pplane[e]);
       
       //normal[j] = trimesh->normal[e];
-      
+       normal[j] = make_double3(0.0,0.0,-1.0);
       
       // if (length(normal[j])<1.0e-3)
         // printf("NORMAL CALC ERROR in particle %d. ZERO, Normal j %.6e %.6e %.6e\nNormal e %.6e %.6e %.6e\n",j,
@@ -187,11 +189,11 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       // trimesh->normal[e].x,trimesh->normal[e].y,trimesh->normal[e].z);
       //normal[j] = make_double3(0.,0.,-1.);
       
-//      double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
-      double dist = dot (normal[j],x[i])  - trimesh->pplane[e];
+      double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
+      //double dist = dot (normal[j],x[i])  - trimesh->pplane[e];
       //printf("normal j %d %f %f %f\n", j, normal[j].x, normal[j].y, normal[j].z);
       //printf("OUTSIDE part %d pplane %f,dist %.5e, h %f\n", i, trimesh->pplane[e], dist, h[i]);
-      if (dist <= h[i]) {
+      if (dist < h[i] ) {
         //printf ("INSIDE part %d pplane %f, dist: %f, h %f \n", i,trimesh->pplane[e],dist, h[i]);
         //printf("INSIDE part %d dist %\n", i,dist);
         
@@ -248,12 +250,13 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             contforce[i] = (kij * delta /*- psi_cont * delta_*/) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
             //contforce[i].x = contforce[i].y = 0.0; ///// TO TEST BAD CONTACT
             a[i] += (contforce[i] / m[i]);
-            a[i].x = a[i].y = 0.0;
+            //a[i].x = a[i].y = 0.0;
             // //NORMALS NOT RIGHT. IF REPLACING a[i] BY THIS IS OK
              // a[i].x = a[i].y = 0.0; ///// TO TEST BAD CONTACT
              // a[i].z = -1000;
            
             test++;
+            //printf ("CONTACT!! part %d, pos %.3e %.3e %.6e\n",i,x[i].x,x[i].y,x[i].z);
             
           // if (abs(contforce[i].x) > 1.0e-10 || abs(contforce[i].y) > 1.0e-10)
             // printf("NORMAL CALC ERROR in particle %d. ZERO, Normal j %.6e %.6e %.6e\nNormal e %.6e %.6e %.6e\n",j,
@@ -291,8 +294,9 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       } //dist <h
     }//neibcount	for (int k=0;k < neibcount;k++) { //Or size
     
-    //if(test == 0) printf ("NO CONTACT FORCE APPLIED");
-    if(test > 1)  printf ("ERROR. MORE THAT ONCE PER PARTICLE");  
+    //if(test == 0 && contneib_count[i] > 0) printf ("NO CONTACT FORCE APPLIED part %d, pos %.3e %.3e %.6e\n",i,x[i].x,x[i].y,x[i].z);
+    //if(test > 1)  printf ("ERROR. MORE THAT ONCE PER PARTICLE");  
+    //else if (test == 0)printf ("ERROR. NOT PARTICLES");  
   } //i<first fem index
 	//Correct time step!
 //	std::min(deltat,dt_fext)

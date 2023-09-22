@@ -24,8 +24,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
  # compute_20, sm_20, or higher. For other architecture classes, the contraction is     
   # always enabled. 
  # The --use_fast_math option implies --fmad=true, and enables the contraction.
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --fmad=false")
-#set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --fast_math=false")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --fmad=false --prec-sqrt=true --ftz=false --prec-div=true")
+# set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --use_fast_math=false")
+
+# FROM --use_fast_math implies --ftz=true --prec-div=false --prec-sqrt=false --fmad=true.
+# https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
 
 SET(EXES
 

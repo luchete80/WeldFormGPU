@@ -147,10 +147,10 @@ int main(int argc, char **argv) //try
 	cout << "Particle count:" <<dom.Particles.size()<<endl;
   
   /************************* NEW CONTACT THING *////////////////////////////////////////////
-  	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + 1.000001 * dom.Particles[dom.Particles.size()-1]->h ;
+  	double cyl_zmax = dom.Particles[dom.Particles.size()-1]->x(2) + 0.99999995 * dom.Particles[dom.Particles.size()-1]->h ;
 
   SPH::TriMesh mesh;
-	mesh.AxisPlaneMesh(2,false,Vector(-0.5,-0.5, cyl_zmax),Vector(0.5,0.5, cyl_zmax),40);
+	mesh.AxisPlaneMesh(2,false,Vector(-0.3,-0.3, cyl_zmax),Vector(0.3,0.3, cyl_zmax),30);
 	//cout << "Plane z" << *mesh.node[0]<<endl;
   mesh.CalcSpheres(); //DONE ONCE
   double hfac = 1.1;
@@ -163,7 +163,7 @@ int main(int argc, char **argv) //try
   //TODO: Mesh has to be deleted
   SPH::TriMesh_d *mesh_d;
   gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
-  mesh_d->AxisPlaneMesh(2,false,make_double3(-0.5,-0.5, cyl_zmax),make_double3(0.5,0.5, cyl_zmax),40);
+  mesh_d->AxisPlaneMesh(2,false,make_double3(-0.3,-0.3, cyl_zmax),make_double3(0.3,0.3, cyl_zmax),30);
   
   cout << "Domain Size "<<dom.Particles.size()<<endl;
 	//BEFORE ALLOCATING 
@@ -300,7 +300,8 @@ int main(int argc, char **argv) //try
   //LEAPFROG IS WORKING WITH ALPHA = 1
   //KICKDRIFT IS NOT 
 
-  dom_d->MechFraserSolve(0.0101,1.0e-4);
+  //dom_d->MechFraserSolve(0.0101,1.0e-4);
+  dom_d->MechFraserSolve(3.0*timestep,timestep);
   //FOR DEBUG PURPOSES
   //dom_d->MechFraserSolve(4*timestep,timestep);
   
