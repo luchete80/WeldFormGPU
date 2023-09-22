@@ -181,8 +181,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       //printf("xpred %f %f %f\n", x_pred.x, x_pred.y, x_pred.z);
       //printf ("pplane: %f", trimesh->pplane[e]);
       
-      //normal[j] = trimesh->normal[e];
-       normal[j] = make_double3(0.0,0.0,-1.0);
+      normal[j] = trimesh->normal[e];
+      // normal[j] = make_double3(0.0,0.0,-1.0);
       
       // if (length(normal[j])<1.0e-3)
         // printf("NORMAL CALC ERROR in particle %d. ZERO, Normal j %.6e %.6e %.6e\nNormal e %.6e %.6e %.6e\n",j,
@@ -254,7 +254,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
 
             //Normal Force
             //contforce[i] = (0.05*kij * delta - psi_cont * delta_) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
-            contforce[i] = 0.1 * kij * delta  * normal[j]; // NORMAL DIRECTION, Fraser 3-159
+            contforce[i] = 0.4 * kij * delta  * normal[j]; // NORMAL DIRECTION, Fraser 3-159
             
             //contforce[i].x = contforce[i].y = 0.0; ///// TO TEST BAD CONTACT
             a[i] += (contforce[i] / m[i]);
