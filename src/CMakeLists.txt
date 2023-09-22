@@ -92,11 +92,18 @@ add_executable(main_contact
 													)   
 
 add_executable(WeldFormGPU
-                        WeldFormGPU.cpp
+                        WeldFormGPU.cu
                         Domain.cpp 
 													Output.cpp
 													Vector.cpp
                           Mesh.cpp
+
+													cuda/Domain_d.cu
+                          cuda/cudautils.cu
+													cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
+													cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu
+													cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
+													cuNSearch/Utils/IDFactory.cpp			
               )
 
 # add_executable(main_thermal 

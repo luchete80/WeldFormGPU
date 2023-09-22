@@ -57,7 +57,8 @@ namespace SPH {
 		Vector	NSv;		///< Velocity of the fixed particle for no-slip BC
 		Vector	VXSPH;		///< Mean Velocity of neighbor particles for updating the particle position (XSPH)
 		Vector	a;		///< Acceleration of the particle n
-		
+
+    bool not_write_surf_ID;
 
 		size_t	PresEq;		///< Selecting variable to choose an equation of state
 		double	Cs;		///< Speed of sound

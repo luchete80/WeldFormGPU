@@ -56,6 +56,8 @@ namespace SPH {
 class TriMesh;
 
 
+int ComputeCylinderParticles( double Rxy, double Lz, double r);
+
 class Domain
 {
 
@@ -133,7 +135,7 @@ class Domain
   void InitReductionArraysOnce();
   
   void AddTrimeshParticles(const TriMesh &mesh, const float &hfac, const int &id);
-
+  int AssignZone(Vector &start, Vector &end, int &id);
 
 
 	// Data
@@ -258,6 +260,7 @@ private:
 	double					deltat;					//Time Step
 	double					deltatmin;			//Minimum Time Step
 	double					deltatint;			//Initial Time Step
+  
 
 
 };

@@ -23,13 +23,39 @@
 #include <fstream>
 #include <iostream>
 
+
+#include "cuda/Domain_d.cuh" 
+// #include "cuda/Mechanical.cu" 
+
+// #include "cuda/SolverFraser.cu"
+#include "cuda/Mesh.cuh"
+#include "cuda/Mesh.cu"
+
+
 // #include "InteractionAlt.cpp"
 // #include "Mesh.h"
 
 // #include "SolverFraser.cpp"
 // #include "Geometry.cpp"
 // #include "SolverKickDrift.cpp"
+void report_gpu_mem()
+{
+    size_t free, total;
+    cudaMemGetInfo(&free, &total);
+    std::cout << "Free = " << free << " Total = " << total <<std::endl;
+}
 
+
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+//https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
+inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+{
+   if (code != cudaSuccess) 
+   {
+      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+      if (abort) exit(code);
+   }
+}
 
 #define TAU		0.005
 #define VMAX	10.0
@@ -106,7 +132,11 @@ int main(int argc, char **argv)
 
 		
 		SPH::Domain	dom; //TODO: DELETE THIS AND PASS TO DOMAIN
-		
+    SPH::Domain_d *dom_d;
+    report_gpu_mem();
+    gpuErrchk(cudaMallocManaged(&dom_d, sizeof(SPH::Domain)) );
+    report_gpu_mem();
+  
 		// dom.Dimension	= 3;
 		
 		// string kernel;
@@ -171,6 +201,12 @@ int main(int argc, char **argv)
     // readValue(material[0]["poissonsRatio"], 	nu);
     // readValue(material[0]["yieldStress0"], 	Fy);
     // readArray(material[0]["const"], 		c);
+
+		readValue(config["particleRadius"], r);
+		double hfactor;
+		readValue(config["hFactor"], hfactor);
+    bool h_update = false;
+    
     // Material_ *mat;
     // Elastic_ el(E,nu);
     // cout << "Mat type  "<<mattype<<endl;
@@ -275,13 +311,22 @@ int main(int argc, char **argv)
 		if (domtype == "Box"){
       cout << "Adding Box ..."<<endl;      
 			dom.AddBoxLength(id ,start, L.x , L.y,  L.z , r ,rho, h, 1 , 0 , false, false );		
-		}
-		// else if (domtype == "Cylinder"){
-      // cout << "Adding Cylinder";      
+		}   else if (domtype == "Cylinder"){
+      cout << "Adding Cylinder";      
 			// if (sym[0] && sym[1]){
         // cout << " with symmetry..."<<endl;
         // dom.AddXYSymCylinderLength(0, L[0]/2., L[2], r, rho, h, false, sym[2]); 
       // }
+      // else {
+        // cout << "..."<<endl;
+        // if ( gridCS == "Cartesian")
+          cout << "Reserved "<<ComputeCylinderParticles (L.x/2., L.z, r)<<" particles."<<endl;
+          dom.AddCylinderLength(0, start, L.x/2., L.z, r, rho, h, false);  /////// GENERATED AT HOST TO THEN COPY
+        // else if (gridCS == "Cylindrical")
+          // dom.AddCylUniformLength(0, L[0]/2.,L[2], r, rho, h);
+          
+      // }
+    }
       // else {
         // cout << "..."<<endl;
         // if ( gridCS == "Cartesian")
@@ -305,29 +350,29 @@ int main(int argc, char **argv)
 
 
 
-    // cout << "Domain Zones "<<domzones.size()<<endl;		
-		// for (auto& zone : domzones) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
-			// // MaterialData* data = new MaterialData();
-			// int zoneid;
-			// Vec3_t start,end;
-			// readValue(zone["id"], 		zoneid);
-			// readVector(zone["start"], 	start);
-			// readVector(zone["end"], 	end);
-      // cout << "Zone id "<<zoneid<<endl;
-			// // cout << "Dimensions: "<<endl;
-			// // PRINTVEC(start)
-			// // PRINTVEC(end)
-			// int partcount =dom.AssignZone(start,end,zoneid);
-      // std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
-		// }
+    cout << "Domain Zones "<<domzones.size()<<endl;		
+		for (auto& zone : domzones) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
+			// MaterialData* data = new MaterialData();
+			int zoneid;
+      Vector vstart, vend;
+			readValue(zone["id"], 		zoneid);
+			readVector(zone["start"], 	vstart);
+			readVector(zone["end"], 	vend);
+      cout << "Zone id "<<zoneid<<endl;
+			// cout << "Dimensions: "<<endl;
+			cout << "start"<< vstart(0)<<"; "<< vstart(1)<<"; "<< vstart(2)<<"; "<<endl;
+
+			int partcount =dom.AssignZone(vstart,vend,zoneid); ////IN DEVICE DOMAIN
+      std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
+		}
     
     // //////////////////////////////////////////////////////////
     // ////////////////// RIGID BODIES //////////////////////////
-    // string rigbody_type;
-    // bool contact = false;
-    // if (readValue(rigbodies[0]["type"],rigbody_type))
-      // contact = true;
-    // Vec3_t dim;
+    string rigbody_type;
+    bool contact = false;
+    if (readValue(rigbodies[0]["type"],rigbody_type))
+      contact = true;
+    Vector dim;
     
 		// readVector(rigbodies[0]["start"], 	start);       
 		// readVector(rigbodies[0]["dim"], 	dim); 
@@ -347,20 +392,26 @@ int main(int argc, char **argv)
       // if (dim (0)!=0. && dim(1) != 0. && dim(2) !=0. && rigbody_type == "Plane")
         // throw new Fatal("ERROR: Contact Plane Surface should have one null dimension");
     // }
-    // std::vector<TriMesh *> mesh;
-    
-    // cout << "Set contact to ";
-    // if (contact){
-      // cout << "true."<<endl;
-      // dom.contact = true;
-      // cout << "Reading contact mesh..."<<endl;
-      // //TODO: CHANGE TO EVERY DIRECTION
-      // int dens = 10;
-      // readValue(rigbodies[0]["partSide"],dens);
+    std::vector<TriMesh *> mesh; ////// TODO: ALLOW FOR MULTIPLE MESH CONTACT
+    SPH::TriMesh_d *mesh_d;
+    gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+
+    //BEFORE CONTACT
+    dom_d->solid_part_count = dom.Particles.size();  //AFTER SET DIMENSION
+  
+    cout << "Set contact to ";
+    if (contact){
+      cout << "true."<<endl;
+      dom_d->contact = true;
+      cout << "Reading contact mesh..."<<endl;
+      //TODO: CHANGE TO EVERY DIRECTION
+      int dens = 10;
+      readValue(rigbodies[0]["partSide"],dens);
       // if (rigbody_type == "Plane"){
         // // TODO: CHECK IF MESH IS NOT DEFINED
         // mesh.push_back(new TriMesh);
-        // mesh[0]->AxisPlaneMesh(2, false, start, Vec3_t(start(0)+dim(0),start(1)+dim(1), start(2)),dens);
+        // mesh[0]->AxisPlaneMesh(2, false, start, Vector(start(0)+dim(0),start(1)+dim(1), start(2)),dens);
+        // mesh_d->AxisPlaneMesh(2,false,make_double3(start(0)+dim(0),start(1)+dim(1), start(2)),30);
       // } else if (rigbody_type == "File"){
         // string filename = "";
         // readValue(rigbodies[0]["fileName"], 	filename); 
@@ -394,10 +445,18 @@ int main(int argc, char **argv)
       // dom.PFAC = 0.8;
       // dom.DFAC = 0.0;
       
-		// } 
-    // else 
-      // cout << "false. "<<endl;
-    
+		} 
+    else 
+      cout << "false. "<<endl;
+
+
+    dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
+
+    dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+    if (dom_d->trimesh ==NULL)
+      cout << "ERROR. No mesh defined"<<endl;
+
+  
 		// std::vector <SPH::amplitude> amps;
 		
 		// for (auto& ampl : amplitudes) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP

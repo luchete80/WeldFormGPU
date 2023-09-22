@@ -284,8 +284,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 			cudaMemcpy(a_h, a, sizeof(double3) * particle_count, cudaMemcpyDeviceToHost);	
       cudaMemcpy(nb_h, CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts), 
                           sizeof(unsigned int) * particle_count, cudaMemcpyDeviceToHost);	
-                          
-      cudaMemcpy(pplane_h, this->trimesh->pplane, sizeof(double) * this->trimesh->elemcount, cudaMemcpyDeviceToHost);
+                         
                           
       cout << "TEST "<<endl;
       int max_nb, max_id;

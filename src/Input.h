@@ -7,7 +7,7 @@ using json = nlohmann::json;
 
 #include <iomanip>	//ONY FOR GCC!!
 #include "cuda_runtime.h"
-
+#include "Vector.h"
 
 template <typename T>
 bool readValue(const nlohmann::json &j, T &v)
@@ -40,6 +40,17 @@ bool readVector(const nlohmann::json &j, double3 &vec)
 	std::vector<double> values = j.get< std::vector<double> >();
 	//for (unsigned int i = 0; i < values.size(); i++)
 		vec = make_double3(values[0],values[1],values[2]);
+	return true;
+}
+
+bool readVector(const nlohmann::json &j, Vector &vec)
+{
+	if (j.is_null())
+		return false;
+
+	std::vector<double> values = j.get< std::vector<double> >();
+	//for (unsigned int i = 0; i < values.size(); i++)
+		vec = Vector(values[0],values[1],values[2]);
 	return true;
 }
 
