@@ -253,7 +253,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
 						double psi_cont = 2. * m[i] * omega * DFAC; // Fraser Eqn 3-158
 
             //Normal Force
-            contforce[i] = (0.4*kij * delta - psi_cont * delta_) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
+            //contforce[i] = (0.05*kij * delta - psi_cont * delta_) * normal[j]; // NORMAL DIRECTION, Fraser 3-159
+            contforce[i] = 0.05 * kij * delta  * normal[j]; // NORMAL DIRECTION, Fraser 3-159
             
             //contforce[i].x = contforce[i].y = 0.0; ///// TO TEST BAD CONTACT
             a[i] += (contforce[i] / m[i]);
@@ -280,22 +281,22 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             //if (i==11301) {
             //printf("step: %d Particle %i, x_pred %f %f %f, dist %f h %f delta %.4e pplane %f kij %f contforce %f %f %f \n", step, i, x_pred.x, x_pred.y,x_pred.z,dist, h[i],delta, trimesh->pplane[e], kij, contforce[i].x, contforce[i].y, contforce[i].z);
             //}
-            ////// TANGENTIAL FORCE //////    
-            // if (friction_sta > 0.){
-              // double3 du = x_pred - x[i] - v[j] * deltat ;  
-              // //printf ("vj %f %f %f\n",v[j].x,v[j].y,v[j].z);
-              // double3 delta_tg = du - dot(du, normal[j])* normal[j];
-              // double3 tg_force = kij * delta_tg;
+            // TANGENTIAL FORCE //////    
+            if (friction_sta > 0.){
+              double3 du = x_pred - x[i] - v[j] * deltat ;  
+              //printf ("vj %f %f %f\n",v[j].x,v[j].y,v[j].z);
+              double3 delta_tg = du - dot(du, normal[j])* normal[j];
+              double3 tg_force = kij * delta_tg;
               
-              // //double dS = pow(m[i]/rho[i],0.33333); //Fraser 3-119
-              // if (length(tg_force) < friction_sta * length(contforce[i]) ){ //STATIC; NO SLIP
-                // a[i] -= tg_force / m[i];   
-              // } else {
-                // double3 tgforce_dyn = friction_dyn * length(contforce[i]) * tg_force/length(tg_force);
-                // contforce[i] -= tgforce_dyn;
-                // a[i] -= tgforce_dyn / m[i];
-              // }
-            // }
+              //double dS = pow(m[i]/rho[i],0.33333); //Fraser 3-119
+              if (length(tg_force) < friction_sta * length(contforce[i]) ){ //STATIC; NO SLIP
+                a[i] -= tg_force / m[i];   
+              } else {
+                double3 tgforce_dyn = friction_dyn * length(contforce[i]) * tg_force/length(tg_force);
+                contforce[i] -= tgforce_dyn;
+                a[i] -= tgforce_dyn / m[i];
+              }
+            }
 
         }// if inside
 
