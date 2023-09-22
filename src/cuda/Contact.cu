@@ -256,7 +256,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
              // a[i].z = -1000;
            
             test++;
-            //printf ("CONTACT!! part %d, pos %.3e %.3e %.6e\n",i,x[i].x,x[i].y,x[i].z);
+            // printf ("CONTACT!! part %d, pos %.3e %.3e %.6e\n",i,x[i].x,x[i].y,x[i].z);
+            // printf ("INSIDE part %d pplane %f, dist: %f, h %f \n", i,trimesh->pplane[e],dist, h[i]);
             
           // if (abs(contforce[i].x) > 1.0e-10 || abs(contforce[i].y) > 1.0e-10)
             // printf("NORMAL CALC ERROR in particle %d. ZERO, Normal j %.6e %.6e %.6e\nNormal e %.6e %.6e %.6e\n",j,
