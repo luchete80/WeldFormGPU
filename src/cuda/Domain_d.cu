@@ -8,6 +8,8 @@
 
 #include "Mesh.h"
 #include "cudautils.cuh"
+#include "Mesh.cuh"
+
 //Else (offset)
 //Allocating from host
 namespace SPH {
@@ -431,9 +433,11 @@ void Domain_d::WriteCSV(char const * FileKey){
 	fprintf(f, "ID, X, Y, Z, posX,posY,posZ,Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain, Nb, ContNb, CFx, CFy, CFz, Nx, Ny, Nz\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
-
+  double ppl;
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %d, %d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n", 
+    ppl = 0.;
+    //if (i>solid_part_count) ppl = trimesh->pplane[i-solid_part_count];
+		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %d, %d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e %.6e\n", 
 							ID_h[i],
               x_h[i].x,x_h[i].y,x_h[i].z, 
               x_h[i].x,x_h[i].y,x_h[i].z, 
@@ -448,7 +452,9 @@ void Domain_d::WriteCSV(char const * FileKey){
             nb_h[i],
             contneib_count_h[i],
             contforce_h[i].x,contforce_h[i].y,contforce_h[i].z,
-            normal_h[i].x,normal_h[i].y,normal_h[i].z);
+            normal_h[i].x,normal_h[i].y,normal_h[i].z
+            //ppl
+            );
 		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
 		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;
 	}

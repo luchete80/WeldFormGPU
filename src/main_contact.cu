@@ -152,7 +152,7 @@ int main(int argc, char **argv) //try
   SPH::TriMesh mesh;
 	mesh.AxisPlaneMesh(2,false,Vector(-0.3,-0.3, cyl_zmax),Vector(0.3,0.3, cyl_zmax),30);
 	//cout << "Plane z" << *mesh.node[0]<<endl;
-  mesh.CalcSpheres(); //DONE ONCE
+  //mesh.CalcSpheres(); //DONE ONCE
   double hfac = 1.1;
   dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
   int solid_count = dom.Particles.size(); //BEFORE ADDING CONTACT MESH

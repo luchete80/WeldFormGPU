@@ -132,7 +132,10 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     }
     else printf("MESH NOT DEFINED\n");
   }
-  
+			char str[10];
+			sprintf(str, "out_%.6f.csv", Time);
+			WriteCSV(str);
+      
   //ONLY FOR TESTING 
   test_h = new double [particle_count];
   while (Time<tf) {
@@ -312,8 +315,8 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
         if (ID_h[i]==id_free_surf)
           cont_force_sum+=length(contforce_h[i]);
 			
-			char str[10];
-			sprintf(str, "out_%d.csv", count);
+
+			sprintf(str, "out_%.6f.csv", Time);
       count++;
 			WriteCSV(str);
 			
