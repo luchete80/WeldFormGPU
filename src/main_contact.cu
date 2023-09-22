@@ -300,8 +300,8 @@ int main(int argc, char **argv) //try
   //LEAPFROG IS WORKING WITH ALPHA = 1
   //KICKDRIFT IS NOT 
 
-  //dom_d->MechFraserSolve(0.0101,1.0e-4);
-  dom_d->MechFraserSolve(3.0*timestep,timestep);
+  dom_d->MechFraserSolve(0.0101,1.0e-4);
+  //dom_d->MechFraserSolve(3.0*timestep,timestep);
   //FOR DEBUG PURPOSES
   //dom_d->MechFraserSolve(4*timestep,timestep);
   

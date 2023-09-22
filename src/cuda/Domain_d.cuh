@@ -228,6 +228,7 @@ class Domain_d
   double totmass;
 	double 	max_contact_force;
 	double3 *normal; 
+  double *pplane_h; ////TEST
 	int 		  **contneib;	//array of lists, NOT IN USE
 	
   int 		  *contneib_part;	//1D array, faster, THESE ARE THE NEIGHBOURS ITSELF (OF THE SURFACE CONTACT)
