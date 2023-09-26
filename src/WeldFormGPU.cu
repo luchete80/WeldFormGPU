@@ -30,7 +30,7 @@
 // #include "cuda/SolverFraser.cu"
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
-
+#include "cuda/Boundary_Condition.cuh"
 
 // #include "InteractionAlt.cpp"
 // #include "Mesh.h"
@@ -74,33 +74,51 @@ using namespace SPH;
 // }
 
 
-// void UserAcc(SPH::Domain & domi)
-// {
-	// double vcompress;
+void UserAcc(SPH::Domain_d & domi) {
 
-	// if (domi.getTime() < TAU ) 
-		// vcompress = VMAX/TAU * domi.getTime();
-	// else
-		// vcompress = VMAX;
-	
-	// #pragma omp parallel for schedule (static) num_threads(domi.Nproc)
-	// #ifdef __GNUC__
-	// for (size_t i=0; i<domi.Particles.Size(); i++)
-	// #else
-	// for (int i=0; i<domi.Particles.Size(); i++)
-	// #endif
-	// {
+	// for (int i=0; i<domi.particle_count; i++) { 
+		// // for (int bc=0;bc<domi.bConds.size();bc++){
+			// // if (domi.Particles[i]->ID == domi.bConds[bc].zoneId ) {
+				// // if (domi.bConds[bc].type == 0 ){ //VELOCITY
+					// // if (domi.bConds[bc].valueType == 0) {
+            // // domi.Particles[i]->a		= Vec3_t(0.0,0.0,0.0);
+            // // domi.Particles[i]->v		= domi.bConds[bc].value;          
+          // // } else if (domi.bConds[bc].valueType == 1) {///amplitude
+            // // for (int j=0;j<domi.amps.size();j++){
+              // // if(domi.amps[j].id == domi.bConds[bc].ampId){
+                // // double val = domi.bConds[bc].ampFactor * domi.amps[j].getValAtTime(domi.getTime());
+                // // Vec3_t vec = val * domi.bConds[bc].value;
+                // // domi.Particles[i]->a		= Vec3_t(0.0,0.0,0.0);
+                // // domi.Particles[i]->v		= vec;
+              // // }//if if match
+            // // }//for amps
+          // // } //VALUE TYPE == AMPLITUDE 
+				// // }//TYPE == VELOCITY
+        
+			// // }//ZoneID 			
+		// // }//BC
+
 		// for (int bc=0;bc<domi.bConds.size();bc++){
-			// if (domi.Particles[i]->ID == domi.bConds[bc].zoneId ) {
-				// if (domi.bConds[bc].type == 0 ){ //VELOCITY
-					// domi.Particles[i]->a		= Vec3_t(0.0,0.0,0.0);
-					// domi.Particles[i]->v		= domi.bConds[bc].value;
-				// }
-			// }
+			// // if (domi.Particles[i]->ID == domi.bConds[bc].zoneId ) {
+				// // if (domi.bConds[bc].type == 0 ){ //VELOCITY
+					// // domi.Particles[i]->a		= Vec3_t(0.0,0.0,0.0);
+					// // domi.Particles[i]->v		= domi.bConds[bc].value;
+				// // }
+			// // }
 			
-		// }
+		// }//BC
+
 	// }
-  
+
+		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 2, make_double3(0.,0.,0.));
+		cudaDeviceSynchronize();
+    double vbc;
+    if (domi.Time < TAU) vbc = VMAX/TAU*domi.Time;
+    else            vbc = VMAX;
+    //cout << "vbc "<<vbc<<endl;
+		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 3, make_double3(0.,0.,-vbc));
+		cudaDeviceSynchronize();
+      
   // if (domi.contact){
     // for (int bc=0;bc<domi.bConds.size();bc++){
       // for (int m=0;m<domi.trimesh.size();m++){
@@ -109,7 +127,7 @@ using namespace SPH;
       // }//mesh
     // }//bcs
   // }//contact
-// }
+}
 
 int main(int argc, char **argv)
 {
@@ -137,7 +155,7 @@ int main(int argc, char **argv)
     gpuErrchk(cudaMallocManaged(&dom_d, sizeof(SPH::Domain)) );
     report_gpu_mem();
   
-		// dom.Dimension	= 3;
+		dom.Dimension	= 3;
 		
 		// string kernel;
     // double ts;
@@ -177,11 +195,14 @@ int main(int argc, char **argv)
      	// //dom.XSPH	= 0.5; //Very important
 
     double dx,r,h;
+    bool h_update = false;
+		double hfactor;
+    
+    cout << "Reading Config section ... "<<endl;
+		readValue(config["particleRadius"], r);
+		readValue(config["hFactor"], hfactor);
 
 
-		// readValue(config["particleRadius"], r);
-		// double hfactor;
-		// readValue(config["hFactor"], hfactor);
     // bool h_update = false;
     // dom.GeneralAfter = & UserAcc;
 		
@@ -196,16 +217,12 @@ int main(int argc, char **argv)
     // string mattype = "Bilinear";
     // cout << "Reading Material.."<<endl;
     // cout << "Type.."<< endl; readValue(material[0]["type"], 		mattype);
-    // cout << "Density.."<< endl; readValue(material[0]["density0"], 		rho);
-    // readValue(material[0]["youngsModulus"], 	E);
-    // readValue(material[0]["poissonsRatio"], 	nu);
-    // readValue(material[0]["yieldStress0"], 	Fy);
-    // readArray(material[0]["const"], 		c);
+    readValue(material[0]["density0"], 		rho);
+    readValue(material[0]["youngsModulus"], 	E);
+    readValue(material[0]["poissonsRatio"], 	nu);
+    readValue(material[0]["yieldStress0"], 	Fy);
+    readArray(material[0]["const"], 		c);
 
-		readValue(config["particleRadius"], r);
-		double hfactor;
-		readValue(config["hFactor"], hfactor);
-    bool h_update = false;
     
     // Material_ *mat;
     // Elastic_ el(E,nu);
@@ -232,12 +249,12 @@ int main(int argc, char **argv)
     
     // cout << "Done. "<<endl;
        
-		// K= E / ( 3.*(1.-2*nu) );
-		// G= E / (2.* (1.+nu));
+		K= E / ( 3.*(1.-2*nu) );
+		G= E / (2.* (1.+nu));
 
-		// dx 	= 2.*r;
-    // h	= dx*hfactor; //Very important
-    // Cs	= sqrt(K/rho);
+		dx 	= 2.*r;
+    h	= dx*hfactor; //Very important
+    Cs	= sqrt(K/rho);
 
         // double timestep,cflFactor;
 		// int cflMethod;
@@ -245,6 +262,8 @@ int main(int argc, char **argv)
     // double sim_time;
     // string cont_alg = "Fraser";
     // bool auto_ts[] = {true, false, false}; //ONLY VEL CRITERIA
+
+
 		// readValue(config["cflMethod"], cflMethod);
 		// if (cflMethod == 0)
 			// readValue(config["timeStepSize"], timestep);
@@ -321,6 +340,7 @@ int main(int argc, char **argv)
         // cout << "..."<<endl;
         // if ( gridCS == "Cartesian")
           cout << "Reserved "<<ComputeCylinderParticles (L.x/2., L.z, r)<<" particles."<<endl;
+        cout << "Length " << L.x<<", "<< L.y<<", "<< L.z<<", "<<endl;
           dom.AddCylinderLength(0, start, L.x/2., L.z, r, rho, h, false);  /////// GENERATED AT HOST TO THEN COPY
         // else if (gridCS == "Cylindrical")
           // dom.AddCylUniformLength(0, L[0]/2.,L[2], r, rho, h);
@@ -348,6 +368,10 @@ int main(int argc, char **argv)
 		// cout <<	"Dim: "<<dom.Dimension<<endl;				
 		// cout << "Particle count: "<<dom.Particles.Size()<<endl;
 
+    // for (int i=0;i<3;i++) {//TODO: Increment by Start Vector
+			// dom.DomMax(0) = L[i];
+			// dom.DomMin(0) = -L[i];
+		// }		
 
 
     cout << "Domain Zones "<<domzones.size()<<endl;		
@@ -361,7 +385,8 @@ int main(int argc, char **argv)
       cout << "Zone id "<<zoneid<<endl;
 			// cout << "Dimensions: "<<endl;
 			cout << "start"<< vstart(0)<<"; "<< vstart(1)<<"; "<< vstart(2)<<"; "<<endl;
-
+			cout << "start"<< vend(0)<<"; "<< vend(1)<<"; "<< vend(2)<<"; "<<endl;
+      
 			int partcount =dom.AssignZone(vstart,vend,zoneid); ////IN DEVICE DOMAIN
       std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
 		}
@@ -394,7 +419,7 @@ int main(int argc, char **argv)
     // }
     std::vector<TriMesh *> mesh; ////// TODO: ALLOW FOR MULTIPLE MESH CONTACT
     SPH::TriMesh_d *mesh_d;
-    gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+    // gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
 
     //BEFORE CONTACT
     dom_d->solid_part_count = dom.Particles.size();  //AFTER SET DIMENSION
@@ -452,9 +477,9 @@ int main(int argc, char **argv)
 
     dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
 
-    dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
-    if (dom_d->trimesh ==NULL)
-      cout << "ERROR. No mesh defined"<<endl;
+    // dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+    // if (dom_d->trimesh ==NULL)
+      // cout << "ERROR. No mesh defined"<<endl;
 
   
 		// std::vector <SPH::amplitude> amps;
@@ -476,33 +501,33 @@ int main(int argc, char **argv)
 			// //std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
 		// }
 
-		// for (auto& bc : bcs) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
-			// // MaterialData* data = new MaterialData();
-			// int zoneid,valuetype,var,ampid;
+		for (auto& bc : bcs) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
+			// MaterialData* data = new MaterialData();
+			int zoneid,valuetype,var,ampid;
 
-			// double ampfactor;
-			// bool free=true;
-			// SPH::boundaryCondition bcon;
-      // bcon.type = 0;        //DEFAULT: VELOCITY
-      // bcon.valueType = 0;   //DEFAULT: CONSTANT
-      // bcon.value_ang = 0.0;
-			// readValue(bc["zoneId"], 	bcon.zoneId);
-      // //type 0 means velocity vc
-			// readValue(bc["valueType"], 	bcon.valueType);
-			// if (bcon.valueType == 0){//Constant
-        // readVector(bc["value"], 	      bcon.value);      //Or value linear
-        // readVector(bc["valueAng"], 	    bcon.value_ang);  //Or Angular value
-      // } else 
-        // if ( bcon.valueType == 1){ //Amplitude
-				// readValue(bc["amplitudeId"], 		bcon.ampId);
-				// readValue(bc["amplitudeFactor"], 	bcon.ampFactor);
-			// }
+			double ampfactor;
+			bool free=true;
+			SPH::boundaryCondition bcon;
+      bcon.type = 0;        //DEFAULT: VELOCITY
+      bcon.valueType = 0;   //DEFAULT: CONSTANT
+      bcon.value_ang = make_double3 (0.0);
+			readValue(bc["zoneId"], 	bcon.zoneId);
+      //type 0 means velocity vc
+			readValue(bc["valueType"], 	bcon.valueType);
+			if (bcon.valueType == 0){//Constant
+        readVector(bc["value"], 	      bcon.value);      //Or value linear
+        readVector(bc["valueAng"], 	    bcon.value_ang);  //Or Angular value
+      } else 
+        if ( bcon.valueType == 1){ //Amplitude
+				readValue(bc["amplitudeId"], 		bcon.ampId);
+				readValue(bc["amplitudeFactor"], 	bcon.ampFactor);
+			}
 				
-			// readValue(bc["free"], 	bcon.free);
-			// dom.bConds.push_back(bcon);
+			readValue(bc["free"], 	bcon.free);
+			//dom.bConds.push_back(bcon);
 			
-      // std::cout<< "BCs "<<  ", Zone ID: "<<bcon.zoneId<<", Value :" <<bcon.value<<std::endl;
-		// }//Boundary Conditions
+      std::cout<< "BCs "<<  ", Zone ID: "<<bcon.zoneId<<", Value :" <<bcon.value.x<<", "<<bcon.value.y<<", "<<bcon.value.z<<std::endl;
+		}//Boundary Conditions
 		
 		// double IniTemp = 0.;
 		// for (auto& ic : ics){
@@ -520,35 +545,66 @@ int main(int argc, char **argv)
     // dom.gradKernelCorr = kernel_grad_corr;
     // dom.ts_nb_inc = 5;
     
-    // if (dom.Particles.Size()>0){
-    // for (size_t a=0; a<dom.Particles.Size(); a++){
-      // dom.Particles[a]->G				= G;
-      // dom.Particles[a]->PresEq		= 0;
-      // dom.Particles[a]->Cs			= Cs;
-      // dom.Particles[a]->Shepard		= false;
-      
-      // if      ( mattype == "Bilinear" )     dom.Particles[a]->Ep 			= Ep;//HARDENING 
-      // else if ( mattype == "Hollomon" )     dom.Particles[a]->Material_model  = HOLLOMON;
-      // else if ( mattype == "JohnsonCook" )  dom.Particles[a]->Material_model  = JOHNSON_COOK;
-			// if (mattype == "Hollomon" || mattype == "JohnsonCook"){ //Link to material is only necessary when it is not bilinear (TODO: change this to every mattype)
-        // dom.Particles[a]->mat             = mat;
-       // dom.Particles[a]->Sigmay	= mat->CalcYieldStress(0.0,0.0,0.0);    
-      // }
-      // dom.Particles[a]->Sigmay		      = Fy;
-            
-      // dom.Particles[a]->Fail			= 1;
-      // dom.Particles[a]->Alpha			= alpha;
-      // dom.Particles[a]->Beta			= beta;
-      // dom.Particles[a]->TI			= tensins;
-      // dom.Particles[a]->TIInitDist	= dx;
-      // dom.Particles[a]->hfac = 1.2; //Only for h update, not used
-      
-      // // THERMAL PROPS
-      // dom.Particles[a]->k_T = k_T;
-      // dom.Particles[a]->cp_T = cp_T;
-	  
-	  // dom.Particles[a]->T = IniTemp;
-    // }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////// TODO: THIS SHOULD BE PASSED TO A DOM_D INTIIALIZE FUNCTION ///////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  dom_d->GeneralAfter = & UserAcc;
+	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
+  //SPH::Domain	dom;
+	//double3 *x =  (double3 *)malloc(dom.Particles.size());
+	double3 *x =  new double3 [dom.Particles.size()];
+	for (int i=0;i<dom.Particles.size();i++){
+		//cout <<"i; "<<i<<endl;
+		//x[i] = make_double3(dom.Particles[i]->x);
+		x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));
+	}
+	int size = dom.Particles.size() * sizeof(double3);
+	cout << "Copying to device..."<<endl;
+	cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
+
+
+	for (int i=0;i<dom.Particles.size();i++){
+		x[i] = make_double3(0.,0.,0.);
+	}
+	cudaMemcpy(dom_d->v, x, size, cudaMemcpyHostToDevice);
+  
+	cout << "copied"<<endl;
+
+	
+	cout << "Setting values"<<endl;
+	dom_d->SetDensity(rho);
+	dom_d->Set_h(h);
+	cout << "done."<<endl;
+
+	double *m =  new double [dom.Particles.size()];
+	for (size_t a=0; a<dom.Particles.size(); a++)
+		m[a] = dom.Particles[a]->Mass;
+	cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
+  
+    dom_d->Alpha = 0.0;//For all particles		
+    dom_d->SetShearModulus(G);	// 
+    for (size_t a=0; a<dom.Particles.size(); a++) {
+      //dom.Particles[a]->G				= G; 
+      dom.Particles[a]->PresEq	= 0;
+      dom.Particles[a]->Cs			= Cs;
+
+      dom.Particles[a]->TI		= 0.3;
+      dom.Particles[a]->TIInitDist	= dx;
+    }// particles
+    
+    dom_d->SetFreePart(dom); //All set to IsFree = true in this example
+    dom_d->SetID(dom); 
+    dom_d->SetCs(dom);
+    
+    dom_d->SetSigmay(Fy);
+    
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////// INITIALIZE //////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    
+    ///// REMAINS THERMAL
+    
     
     // cout << "Reduction Type is: ";
     // if (dom.nonlock_sum)

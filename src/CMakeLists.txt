@@ -97,8 +97,9 @@ add_executable(WeldFormGPU
 													Output.cpp
 													Vector.cpp
                           Mesh.cpp
-
+            
 													cuda/Domain_d.cu
+                          cuda/Mechanical.cu
                           cuda/cudautils.cu
 													cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
 													cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu

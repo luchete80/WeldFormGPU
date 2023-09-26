@@ -42,6 +42,7 @@
 #include "Vector.h"
 #include "vector_math.h"
 #include "PartData.cuh"
+#include "Boundary_Condition.cuh"
 
 #include "cuNSearch.h"
 #include "cuNSearchDeviceData.h"
@@ -259,6 +260,11 @@ class Domain_d
   //////////// ENERGY THINGS //////////////
   double    *int_energy, *kin_energy;
   double    int_energy_sum, kin_energy_sum;
+  
+  
+  ////////////////////////////////////////
+  /////////// BC_s ///////////////////////
+  std::vector <boundaryCondition> bConds;  //NEW, For BCond
   
 	/////////////////////////////////////////
 	///////// MEMBER FUNCTIONS /////////////

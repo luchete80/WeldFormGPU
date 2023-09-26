@@ -52,3 +52,4 @@
 20230922 - Invert contact nb BEFORE contact
 20230922 - FIXED ERROR IN CONTACT.
          - Significant improvement in input reader
+20230926 - General .exe first version. Can read cyl domains and contact

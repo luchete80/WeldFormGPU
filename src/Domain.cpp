@@ -508,7 +508,7 @@ void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz,
 	//PARTCILES ARE NOT ALIGNED WITH AXIS; BUT SYMMETRIC ON EACH QUADRANT
 	//MIN CONFIG IS 4 PARTICLES; ALWAYS NUM PARTICLES IS PAIR
 	numpartxy = calcHalfPartCount(r, Rxy, 1);
-	
+	cout << "Start "<<V(0)<<", "<<V(1)<<", "<<V(2)<<endl;
 	//cout << "X/Y Particles: " << numpartxy<<endl;
 	//yp=pos;
 	int numypart,numxpart;
@@ -536,7 +536,7 @@ void Domain::AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz,
 				xp = V(0) - r - (2.*r*(numxpart - 1) ); //First increment is radius, following ones are 2r
 				for (i=0; i<2*numxpart;i++) {
 					//if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
-					//	else    
+					//	else   
 					Particles.push_back(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));
 					xp += 2.*r;
 				}
