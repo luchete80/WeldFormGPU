@@ -25,9 +25,9 @@
 
 
 #include "cuda/Domain_d.cuh" 
-// #include "cuda/Mechanical.cu" 
+#include "cuda/Mechanical.cu" 
+#include "cuda/SolverFraser.cu"
 
-// #include "cuda/SolverFraser.cu"
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
 #include "cuda/Boundary_Condition.cuh"
@@ -109,15 +109,11 @@ void UserAcc(SPH::Domain_d & domi) {
 		// }//BC
 
 	// }
-
-		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 2, make_double3(0.,0.,0.));
+    
+    for (int bc=0;bc<domi.bConds.size();bc++) {
+		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, domi.bConds[bc].zoneId, domi.bConds[bc].value);
 		cudaDeviceSynchronize();
-    double vbc;
-    if (domi.Time < TAU) vbc = VMAX/TAU*domi.Time;
-    else            vbc = VMAX;
-    //cout << "vbc "<<vbc<<endl;
-		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 3, make_double3(0.,0.,-vbc));
-		cudaDeviceSynchronize();
+    }
       
   // if (domi.contact){
     // for (int bc=0;bc<domi.bConds.size();bc++){
@@ -203,8 +199,7 @@ int main(int argc, char **argv)
 		readValue(config["hFactor"], hfactor);
 
 
-    // bool h_update = false;
-    // dom.GeneralAfter = & UserAcc;
+
 		
 	
 		// //////////////
@@ -524,7 +519,7 @@ int main(int argc, char **argv)
 			}
 				
 			readValue(bc["free"], 	bcon.free);
-			//dom.bConds.push_back(bcon);
+			dom_d->bConds.push_back(bcon);
 			
       std::cout<< "BCs "<<  ", Zone ID: "<<bcon.zoneId<<", Value :" <<bcon.value.x<<", "<<bcon.value.y<<", "<<bcon.value.z<<std::endl;
 		}//Boundary Conditions
@@ -624,6 +619,46 @@ int main(int argc, char **argv)
       // throw new Fatal("Particle Count is Null. Please Check Radius and Domain Dimensions.");
     // }
 		// dom.WriteXDMF("maz");
+
+	cout << "Solving "<<endl;
+	//CheckData<<<1,1>>>(dom_d);
+	//cudaDeviceSynchronize(); //Crashes if not Sync!!!
+	
+	
+
+	
+	cout << "Time Step: "<<dom_d->deltat<<endl;
+	//riteCSV("test_inicial.csv", x, dom_d->u_h, dom.Particles.size());
+	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
+	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
+  
+	dom_d->auto_ts = false;
+  dom_d->Alpha = 1.0;
+	//dom_d->MechSolve(0.0101,1.0e-4);
+  
+  //New solver
+  dom_d->auto_ts = false;
+  //timestep = (1.0*h/(Cs+VMAX));
+  dom_d->deltat = 0.4*h/(Cs+VMAX);
+  //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
+  //LEAPFROG IS WORKING WITH ALPHA = 1
+  //KICKDRIFT IS NOT 
+  //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
+  //dom_d->MechFraserSolve(5*timestep,timestep);
+  dom_d->MechFraserSolve(0.0101,1.0e-4);
+  
+  //First example
+  // dom_d->deltat = 1.0e-7;
+	// dom_d->auto_ts = false;
+  // dom_d->Alpha = 1.0;
+	//dom_d->MechSolve(0.00101,1.0e-4);
+        // return 0;
+	//WriteCSV("test.csv", x, dom_d->u_h, dom.Particles.size());
+	dom_d->WriteCSV("test.csv");
+	
+	cudaFree(dom_d);
+	//report_gpu_mem();
+	cout << "Program ended."<<endl;
 
 	}	//Argc > 0
   else {cout << "No input file found. Please specify input file."<<endl;}

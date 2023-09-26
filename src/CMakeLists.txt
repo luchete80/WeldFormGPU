@@ -99,8 +99,9 @@ add_executable(WeldFormGPU
                           Mesh.cpp
             
 													cuda/Domain_d.cu
-                          cuda/Mechanical.cu
                           cuda/cudautils.cu
+                          cuda/Thermal.cu
+                          
 													cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
 													cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu
 													cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
