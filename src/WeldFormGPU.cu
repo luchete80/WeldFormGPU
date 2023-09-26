@@ -98,23 +98,22 @@ void UserAcc(SPH::Domain_d & domi) {
 			// // }//ZoneID 			
 		// // }//BC
 
-		// for (int bc=0;bc<domi.bConds.size();bc++){
-			// // if (domi.Particles[i]->ID == domi.bConds[bc].zoneId ) {
-				// // if (domi.bConds[bc].type == 0 ){ //VELOCITY
-					// // domi.Particles[i]->a		= Vec3_t(0.0,0.0,0.0);
-					// // domi.Particles[i]->v		= domi.bConds[bc].value;
-				// // }
-			// // }
-			
-		// }//BC
 
-	// }
-    
     for (int bc=0;bc<domi.bConds.size();bc++) {
-		ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, domi.bConds[bc].zoneId, domi.bConds[bc].value);
-		cudaDeviceSynchronize();
+      ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, domi.bConds[bc].zoneId, domi.bConds[bc].value);
+      cudaDeviceSynchronize();
     }
-      
+
+   //cout << "Applying BC"<<endl;
+		// ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 1, make_double3(0.,0.,0.));
+		// cudaDeviceSynchronize();
+    // double vbc;
+    // if (domi.Time < TAU) vbc = VMAX/TAU*domi.Time;
+    // else            vbc = VMAX;
+    // //cout << "vbc "<<vbc<<endl;
+		// ApplyBCVelKernel	<<<domi.blocksPerGrid,domi.threadsPerBlock >>>(&domi, 2, make_double3(0.,0.,-vbc));
+		// cudaDeviceSynchronize();
+    
   // if (domi.contact){
     // for (int bc=0;bc<domi.bConds.size();bc++){
       // for (int m=0;m<domi.trimesh.size();m++){
@@ -154,7 +153,7 @@ int main(int argc, char **argv)
 		dom.Dimension	= 3;
 		
 		// string kernel;
-    // double ts;
+    double ts;
     
     cout << "--------------------------------------------"<<endl;
     cout << "----------------- WELDFORM GPU-----------------"<<endl;
@@ -174,8 +173,8 @@ int main(int argc, char **argv)
     // else cout << "sumType value not valid. Options are \"Locking\" and \"Nishimura\". "<<endl; 
     
     
-		// cout << "Time step size: ";
-    // readValue(config["timeStepSize"], /*scene.timeStepSize*/ts);
+		cout << "Time step size: ";
+    readValue(config["timeStepSize"], /*scene.timeStepSize*/ts);
     // cout << ts << endl;
     // dom.Kernel_Set(Qubic_Spline);
     
@@ -250,13 +249,13 @@ int main(int argc, char **argv)
 		dx 	= 2.*r;
     h	= dx*hfactor; //Very important
     Cs	= sqrt(K/rho);
-
+    
+    cout << "Cs: "<<sqrt(K/rho);
         // double timestep,cflFactor;
 		// int cflMethod;
-    // double output_time;
-    // double sim_time;
+    double sim_time, output_time;
     // string cont_alg = "Fraser";
-    // bool auto_ts[] = {true, false, false}; //ONLY VEL CRITERIA
+    bool auto_ts[] = {true, false, false}; //ONLY VEL CRITERIA
 
 
 		// readValue(config["cflMethod"], cflMethod);
@@ -266,23 +265,22 @@ int main(int argc, char **argv)
 			// readValue(config["cflFactor"], cflFactor);
 			// timestep = (cflFactor*h/(Cs));
 		// }
-    // readValue(config["outTime"], output_time);
-    // readValue(config["simTime"], sim_time);
-    // readBoolVector(config["autoTS"], auto_ts);
+    readValue(config["outTime"], output_time);
+    readValue(config["simTime"], sim_time);
+    readBoolVector(config["autoTS"], auto_ts);
     // double alpha = 1.;
     // double beta = 0.;
     // bool h_upd = false;
     // double tensins = 0.3;
     // bool kernel_grad_corr = false;
-    // readValue(config["artifViscAlpha"],alpha);
-    // readValue(config["artifViscBeta"],beta);
+    readValue(config["artifViscAlpha"],dom_d->Alpha); //TODO: ARTIFF VISC PER PARTICLE
+    readValue(config["artifViscBeta"],dom_d->Beta);
     // readValue(config["contAlgorithm"],cont_alg);
     // readValue(config["kernelGradCorr"],kernel_grad_corr);
     // readValue(config["smoothlenUpdate"],h_upd);
-    // dom.auto_ts = auto_ts[0];
+    dom_d->auto_ts = auto_ts[0];
     // dom.auto_ts_acc = auto_ts[1];
     // dom.auto_ts_cont = auto_ts[2];
-		
     // readValue(config["tensileInstability"],tensins);
     // if (h_upd) //default is false...
       // dom.h_update = true;
@@ -361,13 +359,13 @@ int main(int argc, char **argv)
 		// cout <<"h  			= "<<h<<endl;
 		// cout <<"-------------------------"<<endl;
 		// cout <<	"Dim: "<<dom.Dimension<<endl;				
-		// cout << "Particle count: "<<dom.Particles.Size()<<endl;
 
     // for (int i=0;i<3;i++) {//TODO: Increment by Start Vector
 			// dom.DomMax(0) = L[i];
 			// dom.DomMin(0) = -L[i];
 		// }		
 
+		cout << "Particle count: "<<dom.Particles.size()<<endl;
 
     cout << "Domain Zones "<<domzones.size()<<endl;		
 		for (auto& zone : domzones) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
@@ -377,10 +375,10 @@ int main(int argc, char **argv)
 			readValue(zone["id"], 		zoneid);
 			readVector(zone["start"], 	vstart);
 			readVector(zone["end"], 	vend);
-      cout << "Zone id "<<zoneid<<endl;
+      //cout << "Zone id "<<zoneid<<endl;
 			// cout << "Dimensions: "<<endl;
-			cout << "start"<< vstart(0)<<"; "<< vstart(1)<<"; "<< vstart(2)<<"; "<<endl;
-			cout << "start"<< vend(0)<<"; "<< vend(1)<<"; "<< vend(2)<<"; "<<endl;
+			//cout << "start"<< vstart(0)<<"; "<< vstart(1)<<"; "<< vstart(2)<<"; "<<endl;
+			//cout << "end"<< vend(0)<<"; "<< vend(1)<<"; "<< vend(2)<<"; "<<endl;
       
 			int partcount =dom.AssignZone(vstart,vend,zoneid); ////IN DEVICE DOMAIN
       std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
@@ -469,9 +467,6 @@ int main(int argc, char **argv)
     else 
       cout << "false. "<<endl;
 
-
-    dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
-
     // dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
     // if (dom_d->trimesh ==NULL)
       // cout << "ERROR. No mesh defined"<<endl;
@@ -554,7 +549,7 @@ int main(int argc, char **argv)
 		x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));
 	}
 	int size = dom.Particles.size() * sizeof(double3);
-	cout << "Copying to device..."<<endl;
+	cout << "Copying to device "<<dom.Particles.size() << " particle properties ..."<<endl;
 	cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
 
 
@@ -576,22 +571,21 @@ int main(int argc, char **argv)
 		m[a] = dom.Particles[a]->Mass;
 	cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
   
-    dom_d->Alpha = 0.0;//For all particles		
-    dom_d->SetShearModulus(G);	// 
-    for (size_t a=0; a<dom.Particles.size(); a++) {
-      //dom.Particles[a]->G				= G; 
-      dom.Particles[a]->PresEq	= 0;
-      dom.Particles[a]->Cs			= Cs;
+  dom_d->SetShearModulus(G);	// 
+  for (size_t a=0; a<dom.Particles.size(); a++) {
+    //dom.Particles[a]->G				= G; 
+    dom.Particles[a]->PresEq	= 0;
+    dom.Particles[a]->Cs			= Cs;
 
-      dom.Particles[a]->TI		= 0.3;
-      dom.Particles[a]->TIInitDist	= dx;
-    }// particles
-    
-    dom_d->SetFreePart(dom); //All set to IsFree = true in this example
-    dom_d->SetID(dom); 
-    dom_d->SetCs(dom);
-    
-    dom_d->SetSigmay(Fy);
+    dom.Particles[a]->TI		= 0.3;
+    dom.Particles[a]->TIInitDist	= dx;
+  }// particles
+  
+  dom_d->SetFreePart(dom); //All set to IsFree = true in this example
+  dom_d->SetID(dom); 
+  dom_d->SetCs(dom);
+  
+  dom_d->SetSigmay(Fy);
     
     /////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////// INITIALIZE //////////////////////////////////////////
@@ -632,8 +626,7 @@ int main(int argc, char **argv)
 	//dom_d->MechSolve(0.00101 /*tf*//*1.01*/,1.e-4);
 	//dom_d->MechSolve(100*timestep + 1.e-10 /*tf*//*1.01*/,timestep);
   
-	dom_d->auto_ts = false;
-  dom_d->Alpha = 1.0;
+
 	//dom_d->MechSolve(0.0101,1.0e-4);
   
   //New solver
@@ -645,15 +638,8 @@ int main(int argc, char **argv)
   //KICKDRIFT IS NOT 
   //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
   //dom_d->MechFraserSolve(5*timestep,timestep);
-  dom_d->MechFraserSolve(0.0101,1.0e-4);
-  
-  //First example
-  // dom_d->deltat = 1.0e-7;
-	// dom_d->auto_ts = false;
-  // dom_d->Alpha = 1.0;
-	//dom_d->MechSolve(0.00101,1.0e-4);
-        // return 0;
-	//WriteCSV("test.csv", x, dom_d->u_h, dom.Particles.size());
+  dom_d->MechFraserSolve(sim_time,output_time);
+
 	dom_d->WriteCSV("test.csv");
 	
 	cudaFree(dom_d);
