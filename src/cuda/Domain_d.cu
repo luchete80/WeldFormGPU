@@ -298,6 +298,16 @@ __global__ void CheckData(Domain_d *dom){
 	dom->CheckData();
 }
 
+__device__ void Domain_d::AssignMatAddress(int i){
+  if (i< solid_part_count)
+    mat[i] = &materials[0];
+}
+
+__global__ void AssignMatAddressKernel(Domain_d *dom){
+  int i = threadIdx.x + blockDim.x*blockIdx.x;
+  dom->AssignMatAddress(i);
+}
+
 void Domain_d::Set_h(const double &k){
 	double *k_ =  new double[particle_count];
 	for (int i=0;i<particle_count;i++){

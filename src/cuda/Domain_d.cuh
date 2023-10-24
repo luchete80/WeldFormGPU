@@ -285,6 +285,7 @@ class Domain_d
   __host__ void MechKickDriftSolve(const double &tf, const double &dt_out);
   __host__ void MechFraserSolve(const double &tf, const double &dt_out);
   __host__ void MechLeapfrogSolve(const double &tf, const double &dt_out);
+
 	
 	//General
 	__host__ void SetDensity (const double &k);
@@ -337,6 +338,8 @@ __device__ inline void UpdateDensity(double dt);
   __device__ inline void UpdatePos(double dt);
   __device__ inline void UpdatePosFraser(double dt);
   __device__ inline void SetVel(double3 v);
+  
+  __device__ void AssignMatAddress(int i); //Assign particle data to material array to zero array
   
 	__device__ /*__forceinline__*/inline void CalcRateTensors(const uint *particlenbcount,
 																													const uint *neighborWriteOffsets,
@@ -394,6 +397,8 @@ __device__ inline void UpdateDensity(double dt);
 inline void __global__ UpdateContactParticlesKernel(Domain_d *dom);
 
 __global__ void CheckData(Domain_d *dom);
+
+__global__ void AssignMatAddressKernel(Domain_d *dom/*, Material_ *mat*/);
 
 //Called by Solve host function
 //TODO: REMOVE; PASS ENTIRE CLASS

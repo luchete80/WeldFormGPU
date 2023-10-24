@@ -549,7 +549,7 @@ int main(int argc, char **argv)
   
 
   
-  //Elastic_ el(E,nu);
+  Elastic_ el(E,nu);
   cout << "Mat type  "<<mattype<<endl;
   if      (mattype == "Bilinear")    {
     Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
@@ -562,9 +562,10 @@ int main(int argc, char **argv)
     //Order is 
                                //A(sy0) ,B,  ,C,   m   ,n   ,eps_0,T_m, T_transition
     Material_ *material_h  = new JohnsonCook(el,Fy, c[0],c[1],c[3],c[2],c[6], c[4],c[5]); //First is hardening // A,B,C,m,n_,eps_0,T_m, T_t);	 //FIRST IS n_ than m
-
+    
     //Only 1 material to begin with
-  cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Material_ ));
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(JohnsonCook ));
+    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(JohnsonCook), cudaMemcpyHostToDevice);	
     cout << "Material Constants, B: "<<c[0]<<", C: "<<c[1]<<", n: "<<c[2]<<", m: "<<c[3]<<", T_m: "<<c[4]<<", T_t: "<<c[5]<<", eps_0: "<<c[6]<<endl;
   } else                              printf("ERROR: Invalid material type.");
     

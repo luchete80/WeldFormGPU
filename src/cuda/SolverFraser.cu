@@ -136,6 +136,10 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 			sprintf(str, "out_%.6f.csv", Time);
 			WriteCSV(str);
       
+  ////// MATERIAL
+  AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+  cudaDeviceSynchronize();
+      
   //ONLY FOR TESTING 
   test_h = new double [particle_count];
   while (Time<tf) {
