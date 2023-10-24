@@ -14,6 +14,7 @@
 #include "Contact.cu"
 
 #include "cuNSearch.h"
+#include "Material.cuh"
 //For Writing file
 
 //This is temporary since can be used a delta_pl_strain for each particle
@@ -503,8 +504,8 @@ __device__ void Domain_d::StressStrainOne(int i) {
     if ( sigma_y[i] < sig_trial ) ShearStress = sigma_y[i]/sig_trial * ShearStress; //Yielding      
     //std::min((Sigmay/sqrt(3.0*J2)),1.0)*ShearStressa;
 
-    // if       (mat[i]->Material_model == HOLLOMON )       sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]); 
-		// else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i],eff_strain_rate[i],T[i]);
+    if       (mat[i]->Material_model == HOLLOMON )       sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]); 
+		else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i],eff_strain_rate[i],T[i]);
 		
 		sigma_eq[i] = sig_trial;	
 		

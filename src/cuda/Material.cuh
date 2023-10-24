@@ -32,6 +32,7 @@ class Material_{
 	virtual __device__ inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp){};
 	virtual __device__ inline double CalcTangentModulus(const double &strain){};
 	virtual __device__ inline double CalcYieldStress(){};
+	virtual __device__ inline double CalcYieldStress(const double &strain){return 0.0;};
 	virtual __device__ inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp){};
 	__host__ __device__ const Elastic_& Elastic()const{return elastic_m;}
 };
