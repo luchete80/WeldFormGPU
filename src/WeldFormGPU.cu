@@ -552,8 +552,11 @@ int main(int argc, char **argv)
   Elastic_ el(E,nu);
   cout << "Mat type  "<<mattype<<endl;
   if      (mattype == "Bilinear")    {
+    Material_ *material_h  = new Bilinear();
     Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
     cout << "Material Constants, Et: "<<c[0]<<endl;
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear ));
+    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
   } 
   else if (mattype == "Hollomon")    {
     Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);

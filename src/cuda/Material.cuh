@@ -43,6 +43,15 @@ class _Plastic{
 	//virtual inline double CalcYieldStress();
 };
 
+class Bilinear:
+public Material_{
+ 	public:
+	Bilinear(){ //THIS IS DIFFERENT FROM WELDFORM CPU, IN WHICH BILINEAR IS NOT A MATERIAL
+    Material_model = BILINEAR;
+  }
+};
+
+
 //TODO: derive johnson cook as plastic material flow
 class JohnsonCook:
 public Material_{

@@ -515,6 +515,8 @@ __device__ void Domain_d::StressStrainOne(int i) {
 			sigma_eq[i] = sigma_y[i];
 		}
 
+    // if (mat[i]->Material_model == BILINEAR )
+      // sigma_y[i] += dep*Ep;
     
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
 
