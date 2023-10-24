@@ -516,6 +516,10 @@ __device__ void Domain_d::StressStrainOne(int i) {
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
 
 		Strain	= deltat * StrainRate + Strain;
+    
+    // if (mat[i]->Material_model==JOHNSON_COOK){
+      // printf("JOHNSON_COOK!\n"); //test
+    // }
 
 		///// OUTPUT TO Flatten arrays
 		ToFlatSymPtr(Sigma, sigma,6*i);  //TODO: CHECK IF RETURN VALUE IS SLOWER THAN PASS AS PARAM		

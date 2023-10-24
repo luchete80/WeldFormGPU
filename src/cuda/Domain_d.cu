@@ -135,6 +135,11 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&NSv, 		particle_count  * sizeof (double3));	
 	cudaMalloc((void **)&ID, 			particle_count  * sizeof (int));	
 	
+  
+  
+
+  cudaMalloc((void**)&mat, particle_count * sizeof(Material_ *));
+
 	//////////////////////////
 	/////// TENSILE INST /////
 	cudaMalloc((void **)&TI, 					particle_count  * sizeof (double));	

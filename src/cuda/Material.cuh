@@ -3,14 +3,18 @@
 
 class Particle;
 
+#define BILINEAR				0
+#define HOLLOMON				1 //POWER LAW
+#define JOHNSON_COOK		2
+
 class Elastic_{
 	private:
 	double E_m, nu_m;	//Poisson and young
 	double K_m, G_m;
 	
 	public:
-	Elastic_(){}
-	Elastic_(const double &e, const double &nu):E_m(e),nu_m(nu){}
+	__device__ Elastic_(){}
+	__device__ Elastic_(const double &e, const double &nu):E_m(e),nu_m(nu){}
 	const double& E()const{return E_m;}
 	
 };
@@ -21,13 +25,14 @@ class Material_{
 	Elastic_ elastic_m;
 	double E_m, nu;	//TODO, move to elastic class
 	public:
+  int			Material_model;	//TODO: Change to enum
 	Material_(){}
 	Material_(const Elastic_ el):elastic_m(el){}
 	virtual __device__ inline double CalcTangentModulus(){};
-	virtual __device__ inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp){};
-	virtual __device__ inline double CalcTangentModulus(const double &strain){};
+	virtual __device__ inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp);
+	virtual __device__ inline double CalcTangentModulus(const double &strain);
 	virtual __device__ inline double CalcYieldStress();
-	virtual __device__ inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp){}
+	virtual __device__ inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp);
 	const Elastic_& Elastic()const{return elastic_m;}
 };
 
@@ -57,8 +62,8 @@ public Material_{
 	Material_(el),A(a),B(b),C(c),
   m(m_),n(n_),eps_0(eps_0_),T_m(T_m_),T_t(T_t_)
   {}
-	inline double CalcYieldStress(){return 0.0;}	
-	inline double CalcYieldStress(const double &plstrain){
+	inline double __device__ CalcYieldStress(){return 0.0;}	
+	inline double __device__ CalcYieldStress(const double &plstrain){
      double Et =0.;
 
     if (plstrain > 0.)
@@ -67,15 +72,15 @@ public Material_{
       Et = Elastic().E()*0.1; //ARBITRARY! TODO: CHECK MATHEMATICALLY
     return Et;
   } //TODO: SEE IF INCLUDE	
-	inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp);	
-	inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp);
+	inline double __device__ CalcYieldStress(const double &strain, const double &strain_rate, const double &temp);	
+	inline double __device__ CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp);
   //~JohnsonCook(){}
 };
 
 class Hollomon:
 public Material_{
 	double K, m;
-	double eps0;
+	double eps0, eps1;
   double sy0;
 	
 	public:

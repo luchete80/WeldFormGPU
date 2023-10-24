@@ -218,6 +218,9 @@ class Domain_d
 	int 			*ID, *ID_h;
   
   int *SMPairs;  //Flattened pairs
+  
+  Material_ **mat; //pointer to material of each particle
+  Material_ *materials; //All materials 
 	
 	
 	////////////////////////////////////
