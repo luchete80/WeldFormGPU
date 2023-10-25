@@ -504,20 +504,20 @@ __device__ void Domain_d::StressStrainOne(int i) {
     if ( sigma_y[i] < sig_trial ) ShearStress = sigma_y[i]/sig_trial * ShearStress; //Yielding      
     //std::min((Sigmay/sqrt(3.0*J2)),1.0)*ShearStressa;
 
-    if       (mat[i]->Material_model == HOLLOMON )       sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]); 
-		else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i],eff_strain_rate[i],T[i]);
+    // if       (mat[i]->Material_model == HOLLOMON )       sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]); 
+		// else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i],eff_strain_rate[i],T[i]);
 		
 		sigma_eq[i] = sig_trial;	
 		
 		if ( sig_trial > sigma_y[i]) {
-      if              (mat[i]->Material_model == HOLLOMON ) {
-				// Et = mat->CalcTangentModulus(pl_strain); //Fraser 3.54
-				// Et_m = Et;        
-      } else if       (mat[i]->Material_model == JOHNSON_COOK ) {
-        //Et = mat->CalcTangentModulus(pl_strain, eff_strain_rate, T); //Fraser 3.54
-      } else if       (mat[i]->Material_model == BILINEAR ) {
-        //Ep = mat->Elastic().E()*Et/(mat->Elastic().E()-Et);
-      }
+      // if              (mat[i]->Material_model == HOLLOMON ) {
+				// // Et = mat->CalcTangentModulus(pl_strain); //Fraser 3.54
+				// // Et_m = Et;        
+      // } else if       (mat[i]->Material_model == JOHNSON_COOK ) {
+        // //Et = mat->CalcTangentModulus(pl_strain, eff_strain_rate, T); //Fraser 3.54
+      // } else if       (mat[i]->Material_model == BILINEAR ) {
+        // //Ep = mat->Elastic().E()*Et/(mat->Elastic().E()-Et);
+      // }
       //if (Ep<0) Ep = 1.*mat->Elastic().E();
       
 			dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
