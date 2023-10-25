@@ -252,6 +252,16 @@ __host__ void Domain_d::SetID(const Domain &dom){
 	delete k_;	
 }
 
+__global__
+void init_hollomon_mat_kernel(Material_ ** p)
+{
+  if (threadIdx.x == 0 && blockIdx.x == 0){
+  Elastic_ el;
+  (*p) = new Hollomon(el,1.0,1.0,1.0);
+  }
+}
+
+
 __host__ void Domain_d::SetCs(const Domain &dom){
 	double *k_ =  new double[particle_count];
 	for (int i=0;i<particle_count;i++){
@@ -299,8 +309,8 @@ __global__ void CheckData(Domain_d *dom){
 }
 
 __device__ void Domain_d::AssignMatAddress(int i){
-  if (i< solid_part_count)
-    mat[i] = &materials[0];
+  // if (i< solid_part_count)
+    // mat[i] = materials[0];
 }
 
 __global__ void AssignMatAddressKernel(Domain_d *dom){

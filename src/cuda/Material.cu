@@ -1,5 +1,3 @@
-#include "Particle.h"
-#include "Material.cuh"
 ///////////////////////////////////////////////////
 //sy = [A + B(epl^n)] [1 + C ln(e_dot pl/e_dot 0) (1 - pow)]
 
@@ -30,11 +28,12 @@ inline double __device__ JohnsonCook::CalcTangentModulus(const double &plstrain,
     Et = Elastic().E()*0.1; //ARBITRARY! TODO: CHECK MATHEMATICALLY
   return Et;
 }	
-  
-inline double __device__ Hollomon::CalcYieldStress(const double &strain)	{
-  double sy;
-  if (strain + eps0 > eps1) sy = K*pow(strain + eps0, m); //plateau surpassed. If no plateau, eps1=eps0 so 
-  else                      sy = sy0; 
+
+inline double __device__ Hollomon::CalcYieldStress(const double &strain){
+  double sy = 0.0;
+  printf("K %f eps0 %f , eps1 %f sy0 %f m %f\n",K,eps0,eps1,sy0,m);
+  // if (strain + eps0 > eps1) sy = K*pow(strain + eps0, m); //plateau surpassed. If no plateau, eps1=eps0 so 
+  // else                      sy = sy0; 
 	return sy;
 }	
 

@@ -454,7 +454,9 @@ __device__ void Domain_d::StressStrain(int i) {
 	}//particle count
 }
 
-//////// DO NOT USE A AND B, THIS IS USED BY KICKDRIFT /////////////
+//////// DO NOT USE A AND B, THIS IS USED BY KICKDRIFT  /////////////
+//////// IN CPU VERSION THIS IS DEFINED ON PARTICLE.CPP //////////////
+//////////////////////////////////////////////////////////////////////
 __device__ void Domain_d::StressStrainOne(int i) {
 	
 	//int i = threadIdx.x + blockDim.x*blockIdx.x;
@@ -504,7 +506,13 @@ __device__ void Domain_d::StressStrainOne(int i) {
     if ( sigma_y[i] < sig_trial ) ShearStress = sigma_y[i]/sig_trial * ShearStress; //Yielding      
     //std::min((Sigmay/sqrt(3.0*J2)),1.0)*ShearStressa;
 
-    // if       (mat[i]->Material_model == HOLLOMON )       sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]); 
+   // if       (mat[i]->Material_model == HOLLOMON )       {
+      //printf("pl strain %f\n",pl_strain[i]);
+      //mat [i]->CalcYieldStress(0.0);
+      //sigma_y[i] = mat [i]->testret();
+      (*materials)->testret();
+      //sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]); 
+    //} 
 		// else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i],eff_strain_rate[i],T[i]);
 		
 		sigma_eq[i] = sig_trial;	
@@ -527,7 +535,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
 		}
 
     // if (mat[i]->Material_model == BILINEAR )
-      // sigma_y[i] += dep*Ep;
+      // sigma_y[i] += dep*mat[i]->Ep;
     
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
 
@@ -535,6 +543,12 @@ __device__ void Domain_d::StressStrainOne(int i) {
     
     // if (mat[i]->Material_model==JOHNSON_COOK){
       // printf("JOHNSON_COOK!\n"); //test
+    // } elsr     
+    // if (mat[i]->Material_model==HOLLOMON){
+      // printf("HOLLOMON!\n"); //test
+    // }    
+    // if (mat[i]->Material_model==BILINEAR){
+      // printf("BILINEAR!\n"); //test
     // }
 
 		///// OUTPUT TO Flatten arrays

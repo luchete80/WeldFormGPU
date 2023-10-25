@@ -220,7 +220,8 @@ class Domain_d
   int *SMPairs;  //Flattened pairs
   
   Material_ **mat; //pointer to material of each particle
-  Material_ *materials; //All materials 
+  Material_ **materials; //All materials 
+  
 	
 	
 	////////////////////////////////////
@@ -484,6 +485,18 @@ __global__ inline void UpdateVelKernel(Domain_d *dom, double dt);
 __global__ inline void UpdatePosKernel(Domain_d *dom, double dt);
 __global__ inline void UpdatePosFraserKernel(Domain_d *dom, double dt);
 
+//__global__
+// void init_johnsoncook_mat_kernel(Material_ ** p)
+
+// {
+
+  // *p = new DerivedClass();
+
+// }
+
+// See https://forums.developer.nvidia.com/t/virtual-funtions-in-kernels/22117/3
+__global__
+void init_hollomon_mat_kernel(Material_ ** p);
 	/* const double &Dimension*/
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel

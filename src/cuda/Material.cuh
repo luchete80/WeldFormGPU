@@ -23,10 +23,15 @@ class Material_{
 	
 	protected:
 	Elastic_ elastic_m;
+
 	double E_m, nu;	//TODO, move to elastic class
+  
 	public:
+  double Ep;  //If Bilinear this is constant, 
   int			Material_model;	//TODO: Change to enum
 	Material_(){}
+  __device__ void test(){printf("test\n");}
+  virtual __device__ double testret(){return 2.0;}
 	Material_(const Elastic_ el):elastic_m(el){}
 	virtual __device__ inline double CalcTangentModulus(){};
 	virtual __device__ inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp){};
@@ -46,8 +51,10 @@ class _Plastic{
 
 class Bilinear:
 public Material_{
+
  	public:
-	Bilinear(){ //THIS IS DIFFERENT FROM WELDFORM CPU, IN WHICH BILINEAR IS NOT A MATERIAL
+	Bilinear(const double &ep){ //THIS IS DIFFERENT FROM WELDFORM CPU, IN WHICH BILINEAR IS NOT A MATERIAL
+    Ep = ep;
     Material_model = BILINEAR;
   }
 };
@@ -97,15 +104,30 @@ public Material_{
   double sy0;
 	
 	public:
-	Hollomon(){}
+	Hollomon(){Material_model = HOLLOMON;}
 	//You provide the values of A, B, n, m, 
 	//θmelt, and  θ_transition
 	//as part of the metal plasticity material definition.
 	//ASSUMING AT FIRST COEFFICIENTS ARE GIVEN TO TOTAL STRAIN-STRESS
-	__device__ __host__ Hollomon(const double eps0_, const double &k_, const double &m_):
-	K(k_), m(m_){ eps0 = eps0_;}
-		__device__ __host__  Hollomon(const Elastic_ &el, const double sy0_, const double &k_, const double &m_){};
-	inline double __device__ CalcTangentModulus(const double &strain);
+	__device__ Hollomon(const double eps0_, const double &k_, const double &m_):
+    K(k_), m(m_){ 
+    eps0 = eps0_;
+    Material_model = HOLLOMON;}
+  __device__  Hollomon(const Elastic_ &el, const double sy0_, const double &k_, const double &m_):
+  Material_(el),K(k_), m(m_) {
+  Material_model = HOLLOMON;
+  // eps0 = sy0_/el.E(); 
+  // sy0  = sy0_;
+  // eps1 = pow(sy0_/k_, 1./m);
+  // printf( "eps_0,  eps_1 \n",eps0, eps1);
+  // if (eps0 > eps1){
+    // printf ("ERROR, Hollomon material bad definition, please correct Yield Stress, Elastic Modulus or Material hardening constants.");
+  // }
+  
+  }
+  __device__ double testret(){printf("hollomon testret\n"); return 2.0;}
+	
+  inline double __device__ CalcTangentModulus(const double &strain);
 	inline double __device__ CalcYieldStress(){}	
 	inline double __device__ CalcYieldStress(const double &strain);	
 };
