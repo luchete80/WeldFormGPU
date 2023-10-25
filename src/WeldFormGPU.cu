@@ -122,6 +122,14 @@ void UserAcc(SPH::Domain_d & domi) {
       // }//mesh
     // }//bcs
   // }//contact
+
+  if (domi.contact){
+    for (int bc=0;bc<domi.bConds.size();bc++){
+        if (domi.trimesh->id == domi.bConds[bc].zoneId)
+          domi.trimesh->SetVel(domi.bConds[bc].value);
+    }//bcs
+  }//contact
+
 }
 
 int main(int argc, char **argv)
@@ -376,30 +384,27 @@ int main(int argc, char **argv)
       contact = true;
     Vector dim;
     
-		// readVector(rigbodies[0]["start"], 	start);       
-		// readVector(rigbodies[0]["dim"], 	dim); 
-    // bool flipnormals = false;
-    // readValue(rigbodies[0]["flipNormals"],flipnormals);
+		Vector vstart;
+    readVector(rigbodies[0]["start"], 	vstart);       
+		readVector(rigbodies[0]["dim"], 	dim); 
+    bool flipnormals = false;
+    readValue(rigbodies[0]["flipNormals"],flipnormals);
     
     // double heatcap = 1.;
     // readValue(rigbodies[0]["thermalHeatCap"],heatcap);
     // //TODO: WRitE TO PArTiclES
-    // if (rigbody_type == "File"){
-      // // string filename = "";
-      // // readValue(rigbodies[0]["fileName"], 	filename); 
-      // // cout << "Reading Mesh input file..." << endl;
-      // // SPH::NastranReader reader("Tool.nas", flipnormals);
-    // }
-    // else {
-      // if (dim (0)!=0. && dim(1) != 0. && dim(2) !=0. && rigbody_type == "Plane")
-        // throw new Fatal("ERROR: Contact Plane Surface should have one null dimension");
-    // }
+    if (rigbody_type == "File"){
+      // string filename = "";
+      // readValue(rigbodies[0]["fileName"], 	filename); 
+      // cout << "Reading Mesh input file..." << endl;
+      // SPH::NastranReader reader("Tool.nas", flipnormals);
+    }
+    else {
+      if (dim (0)!=0. && dim(1) != 0. && dim(2) !=0. && rigbody_type == "Plane")
+        printf("ERROR: Contact Plane Surface should have one null dimension\n");
+    }
     std::vector<TriMesh *> mesh; ////// TODO: ALLOW FOR MULTIPLE MESH CONTACT
     SPH::TriMesh_d *mesh_d;
-    // gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
-
-    //BEFORE CONTACT
-    dom_d->solid_part_count = dom.Particles.size();  //AFTER SET DIMENSION
   
     cout << "Set contact to ";
     if (contact){
@@ -409,18 +414,43 @@ int main(int argc, char **argv)
       //TODO: CHANGE TO EVERY DIRECTION
       int dens = 10;
       readValue(rigbodies[0]["partSide"],dens);
-      // if (rigbody_type == "Plane"){
-        // // TODO: CHECK IF MESH IS NOT DEFINED
-        // mesh.push_back(new TriMesh);
-        // mesh[0]->AxisPlaneMesh(2, false, start, Vector(start(0)+dim(0),start(1)+dim(1), start(2)),dens);
-        // mesh_d->AxisPlaneMesh(2,false,make_double3(start(0)+dim(0),start(1)+dim(1), start(2)),30);
-      // } else if (rigbody_type == "File"){
+      if (rigbody_type == "Plane"){
+
+        SPH::TriMesh mesh;
+        //mesh[0]->AxisPlaneMesh(2, false, start, Vec3_t(start(0)+dim(0),start(1)+dim(1), start(2)),dens);
+        mesh.AxisPlaneMesh(2,false,vstart,
+        Vector(vstart(0)+dim(0),vstart(1)+dim(1), vstart(2)),
+        dens);
+
+        double hfac = 1.1;
+        dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+        int solid_count = dom.Particles.size(); //BEFORE ADDING CONTACT MESH
+        
+        dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
+        dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
+        
+        //TODO: Mesh has to be deleted
+        SPH::TriMesh_d *mesh_d;
+        gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+        mesh_d->AxisPlaneMesh(2,false,make_double3(vstart(0),vstart(1),vstart(2)),make_double3(vstart(0)+dim(0),vstart(1)+dim(1),vstart(2)),dens);
+        
+        cout << "Domain Size "<<dom.Particles.size()<<endl;
+        //BEFORE ALLOCATING 
+        int particlecount = dom.Particles.size();
+        // //cout << "Particles "<<
+        dom_d->SetDimension(particlecount);	 //AFTER CREATING DOMAIN
+        dom_d->solid_part_count = solid_count;  //AFTER SET DIMENSION
+        dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+        if (dom_d->trimesh ==NULL)
+          cout << "ERROR. No mesh defined"<<endl;
+        
+      } else if (rigbody_type == "File"){
         // string filename = "";
         // readValue(rigbodies[0]["fileName"], 	filename); 
         // cout << "Reading Mesh input file " << filename <<endl;
         // SPH::NastranReader reader(filename.c_str());
           // mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
-      // }
+      }
       // cout << "Creating Spheres.."<<endl;
       // //mesh.v = Vec3_t(0.,0.,);
       // mesh[0]->CalcSpheres(); //DONE ONCE
@@ -451,11 +481,6 @@ int main(int argc, char **argv)
     else 
       cout << "false. "<<endl;
 
-    // dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
-    // if (dom_d->trimesh ==NULL)
-      // cout << "ERROR. No mesh defined"<<endl;
-
-  
 		// std::vector <SPH::amplitude> amps;
 		
 		// for (auto& ampl : amplitudes) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
