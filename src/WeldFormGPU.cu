@@ -461,9 +461,9 @@ int main(int argc, char **argv)
       // dom.AddTrimeshParticles(mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
         
       
-      // std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
-      // readValue(contact_[0]["fricCoeffStatic"], 	fric_sta[0]); 
-      // readValue(contact_[0]["fricCoeffDynamic"], 	fric_dyn[0]); 
+      std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
+      readValue(contact_[0]["fricCoeffStatic"], 	fric_sta[0]); 
+      readValue(contact_[0]["fricCoeffDynamic"], 	fric_dyn[0]); 
       // readValue(contact_[0]["heatCondCoeff"], 	  heat_cond[0]);
       
       // bool heat_cond_ = false;
@@ -472,8 +472,8 @@ int main(int argc, char **argv)
         // dom.contact_hc = heat_cond[0];
       // }
       
-      // dom.friction_dyn = fric_dyn[0];
-      // dom.friction_sta = fric_sta[0];
+      dom_d->friction_dyn = fric_dyn[0];
+      dom_d->friction_sta = fric_sta[0];
       // dom.PFAC = 0.8;
       // dom.DFAC = 0.0;
       
