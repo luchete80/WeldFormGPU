@@ -461,6 +461,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
 	
 	//int i = threadIdx.x + blockDim.x*blockIdx.x;
 	double dep = 0.;
+  double Ep;  //STORAGE THIS OR THE TANGENT?
 	
 	if ( i < solid_part_count ) {	
 		//Pressure = EOS(PresEq, Cs, P0,Density, RefDensity); //CALL BEFORE!
@@ -511,6 +512,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
       //printf("Hollomon!");
       //printf("pl strain %f\n",pl_strain[i]);
       //sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]);
+      //ShowProps(mat[i]);
       sigma_y[i] = CalcHollomonYieldStress(pl_strain[i],mat [i]);
       //printf ("sigma_y %f\n",sigma_y[i]);
       //sigma_y[i] = mat [i]->testret();
@@ -522,15 +524,21 @@ __device__ void Domain_d::StressStrainOne(int i) {
 		sigma_eq[i] = sig_trial;	
 		
 		if ( sig_trial > sigma_y[i]) {
-      // if              (mat[i]->Material_model == HOLLOMON ) {
-				// // Et = mat->CalcTangentModulus(pl_strain); //Fraser 3.54
-				// // Et_m = Et;        
-      // } else if       (mat[i]->Material_model == JOHNSON_COOK ) {
-        // //Et = mat->CalcTangentModulus(pl_strain, eff_strain_rate, T); //Fraser 3.54
-      // } else if       (mat[i]->Material_model == BILINEAR ) {
-        // //Ep = mat->Elastic().E()*Et/(mat->Elastic().E()-Et);
-      // }
-      //if (Ep<0) Ep = 1.*mat->Elastic().E();
+      if              (mat[i]->Material_model == HOLLOMON ) {
+				Et[i] = CalcHollomonTangentModulus(pl_strain[i],mat[i]); //Fraser 3.54
+				// Et_m = Et;        
+      } else if       (mat[i]->Material_model == JOHNSON_COOK ) {
+        //Et = mat->CalcTangentModulus(pl_strain, eff_strain_rate, T); //Fraser 3.54
+      } else if       (mat[i]->Material_model == BILINEAR ) {
+        //Ep = mat->Elastic().E()*Et/(mat->Elastic().E()-Et);
+      }
+			if (mat[i]->Material_model > BILINEAR ) {//Else Ep = 0
+        //cout << "Calculating Ep"<<endl;
+				Ep = mat[i]->Elastic().E()*Et[i]/(mat[i]->Elastic().E()-Et[i]);
+				// if (Ep < 0)
+					// cout << "ATTENTION Material Ep <0 "<<Ep<<", Et" << Et <<", platrain"<<pl_strain<<"effstrrate"<<eff_strain_rate<<endl;
+			}
+      if (Ep<0) Ep = 1.*mat[i]->Elastic().E();
       
 			dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
 			pl_strain[i] += dep;	

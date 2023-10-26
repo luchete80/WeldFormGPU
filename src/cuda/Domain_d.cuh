@@ -196,6 +196,7 @@ class Domain_d
 	double *p_h,*rho_h;
 	
 	double *sigma_y,*sigma_y_h;
+  double *Et; //tangent mod
 	//Be in another class
 	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
 		
@@ -363,6 +364,7 @@ __device__ inline void UpdateDensity(double dt);
                                                   const uint *neighbors);
 
   __device__ void init_hollomon_material();
+  __device__ void InitMatHollomon(Material_ *mat); //With no virtual functions
 	__device__ void StressStrain(int i);
 	__device__ void StressStrainOne(int i);
 	
@@ -512,7 +514,12 @@ void init_hollomon_mat_kernel(Domain_d *dom);
 // /*inline*/ __host__ void LastComputeAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
 // __global__ void LastComputeAccelerationKernel(Domain_d &sd);
 
+//__global__ void InitMatHollomonKernel(Domain_d *dom, const Material_ &mat_h);
+
+
 }; // namespace SPH
+
+
 
 #include "Mesh.h"
 

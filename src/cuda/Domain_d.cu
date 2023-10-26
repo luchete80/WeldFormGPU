@@ -122,6 +122,7 @@ void Domain_d::SetDimension(const int &particle_count){
 	cudaMalloc((void **)&sigma_eq		, particle_count  * sizeof (double));		
 	cudaMalloc((void **)&pl_strain	, particle_count  * sizeof (double));	
 	cudaMalloc((void **)&sigma_y		, particle_count  * sizeof (double));		
+	cudaMalloc((void **)&Et		      , particle_count  * sizeof (double));		
 	
 	cudaMalloc((void **)&strain		, particle_count  * 6 * sizeof (double));		
 	// cudaMalloc((void **)&straina	, particle_count  * 6 * sizeof (double));		
@@ -331,12 +332,25 @@ __global__ void CheckData(Domain_d *dom){
 __device__ void Domain_d::AssignMatAddress(int i){
   if (i< solid_part_count)
     mat[i] = &materials[0];
+  
 }
 
 __global__ void AssignMatAddressKernel(Domain_d *dom){
   int i = threadIdx.x + blockDim.x*blockIdx.x;
   dom->AssignMatAddress(i);
 }
+
+// __global__ void InitMatHollomonKernel(Domain_d *dom, const Material_ &mat_h){
+  // int i = threadIdx.x + blockDim.x*blockIdx.x;
+  // if (i< dom->solid_part_count)
+    // dom->InitMatHollomon(mat_h);
+// }
+
+// __device__ void Domain_d::InitMatHollomon(const Material_ &mat){
+
+  // materials[0].K = 0.0;
+// }
+
 
 void Domain_d::Set_h(const double &k){
 	double *k_ =  new double[particle_count];

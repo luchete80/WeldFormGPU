@@ -97,7 +97,7 @@ add_executable(WeldFormGPU
 													Output.cpp
 													Vector.cpp
                           Mesh.cpp
-            
+                          
 													cuda/Domain_d.cu
                           cuda/cudautils.cu
                           cuda/Thermal.cu

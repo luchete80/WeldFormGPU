@@ -581,21 +581,28 @@ int main(int argc, char **argv)
   //cudaMalloc(&dom_d->materials, sizeof(Material_ ));
   
   cudaMalloc((void**)&dom_d->materials_ptr, sizeof(Material_ *)); //https://forums.developer.nvidia.com/t/virtual-funtions-in-kernels/22117/3
-      
+  Material_ *material_h;
+  //TODO: MATERIALS SHOULD BE A VECTOR   
   if      (mattype == "Bilinear")    {
     Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
-    //Material_ **material_h  = new Bilinear(Ep);
-    //cout << "Material Constants, Et: "<<c[0]<<endl;
-    //cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear ));
-    //cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
+    material_h  = new Bilinear(Ep);
+    cout << "Material Constants, Et: "<<c[0]<<endl;
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear )); //
+    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
   } 
   else if (mattype == "Hollomon")    {
-    Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);
-    cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
-    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Hollomon));
+    // material_h  = new Hollomon(el,Fy,c[0],c[1]);
+    // cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
+    // cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Hollomon));
+    
+    material_h  = new Material_(el);
+    material_h->InitHollomon(el,Fy,c[0],c[1]);
+    material_h->Material_model = HOLLOMON;
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Material_));
+    
     //init_hollomon_mat_kernel<<<1,1>>>(dom_d); //CRASH
     //cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Hollomon*), cudaMemcpyHostToDevice);	
-    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Hollomon), cudaMemcpyHostToDevice);	
+    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Material_), cudaMemcpyHostToDevice);	 //OR sizeof(Hollomon)??? i.e. derived class
     
   
   } else if (mattype == "JohnsonCook") {
@@ -609,7 +616,8 @@ int main(int argc, char **argv)
     cout << "Material Constants, B: "<<c[0]<<", C: "<<c[1]<<", n: "<<c[2]<<", m: "<<c[3]<<", T_m: "<<c[4]<<", T_t: "<<c[5]<<", eps_0: "<<c[6]<<endl;
   } else                              printf("ERROR: Invalid material type.");
     
-
+  // InitMatHollomonKernel<<<1,1>>>(dom_d,*material_h); //BECAUSE MEMCPY IS NOT WORKING
+  // cudaDeviceSynchronize(); 
 	
 	cout << "Setting values"<<endl;
 	dom_d->SetDensity(rho);
@@ -688,6 +696,9 @@ int main(int argc, char **argv)
   //KICKDRIFT IS NOT 
   //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
   //dom_d->MechFraserSolve(5*timestep,timestep);
+  
+
+  
   dom_d->MechFraserSolve(sim_time,output_time);
 
 	dom_d->WriteCSV("test.csv");
