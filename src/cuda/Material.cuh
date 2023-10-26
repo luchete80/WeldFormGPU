@@ -194,16 +194,16 @@ __device__ inline void ShowProps(Material_ *mat) //IN CASE OF NOT USING //virtua
   
 }
 
-__device__ inline double CalcJohnsonCookYieldStress(const double &strain, Material_ *mat) //IN CASE OF NOT USING //virtual FUNCTIONS
+__device__ inline double CalcJohnsonCookYieldStress(const double &strain, const double &strain_rate, const double &temp, Material_ *mat) //IN CASE OF NOT USING //virtual FUNCTIONS
 {
-	// double T_h = (temp - T_t) / (T_m - T_t);
-	// double sr = strain_rate;
-	// if (strain_rate == 0.0)
-		// sr = 1.e-5;
+	double T_h = (temp - mat->T_t) / (mat->T_m - mat->T_t);
+	double sr = strain_rate;
+	if (strain_rate == 0.0)
+		sr = 1.e-5;
 	
-	// double sy = (A+B*pow(strain, n))*(1.0 + C * log (sr/ eps_0) ) * (1.0 - pow(T_h,m));
+	double sy = (mat->A+mat->B*pow(strain, mat->n))*(1.0 + mat->C * log (sr/ mat->eps_0) ) * (1.0 - pow(T_h,mat->m));
 	
-	// return sy;
+	return sy;
 }
 
 inline double __device__ CalcHollomonTangentModulus(const double &strain, Material_ *mat) {
@@ -214,6 +214,20 @@ inline double __device__ CalcHollomonTangentModulus(const double &strain, Materi
 	return Et;
 }
 
+inline double __device__ CalcJohnsonCookTangentModulus(const double &plstrain, const double &strain_rate, const double &temp, Material_ *mat)	{
+	double sy, T_h;
+  //cout << "n, B, C, eps_0, T_t, m"<<n<<", "<<B<<", "<<C<<"eps0, "<<eps_0<<", "<<", "<<T_t<<", "<<m<<endl;
+	T_h = (temp - mat->T_t) / (mat->T_m - mat->T_t);
+	
+  //double sy = (A+B*pow(strain, n))*(1.0 + C * log (strain_rate/ eps_0) ) * (1.0 - pow(T_h,m));
+  double Et =0.;
+
+  if (plstrain > 0.)
+    Et = mat->n * mat->B * pow(plstrain,mat->n-1.)*(1.0 + mat->C*log(strain_rate/ mat->eps_0)) * (1.0-pow (T_h,mat->m));
+  else 
+    Et = mat->Elastic().E()*0.1; //ARBITRARY! TODO: CHECK MATHEMATICALLY
+  return Et;
+}	
 
 //#include "Material.cu"
 

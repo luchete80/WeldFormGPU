@@ -519,7 +519,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
       //(*materials_ptr)->testret();
       //sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]); 
     } 
-		// else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i],eff_strain_rate[i],T[i]);
+		else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = CalcJohnsonCookYieldStress(pl_strain[i],eff_strain_rate[i],T[i], mat[i]);
 		
 		sigma_eq[i] = sig_trial;	
 		
@@ -528,7 +528,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
 				Et[i] = CalcHollomonTangentModulus(pl_strain[i],mat[i]); //Fraser 3.54
 				// Et_m = Et;        
       } else if       (mat[i]->Material_model == JOHNSON_COOK ) {
-        //Et = mat->CalcTangentModulus(pl_strain, eff_strain_rate, T); //Fraser 3.54
+        Et[i] = CalcJohnsonCookTangentModulus(pl_strain[i], eff_strain_rate[i], T[i],mat[i]); //Fraser 3.54
       } else if       (mat[i]->Material_model == BILINEAR ) {
         //Ep = mat->Elastic().E()*Et/(mat->Elastic().E()-Et);
       }
