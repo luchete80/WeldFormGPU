@@ -252,13 +252,33 @@ __host__ void Domain_d::SetID(const Domain &dom){
 	delete k_;	
 }
 
+// NOW ALLOWED ACCORDING TO CUDA 12
+// __global__
+// void init_hollomon_mat_kernel(Material_ ** p)
+// {
+  // // if (threadIdx.x == 0 && blockIdx.x == 0){
+  // // Elastic_ el;
+  // // (*p) = new Hollomon(el,1.0,1.0,1.0);
+  // // }
+// }
+
 __global__
-void init_hollomon_mat_kernel(Material_ ** p)
+void init_hollomon_mat_kernel(Domain_d *dom)
 {
   if (threadIdx.x == 0 && blockIdx.x == 0){
-  Elastic_ el;
-  (*p) = new Hollomon(el,1.0,1.0,1.0);
+  dom->init_hollomon_material();
   }
+  // (*p) = new Hollomon(el,1.0,1.0,1.0);
+  // }
+}
+
+// void   __device__ Domain_d::init_hollomon_material(){
+  // materials = new Hollomon();
+// }
+
+void   __device__ Domain_d::init_hollomon_material(){
+  *materials_ptr = new Hollomon();
+  materials = new Hollomon();
 }
 
 
@@ -309,8 +329,8 @@ __global__ void CheckData(Domain_d *dom){
 }
 
 __device__ void Domain_d::AssignMatAddress(int i){
-  // if (i< solid_part_count)
-    // mat[i] = materials[0];
+  if (i< solid_part_count)
+    mat[i] = &materials[0];
 }
 
 __global__ void AssignMatAddressKernel(Domain_d *dom){

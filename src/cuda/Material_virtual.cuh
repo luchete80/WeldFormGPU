@@ -26,33 +26,9 @@ class Material_{
 
 	double E_m, nu;	//TODO, move to elastic class
   
-
-  
 	public:
   double Ep;  //If Bilinear this is constant, 
   int			Material_model;	//TODO: Change to enum
-
-  ////// NO VIRTUAL FUNCTIONS, HOLLOMON MATERIAL ///////
-  double K, m;
-	double eps0, eps1;
-  double sy0;
-  void InitHollomon(){}
-
-  ////// NO VIRTUAL FUNCTIONS, JOHNSON COOK MATERIAL ///////
-	double T_t,T_m;	//transition and melting temps
-	double A, B, C;
-	double n/*, m*/;
-	double eps_0;
-  void Init_JohnsonCook(const Elastic_ &el,const double &a, const double &b, const double &n_, 
-              const double &c, const double &eps_0_,
-              const double &m_, const double &T_m_, const double &T_t_)
-  //:
-	// Material_(el),A(a),B(b),C(c),
-  // m(m_),n(n_),eps_0(eps_0_),T_m(T_m_),T_t(T_t_)
-  { 
-    Material_model = JOHNSON_COOK;
-  }
-
 	Material_(){}
   __host__ __device__ void test(){printf("test\n");}
   virtual __host__ __device__ double testret(){return 2.0;}
@@ -155,28 +131,6 @@ public Material_{
 	inline double  __device__ CalcYieldStress(){}	
 	inline double  __device__ CalcYieldStress(const double &strain);	
 };
-
-__device__ inline double CalcHollomonYieldStress(const double &strain, Material_ *mat) //IN CASE OF NOT USING VIRTUAL FUNCTIONS
-{
-  double sy = 0.0;
-  //printf("K %f eps0 %f , eps1 %f sy0 %f m %f\n",K,eps0,eps1,sy0,m);
-  //printf("K %f ", mat->K);
-   if (strain + mat->eps0 > mat->eps1) sy = mat->K*pow(strain + mat->eps0,mat->m); //plateau surpassed. If no plateau, eps1=eps0 so 
-   else                      sy = mat->sy0; 
-	return sy; 
-  
-}
-
-__device__ inline double CalcJohnsonCookYieldStress(const double &strain, Material_ *mat) //IN CASE OF NOT USING VIRTUAL FUNCTIONS
-{
-  double sy = 0.0;
-  //printf("K %f eps0 %f , eps1 %f sy0 %f m %f\n",K,eps0,eps1,sy0,m);
-  //printf("K %f ", mat->K);
-   if (strain + mat->eps0 > mat->eps1) sy = mat->K*pow(strain + mat->eps0,mat->m); //plateau surpassed. If no plateau, eps1=eps0 so 
-   else                      sy = mat->sy0; 
-	return sy; 
-  
-}
 
 #include "Material.cu"
 

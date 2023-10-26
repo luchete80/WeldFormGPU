@@ -506,13 +506,17 @@ __device__ void Domain_d::StressStrainOne(int i) {
     if ( sigma_y[i] < sig_trial ) ShearStress = sigma_y[i]/sig_trial * ShearStress; //Yielding      
     //std::min((Sigmay/sqrt(3.0*J2)),1.0)*ShearStressa;
 
-   // if       (mat[i]->Material_model == HOLLOMON )       {
+   if       (mat[i]->Material_model == HOLLOMON )       {
+     
+      //printf("Hollomon!");
       //printf("pl strain %f\n",pl_strain[i]);
-      //mat [i]->CalcYieldStress(0.0);
+      //sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]);
+      sigma_y[i] = CalcHollomonYieldStress(pl_strain[i],mat [i]);
+      //printf ("sigma_y %f\n",sigma_y[i]);
       //sigma_y[i] = mat [i]->testret();
-      (*materials)->testret();
+      //(*materials_ptr)->testret();
       //sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i]); 
-    //} 
+    } 
 		// else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = mat [i]->CalcYieldStress(pl_strain[i],eff_strain_rate[i],T[i]);
 		
 		sigma_eq[i] = sig_trial;	

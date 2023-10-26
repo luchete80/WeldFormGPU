@@ -137,8 +137,8 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 			WriteCSV(str);
       
   ////// MATERIAL
-  //AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
-  //cudaDeviceSynchronize();
+  AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+  cudaDeviceSynchronize();
     
   //ONLY FOR TESTING 
   test_h = new double [particle_count];

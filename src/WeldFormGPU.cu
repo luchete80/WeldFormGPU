@@ -578,7 +578,9 @@ int main(int argc, char **argv)
   cout << "Mat type  "<<mattype<<endl;
   
   
-  cudaMalloc(&dom_d->materials, sizeof(Material_ **));
+  //cudaMalloc(&dom_d->materials, sizeof(Material_ ));
+  
+  cudaMalloc((void**)&dom_d->materials_ptr, sizeof(Material_ *)); //https://forums.developer.nvidia.com/t/virtual-funtions-in-kernels/22117/3
       
   if      (mattype == "Bilinear")    {
     Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
@@ -588,11 +590,13 @@ int main(int argc, char **argv)
     //cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
   } 
   else if (mattype == "Hollomon")    {
-    //Material_ **material_h  = new Hollomon(el,Fy,c[0],c[1]);
+    Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);
     cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
-    //cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Hollomon**));
-    //cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Hollomon), cudaMemcpyHostToDevice);	
-    init_hollomon_mat_kernel<<<1,1>>>(dom_d->materials);
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Hollomon));
+    //init_hollomon_mat_kernel<<<1,1>>>(dom_d); //CRASH
+    //cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Hollomon*), cudaMemcpyHostToDevice);	
+    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Hollomon), cudaMemcpyHostToDevice);	
+    
   
   } else if (mattype == "JohnsonCook") {
     //Order is 

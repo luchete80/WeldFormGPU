@@ -220,8 +220,9 @@ class Domain_d
   int *SMPairs;  //Flattened pairs
   
   Material_ **mat; //pointer to material of each particle
-  Material_ **materials; //All materials 
+  Material_ *materials; //All materials 
   
+  Material_ **materials_ptr; //All materials 
 	
 	
 	////////////////////////////////////
@@ -361,7 +362,7 @@ __device__ inline void UpdateDensity(double dt);
                                                   const uint *neighborWriteOffsets,
                                                   const uint *neighbors);
 
-
+  __device__ void init_hollomon_material();
 	__device__ void StressStrain(int i);
 	__device__ void StressStrainOne(int i);
 	
@@ -495,8 +496,11 @@ __global__ inline void UpdatePosFraserKernel(Domain_d *dom, double dt);
 // }
 
 // See https://forums.developer.nvidia.com/t/virtual-funtions-in-kernels/22117/3
+// __global__
+// void init_hollomon_mat_kernel_ptr(Material_ ** p);
+
 __global__
-void init_hollomon_mat_kernel(Material_ ** p);
+void init_hollomon_mat_kernel(Domain_d *dom);
 	/* const double &Dimension*/
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
