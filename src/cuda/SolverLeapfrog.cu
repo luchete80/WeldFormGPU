@@ -125,6 +125,9 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
   if (contact)
     pcount = solid_part_count;
       
+  ////// MATERIAL
+  AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
+  cudaDeviceSynchronize();
   while (Time<tf) {
 	
 		if ( ts_i == 0 && is_yielding ){
@@ -167,6 +170,7 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
       totmass);
       cudaDeviceSynchronize(); //REQUIRED!!!!
       //
+      //if ( ts_i == 0){
       CalcContactNbKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
@@ -174,6 +178,7 @@ void Domain_d::MechLeapfrogSolve(const double &tf, const double &dt_out){
       );
       cudaDeviceSynchronize(); //REQUIRED!!!!    
       
+      //}
       CalcContactForcesKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
