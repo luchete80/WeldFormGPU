@@ -27,6 +27,8 @@
 #ifndef _TENSOR_H_
 #define _TENSOR_H_
 
+#define __spec __device__ __inline__
+
 typedef struct {
 	double xx;
 	double xy;

@@ -56,6 +56,18 @@
 		// // FromFlatSym(flat);
 // }
 
+__spec tensor3 FromFlatPtr(double *flat, int initial){
+	tensor3 ret;
+  ret.xx = flat[initial];		
+  ret.xy = flat[initial+1];		
+  ret.xz = flat[initial+2];
+  ret.yx = flat[3];
+  ret.yz = flat[4];
+  ret.xz = flat[5];  
+	
+	return ret;
+}
+
 
 //Converts tensor to flat symm
 //TODO: CHECK IF THE RETURN VALUE IS IN PARAMETERS THIS IS FASTER
@@ -91,6 +103,18 @@ __spec tensor3 FromFlatAntiSym(double flat[]){
 	// m_data [1][2] = m_data [2][1] = flat[4]; 
 	// m_data .xz = m_data [2][0] = flat[5]; 
 // }
+
+__spec void ToFlatPtr(const tensor3 &m_data, double *flat, int initial){
+	flat [initial + 0] = m_data.xx; 
+  flat [initial + 1] = m_data.xy; 
+  flat [initial + 2] = m_data.xz;
+  flat [initial + 3] = m_data.yx;
+  flat [initial + 4] = m_data.yy;
+  flat [initial + 5] = m_data.yz;
+  flat [initial + 6] = m_data.zx;
+  flat [initial + 7] = m_data.zy;
+  flat [initial + 8] = m_data.zz;
+}
 
 __spec void ToFlatSymPtr(const tensor3 &m_data, double *flat, int initial){
 	flat [initial + 0] = m_data.xx; flat [initial + 1] = m_data .yy; flat [initial + 2] = m_data.zz;
@@ -282,7 +306,7 @@ __spec tensor3 operator* (const tensor3 &a, const tensor3 &b){
 	// return ret;
 // }
 
-__device__ tensor3 Trans (const tensor3 &m_data){
+__spec __device__ tensor3 Trans (const tensor3 &m_data){
 	tensor3 ret;
 	ret.xx = m_data.xx; 	ret.yy = m_data.yy; 	ret.zz = m_data.zz;
 	ret.xy = m_data.yx; 	ret.xz = m_data.zx; 	
@@ -396,6 +420,49 @@ __spec void print(const tensor3 &m_data){
 	m_data.yx,m_data.yy,m_data.yz,
 	m_data.zx,m_data.zy,m_data.zz);
 }
+
+
+__spec tensor3 Dyad (const double3 &x1, const double3 &x2){
+  tensor3 ret;
+  ret.xx = x1.x  * x2.x;   ret.xy = x1.x  * x2.y;   ret.xz = x1.x  * x2.z;
+  ret.yx = x1.y  * x2.x;   ret.yy = x1.y  * x2.y;   ret.yz = x1.y  * x2.z;
+  ret.zx = x1.z  * x2.x;   ret.zy = x1.z  * x2.y;   ret.zz = x1.z  * x2.z;  
+  return ret;
+}
+
+__spec tensor3 Inv (const tensor3 &M, double Tol=1.0e-10){
+  tensor3 Mi;
+  double det =    M.xx * (M.yy * M.zz - M.yz*M.zy) 
+                - M.xy * (M.yx * M.zz - M.yz*M.zx)
+                + M.xz * (M.yx * M.zx - M.yx*M.zx);
+  if (fabs(det)< Tol){
+    printf("NULL DETERMINANT.");
+  }
+    Mi.xx=(M.yy*M.zz-M.yz*M.zy)/det;  Mi.xy=(M.xz*M.zy-M.xy*M.zz)/det;  Mi.xz=(M.xy*M.yz-M.xz*M.yy)/det;
+    Mi.yx=(M.yz*M.zx-M.yx*M.zz)/det;  Mi.yy=(M.xx*M.zz-M.xz*M.zx)/det;  Mi.yz=(M.xz*M.yx-M.xx*M.yz)/det;
+    Mi.zx=(M.yx*M.zy-M.yy*M.zx)/det;  Mi.zy=(M.xy*M.zx-M.xx*M.zy)/det;  Mi.zz=(M.xx*M.yy-M.xy*M.yx)/det;
+    
+  return Mi;
+}
+
+// /** Inverse.*/
+// inline void Inv (Mat3_t const & M, Mat3_t & Mi, double Tol=1.0e-10)
+// {
+    // double det =   M(0,0)*(M(1,1)*M(2,2) - M(1,2)*M(2,1))
+                 // - M(0,1)*(M(1,0)*M(2,2) - M(1,2)*M(2,0))
+                 // + M(0,2)*(M(1,0)*M(2,1) - M(1,1)*M(2,0));
+
+    // if (fabs(det)<Tol)
+    // {
+        // std::ostringstream oss;
+        // oss << PrintMatrix(M);
+        // throw new Fatal("matvec.h::Inv: 3x3 matrix inversion failed with null (%g) determinat. M =\n%s",Tol,oss.str().c_str());
+    // }
+
+    // Mi(0,0)=(M(1,1)*M(2,2)-M(1,2)*M(2,1))/det;  Mi(0,1)=(M(0,2)*M(2,1)-M(0,1)*M(2,2))/det;  Mi(0,2)=(M(0,1)*M(1,2)-M(0,2)*M(1,1))/det;
+    // Mi(1,0)=(M(1,2)*M(2,0)-M(1,0)*M(2,2))/det;  Mi(1,1)=(M(0,0)*M(2,2)-M(0,2)*M(2,0))/det;  Mi(1,2)=(M(0,2)*M(1,0)-M(0,0)*M(1,2))/det;
+    // Mi(2,0)=(M(1,0)*M(2,1)-M(1,1)*M(2,0))/det;  Mi(2,1)=(M(0,1)*M(2,0)-M(0,0)*M(2,1))/det;  Mi(2,2)=(M(0,0)*M(1,1)-M(0,1)*M(1,0))/det;
+// }
 
 #undef __spec
 

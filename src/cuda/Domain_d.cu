@@ -10,9 +10,20 @@
 #include "cudautils.cuh"
 #include "Mesh.cuh"
 
+#include "tensor.cuh"
+
+
+
 //Else (offset)
 //Allocating from host
 namespace SPH {
+  
+Domain_d::Domain_d(){
+  isfirst_step=true;
+  thermal_solver=false;
+	gradKernelCorr = false;	
+}
+
 void Domain_d::SetDimension(const int &particle_count){
 	this->particle_count = particle_count;
 	//Allocae arrays (as Structure of arryays, SOA)
@@ -169,6 +180,8 @@ void Domain_d::SetDimension(const int &particle_count){
 	//////////////////////////
 	/// CORRECTIONS /////////
 	cudaMalloc((void **)&VXSPH, 	particle_count  * sizeof (double3));		
+  
+  cudaMalloc((void **)&gradCorrM, 	particle_count  * 9 * sizeof (double));
   
   
   //pplane_h =  new double [particle_count-solid_part_count]; ////TEST

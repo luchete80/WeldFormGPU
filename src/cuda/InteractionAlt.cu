@@ -138,9 +138,14 @@ __device__ inline void Domain_d::CalcAccel(
 			VXSPH[i] += XSPH*mj/(0.5f*(di+dj))*K*(-vij);
 		}		
 
-		// Locking the particle 1 for updating the properties
-		a[i] 		+= mj * ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /* TIij */) * (GK*xij);
-    
+    if (!gradKernelCorr){
+      // Locking the particle 1 for updating the properties
+      a[i] 		+= mj * ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /* TIij */) * (GK*xij);
+    } else { //GRAD KERNEL CORRECTION
+        tensor3 corrM = FromFlatPtr(gradCorrM,9*i);
+          // for (int i=0;i<2;i++){
+            // Mult( vc[i] , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij + TIij ) , temp_c[i]);      
+    }
     }//if != rigid surface
 		}//neibcount
 

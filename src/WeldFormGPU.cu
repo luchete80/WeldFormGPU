@@ -187,11 +187,11 @@ int main(int argc, char **argv)
     // dom.Kernel_Set(Qubic_Spline);
     
     
-    // string solver = "Mech";
-    // readValue(config["solver"],solver);
+    string solver = "Mech";
+    readValue(config["solver"],solver);
     
-    // if (solver=="Mech-Thermal")
-      // dom.thermal_solver = true;
+    if (solver=="Mech-Thermal")
+      dom_d->thermal_solver = true;
 		
 		// readValue(config["integrationMethod"], dom.Scheme); //0:Verlet, 1:LeapFrog, 2: Modified Verlet
 

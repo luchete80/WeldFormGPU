@@ -54,3 +54,5 @@
          - Significant improvement in input reader
 20230926 - General .exe first version. Can read cyl domains and contact
 20231024 - Working with  material class
+--------------------------------------------------------------
+20240103 - Added Thermal solver to input file

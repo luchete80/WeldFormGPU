@@ -153,8 +153,10 @@ class Domain_d
 	
 	double 					*max_deltat, *max_deltat_h;		//According to each particle
 
-
-	
+  ///// KERNEL GRADIENT CORRECTION MATRICES
+	bool 					  gradKernelCorr;	
+	double          *gradCorrM;
+  
 	/// TODO: PASS THIS TO PARTICLE DATA
 	double *rho, *m;	//Mass and density
 	//THERMAL
@@ -274,7 +276,7 @@ class Domain_d
   
 	/////////////////////////////////////////
 	///////// MEMBER FUNCTIONS /////////////
-	Domain_d(){isfirst_step=true;thermal_solver=false;};
+	Domain_d();
 	Domain_d(const int &particle_count);
   
 	void __host__ /*__device__*/ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
@@ -394,7 +396,15 @@ __device__ inline void UpdateDensity(double dt);
                                         const uint *neighborWriteOffsets,
                                         const uint *neighbors,
                                         int KernelType);
-    
+
+
+//// GRADIENT KERNEL CORRECTION
+__device__ void CalcGradCorrMatrix (
+                        const uint *particlenbcount,
+                        const uint *neighborWriteOffsets,
+                        const uint *neighbors,
+                        int KernelType);
+
 }; 
 
 
@@ -487,6 +497,13 @@ __global__ inline void SetVelKernel(Domain_d *dom, double3 v);
 __global__ inline void UpdateVelKernel(Domain_d *dom, double dt);
 __global__ inline void UpdatePosKernel(Domain_d *dom, double dt);
 __global__ inline void UpdatePosFraserKernel(Domain_d *dom, double dt);
+
+__global__ inline void CalcGradCorrMatrixKernel (
+                        Domain_d *dom,
+                        const uint *particlenbcount,
+                        const uint *neighborWriteOffsets,
+                        const uint *neighbors,
+                        int KernelType);
 
 //__global__
 // void init_johnsoncook_mat_kernel(Material_ ** p)
