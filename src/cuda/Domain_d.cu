@@ -291,8 +291,8 @@ void init_hollomon_mat_kernel(Domain_d *dom)
 // }
 
 void   __device__ Domain_d::init_hollomon_material(){
-  *materials_ptr = new Hollomon();
-  materials = new Hollomon();
+  // *materials_ptr = new Hollomon();
+  // materials = new Hollomon();
 }
 
 

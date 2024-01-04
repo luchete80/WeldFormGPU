@@ -581,14 +581,28 @@ int main(int argc, char **argv)
   //cudaMalloc(&dom_d->materials, sizeof(Material_ ));
   
   cudaMalloc((void**)&dom_d->materials_ptr, sizeof(Material_ *)); //https://forums.developer.nvidia.com/t/virtual-funtions-in-kernels/22117/3
-  Material_ *material_h;
+  Material_ *material_h; //(Material_ *)malloc(1 * sizeof(Material_ ));
+  
+    Material_ mat(el);
+    mat.Ep = 10.0;
   //TODO: MATERIALS SHOULD BE A VECTOR   
   if      (mattype == "Bilinear")    {
-    Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
-    material_h  = new Bilinear(Ep);
-    cout << "Material Constants, Et: "<<c[0]<<endl;
-    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear )); //
-    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
+    if (c.size()>0)
+      Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
+    else
+      cout << "ERROR. MATERIAL CONSTANTS UNDEFINED"<<endl;
+    cout << "Material Ep"<<Ep<<endl;
+    material_h  = new Material_(el);
+    material_h->Ep = Ep;
+    material_h->Material_model = BILINEAR;
+    // cout << "Material Constants, Et: "<<c[0]<<endl;
+    // material_h->Material_model = BILINEAR;
+    // cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear )); //
+    // cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
+
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Material_ )); //
+     cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Material_), cudaMemcpyHostToDevice);	
+    
   } 
   else if (mattype == "Hollomon")    {
     // material_h  = new Hollomon(el,Fy,c[0],c[1]);

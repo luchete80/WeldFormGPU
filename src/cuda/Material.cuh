@@ -16,19 +16,20 @@ class Elastic_{
 	 __host__ __device__ Elastic_(){}
 	 __host__ __device__ Elastic_(const double &e, const double &nu):E_m(e),nu_m(nu){}
 	 __host__ __device__ const double& E()const{return E_m;}
+   
+   ~Elastic_(){}
 	
 };
 
 class Material_{
-	
-	protected:
-	Elastic_ elastic_m;
-
-	double E_m, nu;	//TODO, move to elastic class
-  
+ 
 
   
 	public:
+	Elastic_ elastic_m;
+
+	double E_m, nu;	//TODO, move to elastic class
+ 
   double Ep;  //If Bilinear this is constant, 
   int			Material_model;	//TODO: Change to enum
 
@@ -43,6 +44,8 @@ class Material_{
 	double A, B, C;
 	double n/*, m*/;
 	double eps_0;
+  __host__ __device__ void  SetEp(const double &ep){Ep =ep;}
+  
 
 
   __host__ __device__ void InitHollomon(const Elastic_ &el, const double sy0_, const double &k_, const double &m_)
@@ -85,6 +88,8 @@ class Material_{
 	// //virtual  __device__ inline double CalcYieldStress(const double &strain){return 0.0;};
 	// //virtual  __device__ inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp){};
 	 __host__ __device__ const Elastic_& Elastic()const{return elastic_m;}
+   
+   ~Material_(){}
 };
 
 class _Plastic{
@@ -94,88 +99,95 @@ class _Plastic{
 	////virtual inline double CalcYieldStress();
 };
 
-class Bilinear:
-public Material_{
 
- 	public:
-	Bilinear(const double &ep){ //THIS IS DIFFERENT FROM WELDFORM CPU, IN WHICH BILINEAR IS NOT A MATERIAL
-    Ep = ep;
-    Material_model = BILINEAR;
-  }
-};
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////// PROBLEMS WITH CUDA INHERITANCE /////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// class Bilinear:
+// public Material_{
 
-//TODO: derive johnson cook as plastic material flow
-class JohnsonCook:
-public Material_{
-	double T_t,T_m;	//transition and melting temps
-	double A, B, C;
-	double n, m;
-	double eps_0;
-	
-	public:
-	JohnsonCook(){
-    Material_model = JOHNSON_COOK;
-  }
-	//You provide the values of A, B, n, m, 
-	//θmelt, and  θ_transition
-	//as part of the metal plasticity material definition.
-	JohnsonCook(const Elastic_ &el,const double &a, const double &b, const double &n_, 
-              const double &c, const double &eps_0_,
-              const double &m_, const double &T_m_, const double &T_t_):
-	Material_(el),A(a),B(b),C(c),
-  m(m_),n(n_),eps_0(eps_0_),T_m(T_m_),T_t(T_t_)
-  { Material_model = JOHNSON_COOK;
-  }
-	inline double __device__ CalcYieldStress(){return 0.0;}	
-	inline double __device__ CalcYieldStress(const double &plstrain){
-     double Et =0.;
-
-    if (plstrain > 0.)
-      Et = n * B * pow(plstrain,n-1.);
-    else 
-      Et = Elastic().E()*0.1; //ARBITRARY! TODO: CHECK MATHEMATICALLY
-    return Et;
-  } //TODO: SEE IF INCLUDE	
-	inline double  __device__ CalcYieldStress(const double &strain, const double &strain_rate, const double &temp);	
-	inline double  __device__ CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp);
-  //~JohnsonCook(){}
-};
-
-class Hollomon:
-public Material_{
-	double K, m;
-	double eps0, eps1;
-  double sy0;
-	
-	public:
-	__host__ __device__ Hollomon(){Material_model = HOLLOMON;}
-	//You provide the values of A, B, n, m, 
-	//θmelt, and  θ_transition
-	//as part of the metal plasticity material definition.
-	//ASSUMING AT FIRST COEFFICIENTS ARE GIVEN TO TOTAL STRAIN-STRESS
-	__host__ __device__ Hollomon(const double eps0_, const double &k_, const double &m_):
-    K(k_), m(m_){ 
-    eps0 = eps0_;
-    Material_model = HOLLOMON;}
-  __host__ __device__  Hollomon(const Elastic_ &el, const double sy0_, const double &k_, const double &m_):
-  Material_(el),K(k_), m(m_) {
-  Material_model = HOLLOMON;
-  eps0 = sy0_/el.E(); 
-  sy0  = sy0_;
-  eps1 = pow(sy0_/k_, 1./m);
-  printf( "eps_0, %.2e eps_1 %.2e\n",eps0, eps1);
-  if (eps0 > eps1){
-    printf ("ERROR, Hollomon material bad definition, please correct Yield Stress, Elastic Modulus or Material hardening constants.");
-  }
+ 	// public:
+	// Bilinear(const double &ep){ //THIS IS DIFFERENT FROM WELDFORM CPU, IN WHICH BILINEAR IS NOT A MATERIAL
+    // Ep = ep;
+    // Material_model = BILINEAR;
+  // }
   
-  }
-  __host__ __device__ double testret(){printf("hollomon testret\n"); return 2.0;}
+  // ~Bilinear(){}
+// };
+
+
+// //TODO: derive johnson cook as plastic material flow
+// class JohnsonCook:
+// public Material_{
+	// double T_t,T_m;	//transition and melting temps
+	// double A, B, C;
+	// double n, m;
+	// double eps_0;
 	
-  inline double  __device__ CalcTangentModulus(const double &strain);
-	inline double  __device__ CalcYieldStress(){}	
-	inline double  __device__ CalcYieldStress(const double &strain);	
-};
+	// public:
+	// JohnsonCook(){
+    // Material_model = JOHNSON_COOK;
+  // }
+	// //You provide the values of A, B, n, m, 
+	// //θmelt, and  θ_transition
+	// //as part of the metal plasticity material definition.
+	// JohnsonCook(const Elastic_ &el,const double &a, const double &b, const double &n_, 
+              // const double &c, const double &eps_0_,
+              // const double &m_, const double &T_m_, const double &T_t_):
+	// Material_(el),A(a),B(b),C(c),
+  // m(m_),n(n_),eps_0(eps_0_),T_m(T_m_),T_t(T_t_)
+  // { Material_model = JOHNSON_COOK;
+  // }
+	// inline double __device__ CalcYieldStress(){return 0.0;}	
+	// inline double __device__ CalcYieldStress(const double &plstrain){
+     // double Et =0.;
+
+    // if (plstrain > 0.)
+      // Et = n * B * pow(plstrain,n-1.);
+    // else 
+      // Et = Elastic().E()*0.1; //ARBITRARY! TODO: CHECK MATHEMATICALLY
+    // return Et;
+  // } //TODO: SEE IF INCLUDE	
+	// inline double  __device__ CalcYieldStress(const double &strain, const double &strain_rate, const double &temp);	
+	// inline double  __device__ CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp);
+  // //~JohnsonCook(){}
+// };
+
+// class Hollomon:
+// public Material_{
+	// double K, m;
+	// double eps0, eps1;
+  // double sy0;
+	
+	// public:
+	// __host__ __device__ Hollomon(){Material_model = HOLLOMON;}
+	// //You provide the values of A, B, n, m, 
+	// //θmelt, and  θ_transition
+	// //as part of the metal plasticity material definition.
+	// //ASSUMING AT FIRST COEFFICIENTS ARE GIVEN TO TOTAL STRAIN-STRESS
+	// __host__ __device__ Hollomon(const double eps0_, const double &k_, const double &m_):
+    // K(k_), m(m_){ 
+    // eps0 = eps0_;
+    // Material_model = HOLLOMON;}
+  // __host__ __device__  Hollomon(const Elastic_ &el, const double sy0_, const double &k_, const double &m_):
+  // Material_(el),K(k_), m(m_) {
+  // Material_model = HOLLOMON;
+  // eps0 = sy0_/el.E(); 
+  // sy0  = sy0_;
+  // eps1 = pow(sy0_/k_, 1./m);
+  // printf( "eps_0, %.2e eps_1 %.2e\n",eps0, eps1);
+  // if (eps0 > eps1){
+    // printf ("ERROR, Hollomon material bad definition, please correct Yield Stress, Elastic Modulus or Material hardening constants.");
+  // }
+  
+  // }
+  // __host__ __device__ double testret(){printf("hollomon testret\n"); return 2.0;}
+	
+  // inline double  __device__ CalcTangentModulus(const double &strain);
+	// inline double  __device__ CalcYieldStress(){}	
+	// inline double  __device__ CalcYieldStress(const double &strain);	
+// };
 
 __device__ inline double CalcHollomonYieldStress(const double &strain, Material_ *mat) //IN CASE OF NOT USING //virtual FUNCTIONS
 {

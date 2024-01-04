@@ -56,3 +56,4 @@
 20231024 - Working with  material class
 --------------------------------------------------------------
 20240103 - Added Thermal solver to input file
+20240104 - Bilinear crashing in file reading
