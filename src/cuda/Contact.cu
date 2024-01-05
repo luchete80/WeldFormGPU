@@ -74,6 +74,15 @@ inline void __global__ UpdateContactParticlesKernel(Domain_d *dom){
   // }
 //}
 
+__device__ inline void Domain_d::AddContactForces(){
+	int i = threadIdx.x + blockDim.x*blockIdx.x;	
+
+  if (i < first_fem_particle_idx ) {
+    a[i] += (contforce[i] / m[i]);    
+  }
+    
+}
+
 //TODO: CHANGE TO SEVERAL CONTACT SURFACES 
 inline void __device__ Domain_d::UpdateContactParticles(){
 

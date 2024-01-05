@@ -365,6 +365,8 @@ __device__ inline void UpdateDensity(double dt);
                                                   const uint *neighborWriteOffsets,
                                                   const uint *neighbors);
 
+	__device__ inline void AddContactForces();
+
   __device__ void init_hollomon_material();
   __device__ void InitMatHollomon(Material_ *mat); //With no virtual functions
 	__device__ void StressStrain(int i);
