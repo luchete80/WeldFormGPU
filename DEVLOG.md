@@ -55,5 +55,11 @@
 20230926 - General .exe first version. Can read cyl domains and contact
 20231024 - Working with  material class
 --------------------------------------------------------------
+--------------------------------------------------------------
 20240103 - Added Thermal solver to input file
 20240104 - Bilinear crashing in file reading
+--------------------------------------------------------------
+20240207 - Working on Kernel Gradient Correction. 
+           - Fixed FromFlatPtr (was incomplete)
+           - Replaced FromFlatSym to FromFlat (since is not symmetric)
+           - Completed input and function call

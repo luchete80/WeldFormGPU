@@ -61,10 +61,12 @@ __spec tensor3 FromFlatPtr(double *flat, int initial){
   ret.xx = flat[initial];		
   ret.xy = flat[initial+1];		
   ret.xz = flat[initial+2];
-  ret.yx = flat[3];
-  ret.yz = flat[4];
-  ret.xz = flat[5];  
-	
+  ret.yx = flat[initial+3];
+  ret.yz = flat[initial+4];
+  ret.xz = flat[initial+5];  
+  ret.zx = flat[initial+6];
+  ret.zy = flat[initial+7];
+  ret.zz = flat[initial+8];	
 	return ret;
 }
 

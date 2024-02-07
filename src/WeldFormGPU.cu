@@ -264,11 +264,11 @@ int main(int argc, char **argv)
     // double beta = 0.;
     // bool h_upd = false;
     // double tensins = 0.3;
-    // bool kernel_grad_corr = false;
+    bool kernel_grad_corr = false;
     readValue(config["artifViscAlpha"],dom_d->Alpha); //TODO: ARTIFF VISC PER PARTICLE
     readValue(config["artifViscBeta"],dom_d->Beta);
     // readValue(config["contAlgorithm"],cont_alg);
-    // readValue(config["kernelGradCorr"],kernel_grad_corr);
+    readValue(config["kernelGradCorr"],kernel_grad_corr);
     // readValue(config["smoothlenUpdate"],h_upd);
     dom_d->auto_ts = auto_ts[0];
     // dom.auto_ts_acc = auto_ts[1];
@@ -541,7 +541,7 @@ int main(int argc, char **argv)
     
     // //TODO: CHECK IF DIFFERENT ZONES ARE INTERF
     // //Generate Domain
-    // dom.gradKernelCorr = kernel_grad_corr;
+    dom_d->gradKernelCorr = kernel_grad_corr;
     // dom.ts_nb_inc = 5;
     
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

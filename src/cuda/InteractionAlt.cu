@@ -35,7 +35,16 @@ __device__ inline void Domain_d::CalcAccel(
 	tensor3 StrainRateSum,RotationRateSum;
 	
 	a[i]		=	make_double3(0.,0.,0.);
-	
+  
+  tensor3 corrM;
+  if (gradKernelCorr) {
+    corrM= FromFlatPtr(gradCorrM,9*i);
+	}
+  // if (i==0){
+    // printf ("CorrM\n");
+    // print (corrM);
+  // }
+        
 	clear(RotationRateSum);
 	clear(StrainRateSum);
 	for (int k=0;k < neibcount; k++) { //Or size
@@ -142,9 +151,8 @@ __device__ inline void Domain_d::CalcAccel(
       // Locking the particle 1 for updating the properties
       a[i] 		+= mj * ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /* TIij */) * (GK*xij);
     } else { //GRAD KERNEL CORRECTION
-        tensor3 corrM = FromFlatPtr(gradCorrM,9*i);
-          // for (int i=0;i<2;i++){
-            // Mult( vc[i] , ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij + TIij ) , temp_c[i]);      
+        a[i] 		+= mj * ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /* TIij */) * (corrM*GK*xij);
+    
     }
     }//if != rigid surface
 		}//neibcount
