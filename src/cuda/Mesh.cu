@@ -182,17 +182,17 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 }
 
 //TODO: CHANGE TRIMESH NAME
-TriMesh::TriMesh(NastranReader &nr, bool flipnormals){
+TriMesh_d::TriMesh_d(NastranReader &nr, bool flipnormals){
   //dimension = nr.dim;
 //  //Insert nodes
-  for (int n=0;n<nr.node_count;n++){
+//  for (int n=0;n<nr.node_count;n++){
 //    if (!flipnormals)
 //      node.Push(new Vec3_t(nr.node[3*n],nr.node[3*n+1],nr.node[3*n+2]));
 //    else 
 //      node.Push(new Vec3_t(nr.node[3*n+1],nr.node[3*n],nr.node[3*n+2]));
 //    
 //		node_v.Push(new Vec3_t(0.,0.,0.));
-  }
+//  }
 //  cout << "Generated "<<node.Size()<< " trimesh nodes. "<<endl;
 //  //cout << "Normals"<<endl;
 //  cout << "Writing elements..."<<endl;
@@ -318,3 +318,4 @@ inline __device__ void TriMesh_d::CheckNormals(){
 }
 
 };
+

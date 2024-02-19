@@ -108,15 +108,16 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 		// CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
 		// CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors)
 		// );
-    if (gradKernelCorr) {
-      CalcGradCorrMatrixKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors),
-      0      //KernelType
-      );
-      cudaDeviceSynchronize(); //REQUIRED!!!!
-    }
+		
+//    if (gradKernelCorr) {
+//      CalcGradCorrMatrixKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
+//      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
+//      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
+//      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors),
+//      0      //KernelType
+//      );
+//      cudaDeviceSynchronize(); //REQUIRED!!!!
+//    }
 
     
   int count = 1; //step

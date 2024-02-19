@@ -20,7 +20,6 @@ class TriMesh_d{
   int                 *nfar;
   double3             m_v,m_w;
   int nodecount, elemcount;
-  int                 id;
   
 	
 	//double							v;						//Constant Uniform v
@@ -48,3 +47,4 @@ __global__ inline void CheckNormalsKernel(TriMesh_d *mesh_d);
 };//SPH
 
 #endif
+

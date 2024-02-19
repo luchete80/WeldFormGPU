@@ -409,29 +409,29 @@ int main(int argc, char **argv)
       
       //TODO: CONVERT TO ARRAY std::vector<SPH::TriMesh_d> *mesh_d;
       //TODO: CHANGE TO EVERY DIRECTION
-      int dens = 10;
+      int dens = 10; 
       readValue(rigbodies[0]["partSide"],dens);
       if (rigbody_type == "Plane"){
         // TODO: CHECK IF MESH IS NOT DEFINED
         //mesh_d.push_back(new TriMesh);
-        mesh_d/*[0]*/->AxisPlaneMesh(2, false, start, Vector(start.x + dim.x,start.y + dim.y , start.z),dens);
+        mesh_d/*[0]*/->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
       } else if (rigbody_type == "File"){
         string filename = "";
         readValue(rigbodies[0]["fileName"], 	filename); 
         cout << "Reading Mesh input file " << filename <<endl;
         NastranReader reader((char*) filename.c_str());
-          mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
+        //mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
       }
 
 //      double scalefactor = 1.0d;
 //      readValue(rigbodies[0]["scaleFactor"],scalefactor);
 //      if (scalefactor != 1.0){
 //        cout << "Scaling mesh..."<<endl;
-//        mesh[0]->Scale(scalefactor);
-        }
+//        mesh_d->Scale(scalefactor);
+//        }
 //      cout << "Creating Spheres.."<<endl;
 //      //mesh.v = Vec3_t(0.,0.,);
-//      mesh[0]->CalcSpheres(); //DONE ONCE
+	mesh_d->CalcSpheres(); //DONE ONCE
 //      double hfac = 1.1;	//Used only for Neighbour search radius cutoff
 //      cout << "Adding mesh particles ...";
 //      int id;
@@ -585,18 +585,19 @@ int main(int argc, char **argv)
     cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
   } 
   else if (mattype == "Hollomon")    {
-    Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);
-    cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
+//    Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);
+//    cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
   } else if (mattype == "JohnsonCook") {
     //Order is 
                                //A(sy0) ,B,  ,C,   m   ,n   ,eps_0,T_m, T_transition
-    Material_ *material_h  = new JohnsonCook(el,Fy, c[0],c[1],c[3],c[2],c[6], c[4],c[5]); //First is hardening // A,B,C,m,n_,eps_0,T_m, T_t);	 //FIRST IS n_ than m
-    
-    //Only 1 material to begin with
-    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(JohnsonCook ));
-    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(JohnsonCook), cudaMemcpyHostToDevice);	
-    cout << "Material Constants, B: "<<c[0]<<", C: "<<c[1]<<", n: "<<c[2]<<", m: "<<c[3]<<", T_m: "<<c[4]<<", T_t: "<<c[5]<<", eps_0: "<<c[6]<<endl;
-  } else                              printf("ERROR: Invalid material type.");
+//    Material_ *material_h  = new JohnsonCook(el,Fy, c[0],c[1],c[3],c[2],c[6], c[4],c[5]); //First is hardening // A,B,C,m,n_,eps_0,T_m, T_t);	 //FIRST IS n_ than m
+//    
+//    //Only 1 material to begin with
+//    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(JohnsonCook ));
+//    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(JohnsonCook), cudaMemcpyHostToDevice);	
+//    cout << "Material Constants, B: "<<c[0]<<", C: "<<c[1]<<", n: "<<c[2]<<", m: "<<c[3]<<", T_m: "<<c[4]<<", T_t: "<<c[5]<<", eps_0: "<<c[6]<<endl;
+  } else                              
+  	printf("ERROR: Invalid material type.");
     
 
 	
