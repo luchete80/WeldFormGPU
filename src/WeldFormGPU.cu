@@ -382,7 +382,7 @@ int main(int argc, char **argv)
 			readVector(rigbodies[0]["dim"], 	dim); 
 			bool flipnormals = false;
 			readValue(rigbodies[0]["flipNormals"],flipnormals);
-			
+			cout << "Mesh dimension: "<<dim.x<<", "<<dim.y<<", "<<dim.z<<endl;
 			double heatcap = 1.;
 			readValue(rigbodies[0]["thermalHeatCap"],heatcap);
 			cout << "Reading Contact surface "<<endl;
@@ -398,6 +398,7 @@ int main(int argc, char **argv)
 					cout << "ERROR: Contact Plane Surface should have one null dimension"<<endl;
 			}
 			std::vector<TriMesh *> mesh;
+			mesh.push_back(new TriMesh);
 			
 			cout << "Set contact to ";
 
@@ -414,6 +415,7 @@ int main(int argc, char **argv)
       if (rigbody_type == "Plane"){
         // TODO: CHECK IF MESH IS NOT DEFINED
         //mesh_d.push_back(new TriMesh);
+        mesh[0]->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
         mesh_d/*[0]*/->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
       } else if (rigbody_type == "File"){
         string filename = "";
@@ -431,18 +433,25 @@ int main(int argc, char **argv)
 //        }
 //      cout << "Creating Spheres.."<<endl;
 //      //mesh.v = Vec3_t(0.,0.,);
-	mesh_d->CalcSpheres(); //DONE ONCE
-//      double hfac = 1.1;	//Used only for Neighbour search radius cutoff
+//	mesh_d->CalcSpheres(); //DONE ONCE
+        double hfac = 1.1;	//Used only for Neighbour search radius cutoff
 //      cout << "Adding mesh particles ...";
-//      int id;
-//      readValue(rigbodies[0]["zoneId"],id);
-//      dom.AddTrimeshParticles(mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
+        int id;
+        readValue(rigbodies[0]["zoneId"],id);
+        dom.AddTrimeshParticles(*mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
+				dom_d->contact_surf_id = 11;
 
-//      double penaltyfac = 0.5;
-//      std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
-//      readValue(contact_[0]["fricCoeffStatic"], 	fric_sta[0]); 
-//      readValue(contact_[0]["fricCoeffDynamic"], 	fric_dyn[0]); 
-//      readValue(contact_[0]["heatCondCoeff"], 	  heat_cond[0]);
+			//BEFORE ALLOCATING 
+			dom_d->solid_part_count = dom.Particles.size();;  //AFTER SET DIMENSION
+			dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+			if (dom_d->trimesh ==NULL)
+				cout << "ERROR. No mesh defined"<<endl;
+				
+      double penaltyfac = 0.5;
+      std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
+      readValue(contact_[0]["fricCoeffStatic"], 	fric_sta[0]); 
+      readValue(contact_[0]["fricCoeffDynamic"], 	fric_dyn[0]); 
+      readValue(contact_[0]["heatCondCoeff"], 	  heat_cond[0]);
 //      
 //      readValue(contact_[0]["penaltyFactor"], 	penaltyfac); 
 
@@ -472,9 +481,9 @@ int main(int argc, char **argv)
 //      dom.PFAC = penaltyfac;
 //      dom.DFAC = 0.0;
 //      cout << "Contact Penalty Factor: "<<dom.PFAC<<", Damping Factor: " << dom.DFAC<<endl;      
-//		} 
-//    else 
-//      cout << "false. "<<endl;
+		} 
+    else 
+      cout << "false. "<<endl;
       
       
     ///////////////////////////////////////////////////////////////////
@@ -536,7 +545,7 @@ int main(int argc, char **argv)
 				// readValue(ic["Temp"], IniTemp);
 				// cout << "Initial Temp: "<<IniTemp<<endl;
 			// }
-		// }
+		//}
     
     // //Add fixed particles, these have priority
     
@@ -578,11 +587,12 @@ int main(int argc, char **argv)
   Elastic_ el(E,nu);
   cout << "Mat type  "<<mattype<<endl;
   if      (mattype == "Bilinear")    {
-    Material_ *material_h  = new Bilinear();
+    Material_ *material_h  = new Material_(el);
     Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
+    material_h->SetEp(Ep);
     cout << "Material Constants, Et: "<<c[0]<<endl;
-    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear ));
-    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Material_ ));
+    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Material_), cudaMemcpyHostToDevice);	
   } 
   else if (mattype == "Hollomon")    {
 //    Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);
