@@ -368,92 +368,118 @@ int main(int argc, char **argv)
       std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
 		}
     
-    // //////////////////////////////////////////////////////////
-    // ////////////////// RIGID BODIES //////////////////////////
+//////////////////////////////////////////////////////////
+    ////////////////// RIGID BODIES //////////////////////////
     string rigbody_type;
     bool contact = false;
     if (readValue(rigbodies[0]["type"],rigbody_type))
       contact = true;
-    Vector dim;
-    
-		// readVector(rigbodies[0]["start"], 	start);       
-		// readVector(rigbodies[0]["dim"], 	dim); 
-    // bool flipnormals = false;
-    // readValue(rigbodies[0]["flipNormals"],flipnormals);
-    
-    // double heatcap = 1.;
-    // readValue(rigbodies[0]["thermalHeatCap"],heatcap);
-    // //TODO: WRitE TO PArTiclES
-    // if (rigbody_type == "File"){
-      // // string filename = "";
-      // // readValue(rigbodies[0]["fileName"], 	filename); 
-      // // cout << "Reading Mesh input file..." << endl;
-      // // SPH::NastranReader reader("Tool.nas", flipnormals);
-    // }
-    // else {
-      // if (dim (0)!=0. && dim(1) != 0. && dim(2) !=0. && rigbody_type == "Plane")
-        // throw new Fatal("ERROR: Contact Plane Surface should have one null dimension");
-    // }
-    std::vector<TriMesh *> mesh; ////// TODO: ALLOW FOR MULTIPLE MESH CONTACT
-    SPH::TriMesh_d *mesh_d;
-    // gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+		
+		if (contact){
+			double3 dim;
+      
+			readVector(rigbodies[0]["start"], 	start);       
+			readVector(rigbodies[0]["dim"], 	dim); 
+			bool flipnormals = false;
+			readValue(rigbodies[0]["flipNormals"],flipnormals);
+			
+			double heatcap = 1.;
+			readValue(rigbodies[0]["thermalHeatCap"],heatcap);
+			cout << "Reading Contact surface "<<endl;
+			//TODO: WRitE TO PArTiclES
+			if (rigbody_type == "File"){
+				// string filename = "";
+				// readValue(rigbodies[0]["fileName"], 	filename); 
+				// cout << "Reading Mesh input file..." << endl;
+				// SPH::NastranReader reader("Tool.nas", flipnormals);
+			}
+			else {
+				if (dim.x!=0. && dim.y!= 0. && dim.z !=0. && rigbody_type == "Plane")
+					cout << "ERROR: Contact Plane Surface should have one null dimension"<<endl;
+			}
+			std::vector<TriMesh *> mesh;
+			
+			cout << "Set contact to ";
 
-    //BEFORE CONTACT
-    dom_d->solid_part_count = dom.Particles.size();  //AFTER SET DIMENSION
-  
-    cout << "Set contact to ";
-    if (contact){
       cout << "true."<<endl;
       dom_d->contact = true;
       cout << "Reading contact mesh..."<<endl;
+      SPH::TriMesh_d *mesh_d;
+      gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+      
+      //TODO: CONVERT TO ARRAY std::vector<SPH::TriMesh_d> *mesh_d;
       //TODO: CHANGE TO EVERY DIRECTION
       int dens = 10;
       readValue(rigbodies[0]["partSide"],dens);
-      // if (rigbody_type == "Plane"){
-        // // TODO: CHECK IF MESH IS NOT DEFINED
-        // mesh.push_back(new TriMesh);
-        // mesh[0]->AxisPlaneMesh(2, false, start, Vector(start(0)+dim(0),start(1)+dim(1), start(2)),dens);
-        // mesh_d->AxisPlaneMesh(2,false,make_double3(start(0)+dim(0),start(1)+dim(1), start(2)),30);
-      // } else if (rigbody_type == "File"){
-        // string filename = "";
-        // readValue(rigbodies[0]["fileName"], 	filename); 
-        // cout << "Reading Mesh input file " << filename <<endl;
-        // SPH::NastranReader reader(filename.c_str());
-          // mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
-      // }
-      // cout << "Creating Spheres.."<<endl;
-      // //mesh.v = Vec3_t(0.,0.,);
-      // mesh[0]->CalcSpheres(); //DONE ONCE
-      // double hfac = 1.1;	//Used only for Neighbour search radius cutoff
-      // cout << "Adding mesh particles ...";
-      // int id;
-      // readValue(rigbodies[0]["zoneId"],id);
-      // dom.AddTrimeshParticles(mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
-        
-      
-      // std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
-      // readValue(contact_[0]["fricCoeffStatic"], 	fric_sta[0]); 
-      // readValue(contact_[0]["fricCoeffDynamic"], 	fric_dyn[0]); 
-      // readValue(contact_[0]["heatCondCoeff"], 	  heat_cond[0]);
-      
-      // bool heat_cond_ = false;
-      // if (readValue(contact_[0]["heatConductance"], 	heat_cond_)){
-        // dom.cont_heat_cond = true;
-        // dom.contact_hc = heat_cond[0];
-      // }
-      
-      // dom.friction_dyn = fric_dyn[0];
-      // dom.friction_sta = fric_sta[0];
-      // dom.PFAC = 0.8;
-      // dom.DFAC = 0.0;
-      
-		} 
-    else 
-      cout << "false. "<<endl;
+      if (rigbody_type == "Plane"){
+        // TODO: CHECK IF MESH IS NOT DEFINED
+        //mesh_d.push_back(new TriMesh);
+        mesh_d/*[0]*/->AxisPlaneMesh(2, false, start, Vector(start.x + dim.x,start.y + dim.y , start.z),dens);
+      } else if (rigbody_type == "File"){
+        string filename = "";
+        readValue(rigbodies[0]["fileName"], 	filename); 
+        cout << "Reading Mesh input file " << filename <<endl;
+        NastranReader reader((char*) filename.c_str());
+          mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
+      }
 
-    // dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
-    // if (dom_d->trimesh ==NULL)
-      // cout << "ERROR. No mesh defined"<<endl;
+//      double scalefactor = 1.0d;
+//      readValue(rigbodies[0]["scaleFactor"],scalefactor);
+//      if (scalefactor != 1.0){
+//        cout << "Scaling mesh..."<<endl;
+//        mesh[0]->Scale(scalefactor);
+        }
+//      cout << "Creating Spheres.."<<endl;
+//      //mesh.v = Vec3_t(0.,0.,);
+//      mesh[0]->CalcSpheres(); //DONE ONCE
+//      double hfac = 1.1;	//Used only for Neighbour search radius cutoff
+//      cout << "Adding mesh particles ...";
+//      int id;
+//      readValue(rigbodies[0]["zoneId"],id);
+//      dom.AddTrimeshParticles(mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
+
+//      double penaltyfac = 0.5;
+//      std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
+//      readValue(contact_[0]["fricCoeffStatic"], 	fric_sta[0]); 
+//      readValue(contact_[0]["fricCoeffDynamic"], 	fric_dyn[0]); 
+//      readValue(contact_[0]["heatCondCoeff"], 	  heat_cond[0]);
+//      
+//      readValue(contact_[0]["penaltyFactor"], 	penaltyfac); 
+
+//			// readValue(rigbodies[0]["contAlgorithm"],cont_alg);
+//      if (cont_alg == "Seo") {
+//        cout << "Contact Algorithm set to SEO"<<endl;
+//        dom.contact_alg = Seo;
+//      } else if (cont_alg == "LSDyna") {
+//        dom.contact_alg = LSDyna;
+//      }else {
+//        cout << "Contact Algorithm set to WANG"<<endl;
+//      }
+//      
+//      //cout << "Contact Algortihm: "<< cont_alg.c_str() <<end;
+//      
+//      bool heat_cond_ = false;
+//      if (readValue(contact_[0]["heatConductance"], 	heat_cond_)){
+//        dom.cont_heat_cond = true;
+//        dom.contact_hc = heat_cond[0];
+//      }
+//      
+
+//      dom.friction_dyn = fric_dyn[0];
+//      dom.friction_sta = fric_sta[0];
+//      cout << "Contact Friction Coefficients, Static: "<<dom.friction_sta<<", Dynamic: "<< dom.friction_sta<<endl;
+//      
+//      dom.PFAC = penaltyfac;
+//      dom.DFAC = 0.0;
+//      cout << "Contact Penalty Factor: "<<dom.PFAC<<", Damping Factor: " << dom.DFAC<<endl;      
+//		} 
+//    else 
+//      cout << "false. "<<endl;
+      
+      
+    ///////////////////////////////////////////////////////////////////
+    /////////////////////// END CONTACT ///////////////////////////////
+    
 
   
 		// std::vector <SPH::amplitude> amps;

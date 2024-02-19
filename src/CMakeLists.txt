@@ -16,7 +16,9 @@ link_directories(${cuNSearch_BINARY_DIR})
 #set (CMAKE_CXX_FLAGS "-fopenmp")
 
 
-set(CMAKE_CXX_STANDARD 11) #LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!
+set(CMAKE_CXX_STANDARD 14) 
+#LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!
+#IN UBUNTU MUST BE SET TO C++14 TOINCLUDE MAKE_UNIQUE
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # --fmad=true and --fmad=false enables and disables the contraction respectively. 
@@ -80,6 +82,7 @@ add_executable(main_contact
 													Output.cpp
 													Vector.cpp
                           Mesh.cpp
+                          NastranReader.cpp
 													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
 													cuda/Domain_d.cu
                           cuda/cudautils.cu
@@ -97,7 +100,7 @@ add_executable(WeldFormGPU
 													Output.cpp
 													Vector.cpp
                           Mesh.cpp
-            
+            							NastranReader.cpp
 													cuda/Domain_d.cu
                           cuda/cudautils.cu
                           cuda/Thermal.cu

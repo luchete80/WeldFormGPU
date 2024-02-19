@@ -3,6 +3,7 @@
 
 #include "Vector.h"
 #include <vector>
+#include "NastranReader.h"
 
 namespace SPH{
 	
