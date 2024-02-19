@@ -16,7 +16,7 @@ link_directories(${cuNSearch_BINARY_DIR})
 #set (CMAKE_CXX_FLAGS "-fopenmp")
 
 
-set(CMAKE_CXX_STANDARD 11) #LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!
+set(CMAKE_CXX_STANDARD 14) #LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # --fmad=true and --fmad=false enables and disables the contraction respectively. 

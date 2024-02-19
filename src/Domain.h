@@ -114,7 +114,7 @@ class Domain
 	void ClearNbData();	
 
 	void WriteXDMF			(char const * FileKey);					//Save a XDMF file for the visualization
-	__host__ __device__ inline void Domain::WriteCSV(char const * FileKey);
+	__host__ __device__ inline void WriteCSV(char const * FileKey);
 
 //	void InFlowBCLeave	();
 //	void InFlowBCFresh	();
