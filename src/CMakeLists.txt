@@ -54,25 +54,26 @@ include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 													# cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
 													# cuNSearch/Utils/IDFactory.cpp													                          
                           # ) 
-# add_executable(main_mech 
-													# main_mech.cu
-													# Domain.cpp 
-													# #NbSearch.cpp 
-													# Output.cpp
-													# Vector.cpp
-                          # Mesh.cpp
-                          # cuda/thermal.cu
-													# #TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
-                          # cuda/Geom.cu
-													# cuda/Domain_d.cu
-                          # cuda/cudautils.cu
-													# #cuda/Thermal.cu
-													# #cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
-													# cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
-													# cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu
-													# cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
-													# cuNSearch/Utils/IDFactory.cpp													
-													# )                          
+ add_executable(main_mech 
+													 main_mech.cu
+													 Domain.cpp 
+													 #NbSearch.cpp 
+													 Output.cpp
+													 Vector.cpp
+                           Mesh.cpp
+                           cuda/Thermal.cu
+													 #TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
+                           cuda/Geom.cu
+													 cuda/Domain_d.cu
+                           cuda/cudautils.cu
+                           cuda/KernelCorr.cu
+													 #cuda/Thermal.cu
+													 #cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
+													 cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
+													 cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu
+													 cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
+													 cuNSearch/Utils/IDFactory.cpp													
+													 )                          
                  
 
 add_executable(main_contact 
