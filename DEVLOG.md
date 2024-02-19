@@ -54,6 +54,7 @@
          - Significant improvement in input reader
 20230926 - General .exe first version. Can read cyl domains and contact
 20231024 - Working with  material class
+<<<<<<< HEAD:DEVLOG.md
 --------------------------------------------------------------
 --------------------------------------------------------------
 20240103 - Added Thermal solver to input file
@@ -63,3 +64,9 @@
            - Fixed FromFlatPtr (was incomplete)
            - Replaced FromFlatSym to FromFlat (since is not symmetric)
            - Completed input and function call
+=======
+---------------------------------------------------------------
+---------------------------------------------------------------
+20240219 - Changing to C++ 14 (See CUNSearch)
+         - Changed Traction.json -> MATERIAL BILINEAR CONSTANT INPUT SHOULD NOT BE CONST1 
+>>>>>>> master:DEVLOG.txt

@@ -122,14 +122,6 @@ void UserAcc(SPH::Domain_d & domi) {
       // }//mesh
     // }//bcs
   // }//contact
-
-  if (domi.contact){
-    for (int bc=0;bc<domi.bConds.size();bc++){
-        if (domi.trimesh->id == domi.bConds[bc].zoneId)
-          domi.trimesh->SetVel(domi.bConds[bc].value);
-    }//bcs
-  }//contact
-
 }
 
 int main(int argc, char **argv)
@@ -187,11 +179,11 @@ int main(int argc, char **argv)
     // dom.Kernel_Set(Qubic_Spline);
     
     
-    string solver = "Mech";
-    readValue(config["solver"],solver);
+    // string solver = "Mech";
+    // readValue(config["solver"],solver);
     
-    if (solver=="Mech-Thermal")
-      dom_d->thermal_solver = true;
+    // if (solver=="Mech-Thermal")
+      // dom.thermal_solver = true;
 		
 		// readValue(config["integrationMethod"], dom.Scheme); //0:Verlet, 1:LeapFrog, 2: Modified Verlet
 
@@ -264,11 +256,11 @@ int main(int argc, char **argv)
     // double beta = 0.;
     // bool h_upd = false;
     // double tensins = 0.3;
-    bool kernel_grad_corr = false;
+    // bool kernel_grad_corr = false;
     readValue(config["artifViscAlpha"],dom_d->Alpha); //TODO: ARTIFF VISC PER PARTICLE
     readValue(config["artifViscBeta"],dom_d->Beta);
     // readValue(config["contAlgorithm"],cont_alg);
-    readValue(config["kernelGradCorr"],kernel_grad_corr);
+    // readValue(config["kernelGradCorr"],kernel_grad_corr);
     // readValue(config["smoothlenUpdate"],h_upd);
     dom_d->auto_ts = auto_ts[0];
     // dom.auto_ts_acc = auto_ts[1];
@@ -376,111 +368,120 @@ int main(int argc, char **argv)
       std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
 		}
     
-    // //////////////////////////////////////////////////////////
-    // ////////////////// RIGID BODIES //////////////////////////
+//////////////////////////////////////////////////////////
+    ////////////////// RIGID BODIES //////////////////////////
     string rigbody_type;
     bool contact = false;
     if (readValue(rigbodies[0]["type"],rigbody_type))
       contact = true;
-    Vector dim;
-    
-		Vector vstart;
-    readVector(rigbodies[0]["start"], 	vstart);       
-		readVector(rigbodies[0]["dim"], 	dim); 
-    bool flipnormals = false;
-    readValue(rigbodies[0]["flipNormals"],flipnormals);
-    
-    // double heatcap = 1.;
-    // readValue(rigbodies[0]["thermalHeatCap"],heatcap);
-    // //TODO: WRitE TO PArTiclES
-    if (rigbody_type == "File"){
-      // string filename = "";
-      // readValue(rigbodies[0]["fileName"], 	filename); 
-      // cout << "Reading Mesh input file..." << endl;
-      // SPH::NastranReader reader("Tool.nas", flipnormals);
-    }
-    else {
-      if (dim (0)!=0. && dim(1) != 0. && dim(2) !=0. && rigbody_type == "Plane")
-        printf("ERROR: Contact Plane Surface should have one null dimension\n");
-    }
-    std::vector<TriMesh *> mesh; ////// TODO: ALLOW FOR MULTIPLE MESH CONTACT
-    SPH::TriMesh_d *mesh_d;
-  
-    cout << "Set contact to ";
-    if (contact){
+		
+		if (contact){
+			double3 dim;
+      
+			readVector(rigbodies[0]["start"], 	start);       
+			readVector(rigbodies[0]["dim"], 	dim); 
+			bool flipnormals = false;
+			readValue(rigbodies[0]["flipNormals"],flipnormals);
+			
+			double heatcap = 1.;
+			readValue(rigbodies[0]["thermalHeatCap"],heatcap);
+			cout << "Reading Contact surface "<<endl;
+			//TODO: WRitE TO PArTiclES
+			if (rigbody_type == "File"){
+				// string filename = "";
+				// readValue(rigbodies[0]["fileName"], 	filename); 
+				// cout << "Reading Mesh input file..." << endl;
+				// SPH::NastranReader reader("Tool.nas", flipnormals);
+			}
+			else {
+				if (dim.x!=0. && dim.y!= 0. && dim.z !=0. && rigbody_type == "Plane")
+					cout << "ERROR: Contact Plane Surface should have one null dimension"<<endl;
+			}
+			std::vector<TriMesh *> mesh;
+			
+			cout << "Set contact to ";
+
       cout << "true."<<endl;
       dom_d->contact = true;
       cout << "Reading contact mesh..."<<endl;
+      SPH::TriMesh_d *mesh_d;
+      gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+      
+      //TODO: CONVERT TO ARRAY std::vector<SPH::TriMesh_d> *mesh_d;
       //TODO: CHANGE TO EVERY DIRECTION
       int dens = 10;
       readValue(rigbodies[0]["partSide"],dens);
       if (rigbody_type == "Plane"){
-
-        SPH::TriMesh mesh;
-        //mesh[0]->AxisPlaneMesh(2, false, start, Vec3_t(start(0)+dim(0),start(1)+dim(1), start(2)),dens);
-        mesh.AxisPlaneMesh(2,false,vstart,
-        Vector(vstart(0)+dim(0),vstart(1)+dim(1), vstart(2)),
-        dens);
-
-        double hfac = 1.1;
-        dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
-        int solid_count = dom.Particles.size(); //BEFORE ADDING CONTACT MESH
-        
-        dom.AddTrimeshParticles(mesh, hfac, 11); //TO SHARE SAME PARTICLE NUMBER
-        dom_d->contact_surf_id = 11; //TO DO: AUTO! From Domain_d->AddTriMesh
-        
-        //TODO: Mesh has to be deleted
-        SPH::TriMesh_d *mesh_d;
-        gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
-        mesh_d->AxisPlaneMesh(2,false,make_double3(vstart(0),vstart(1),vstart(2)),make_double3(vstart(0)+dim(0),vstart(1)+dim(1),vstart(2)),dens);
-        
-        cout << "Domain Size "<<dom.Particles.size()<<endl;
-        //BEFORE ALLOCATING 
-        int particlecount = dom.Particles.size();
-        // //cout << "Particles "<<
-        dom_d->SetDimension(particlecount);	 //AFTER CREATING DOMAIN
-        dom_d->solid_part_count = solid_count;  //AFTER SET DIMENSION
-        dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
-        if (dom_d->trimesh ==NULL)
-          cout << "ERROR. No mesh defined"<<endl;
-        
+        // TODO: CHECK IF MESH IS NOT DEFINED
+        //mesh_d.push_back(new TriMesh);
+        mesh_d/*[0]*/->AxisPlaneMesh(2, false, start, Vector(start.x + dim.x,start.y + dim.y , start.z),dens);
       } else if (rigbody_type == "File"){
-        // string filename = "";
-        // readValue(rigbodies[0]["fileName"], 	filename); 
-        // cout << "Reading Mesh input file " << filename <<endl;
-        // SPH::NastranReader reader(filename.c_str());
-          // mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
+        string filename = "";
+        readValue(rigbodies[0]["fileName"], 	filename); 
+        cout << "Reading Mesh input file " << filename <<endl;
+        NastranReader reader((char*) filename.c_str());
+          mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
       }
-      // cout << "Creating Spheres.."<<endl;
-      // //mesh.v = Vec3_t(0.,0.,);
-      // mesh[0]->CalcSpheres(); //DONE ONCE
-      // double hfac = 1.1;	//Used only for Neighbour search radius cutoff
-      // cout << "Adding mesh particles ...";
-      // int id;
-      // readValue(rigbodies[0]["zoneId"],id);
-      // dom.AddTrimeshParticles(mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
-        
-      
-      std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
-      readValue(contact_[0]["fricCoeffStatic"], 	fric_sta[0]); 
-      readValue(contact_[0]["fricCoeffDynamic"], 	fric_dyn[0]); 
-      // readValue(contact_[0]["heatCondCoeff"], 	  heat_cond[0]);
-      
-      // bool heat_cond_ = false;
-      // if (readValue(contact_[0]["heatConductance"], 	heat_cond_)){
-        // dom.cont_heat_cond = true;
-        // dom.contact_hc = heat_cond[0];
-      // }
-      
-      dom_d->friction_dyn = fric_dyn[0];
-      dom_d->friction_sta = fric_sta[0];
-      // dom.PFAC = 0.8;
-      // dom.DFAC = 0.0;
-      
-		} 
-    else 
-      cout << "false. "<<endl;
 
+//      double scalefactor = 1.0d;
+//      readValue(rigbodies[0]["scaleFactor"],scalefactor);
+//      if (scalefactor != 1.0){
+//        cout << "Scaling mesh..."<<endl;
+//        mesh[0]->Scale(scalefactor);
+        }
+//      cout << "Creating Spheres.."<<endl;
+//      //mesh.v = Vec3_t(0.,0.,);
+//      mesh[0]->CalcSpheres(); //DONE ONCE
+//      double hfac = 1.1;	//Used only for Neighbour search radius cutoff
+//      cout << "Adding mesh particles ...";
+//      int id;
+//      readValue(rigbodies[0]["zoneId"],id);
+//      dom.AddTrimeshParticles(mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
+
+//      double penaltyfac = 0.5;
+//      std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
+//      readValue(contact_[0]["fricCoeffStatic"], 	fric_sta[0]); 
+//      readValue(contact_[0]["fricCoeffDynamic"], 	fric_dyn[0]); 
+//      readValue(contact_[0]["heatCondCoeff"], 	  heat_cond[0]);
+//      
+//      readValue(contact_[0]["penaltyFactor"], 	penaltyfac); 
+
+//			// readValue(rigbodies[0]["contAlgorithm"],cont_alg);
+//      if (cont_alg == "Seo") {
+//        cout << "Contact Algorithm set to SEO"<<endl;
+//        dom.contact_alg = Seo;
+//      } else if (cont_alg == "LSDyna") {
+//        dom.contact_alg = LSDyna;
+//      }else {
+//        cout << "Contact Algorithm set to WANG"<<endl;
+//      }
+//      
+//      //cout << "Contact Algortihm: "<< cont_alg.c_str() <<end;
+//      
+//      bool heat_cond_ = false;
+//      if (readValue(contact_[0]["heatConductance"], 	heat_cond_)){
+//        dom.cont_heat_cond = true;
+//        dom.contact_hc = heat_cond[0];
+//      }
+//      
+
+//      dom.friction_dyn = fric_dyn[0];
+//      dom.friction_sta = fric_sta[0];
+//      cout << "Contact Friction Coefficients, Static: "<<dom.friction_sta<<", Dynamic: "<< dom.friction_sta<<endl;
+//      
+//      dom.PFAC = penaltyfac;
+//      dom.DFAC = 0.0;
+//      cout << "Contact Penalty Factor: "<<dom.PFAC<<", Damping Factor: " << dom.DFAC<<endl;      
+//		} 
+//    else 
+//      cout << "false. "<<endl;
+      
+      
+    ///////////////////////////////////////////////////////////////////
+    /////////////////////// END CONTACT ///////////////////////////////
+    
+
+  
 		// std::vector <SPH::amplitude> amps;
 		
 		// for (auto& ampl : amplitudes) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
@@ -541,7 +542,7 @@ int main(int argc, char **argv)
     
     // //TODO: CHECK IF DIFFERENT ZONES ARE INTERF
     // //Generate Domain
-    dom_d->gradKernelCorr = kernel_grad_corr;
+    // dom.gradKernelCorr = kernel_grad_corr;
     // dom.ts_nb_inc = 5;
     
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -576,62 +577,28 @@ int main(int argc, char **argv)
   
   Elastic_ el(E,nu);
   cout << "Mat type  "<<mattype<<endl;
-  
-  
-  //cudaMalloc(&dom_d->materials, sizeof(Material_ ));
-  
-  cudaMalloc((void**)&dom_d->materials_ptr, sizeof(Material_ *)); //https://forums.developer.nvidia.com/t/virtual-funtions-in-kernels/22117/3
-  Material_ *material_h; //(Material_ *)malloc(1 * sizeof(Material_ ));
-  
-    Material_ mat(el);
-    mat.Ep = 10.0;
-  //TODO: MATERIALS SHOULD BE A VECTOR   
   if      (mattype == "Bilinear")    {
-    if (c.size()>0)
-      Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
-    else
-      cout << "ERROR. MATERIAL CONSTANTS UNDEFINED"<<endl;
-    cout << "Material Ep"<<Ep<<endl;
-    material_h  = new Material_(el);
-    material_h->Ep = Ep;
-    material_h->Material_model = BILINEAR;
-    // cout << "Material Constants, Et: "<<c[0]<<endl;
-    // material_h->Material_model = BILINEAR;
-    // cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear )); //
-    // cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
-
-    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Material_ )); //
-     cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Material_), cudaMemcpyHostToDevice);	
-    
+    Material_ *material_h  = new Bilinear();
+    Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
+    cout << "Material Constants, Et: "<<c[0]<<endl;
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear ));
+    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
   } 
   else if (mattype == "Hollomon")    {
-    // material_h  = new Hollomon(el,Fy,c[0],c[1]);
-    // cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
-    // cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Hollomon));
-    
-    material_h  = new Material_(el);
-    material_h->InitHollomon(el,Fy,c[0],c[1]);
-    material_h->Material_model = HOLLOMON;
-    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Material_));
-    
-    //init_hollomon_mat_kernel<<<1,1>>>(dom_d); //CRASH
-    //cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Hollomon*), cudaMemcpyHostToDevice);	
-    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Material_), cudaMemcpyHostToDevice);	 //OR sizeof(Hollomon)??? i.e. derived class
-    
-  
+    Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);
+    cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
   } else if (mattype == "JohnsonCook") {
     //Order is 
                                //A(sy0) ,B,  ,C,   m   ,n   ,eps_0,T_m, T_transition
-   //Material_ *material_h  = new JohnsonCook(el,Fy, c[0],c[1],c[3],c[2],c[6], c[4],c[5]); //First is hardening // A,B,C,m,n_,eps_0,T_m, T_t);	 //FIRST IS n_ than m
+    Material_ *material_h  = new JohnsonCook(el,Fy, c[0],c[1],c[3],c[2],c[6], c[4],c[5]); //First is hardening // A,B,C,m,n_,eps_0,T_m, T_t);	 //FIRST IS n_ than m
     
     //Only 1 material to begin with
-    //cudaMalloc((void**)&dom_d->materials, 1 * sizeof(JohnsonCook ));
-    //cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(JohnsonCook), cudaMemcpyHostToDevice);	
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(JohnsonCook ));
+    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(JohnsonCook), cudaMemcpyHostToDevice);	
     cout << "Material Constants, B: "<<c[0]<<", C: "<<c[1]<<", n: "<<c[2]<<", m: "<<c[3]<<", T_m: "<<c[4]<<", T_t: "<<c[5]<<", eps_0: "<<c[6]<<endl;
   } else                              printf("ERROR: Invalid material type.");
     
-  // InitMatHollomonKernel<<<1,1>>>(dom_d,*material_h); //BECAUSE MEMCPY IS NOT WORKING
-  // cudaDeviceSynchronize(); 
+
 	
 	cout << "Setting values"<<endl;
 	dom_d->SetDensity(rho);
@@ -710,9 +677,6 @@ int main(int argc, char **argv)
   //KICKDRIFT IS NOT 
   //dom_d->MechLeapfrogSolve(0.0101,1.0e-4);
   //dom_d->MechFraserSolve(5*timestep,timestep);
-  
-
-  
   dom_d->MechFraserSolve(sim_time,output_time);
 
 	dom_d->WriteCSV("test.csv");

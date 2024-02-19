@@ -312,7 +312,7 @@ class Domain_d
 	__host__ void SetCs(const Domain &dom);
 	~Domain_d();
 	
-	__host__ void Domain_d::CopyData(const Domain &dom);
+	__host__ void CopyData(const Domain &dom);
 	__device__ void CheckData();
 	__device__ void CalcThermalTimeStep();
   __host__ void ThermalCalcs(const double &dt);

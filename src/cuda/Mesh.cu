@@ -181,6 +181,51 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   delete normal_h;  
 }
 
+//TODO: CHANGE TRIMESH NAME
+TriMesh::TriMesh(NastranReader &nr, bool flipnormals){
+  //dimension = nr.dim;
+//  //Insert nodes
+  for (int n=0;n<nr.node_count;n++){
+//    if (!flipnormals)
+//      node.Push(new Vec3_t(nr.node[3*n],nr.node[3*n+1],nr.node[3*n+2]));
+//    else 
+//      node.Push(new Vec3_t(nr.node[3*n+1],nr.node[3*n],nr.node[3*n+2]));
+//    
+//		node_v.Push(new Vec3_t(0.,0.,0.));
+  }
+//  cout << "Generated "<<node.Size()<< " trimesh nodes. "<<endl;
+//  //cout << "Normals"<<endl;
+//  cout << "Writing elements..."<<endl;
+//  for (int e=0;e<nr.elem_count;e++){
+//    element.Push(new Element(nr.elcon[3*e],nr.elcon[3*e+1],nr.elcon[3*e+2]));		  
+//    Vec3_t v;
+//		if (dimension ==3) v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]] + *node[nr.elcon[3*e+2]] ) / 3. ;
+//    else               v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]])  / 2. ;
+//    element[e] -> centroid = v;
+//    //TODO: CHANGE FOR CALCNORMALS
+//    if (dimension==3){
+//      Vec3_t v1, v2;
+//      //In COUNTERCLOCKWISE
+//      v1 = *node[nr.elcon[3*e+1]] - *node[nr.elcon[3*e]];
+//      v2 = *node[nr.elcon[3*e+2]] - *node[nr.elcon[3*e]];
+//      element[e] ->normal = cross (v1,v2);
+
+//      element[e] ->normal /= Norm(element[e] ->normal);
+//      //cout << "v1 "<< v1<< ", v2 " <<v2<< ", normal "<<element[e]->normal <<endl;
+//    } else { //See calc normals
+//        Vec3_t u = *node [element[e]->node[1]] - *node [element[e]->node[0]];
+//        v[0] = -u[1];
+//        v[1] =  u[0];
+//        v[2] =  0.0;
+//        element[e] -> normal = v/norm(v);
+//    }
+//  }
+//  cout << "Generated "<<element.Size()<< " trimesh elements. "<<endl;  
+//  
+//  m_v = 0.;
+//  m_w = 0.;
+}
+
 //This is done once, Since mesh is rigid
 //Calculate radius and plane coefficient
 inline __device__ void TriMesh_d::CalcSpheres(){

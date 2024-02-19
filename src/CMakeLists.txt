@@ -16,7 +16,9 @@ link_directories(${cuNSearch_BINARY_DIR})
 #set (CMAKE_CXX_FLAGS "-fopenmp")
 
 
-set(CMAKE_CXX_STANDARD 11) #LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!
+set(CMAKE_CXX_STANDARD 14) 
+#LIKE IN CUNSearch, this allows to include string (conflicts with CXX17)!!!
+#IN UBUNTU MUST BE SET TO C++14 TOINCLUDE MAKE_UNIQUE
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # --fmad=true and --fmad=false enables and disables the contraction respectively. 
@@ -73,23 +75,25 @@ include_directories(${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 													# )                          
                  
 
-# add_executable(main_contact 
-													# main_contact.cu
-													# Domain.cpp 
-													# #NbSearch.cpp 
-													# Output.cpp
-													# Vector.cpp
-                          # Mesh.cpp
-													# #TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
-													# cuda/Domain_d.cu
-                          # cuda/cudautils.cu
-													# cuda/Thermal.cu
-													# #cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
-													# cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
-													# cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu
-													# cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
-													# cuNSearch/Utils/IDFactory.cpp													
-													# )   
+add_executable(main_contact 
+													main_contact.cu
+													Domain.cpp 
+													#NbSearch.cpp 
+													Output.cpp
+													Vector.cpp
+                          Mesh.cpp
+                          NastranReader.cpp
+													#TODO: ALLOW BUILD CUDA DIR WITH SEPARABLE COMPILATION
+													cuda/Domain_d.cu
+                          cuda/cudautils.cu
+													cuda/Thermal.cu
+													#cuda/Interaction_global.cu	#TEMPORARY, ALL IS EXTERNAL
+													cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
+													cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu
+													cuNSearch/Utils/cuda_helper.cu cuNSearch/Utils/Timing.cpp
+													cuNSearch/Utils/IDFactory.cpp													
+													)   
+
 
 add_executable(WeldFormGPU
                         WeldFormGPU.cu
@@ -97,7 +101,7 @@ add_executable(WeldFormGPU
 													Output.cpp
 													Vector.cpp
                           Mesh.cpp
-                          
+            							NastranReader.cpp
 													cuda/Domain_d.cu
                           cuda/cudautils.cu
                           cuda/Thermal.cu
