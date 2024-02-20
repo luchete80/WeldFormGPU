@@ -12,6 +12,7 @@ class TriMesh_d{
 	public:
 
 	//Element 						elem_data;
+	int 								id;
 	double3 						*node,*node_v; //Positions and veloc, 
 	int									*elnode;			//3 per element
 	double 							*pplane; //Only for testing
