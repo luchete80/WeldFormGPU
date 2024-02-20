@@ -31,6 +31,7 @@
 #include "cuda/Mesh.cuh"
 #include "cuda/Mesh.cu"
 #include "cuda/Boundary_Condition.cuh"
+#include "NastranReader.h" 
 
 // #include "InteractionAlt.cpp"
 // #include "Mesh.h"
@@ -447,7 +448,7 @@ int main(int argc, char **argv)
         string filename = "";
         readValue(rigbodies[0]["fileName"], 	filename); 
         cout << "Reading Mesh input file " << filename <<endl;
-        //NastranReader reader((char*) filename.c_str());
+        NastranReader reader((char*) filename.c_str());
         //mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
       }
 

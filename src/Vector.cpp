@@ -335,6 +335,10 @@ double Vector::operator()(int i) const
 	return x[i];
 }
 
+double & Vector::operator[](int i) 
+{
+	return x[i];
+}
 
 /// Define the + operator for Vector2D
 /*!	\param vect1 : vector1

@@ -77,6 +77,7 @@ add_executable(main_contact
 													main_contact.cu
 													Domain.cpp 
 													#NbSearch.cpp 
+													NastranReader.cpp
 													Output.cpp
 													Vector.cpp
                           Mesh.cpp
@@ -97,7 +98,7 @@ add_executable(WeldFormGPU
 													Output.cpp
 													Vector.cpp
                           Mesh.cpp
-            
+                          NastranReader.cpp
 													cuda/Domain_d.cu
                           cuda/cudautils.cu
                           cuda/Thermal.cu

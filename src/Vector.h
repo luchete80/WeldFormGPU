@@ -90,6 +90,7 @@ class Vector {
 		__host__ __device__ Vector &operator=(const float &);
 		__host__ __device__ double &operator()(int);
 		__host__ __device__ double operator()(int) const;
+		__host__ __device__ double & operator[](int);
 		//\}
 
 		/*! \name
