@@ -221,7 +221,7 @@ void Domain_d::SetDimension(const int &particle_count){
   solid_part_count = particle_count;
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
-  friction_sta = friction_dyn = 0.;
+  
   cout << "Domain allocation done. "<<endl;
   report_gpu_mem_();
 }

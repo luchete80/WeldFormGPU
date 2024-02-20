@@ -7,7 +7,7 @@
   "cflFactor": 0.4,
   "autoTS": [false,false,false],
   "simTime": 0.01,
-  "outTime": 1.0e-5
+  "outTime": 1.0e-4
 }
 ,
 "Materials":[ 
@@ -41,6 +41,16 @@
 	"dim":   [0.5, 0.5, 0.0],
 	"translation": [1.0, 0.0, 0.0],
 	"scale": [1, 1, 1]
+}],
+
+"Contact":[ 
+{
+  "fricCoeffStatic": 0.4,
+  "fricCoeffDynamic": 0.4,
+  "penaltyFactor": 0.6,
+  "heatConductance": false,
+  "heatCondCoeff": 0.01
+  
 }],
 
 "DomainZones": [

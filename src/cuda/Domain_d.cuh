@@ -278,6 +278,7 @@ class Domain_d
   PFAC =0.8;
   DFAC =0.2;
   contact = false;
+  friction_sta = friction_dyn = 0.;
   };
 	Domain_d(const int &particle_count);
   

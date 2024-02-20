@@ -55,4 +55,4 @@
 20230926 - General .exe first version. Can read cyl domains and contact
 20231024 - Working with  material class
 --------------------------------------------------------------
-20240220 - Added contact to file input 
+20240220 - Added contact to file input (STILL OLD MATERIAL FORMAT) 

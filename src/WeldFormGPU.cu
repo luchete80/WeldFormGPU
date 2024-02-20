@@ -452,11 +452,12 @@ int main(int argc, char **argv)
       }
 
         double hfac = 1.1;	//Used only for Neighbour search radius cutoff
+        ////// first_fem_particle_idx BEFORE CREATING PARTICLES
+        dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
         int id;
         readValue(rigbodies[0]["zoneId"],id);
         dom.AddTrimeshParticles(*mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
 				dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
-  			dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
   
 			//BEFORE ALLOCATING 
 			dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
@@ -476,8 +477,9 @@ int main(int argc, char **argv)
         // dom.contact_hc = heat_cond[0];
       // }
       
-      // dom.friction_dyn = fric_dyn[0];
-      // dom.friction_sta = fric_sta[0];
+      dom_d->friction_dyn = fric_dyn[0];
+      dom_d->friction_sta = fric_sta[0];
+      cout << "Contact Static Friction Coefficient: "<<dom_d->friction_dyn<<endl;
       // dom.PFAC = 0.8;
       // dom.DFAC = 0.0;
       
@@ -637,8 +639,10 @@ int main(int argc, char **argv)
   bool *not_write = new bool[dom_d->first_fem_particle_idx];
   for (int i=0;i< dom_d->first_fem_particle_idx;i++){
     not_write[i] = false;
-    if (dom.Particles[i]->ID!=0)
+    if (dom.Particles[i]->ID!=0){
       not_write[i] = true;
+      //cout << "ID "<<dom.Particles[i]->ID <<endl;
+    }
   }
 	
   
