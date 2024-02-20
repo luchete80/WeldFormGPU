@@ -173,7 +173,7 @@ void Domain_d::SetDimension(const int &particle_count){
   //pplane_h =  new double [particle_count-solid_part_count]; ////TEST
 
   
-  trimesh = NULL;
+  //trimesh = NULL;
 	//cudaMalloc((void **)&partdata->dTdt,particle_count * sizeof (double)); //TODO, pass to PartData
 	
 	// cudaMalloc((void**)&ppArray_a, 10 * sizeof(int*));
@@ -207,12 +207,7 @@ void Domain_d::SetDimension(const int &particle_count){
   }
   cudaMemcpy(not_write_surf_ID, surf,  particle_count * sizeof(bool), cudaMemcpyHostToDevice);
 
-	
-	// CONTACT THINGS
-	contact_force_factor =1.;
-	PFAC =0.8;
-	DFAC =0.2;
-  contact = false;
+
   
   //SetDouble(this->int_energy,0.);
 	double *ki_ =  new double[particle_count];
@@ -226,7 +221,7 @@ void Domain_d::SetDimension(const int &particle_count){
   solid_part_count = particle_count;
 	
 	//To allocate Neighbours, it is best to use a equal sized double array in order to be allocated once
-  friction_sta = friction_dyn = 0.;
+  
   cout << "Domain allocation done. "<<endl;
   report_gpu_mem_();
 }
