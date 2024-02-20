@@ -85,7 +85,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
       vi++;
 			// node.Push(new double3(v(0),v(1),v(2)));
 			// node_v.Push(new double3(0.,0.,0.));
-			//cout << "xyz: "<<x1 << ", "<<x2<<", "<<x3<<endl;
+			//cout << "xyz: "<<v.x << ", "<<v.y<<", "<<v.z<<endl;
 			x1+=dl;
 		}
 		x2+=dl;

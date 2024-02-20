@@ -167,8 +167,11 @@ int main(int argc, char **argv)
 		
 		SPH::Domain	dom; //TODO: DELETE THIS AND PASS TO DOMAIN
     SPH::Domain_d *dom_d;
+    std::vector<TriMesh *> mesh; ////// TODO: ALLOW FOR MULTIPLE MESH CONTACT
+    SPH::TriMesh_d *mesh_d;
+    
     report_gpu_mem();
-    gpuErrchk(cudaMallocManaged(&dom_d, sizeof(SPH::Domain)) );
+    gpuErrchk(cudaMallocManaged(&dom_d, sizeof(SPH::Domain_d)) );
     report_gpu_mem();
   
 		dom.Dimension	= 3;
@@ -385,7 +388,7 @@ int main(int argc, char **argv)
 			//cout << "start"<< vstart(0)<<"; "<< vstart(1)<<"; "<< vstart(2)<<"; "<<endl;
 			//cout << "end"<< vend(0)<<"; "<< vend(1)<<"; "<< vend(2)<<"; "<<endl;
       
-			int partcount =dom.AssignZone(vstart,vend,zoneid); ////IN DEVICE DOMAIN
+			int partcount =dom.AssignZone(vstart,vend,zoneid); ////IN DEVICE DOMAINf
       std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
 		}
     
@@ -397,10 +400,10 @@ int main(int argc, char **argv)
       contact = true;
     double3 dim;
     
-		// readVector(rigbodies[0]["start"], 	start);       
-		// readVector(rigbodies[0]["dim"], 	dim); 
-    // bool flipnormals = false;
-    // readValue(rigbodies[0]["flipNormals"],flipnormals);
+	readVector(rigbodies[0]["start"], 	start);       
+	readVector(rigbodies[0]["dim"], 	dim); 
+    bool flipnormals = false;
+    readValue(rigbodies[0]["flipNormals"],flipnormals);
     
     // double heatcap = 1.;
     // readValue(rigbodies[0]["thermalHeatCap"],heatcap);
@@ -415,8 +418,7 @@ int main(int argc, char **argv)
       // if (dim (0)!=0. && dim(1) != 0. && dim(2) !=0. && rigbody_type == "Plane")
         // throw new Fatal("ERROR: Contact Plane Surface should have one null dimension");
     // }
-    std::vector<TriMesh *> mesh; ////// TODO: ALLOW FOR MULTIPLE MESH CONTACT
-    SPH::TriMesh_d *mesh_d;
+
     // gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
 
     //BEFORE CONTACT
@@ -425,7 +427,7 @@ int main(int argc, char **argv)
     cout << "Set contact to ";
     if (contact){
       cout << "true."<<endl;
-      dom_d->contact = true;
+  		dom_d->contact = true; //ATTENTION: SetDimension sets contact to OFF so...
       cout << "Reading contact mesh..."<<endl;
       SPH::TriMesh_d *mesh_d;
       gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
@@ -437,8 +439,9 @@ int main(int argc, char **argv)
       if (rigbody_type == "Plane"){
         // TODO: CHECK IF MESH IS NOT DEFINED
         //mesh_d.push_back(new TriMesh);
+				cout << "Mesh Dimensions: "<< dim.x <<", "<<dim.y<< ", "<<dim.z<<endl;
         mesh.push_back(new TriMesh);
-        mesh[0]->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
+        mesh[0]->AxisPlaneMesh(2, false, start, Vector(start.x + dim.x,start.y + dim.y , start.z),dens);
         mesh_d/*[0]*/->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
       } else if (rigbody_type == "File"){
         string filename = "";
@@ -448,18 +451,14 @@ int main(int argc, char **argv)
         //mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
       }
 
-      // cout << "Creating Spheres.."<<endl;
-      // //mesh.v = Vec3_t(0.,0.,);
-      // mesh[0]->CalcSpheres(); //DONE ONCE
         double hfac = 1.1;	//Used only for Neighbour search radius cutoff
-//      cout << "Adding mesh particles ...";
         int id;
         readValue(rigbodies[0]["zoneId"],id);
         dom.AddTrimeshParticles(*mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
-				dom_d->contact_surf_id = 11;
-
+				dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
+  			dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+  
 			//BEFORE ALLOCATING 
-			dom_d->solid_part_count = dom.Particles.size();;  //AFTER SET DIMENSION
 			dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
 			mesh_d->id = id;
 			if (dom_d->trimesh ==NULL)
@@ -486,11 +485,6 @@ int main(int argc, char **argv)
     else 
       cout << "false. "<<endl;
 
-    // dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
-    // if (dom_d->trimesh ==NULL)
-      // cout << "ERROR. No mesh defined"<<endl;
-
-  
 		// std::vector <SPH::amplitude> amps;
 		
 		// for (auto& ampl : amplitudes) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
@@ -559,6 +553,8 @@ int main(int argc, char **argv)
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   dom_d->GeneralAfter = & UserAcc;
 	dom_d->SetDimension(dom.Particles.size());	 //AFTER CREATING DOMAIN
+
+		 
   //SPH::Domain	dom;
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
 	double3 *x =  new double3 [dom.Particles.size()];
@@ -634,6 +630,19 @@ int main(int argc, char **argv)
   dom_d->SetCs(dom);
   
   dom_d->SetSigmay(Fy);
+
+
+  ///////////////////////////////// IF CONTACT 
+  ////////////////////////////////////////////
+  bool *not_write = new bool[dom_d->first_fem_particle_idx];
+  for (int i=0;i< dom_d->first_fem_particle_idx;i++){
+    not_write[i] = false;
+    if (dom.Particles[i]->ID!=0)
+      not_write[i] = true;
+  }
+	
+  
+  cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx * sizeof(bool), cudaMemcpyHostToDevice);
     
     /////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////// INITIALIZE //////////////////////////////////////////
@@ -681,6 +690,8 @@ int main(int argc, char **argv)
   dom_d->auto_ts = false;
   //timestep = (1.0*h/(Cs+VMAX));
   dom_d->deltat = 0.4*h/(Cs+VMAX);
+  
+  
   //dom_d->MechKickDriftSolve(0.0101,1.0e-4);
   //LEAPFROG IS WORKING WITH ALPHA = 1
   //KICKDRIFT IS NOT 

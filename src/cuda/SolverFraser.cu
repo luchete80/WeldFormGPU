@@ -91,7 +91,9 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 	bool is_yielding = false;
 	double max_pl_strain = 0.;
   cout << "First Rigid Contact Particle: "<<first_fem_particle_idx<<endl;
-  
+  cout << "Contact set to ";
+  if (!contact) cout << "OFF. "<<endl;
+  else 				  cout << "ON.  "<<endl;
 	//First time find nbs
 	for (int i=0; i <particle_count;i++){
 	((Real3*)points)[i][0] = x_h[i].x;
