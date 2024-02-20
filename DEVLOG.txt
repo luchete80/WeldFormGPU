@@ -54,5 +54,12 @@
          - Significant improvement in input reader
 20230926 - General .exe first version. Can read cyl domains and contact
 20231024 - Working with  material class
+<<<<<<< HEAD
+---------------------------------------------------------------
+---------------------------------------------------------------
+20240219 - Changing to C++ 14 (See CUNSearch)
+         - Changed Traction.json -> MATERIAL BILINEAR CONSTANT INPUT SHOULD NOT BE CONST1 
+=======
 --------------------------------------------------------------
 20240220 - Added contact to file input (STILL OLD MATERIAL FORMAT) 
+>>>>>>> dev_old_mat

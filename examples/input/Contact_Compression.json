@@ -7,14 +7,23 @@
   "cflFactor": 0.4,
   "autoTS": [false,false,false],
   "simTime": 0.01,
+<<<<<<< HEAD
+  "outTime": 1.0e-5
+=======
   "outTime": 1.0e-4
+>>>>>>> dev_old_mat
 }
 ,
 "Materials":[ 
 {
 	"id": "Solid",
 	"type": "Bilinear",
+<<<<<<< HEAD
+  "const1": 7.18e8,
+  "const2": 0.22,
+=======
   "const": [7.18e8,0.22],
+>>>>>>> dev_old_mat
 	"density0": 2700.0, 
 	"youngsModulus": 68.9E9, 
 	"poissonsRatio": 0.3,
@@ -43,6 +52,8 @@
 	"scale": [1, 1, 1]
 }],
 
+<<<<<<< HEAD
+=======
 "Contact":[ 
 {
   "fricCoeffStatic": 0.4,
@@ -53,6 +64,7 @@
   
 }],
 
+>>>>>>> dev_old_mat
 "DomainZones": [
 {
 	"id": 2,
@@ -72,15 +84,27 @@
 "BoundaryConditions": [
 {
 	"zoneId": 	2,
+<<<<<<< HEAD
+	"valuetype": 	"Constant",
+=======
+>>>>>>> dev_old_mat
 	"value": 		[ 0.0, 0.0, 0.0],
 	"free": 		true
 },
 {
 	"zoneId": 	10,
+<<<<<<< HEAD
+	"valuetype": 	"Constant",
+=======
 	"valuetype": 	0,
+>>>>>>> dev_old_mat
 	"value": 		[ 0.0, 0.0, -1.0],
 	"free": 		true
 }
 ]
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> dev_old_mat
