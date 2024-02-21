@@ -36,16 +36,29 @@ __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt) {
 }
 
 TriMesh_d::TriMesh_d(NastranReader &nr, bool flipnormals){
+  
+  
+  nodecount = nr.node_count;
+  
+  cout << "Creating nodes.."<<endl;
+
+  double3 *node_h, *node_vh;
+  node_h  =  new double3 [nodecount];
+  node_vh =  new double3 [nodecount];
+  
+  cudaMemcpy(node, node_h,    nodecount * sizeof (double3), cudaMemcpyHostToDevice);
+  cudaMemcpy(node_v, node_vh, nodecount * sizeof (double3), cudaMemcpyHostToDevice);  
 //  dimension = nr.dim;
 //  //Insert nodes
-//  for (int n=0;n<nr.node_count;n++){
-//    if (!flipnormals)
-//      node.Push(new Vec3_t(nr.node[3*n],nr.node[3*n+1],nr.node[3*n+2]));
-//    else 
-//      node.Push(new Vec3_t(nr.node[3*n+1],nr.node[3*n],nr.node[3*n+2]));
-//    
-//		node_v.Push(new Vec3_t(0.,0.,0.));
-//  }
+ for (int n=0;n<nr.node_count;n++){
+  
+   // if (!flipnormals)
+     // node.Push(new Vec3_t(nr.node[3*n],nr.node[3*n+1],nr.node[3*n+2]));
+   // else 
+     // node.Push(new Vec3_t(nr.node[3*n+1],nr.node[3*n],nr.node[3*n+2]));
+   
+		// node_v.Push(new Vec3_t(0.,0.,0.));
+ }
 //  cout << "Generated "<<node.Size()<< " trimesh nodes. "<<endl;
 //  //cout << "Normals"<<endl;
 //  cout << "Writing elements..."<<endl;
