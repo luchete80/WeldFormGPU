@@ -65,7 +65,8 @@ TriMesh_d::TriMesh_d(NastranReader &nr, bool flipnormals){
   /////////////////// ELEMENTS ////////////////////
   cudaMalloc((void **)&centroid , 	elemcount * sizeof (double3));
   cudaMalloc((void **)&normal 	, 	elemcount * sizeof (double3));
-  cudaMalloc((void **)&elnode 	, 	3 * elemcount * sizeof (int));	
+  cudaMalloc((void **)&elnode 	, 	3 * elemcount * sizeof (int));
+	
   int *elnode_h = new int[3*elemcount];
   double3 *centroid_h = new double3[elemcount];
   double3 *normal_h   = new double3[elemcount];
@@ -76,6 +77,18 @@ TriMesh_d::TriMesh_d(NastranReader &nr, bool flipnormals){
     for (int n=0;n<3;n++) elnode_h[3*e+n] = nr.elcon[3*e+n];
     // element.Push(new Element(nr.elcon[3*e],nr.elcon[3*e+1],nr.elcon[3*e+2]));
     double3 v = (node_h[nr.elcon[3*e]] + node_h[nr.elcon[3*e+1]] + node_h[nr.elcon[3*e+2]] ) / 3.0;    
+    
+    centroid_h[e] = v;
+    double3 v1, v2;
+    //In COUNTERCLOCKWISE
+    v1 = node_h[nr.elcon[3*e+1]] - node_h[nr.elcon[3*e]];
+    v2 = node_h[nr.elcon[3*e+2]] - node_h[nr.elcon[3*e]];
+    normal_h[e] = cross(v1,v2);
+    if (flipnormals)
+      normal_h[e] = -normal_h[e];
+    
+    normal_h[e] = normal_h[e]/length(normal_h[e]);
+    
     // Vec3_t v;
 		// if (dimension ==3) v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]] + *node[nr.elcon[3*e+2]] ) / 3. ;
     // else               v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]])  / 2. ;
@@ -101,6 +114,19 @@ TriMesh_d::TriMesh_d(NastranReader &nr, bool flipnormals){
 //  cout << "Generated "<<element.Size()<< " trimesh elements. "<<endl;  
 //  
   m_v = m_w = make_double3(0.,0.,0.);
+  
+  cudaMemcpy(elnode, elnode_h, 3 * elemcount * sizeof(int), cudaMemcpyHostToDevice);
+  cudaMemcpy(centroid, centroid_h, elemcount * sizeof(double3), cudaMemcpyHostToDevice);
+  cudaMemcpy(normal, normal_h, elemcount * sizeof(double3), cudaMemcpyHostToDevice);
+
+  cudaMalloc((void **)&pplane , 	elemcount * sizeof (double));
+  cudaMalloc((void **)&nfar   , 	elemcount * sizeof (int));
+
+  delete node_h;
+  delete node_vh;
+  delete elnode_h;
+  delete centroid_h;
+  delete normal_h; 
 }
 
 //NOW THIS IS ZORIENTED, CHANGE TO EVERY PLANE
