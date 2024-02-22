@@ -74,7 +74,8 @@ TriMesh_d::TriMesh_d(NastranReader &nr, bool flipnormals){
 //  cout << "Writing elements..."<<endl;
  for (int e=0;e<nr.elem_count;e++){
     for (int n=0;n<3;n++) elnode_h[3*e+n] = nr.elcon[3*e+n];
-    // element.Push(new Element(nr.elcon[3*e],nr.elcon[3*e+1],nr.elcon[3*e+2]));		  
+    // element.Push(new Element(nr.elcon[3*e],nr.elcon[3*e+1],nr.elcon[3*e+2]));
+    double3 v = (node_h[nr.elcon[3*e]] + node_h[nr.elcon[3*e+1]] + node_h[nr.elcon[3*e+2]] ) / 3.0;    
     // Vec3_t v;
 		// if (dimension ==3) v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]] + *node[nr.elcon[3*e+2]] ) / 3. ;
     // else               v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]])  / 2. ;
