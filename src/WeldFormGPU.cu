@@ -331,7 +331,7 @@ int main(int argc, char **argv)
 		//PRINTVEC(L)
 		if (domtype == "Box"){
       cout << "Adding Box ..."<<endl;      
-			dom.AddBoxLength(id ,start, L.x , L.y,  L.z , r ,rho, h, 1 , 0 , false, false );		
+			dom.AddBoxLength(0 ,start, L.x , L.y,  L.z , r ,rho, h, 1 , 0 , false, false );		
 		}   else if (domtype == "Cylinder"){
       cout << "Adding Cylinder";      
 			// if (sym[0] && sym[1]){
