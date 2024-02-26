@@ -452,6 +452,8 @@ int main(int argc, char **argv)
         mesh_d->ReadFromNastran(reader,false);
         //mesh_d = New
         //mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
+        mesh.push_back (new SPH::TriMesh);
+        mesh[0]->ReadFromNastran(reader, false);
       }
 
         double hfac = 1.1;	//Used only for Neighbour search radius cutoff

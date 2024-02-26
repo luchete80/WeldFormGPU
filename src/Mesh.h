@@ -50,6 +50,7 @@ class TriMesh{
 	
 	Vector							v;						//Constant Uniform v
 	TriMesh();
+	void ReadFromNastran(NastranReader &nr, bool flipnormals = false);
   void AxisPlaneMesh(const int &axis, bool positaxisorent, const Vector p1, const Vector p2, const int &dens);
   void ApplyConstVel(const Vector &v);
   void CalcCentroidVelFromNodes();

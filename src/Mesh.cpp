@@ -9,6 +9,51 @@ TriMesh::TriMesh(){
 	
 }
 
+void TriMesh::ReadFromNastran(NastranReader &nr, bool flipnormals){
+  //dimension = nr.dim;
+  //Insert nodes
+  for (int n=0;n<nr.node_count;n++){
+    if (!flipnormals)
+      node.push_back(new Vector(nr.node[3*n],nr.node[3*n+1],nr.node[3*n+2]));
+    else 
+      node.push_back(new Vector(nr.node[3*n+1],nr.node[3*n],nr.node[3*n+2]));
+    
+		node_v.push_back(new Vector(0.,0.,0.));
+  }
+  cout << "Generated "<<node.size()<< " trimesh nodes. "<<endl;
+  //cout << "Normals"<<endl;
+  cout << "Writing elements..."<<endl;
+  for (int e=0;e<nr.elem_count;e++){
+    element.push_back(new Element(nr.elcon[3*e],nr.elcon[3*e+1],nr.elcon[3*e+2]));		  
+    Vector v;
+		//if (dimension ==3) 
+      v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]] + *node[nr.elcon[3*e+2]] ) / 3. ;
+    //else               v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]])  / 2. ;
+    element[e] -> centroid = v;
+    //TODO: CHANGE FOR CALCNORMALS
+//    if (dimension==3){
+      Vector v1, v2;
+      //In COUNTERCLOCKWISE
+      v1 = *node[nr.elcon[3*e+1]] - *node[nr.elcon[3*e]];
+      v2 = *node[nr.elcon[3*e+2]] - *node[nr.elcon[3*e]];
+      element[e] ->normal = cross (v1,v2);
+
+      element[e] ->normal = element[e] ->normal/element[e] ->normal.norm();
+      //cout << "v1 "<< v1<< ", v2 " <<v2<< ", normal "<<element[e]->normal <<endl;
+    // } else { //See calc normals
+        // Vec3_t u = *node [element[e]->node[1]] - *node [element[e]->node[0]];
+        // v[0] = -u[1];
+        // v[1] =  u[0];
+        // v[2] =  0.0;
+        // element[e] -> normal = v/norm(v);
+    // }
+  }
+  cout << "Generated "<<element.size()<< " trimesh elements. "<<endl;  
+  
+  // m_v = 0.;
+  // m_w = 0.;  
+}
+
 Element::Element(const int &n1, const int &n2, const int &n3){
 	
 	//centroid = Vector();

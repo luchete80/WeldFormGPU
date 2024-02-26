@@ -64,3 +64,4 @@
 20240220 - Added contact to file input (STILL OLD MATERIAL FORMAT) 
          - Begining to add mesh from Nastran reader
 20240222 - Adding Nastran Input reading 
+20240226 - Fixed crashed reading mesh
