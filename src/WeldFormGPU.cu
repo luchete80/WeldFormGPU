@@ -449,6 +449,8 @@ int main(int argc, char **argv)
         readValue(rigbodies[0]["fileName"], 	filename); 
         cout << "Reading Mesh input file " << filename <<endl;
         NastranReader reader((char*) filename.c_str());
+        mesh_d->ReadFromNastran(reader,false);
+        //mesh_d = New
         //mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
       }
 

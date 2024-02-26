@@ -35,7 +35,7 @@ __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt) {
   mesh_d->UpdatePlaneCoeff(); 
 }
 
-TriMesh_d::TriMesh_d(NastranReader &nr, bool flipnormals){
+void TriMesh_d::ReadFromNastran(NastranReader &nr, bool flipnormals){
   
   
   nodecount = nr.node_count;
