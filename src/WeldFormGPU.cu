@@ -391,6 +391,7 @@ int main(int argc, char **argv)
       
 			int partcount =dom.AssignZone(vstart,vend,zoneid); ////IN DEVICE DOMAINf
       std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
+      if (partcount == 0) cout << "-----WARNING------: Zone " <<zoneid<<" has ZERO particles"<<endl;
 		}
     
     // //////////////////////////////////////////////////////////
@@ -456,14 +457,15 @@ int main(int argc, char **argv)
         mesh[0]->ReadFromNastran(reader, false);
       }
 
-        double hfac = 1.1;	//Used only for Neighbour search radius cutoff
-        ////// first_fem_particle_idx BEFORE CREATING PARTICLES
-        dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
-        int id;
-        readValue(rigbodies[0]["zoneId"],id);
-        dom.AddTrimeshParticles(*mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
-				dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
-  
+      double hfac = 1.1;	//Used only for Neighbour search radius cutoff
+      ////// first_fem_particle_idx BEFORE CREATING PARTICLES
+      dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+      cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx <<endl;
+      int id;
+      readValue(rigbodies[0]["zoneId"],id);
+      dom.AddTrimeshParticles(*mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
+      dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
+
 			//BEFORE ALLOCATING 
 			dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
 			mesh_d->id = id;
@@ -616,11 +618,15 @@ int main(int argc, char **argv)
 	dom_d->SetDensity(rho);
 	dom_d->Set_h(h);
 	cout << "done."<<endl;
-
+  
+  bool mass_ok = true;
 	double *m =  new double [dom.Particles.size()];
-	for (size_t a=0; a<dom.Particles.size(); a++)
+	for (size_t a=0; a<dom.Particles.size(); a++){
 		m[a] = dom.Particles[a]->Mass;
-	cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
+    if (m[a] < 1.0e-10 && a<dom_d->first_fem_particle_idx) mass_ok = false;
+	}
+  if (!mass_ok) cout << "-----WARNING ---- some particles have ZERO MASS"<<endl;
+  cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
   
   dom_d->SetShearModulus(G);	// 
   for (size_t a=0; a<dom.Particles.size(); a++) {
@@ -641,18 +647,21 @@ int main(int argc, char **argv)
 
   ///////////////////////////////// IF CONTACT 
   ////////////////////////////////////////////
+  int nwcount = 0;
   bool *not_write = new bool[dom_d->first_fem_particle_idx];
   for (int i=0;i< dom_d->first_fem_particle_idx;i++){
     not_write[i] = false;
     if (dom.Particles[i]->ID!=0){
       not_write[i] = true;
       //cout << "ID "<<dom.Particles[i]->ID <<endl;
+      nwcount++;
     }
   }
-	
+  cout << "Set "<<nwcount<<" particles fixed ID"<<endl;
   
   cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx * sizeof(bool), cudaMemcpyHostToDevice);
-    
+  delete not_write;
+  
     /////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////// INITIALIZE //////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////

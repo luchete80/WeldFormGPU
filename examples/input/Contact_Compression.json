@@ -23,7 +23,7 @@
 
 "DomainBlocks": 
 [{
-	"type": "Cylinder",
+	"type": "Box",
 	"zoneId": 0,
 	"denseMode": 0,
 	"start": [ 0.0, 0.0, -0.028],

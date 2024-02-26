@@ -59,7 +59,7 @@
 {
 	"id": 2,
 	"start":[-20.0,-10.0, -10.0],
-	"end": 	[ 0.0, -0.5e-3, 10.0e-3]
+	"end": 	[ 0.0, -0.33e-3, 10.0e-3]
 },
 {
 	"id": 3,
@@ -91,7 +91,7 @@
 },
 {
 	"zoneId": 		10,
-	"valueType": 	1,
+	"valueType": 	0,
   "amplitudeId" : 1,
   "amplitudeFactor": 1.0,
 	"value": 		[ -0.3, 0.0, 0.0]
