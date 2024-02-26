@@ -597,6 +597,7 @@ int main(int argc, char **argv)
     cout << "Material Constants, Et: "<<c[0]<<endl;
     cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear ));
     cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
+    cout << "Created Bilinear material"<<endl;
   } 
   else if (mattype == "Hollomon")    {
     Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);

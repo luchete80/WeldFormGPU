@@ -43,6 +43,9 @@ void TriMesh_d::ReadFromNastran(NastranReader &nr, bool flipnormals){
   
   cout << "Creating nodes.."<<endl;
 
+  cudaMalloc((void **)&node   , 	nodecount * sizeof (double3));
+  cudaMalloc((void **)&node_v , 	nodecount * sizeof (double3));
+  
   double3 *node_h, *node_vh;
   node_h  =  new double3 [nodecount];
   node_vh =  new double3 [nodecount];
@@ -288,6 +291,7 @@ inline __device__ void TriMesh_d::CalcSpheres(){
       if (length(rv) > max) max = length(rv);
       nfar[e] = n;
     }
+    printf("nfar %f\n", nfar[e]);
     
     //element[e]-> radius[e] = max;	//Fraser Eq 3-136
     

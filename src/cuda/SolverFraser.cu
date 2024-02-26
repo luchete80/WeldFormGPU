@@ -134,11 +134,13 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     }
     else printf("MESH NOT DEFINED\n");
   }
-			char str[10];
-			sprintf(str, "out_%.6f.csv", Time);
-			WriteCSV(str);
+  cout << "Done. "<<endl;
+  char str[10];
+  sprintf(str, "out_%.6f.csv", Time);
+  WriteCSV(str);
       
-  ////// MATERIAL
+  cout << "Assigning Materials..."<<endl;
+  //// MATERIAL
   AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
   cudaDeviceSynchronize();
       
