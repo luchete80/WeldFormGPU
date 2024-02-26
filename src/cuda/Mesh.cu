@@ -91,7 +91,7 @@ void TriMesh_d::ReadFromNastran(NastranReader &nr, bool flipnormals){
       normal_h[e] = -normal_h[e];
     
     normal_h[e] = normal_h[e]/length(normal_h[e]);
-    
+    printf ("Normal %d %f %f %f \n",e, normal_h[e].x,normal_h[e].y,normal_h[e].z);
     // Vec3_t v;
 		// if (dimension ==3) v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]] + *node[nr.elcon[3*e+2]] ) / 3. ;
     // else               v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]])  / 2. ;
@@ -200,7 +200,8 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 	cudaMalloc((void **)&centroid , 	elemcount * sizeof (double3));
 	cudaMalloc((void **)&normal 	, 	elemcount * sizeof (double3));
 	cudaMalloc((void **)&elnode 	, 	3 * elemcount * sizeof (int));	
-  int *elnode_h = new int[3*elemcount];
+  
+  int *elnode_h       = new int[3*elemcount];
   double3 *centroid_h = new double3[elemcount];
   double3 *normal_h   = new double3[elemcount];
 	
@@ -291,7 +292,8 @@ inline __device__ void TriMesh_d::CalcSpheres(){
       if (length(rv) > max) max = length(rv);
       nfar[e] = n;
     }
-    printf("nfar %f\n", nfar[e]);
+    // printf("centroid %d %f %f %f\n", e,centroid[e].x,centroid[e].y,centroid[e].z);
+    // printf("nfar %d\n", nfar[e]);
     
     //element[e]-> radius[e] = max;	//Fraser Eq 3-136
     
@@ -322,12 +324,12 @@ inline __device__ void TriMesh_d::CalcNormals(){
     v = node [elnode[3*e+2]] - node [elnode[3*e]];
     w = cross(u,v);
     normal[e] = w/length(w);
-    // if (length(normal[e])<1.0e-3)
-      // printf("ERROR: ZERO normal. Calc error in element %d\n",e);
+    if (length(normal[e])<1.0e-3)
+      printf("ERROR: ZERO normal. Calc error in element %d\n",e);
     // if (abs(normal[e].y) >1.0e-5 || abs(normal[e].x) > 1.0e-5)
       // printf("CalcNormal %d %.6e %.6e %.6e\n u %.6e %.6e %.6e \n v %.6e %.6e %.6e\n",e, normal[e].x,normal[e].y,normal[e].z,u.x,u.y,u.z,v.x,v.y,v.z);
-    normal[e].x = normal[e].y = 0.0;
-    normal[e].z = -1.0;
+    // normal[e].x = normal[e].y = 0.0;
+    // normal[e].z = -1.0;
       // //printf("elnodes z coord %.6e %.6e %.6e\n", node[elnode[3*e]].z,node[elnode[3*e+1]].z,node[elnode[3*e+2]].z);
     // }
     //Fraser Eqn 3.34
