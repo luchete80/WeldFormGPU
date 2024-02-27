@@ -66,3 +66,4 @@
 20240222 - Adding Nastran Input reading 
 20240226 - Fixed crashed reading mesh
 20240227 - Added totmass calc
+         - Adding Johnson Cook material
