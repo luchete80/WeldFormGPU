@@ -81,12 +81,12 @@ class Material_{
   __host__ __device__ void test(){printf("test\n");}
 //  //virtual __host__ __device__ double testret(){return 2.0;}
 	Material_(const Elastic_ el):elastic_m(el){}
-	// //virtual  __device__ inline double CalcTangentModulus(){};
-	// //virtual  __device__ inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp){};
-	// //virtual  __device__ inline double CalcTangentModulus(const double &strain){};
-	// //virtual  __device__ inline double CalcYieldStress(){};
-	// //virtual  __device__ inline double CalcYieldStress(const double &strain){return 0.0;};
-	// //virtual  __device__ inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp){};
+	// //virtual  __device__ __host__ inline double CalcTangentModulus(){};
+	// //virtual  __device__ __host__ inline double CalcTangentModulus(const double &strain, const double &strain_rate, const double &temp){};
+	// //virtual  __device__ __host__ inline double CalcTangentModulus(const double &strain){};
+	// //virtual  __device__ __host__ inline double CalcYieldStress(){};
+	// //virtual  __device__ __host__ inline double CalcYieldStress(const double &strain){return 0.0;};
+	// //virtual  __device__ __host__ inline double CalcYieldStress(const double &strain, const double &strain_rate, const double &temp){};
 	 __host__ __device__ const Elastic_& Elastic()const{return elastic_m;}
    
    ~Material_(){}
@@ -189,7 +189,7 @@ class _Plastic{
 	// inline double  __device__ CalcYieldStress(const double &strain);	
 // };
 
-__device__ inline double CalcHollomonYieldStress(const double &strain, Material_ *mat) //IN CASE OF NOT USING //virtual FUNCTIONS
+__device__ __host__ inline double CalcHollomonYieldStress(const double &strain, Material_ *mat) //IN CASE OF NOT USING //virtual FUNCTIONS
 {
   double sy = 0.0;
   //printf("K %f eps0 %f , eps1 %f sy0 %f m %f\n",K,eps0,eps1,sy0,m);
@@ -200,13 +200,13 @@ __device__ inline double CalcHollomonYieldStress(const double &strain, Material_
   
 }
 
-__device__ inline void ShowProps(Material_ *mat) //IN CASE OF NOT USING //virtual FUNCTIONS
+__device__ __host__ inline void ShowProps(Material_ *mat) //IN CASE OF NOT USING //virtual FUNCTIONS
 {
   printf("K %f \n eps0 %f \n eps1 \n%f, sy0 \n%f, m %f \n", mat->K,mat->eps0,mat->eps1,mat->sy0,mat->m);
   
 }
 
-__device__ inline double CalcJohnsonCookYieldStress(const double &strain, const double &strain_rate, const double &temp, Material_ *mat) //IN CASE OF NOT USING //virtual FUNCTIONS
+__device__ __host__ inline double CalcJohnsonCookYieldStress(const double &strain, const double &strain_rate, const double &temp, Material_ *mat) //IN CASE OF NOT USING //virtual FUNCTIONS
 {
 	double T_h = (temp - mat->T_t) / (mat->T_m - mat->T_t);
 	double sr = strain_rate;

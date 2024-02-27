@@ -505,31 +505,34 @@ __device__ void Domain_d::StressStrainOne(int i) {
     //std::min((Sigmay/sqrt(3.0*J2)),1.0)*ShearStressa;
 
     if       (mat[i]->Material_model == HOLLOMON )       sigma_y[i] = CalcHollomonYieldStress(pl_strain[i],mat[i]); 
-	else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = CalcJohnsonCookYieldStress(pl_strain[i],eff_strain_rate[i],T[i],mat[i]);
+    else if  (mat[i]->Material_model == JOHNSON_COOK )   sigma_y[i] = CalcJohnsonCookYieldStress(pl_strain[i],eff_strain_rate[i],T[i],mat[i]);
 		
-		sigma_eq[i] = sig_trial;	
-		
-		if ( sig_trial > sigma_y[i]) {
-		double Et, Ep;
-		if (mat[i]->Material_model == HOLLOMON ) {
-		
-		Et =CalcHollomonTangentModulus(pl_strain[i], mat[i]); //Fraser 3.54
-				// Et_m = Et;        
-      } else if       (mat[i]->Material_model == JOHNSON_COOK ) {
-        Et = CalcJohnsonCookTangentModulus(pl_strain[i], eff_strain_rate[i], T[i], mat[i]); //Fraser 3.54
-      } else if       (mat[i]->Material_model == BILINEAR ) {
-        Ep = mat[i]->Elastic().E()*Et/(mat[i]->Elastic().E()-Et);
-      }
-      if (Ep<0) Ep = 1.0 * mat[i]->Elastic().E();
-      
-			dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
-			pl_strain[i] += dep;	
-      //printf("Particle %d, dep %.1e, sigtrial %.1e\n",i,dep,sig_trial);
-			sigma_eq[i] = sigma_y[i];
-		}//plastic
+    sigma_eq[i] = sig_trial;	
+    
+    if ( sig_trial > sigma_y[i]) {
+    double Et, Ep;
+    if (mat[i]->Material_model == HOLLOMON ) {
+    
+    Et =CalcHollomonTangentModulus(pl_strain[i], mat[i]); //Fraser 3.54
+        // Et_m = Et;        
+    } else if       (mat[i]->Material_model == JOHNSON_COOK ) {
+      Et = CalcJohnsonCookTangentModulus(pl_strain[i], eff_strain_rate[i], T[i], mat[i]); //Fraser 3.54
+      //printf(")
+    } else if       (mat[i]->Material_model == BILINEAR ) {
+      //Ep = mat[i]->Elastic().E()*Et/(mat[i]->Elastic().E()-Et);
+    }
+    if (Ep<0) Ep = 1.0 * mat[i]->Elastic().E();
+        
+      dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
+      pl_strain[i] += dep;	
+    //printf("Particle %d, dep %.1e, sigtrial %.1e\n",i,dep,sig_trial);
+      sigma_eq[i] = sigma_y[i];
 
-    // if (mat[i]->Material_model == BILINEAR )
-      // sigma_y[i] += dep*Ep;
+      if (mat[i]->Material_model == BILINEAR )
+        sigma_y[i] += dep*Ep;
+    }//plastic
+
+
     
 		Sigma = -p[i] * Identity() + ShearStress;	//Fraser, eq 3.32
 
