@@ -103,6 +103,7 @@ add_executable(WeldFormGPU
 													cuda/Domain_d.cu
                           cuda/cudautils.cu
                           cuda/Thermal.cu
+						  cuda/SolverFraser.cu
                           
 													cuNSearch/src/PointSet.cu cuNSearch/src/PointSetImplementation.cu
 													cuNSearch/src/cuNSearch.cu cuNSearch/src/cuNSearchDeviceData.cu cuNSearch/src/cuNSearchKernels.cu

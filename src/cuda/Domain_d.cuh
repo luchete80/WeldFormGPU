@@ -283,6 +283,7 @@ class Domain_d
   PFAC =0.8;
   DFAC =0.2;
   contact = false;
+  gradKernelCorr = false;	
   friction_sta = friction_dyn = 0.;
   };
 

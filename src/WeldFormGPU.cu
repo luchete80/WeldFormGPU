@@ -585,7 +585,7 @@ int main(int argc, char **argv)
 	cout << "copied"<<endl;
 
   ////// MATERIAL  
-  Material_ *mat_h = (Material_ *)malloc(dom_d->solid_part_count * sizeof(Material_ *)); 
+  Material_ *material_h = (Material_ *)malloc(dom_d->solid_part_count * sizeof(Material_ *)); 
   
 
   

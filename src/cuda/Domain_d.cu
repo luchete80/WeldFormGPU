@@ -17,12 +17,6 @@
 //Else (offset)
 //Allocating from host
 namespace SPH {
-  
-Domain_d::Domain_d(){
-  isfirst_step=true;
-  thermal_solver=false;
-	gradKernelCorr = false;	
-}
 
 void Domain_d::SetDimension(const int &particle_count){
 	this->particle_count = particle_count;
