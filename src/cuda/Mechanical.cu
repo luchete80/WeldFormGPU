@@ -510,16 +510,17 @@ __device__ void Domain_d::StressStrainOne(int i) {
 		sigma_eq[i] = sig_trial;	
 		
 		if ( sig_trial > sigma_y[i]) {
-      if              (mat[i]->Material_model == HOLLOMON ) {
-		double Et;
-				Et =CalcHollomonTangentModulus(pl_strain[i], mat[i]); //Fraser 3.54
+		double Et, Ep;
+		if (mat[i]->Material_model == HOLLOMON ) {
+		
+		Et =CalcHollomonTangentModulus(pl_strain[i], mat[i]); //Fraser 3.54
 				// Et_m = Et;        
       } else if       (mat[i]->Material_model == JOHNSON_COOK ) {
-        //Et = mat->CalcTangentModulus(pl_strain, eff_strain_rate, T); //Fraser 3.54
+        Et = CalcJohnsonCookTangentModulus(pl_strain[i], eff_strain_rate[i], T[i], mat[i]); //Fraser 3.54
       } else if       (mat[i]->Material_model == BILINEAR ) {
-        //Ep = mat->Elastic().E()*Et/(mat->Elastic().E()-Et);
+        Ep = mat[i]->Elastic().E()*Et/(mat[i]->Elastic().E()-Et);
       }
-      //if (Ep<0) Ep = 1.*mat->Elastic().E();
+      if (Ep<0) Ep = 1.0 * mat[i]->Elastic().E();
       
 			dep=( sig_trial - sigma_y[i])/ (3.*G[i] /*+ Ep*/);	//Fraser, Eq 3-49 TODO: MODIFY FOR TANGENT MODULUS = 0
 			pl_strain[i] += dep;	
