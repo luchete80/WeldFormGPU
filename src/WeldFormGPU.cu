@@ -584,36 +584,70 @@ int main(int argc, char **argv)
   
 	cout << "copied"<<endl;
 
-  ////// MATERIAL  
-  Material_ *mat_h = (Material_ *)malloc(dom_d->solid_part_count * sizeof(Material_ *)); 
+  // ////// MATERIAL  
+  // Material_ *mat_h = (Material_ *)malloc(dom_d->solid_part_count * sizeof(Material_ *)); 
+  
+
+  
+  // Elastic_ el(E,nu);
+  // cout << "Mat type  "<<mattype<<endl;
+  // if      (mattype == "Bilinear")    {
+    // Material_ *material_h  = new Bilinear();
+    // Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
+    // cout << "Material Constants, Et: "<<c[0]<<endl;
+    // cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear ));
+    // cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
+    // cout << "Created Bilinear material"<<endl;
+  // } 
+  // else if (mattype == "Hollomon")    {
+    // Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);
+    // cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
+  // } else if (mattype == "JohnsonCook") {
+    // //Order is 
+                               // //A(sy0) ,B,  ,C,   m   ,n   ,eps_0,T_m, T_transition
+    // Material_ *material_h  = new JohnsonCook(el,Fy, c[0],c[1],c[3],c[2],c[6], c[4],c[5]); //First is hardening // A,B,C,m,n_,eps_0,T_m, T_t);	 //FIRST IS n_ than m
+    
+    // //Only 1 material to begin with
+    // cudaMalloc((void**)&dom_d->materials, 1 * sizeof(JohnsonCook ));
+    // cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(JohnsonCook), cudaMemcpyHostToDevice);	
+    // cout << "Material Constants, B: "<<c[0]<<", C: "<<c[1]<<", n: "<<c[2]<<", m: "<<c[3]<<", T_m: "<<c[4]<<", T_t: "<<c[5]<<", eps_0: "<<c[6]<<endl;
+  // } else                              printf("ERROR: Invalid material type.");
+    
+////// MATERIAL  
+  Material_ *material_h = (Material_ *)malloc(dom_d->solid_part_count * sizeof(Material_ *)); 
   
 
   
   Elastic_ el(E,nu);
   cout << "Mat type  "<<mattype<<endl;
   if      (mattype == "Bilinear")    {
-    Material_ *material_h  = new Bilinear();
+    Material_ *material_h  = new Material_(el);
     Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
+    material_h->SetEp(Ep);
     cout << "Material Constants, Et: "<<c[0]<<endl;
-    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear ));
-    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
+
+    // cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear ));
+    // cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	
     cout << "Created Bilinear material"<<endl;
+
   } 
   else if (mattype == "Hollomon")    {
-    Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);
-    cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
+//    Material_ *material_h  = new Hollomon(el,Fy,c[0],c[1]);
+//    cout << "Material Constants, K: "<<c[0]<<", n: "<<c[1]<<endl;
   } else if (mattype == "JohnsonCook") {
     //Order is 
                                //A(sy0) ,B,  ,C,   m   ,n   ,eps_0,T_m, T_transition
-    Material_ *material_h  = new JohnsonCook(el,Fy, c[0],c[1],c[3],c[2],c[6], c[4],c[5]); //First is hardening // A,B,C,m,n_,eps_0,T_m, T_t);	 //FIRST IS n_ than m
-    
-    //Only 1 material to begin with
-    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(JohnsonCook ));
-    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(JohnsonCook), cudaMemcpyHostToDevice);	
-    cout << "Material Constants, B: "<<c[0]<<", C: "<<c[1]<<", n: "<<c[2]<<", m: "<<c[3]<<", T_m: "<<c[4]<<", T_t: "<<c[5]<<", eps_0: "<<c[6]<<endl;
-  } else                              printf("ERROR: Invalid material type.");
-    
+//    Material_ *material_h  = new JohnsonCook(el,Fy, c[0],c[1],c[3],c[2],c[6], c[4],c[5]); //First is hardening // A,B,C,m,n_,eps_0,T_m, T_t);	 //FIRST IS n_ than m
+//    
+//    //Only 1 material to begin with
+//    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(JohnsonCook ));
+//    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(JohnsonCook), cudaMemcpyHostToDevice);	
+//    cout << "Material Constants, B: "<<c[0]<<", C: "<<c[1]<<", n: "<<c[2]<<", m: "<<c[3]<<", T_m: "<<c[4]<<", T_t: "<<c[5]<<", eps_0: "<<c[6]<<endl;
+  } else                              
+  	printf("ERROR: Invalid material type.");
 
+    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Material_ ));
+    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Material_), cudaMemcpyHostToDevice);
 	
 	cout << "Setting values"<<endl;
 	dom_d->SetDensity(rho);
