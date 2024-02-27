@@ -657,7 +657,7 @@ int main(int argc, char **argv)
 //    //Only 1 material to begin with
 //    cudaMalloc((void**)&dom_d->materials, 1 * sizeof(JohnsonCook ));
 //    cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(JohnsonCook), cudaMemcpyHostToDevice);	
-    cout << "JOHNSON COOK Material Constants, A: "<<c[0] << ", B: "<<c[0]<<", C: "<<c[1]<<", n: "<<c[2]<<", m: "<<c[3]<<", T_m: "<<c[4]<<", T_t: "<<c[5]<<", eps_0: "<<c[6]<<endl;
+    cout << "JOHNSON COOK Material Constants, A: "<< material_h->A << ", B: "<<c[1]<< ", n: "<<c[2]<<", C: "<<c[3]<< ", eps_0: "<<c[4]<<", m: "<<c[5]<<", T_m: "<<c[6]<<", T_t: "<<c[6]<<endl;
     Fy = CalcJohnsonCookYieldStress(0.0,0.0,0.0,material_h);
   } else                              
   	printf("ERROR: Invalid material type.");
