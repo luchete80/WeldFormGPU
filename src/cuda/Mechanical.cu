@@ -519,7 +519,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
       Et = CalcJohnsonCookTangentModulus(pl_strain[i], eff_strain_rate[i], T[i], mat[i]); //Fraser 3.54
       //printf(")
     } else if       (mat[i]->Material_model == BILINEAR ) {
-      //Ep = mat[i]->Elastic().E()*Et/(mat[i]->Elastic().E()-Et);
+      Ep = mat[i]->Elastic().E()*mat[i]->Et/(mat[i]->Elastic().E()-mat[i]->Et);
     }
     if (Ep<0) Ep = 1.0 * mat[i]->Elastic().E();
         

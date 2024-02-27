@@ -625,6 +625,7 @@ int main(int argc, char **argv)
     Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
     material_h->SetEp(Ep);
     cout << "Material Constants, Et: "<<c[0]<<endl;
+    material_h->Et = c[0];
 
     // cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Bilinear ));
     // cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Bilinear), cudaMemcpyHostToDevice);	

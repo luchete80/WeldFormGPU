@@ -30,7 +30,7 @@ class Material_{
 
 	double E_m, nu;	//TODO, move to elastic class
  
-  double Ep;  //If Bilinear this is constant, 
+  double Ep, Et;  //If Bilinear this is constant, 
   int			Material_model;	//TODO: Change to enum
 
   ////// NO //virtual FUNCTIONS, HOLLOMON MATERIAL ///////
