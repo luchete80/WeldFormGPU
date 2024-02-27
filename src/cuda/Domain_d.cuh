@@ -116,10 +116,10 @@ class Domain_d
 	
 	
 	//cuNSearch::PointSet part_pointset; 	// IN THE FUTURE IS GOOD TO HAVE NEIGHBOUR DEVICE DATA WHICH IS IN DEVICE	
-														// INSTEAD OF HOST
-														
+              // INSTEAD OF HOST
+              
 	cuNSearch::NeighborhoodSearch nb_search;
-														
+              
 	cuNSearch::cuNSearchDeviceData nb_device_data;
 	
 	//SPH
@@ -143,15 +143,15 @@ class Domain_d
 	bool isfirst_step;
 	int step = 0;
 
-	double					Time;    				//Current time of simulation at each solving step
-	double					deltat;					//Time Step
-	double					deltatmin;			//Minimum Time Step
-	double					deltatint;			//Initial Time Step
-	double 					sqrt_h_a;
+	double    	Time;        //Current time of simulation at each solving step
+	double    	deltat;    	//Time Step
+	double    	deltatmin;  	//Minimum Time Step
+	double    	deltatint;  	//Initial Time Step
+	double     	sqrt_h_a;
 	
-	bool						auto_ts;
+	bool      auto_ts;
 	
-	double 					*max_deltat, *max_deltat_h;		//According to each particle
+	double     	*max_deltat, *max_deltat_h;  //According to each particle
 
   ///// KERNEL GRADIENT CORRECTION MATRICES
 	bool 					  gradKernelCorr;	
@@ -164,7 +164,7 @@ class Domain_d
 	double *T_h;	//host (for finding max, writing)
   
   double T_inf,h_conv_double; //TODO:DELETE THIS AND CHANGE BY PARTICLE
-  //double *q_conv,*T_inf,*h_conv;				//Different heat source terms
+  //double *q_conv,*T_inf,*h_conv;    //Different heat source terms
 	
 	double *k_T, *cp_T,*h_conv;
 	
@@ -201,24 +201,24 @@ class Domain_d
   double *Et; //tangent mod
 	//Be in another class
 	double  *FPMassC;        ///< Mass coefficient for fixed particles to avoid leaving particles
-		
+  
 	//ARTIFFICIAL VISC	
-	double 	Alpha;		///< Dynamic viscosity coefficient of the fluid particle
-	double 	Beta;		///< Dynamic viscosity coefficient of the fluid particle
+	double 	Alpha;  ///< Dynamic viscosity coefficient of the fluid particle
+	double 	Beta;  ///< Dynamic viscosity coefficient of the fluid particle
 	
 	//TENSILE INSTABILITY
-	double	*TI;		///< Tensile instability factor
-	double	*TIR;		///< Tensile Instability stress tensor R
-	double	*TIn;		///< Tensile instability power
+	double	*TI;  ///< Tensile instability factor
+	double	*TIR;  ///< Tensile Instability stress tensor R
+	double	*TIn;  ///< Tensile instability power
 	double 	*TIInitDist;	///< Initial distance of particles for calculation of tensile instability
 	
 	double3 *VXSPH;
 	
 	//BOUNDARY
-	bool 			*IsFree, *NoSlip;
+	bool   	*IsFree, *NoSlip;
 	double3 	*NSv;	///< Velocity of the fixed particle for no-slip BC
 	
-	int 			*ID, *ID_h;
+	int   	*ID, *ID_h;
   
   int *SMPairs;  //Flattened pairs
   
@@ -238,10 +238,10 @@ class Domain_d
 	double 	max_contact_force;
 	double3 *normal; 
   double *pplane_h; ////TEST
-	int 		  **contneib;	//array of lists, NOT IN USE
+	int     **contneib;	//array of lists, NOT IN USE
 	
-  int 		  *contneib_part;	//1D array, faster, THESE ARE THE NEIGHBOURS ITSELF (OF THE SURFACE CONTACT)
-	int 		  *contneib_offs;	//Offset or count
+  int     *contneib_part;	//1D array, faster, THESE ARE THE NEIGHBOURS ITSELF (OF THE SURFACE CONTACT)
+	int     *contneib_offs;	//Offset or count
   int       *contneib_count; //REDUNDANCE WITH contneib_offs
   
 	double 	  *cont_stiff;
@@ -261,7 +261,7 @@ class Domain_d
   bool thermal_solver;
 
 	// TODO, EACH RIGID PARTICLE SHOULD 
-  int 		*element; //ELEMENT OF TRIMESH FROM "RIGID" PARTICLE, ALL FIRST PARTICLES ARE ZERO
+  int   *element; //ELEMENT OF TRIMESH FROM "RIGID" PARTICLE, ALL FIRST PARTICLES ARE ZERO
   TriMesh_d *trimesh;
 	
   /////////////////////////////////////////
@@ -276,11 +276,20 @@ class Domain_d
   
 	/////////////////////////////////////////
 	///////// MEMBER FUNCTIONS /////////////
-	Domain_d();
+	Domain_d(){
+  isfirst_step=true;thermal_solver=false; trimesh = NULL;
+  // CONTACT THINGS
+  contact_force_factor =1.;
+  PFAC =0.8;
+  DFAC =0.2;
+  contact = false;
+  friction_sta = friction_dyn = 0.;
+  };
+
 	Domain_d(const int &particle_count);
   
 	void __host__ /*__device__*/ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
-								double r, double Density, double h, bool Fixed);
+        double r, double Density, double h, bool Fixed);
                 
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
 	__host__ void Set_h(const double &);
@@ -321,14 +330,14 @@ class Domain_d
 	__device__ __forceinline__ void PrimaryComputeAcceleration ();	
 	__device__ __forceinline__ void LastComputeAcceleration();
 	__device__ /*__forceinline__*/inline void CalcForce2233 (const uint *particlenbcount,
-																													const uint *neighborWriteOffsets,
-																													const uint *neighbors,
-																													int KernelType, double XSPH);
+                            	const uint *neighborWriteOffsets,
+                            	const uint *neighbors,
+                            	int KernelType, double XSPH);
 
 	__device__ /*__forceinline__*/inline void CalcAccel (const uint *particlenbcount,
-																													const uint *neighborWriteOffsets,
-																													const uint *neighbors,
-																													int KernelType, double XSPH);
+                            	const uint *neighborWriteOffsets,
+                            	const uint *neighbors,
+                            	int KernelType, double XSPH);
                                                           
 __host__  inline void CalcDensity(const double &dt, int blocksPerGrid,int threadsPerBlock); //calculate and update density: TODO: DO NOT UPDATE KERNEL
 
@@ -347,14 +356,14 @@ __device__ inline void UpdateDensity(double dt);
   __device__ void AssignMatAddress(int i); //Assign particle data to material array to zero array
   
 	__device__ /*__forceinline__*/inline void CalcRateTensors(const uint *particlenbcount,
-																													const uint *neighborWriteOffsets,
-																													const uint *neighbors);
+                            	const uint *neighborWriteOffsets,
+                            	const uint *neighbors);
 
 	__device__ /*__forceinline__*/inline void CalculateSurface(const uint *particlenbcount,
-																													const uint *neighborWriteOffsets,
-																													const uint *neighbors,
+                            	const uint *neighborWriteOffsets,
+                            	const uint *neighbors,
 
-																													/*const int &id, */const double &totmass);
+                            	/*const int &id, */const double &totmass);
   
   //CREATE NB LIST FROM ORIGINAL CONTACT NB LIST
   __device__ inline void CalcContactNb(const uint *particlenbcount,
@@ -373,12 +382,12 @@ __device__ inline void UpdateDensity(double dt);
 	__device__ void StressStrainOne(int i);
 	
 	__device__ void ApplyBCVel(int bcid, 
-														double3 bcv);
+              double3 bcv);
 	__host__ void WriteCSV(char const * FileKey);
 	__device__ void CalcMinTimeStep();
 	__host__ void AdaptiveTimeStep();
   
-  PtDom					GeneralAfter;	///< Pointer to a function: to modify particles properties after CalcForce function
+  PtDom    	GeneralAfter;	///< Pointer to a function: to modify particles properties after CalcForce function
   
  ////////////////////////
 	
@@ -419,27 +428,27 @@ __global__ void AssignMatAddressKernel(Domain_d *dom/*, Material_ *mat*/);
 //Called by Solve host function
 //TODO: REMOVE; PASS ENTIRE CLASS
 __global__ void ThermalSolveKernel(double *dTdt, 
-																		double3 *x, double *h,
-																		double *mass, double *rho, 
-																		double *T, double *k_T, double *cp_T, 
-																		int *neib_part, int *neib_offs,
-																		int count); //Idea is to pass minimum data as possible
+                  double3 *x, double *h,
+                  double *mass, double *rho, 
+                  double *T, double *k_T, double *cp_T, 
+                  int *neib_part, int *neib_offs,
+                  int count); //Idea is to pass minimum data as possible
 
 //NEXT SOLVER
 void __global__ ThermalSolveKernel (double dt, PartData_d *partdata);
 
 // void __global__ CalcConvHeatKernel (double *dTdt,
-																		// double *m, double *rho, double *cp_T,
-																		// double *T, double T_inf,
-																		// int *BC_T,
-																		// double &h_conv);
+                  // double *m, double *rho, double *cp_T,
+                  // double *T, double T_inf,
+                  // int *BC_T,
+                  // double &h_conv);
 
 __global__ void TempCalcLeapfrogFirst(double *T,double *Ta, double *Tb, 
-																			double *dTdt, double dt,
-																			int count);
+                  	double *dTdt, double dt,
+                  	int count);
 __global__ void TempCalcLeapfrog     (double *T, double *Ta, double *Tb, 
-																			double *dTdt, double dt,
-																			int count);
+                  	double *dTdt, double dt,
+                  	int count);
 	
 
 void __global__ MechSolveKernel (double dt, PartData_d *partdata);
@@ -452,37 +461,37 @@ __global__ inline void CalcForcesKernelMember(PartData_d *partdata);
 __global__ void WholeVelocityKernel(Domain_d *dom_d);
 
 void __global__ CalcConvHeatKernel (double *dTdt,
-																		double *m, double *rho, double *cp_T,
-																		double *T, double T_inf,
-																		int *BC_T,
-																		double h_conv, int count);
-																		
+                  double *m, double *rho, double *cp_T,
+                  double *T, double T_inf,
+                  int *BC_T,
+                  double h_conv, int count);
+                  
 void __global__ MoveKernelExt(double3 *v, double3 *va, double3 *vb,
-													double *rho, double *rhoa, double *rhob, double *drho,
-													double3 *x, double3 *a,
-													double3 *u, /*Mat3_t I, */double dt,
-													bool , int count);
-													
+            	double *rho, double *rhoa, double *rhob, double *drho,
+            	double3 *x, double3 *a,
+            	double3 *u, /*Mat3_t I, */double dt,
+            	bool , int count);
+            	
 void __global__ MoveKernelDom(Domain_d *dom);
 
 __global__ void StressStrainExtKernel(double *sigma,	//OUTPUT
-																								double *strain,double *straina,double *strainb, //OUTPUT
-																								//INPUT
-																								double *p, double *rotrate, 
-																								double *shearstress,double *shearstressa, double *shearstressb,
-																								
-																								double dt, int particle_count);
+                        double *strain,double *straina,double *strainb, //OUTPUT
+                        //INPUT
+                        double *p, double *rotrate, 
+                        double *shearstress,double *shearstressa, double *shearstressb,
+                        
+                        double dt, int particle_count);
 
 __global__ void PressureKernelExt(double *p,
-																	double *PresEq, double *Cs, double *P0,double *Density, double *RefDensity, int particle_count);																		
+                	double *PresEq, double *Cs, double *P0,double *Density, double *RefDensity, int particle_count);                  
 
 __global__ void ApplyBCVelExtKernel(double *v,
-																double *va,
-																int *ID, 	//Input
-																int bcid, 
-																double bcv,
-																double Time,
-																int particle_count);
+                double *va,
+                int *ID, 	//Input
+                int bcid, 
+                double bcv,
+                double Time,
+                int particle_count);
 
 __global__ void ApplyBCVelKernel (Domain_d *dom, int bcid, double3 bcv);
 
@@ -492,8 +501,8 @@ __global__ inline void StressStrainKickDriftKernel(Domain_d *dom);
 __global__ void CalcMinTimeStepKernel(Domain_d *dom);
 
 __global__ void TimestepCheckKernel(const double &CFL,
-																double *h,
-																double *Cs);
+                double *h,
+                double *Cs);
 
 __global__ inline void SetVelKernel(Domain_d *dom, double3 v);
 __global__ inline void UpdateVelKernel(Domain_d *dom, double dt);

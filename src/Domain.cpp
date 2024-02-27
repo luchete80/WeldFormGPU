@@ -306,7 +306,7 @@ void Domain::AddBoxLength(int tag, Vector const & V, double Lx, double Ly, doubl
 		//cout << "BoxDimensions: "<<temp(0)<<", "<<temp(1)<<", "<<temp(2)<<", "<<endl;
 		double Mass = temp(0)*temp(1)*temp(2)*Density/(Particles.size()-PrePS);
 		
-		//cout << "Particle mass: " << Mass <<endl;
+		cout << "Particle mass: " << Mass <<endl;
 		
 		#pragma omp parallel for num_threads(Nproc)
 		#ifdef __GNUC__

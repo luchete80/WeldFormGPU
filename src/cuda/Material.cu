@@ -21,7 +21,7 @@ inline double __device__ JohnsonCook::CalcTangentModulus(const double &plstrain,
 	
   //double sy = (A+B*pow(strain, n))*(1.0 + C * log (strain_rate/ eps_0) ) * (1.0 - pow(T_h,m));
   double Et =0.;
-
+  printf("JOHNSON COOK TG MOD\n");
   if (plstrain > 0.)
     Et = n * B * pow(plstrain,n-1.)*(1.0 + C*log(strain_rate/ eps_0)) * (1.0-pow (T_h,m));
   else 

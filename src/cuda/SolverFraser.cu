@@ -91,7 +91,9 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 	bool is_yielding = false;
 	double max_pl_strain = 0.;
   cout << "First Rigid Contact Particle: "<<first_fem_particle_idx<<endl;
-  
+  cout << "Contact set to ";
+  if (!contact) cout << "OFF. "<<endl;
+  else 				  cout << "ON.  "<<endl;
 	//First time find nbs
 	for (int i=0; i <particle_count;i++){
 	((Real3*)points)[i][0] = x_h[i].x;
@@ -143,14 +145,16 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     }
     else printf("MESH NOT DEFINED\n");
   }
-			char str[10];
-			sprintf(str, "out_%.6f.csv", Time);
-			WriteCSV(str);
+  cout << "Done. "<<endl;
+  char str[10];
+  sprintf(str, "out_%.6f.csv", Time);
+  WriteCSV(str);
       
-  ////// MATERIAL
+  cout << "Assigning Materials..."<<endl;
+  //// MATERIAL
   AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
   cudaDeviceSynchronize();
-    
+
   //ONLY FOR TESTING 
   test_h = new double [particle_count];
   while (Time<tf) {

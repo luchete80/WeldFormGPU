@@ -23,10 +23,12 @@ using namespace std;
 
 class Domain;  
 class TriMesh;
+class TriMesh_d;
 class NastranReader {
 protected:
   friend class SPH::TriMesh;
   friend class SPH::Domain;
+  friend class SPH::TriMesh_d;
 	std::vector <std::string> rawData;
 	int line_count;
 	int elem_count;

@@ -47,7 +47,7 @@ const uint *neighbors){
         if ( length(xij) < 2.*h[i] ){
           contneib_part[MAX_NB_COUNT*i + contneib_count[i]] = j;
           contneib_count[i]++;
-          if (contneib_count[i]>MAX_NB_COUNT) printf("ERROR, MAX CONTACT NB COUNT REACHED. \n");
+          if (contneib_count[i]>MAX_NB_COUNT) printf("ERROR, MAX CONTACT NB COUNT REACHED, %d counted\n",contneib_count);
         }
       } //IDs OK
     }//for k neighbours

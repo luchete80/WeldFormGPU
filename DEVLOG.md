@@ -55,6 +55,7 @@
 20230926 - General .exe first version. Can read cyl domains and contact
 20231024 - Working with  material class
 <<<<<<< HEAD:DEVLOG.md
+<<<<<<< HEAD:DEVLOG.md
 --------------------------------------------------------------
 --------------------------------------------------------------
 20240103 - Added Thermal solver to input file
@@ -64,9 +65,14 @@
            - Fixed FromFlatPtr (was incomplete)
            - Replaced FromFlatSym to FromFlat (since is not symmetric)
            - Completed input and function call
-=======
 ---------------------------------------------------------------
 ---------------------------------------------------------------
 20240219 - Changing to C++ 14 (See CUNSearch)
          - Changed Traction.json -> MATERIAL BILINEAR CONSTANT INPUT SHOULD NOT BE CONST1 
->>>>>>> master:DEVLOG.txt
+--------------------------------------------------------------
+20240220 - Added contact to file input (STILL OLD MATERIAL FORMAT) 
+         - Begining to add mesh from Nastran reader
+20240222 - Adding Nastran Input reading 
+20240226 - Fixed crashed reading mesh
+20240227 - Added totmass calc
+

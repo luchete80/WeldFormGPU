@@ -12,6 +12,7 @@ class TriMesh_d{
 	public:
 
 	//Element 						elem_data;
+	int 								id;
 	double3 						*node,*node_v; //Positions and veloc, 
 	int									*elnode;			//3 per element
 	double 							*pplane; //Only for testing
@@ -24,7 +25,7 @@ class TriMesh_d{
 	
 	//double							v;						//Constant Uniform v
 	TriMesh_d(){}
-	TriMesh_d(NastranReader &nr, bool flipnormals = false);
+	void ReadFromNastran(NastranReader &nr, bool flipnormals = false);
 	inline void AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens);
   void SetVel(const double3 &v) {m_v = v;} //Like in WeldForm CPU version
 	inline void ApplyConstVel(const double3 &v);

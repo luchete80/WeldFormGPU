@@ -35,6 +35,103 @@ __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt) {
   mesh_d->UpdatePlaneCoeff(); 
 }
 
+void TriMesh_d::ReadFromNastran(NastranReader &nr, bool flipnormals){
+  
+  
+  nodecount = nr.node_count;
+  elemcount = nr.elem_count;
+  
+  cout << "Creating nodes.."<<endl;
+
+  cudaMalloc((void **)&node   , 	nodecount * sizeof (double3));
+  cudaMalloc((void **)&node_v , 	nodecount * sizeof (double3));
+  
+  double3 *node_h, *node_vh;
+  node_h  =  new double3 [nodecount];
+  node_vh =  new double3 [nodecount];
+  
+//  dimension = nr.dim;
+//  //Insert nodes
+ for (int n=0;n<nr.node_count;n++){
+
+    // if (!flipnormals)
+      // node.Push(new Vec3_t(nr.node[3*n],nr.node[3*n+1],nr.node[3*n+2]));
+    // else 
+      // node.Push(new Vec3_t(nr.node[3*n+1],nr.node[3*n],nr.node[3*n+2]));
+
+  node_h[n]		=make_double3(nr.node[3*n],nr.node[3*n+1],nr.node[3*n+2]);
+  node_vh[n]	=make_double3(0.,0.,0.);
+ }
+  cudaMemcpy(node, node_h,    nodecount * sizeof (double3), cudaMemcpyHostToDevice);
+  cudaMemcpy(node_v, node_vh, nodecount * sizeof (double3), cudaMemcpyHostToDevice);  
+
+  /////////////////// ELEMENTS ////////////////////
+  cudaMalloc((void **)&centroid , 	elemcount * sizeof (double3));
+  cudaMalloc((void **)&normal 	, 	elemcount * sizeof (double3));
+  cudaMalloc((void **)&elnode 	, 	3 * elemcount * sizeof (int));
+	
+  int *elnode_h = new int[3*elemcount];
+  double3 *centroid_h = new double3[elemcount];
+  double3 *normal_h   = new double3[elemcount];
+//  cout << "Generated "<<node.Size()<< " trimesh nodes. "<<endl;
+//  //cout << "Normals"<<endl;
+//  cout << "Writing elements..."<<endl;
+ for (int e=0;e<nr.elem_count;e++){
+    for (int n=0;n<3;n++) elnode_h[3*e+n] = nr.elcon[3*e+n];
+    // element.Push(new Element(nr.elcon[3*e],nr.elcon[3*e+1],nr.elcon[3*e+2]));
+    double3 v = (node_h[nr.elcon[3*e]] + node_h[nr.elcon[3*e+1]] + node_h[nr.elcon[3*e+2]] ) / 3.0;    
+    
+    centroid_h[e] = v;
+    double3 v1, v2;
+    //In COUNTERCLOCKWISE
+    v1 = node_h[nr.elcon[3*e+1]] - node_h[nr.elcon[3*e]];
+    v2 = node_h[nr.elcon[3*e+2]] - node_h[nr.elcon[3*e]];
+    normal_h[e] = cross(v1,v2);
+    if (flipnormals)
+      normal_h[e] = -normal_h[e];
+    
+    normal_h[e] = normal_h[e]/length(normal_h[e]);
+    printf ("Normal %d %f %f %f \n",e, normal_h[e].x,normal_h[e].y,normal_h[e].z);
+    // Vec3_t v;
+		// if (dimension ==3) v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]] + *node[nr.elcon[3*e+2]] ) / 3. ;
+    // else               v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]])  / 2. ;
+    // element[e] -> centroid = v;
+    // //TODO: CHANGE FOR CALCNORMALS
+    // if (dimension==3){
+      // Vec3_t v1, v2;
+      // //In COUNTERCLOCKWISE
+      // v1 = *node[nr.elcon[3*e+1]] - *node[nr.elcon[3*e]];
+      // v2 = *node[nr.elcon[3*e+2]] - *node[nr.elcon[3*e]];
+      // element[e] ->normal = cross (v1,v2);
+
+      // element[e] ->normal /= Norm(element[e] ->normal);
+      // //cout << "v1 "<< v1<< ", v2 " <<v2<< ", normal "<<element[e]->normal <<endl;
+    // } else { //See calc normals
+        // Vec3_t u = *node [element[e]->node[1]] - *node [element[e]->node[0]];
+        // v[0] = -u[1];
+        // v[1] =  u[0];
+        // v[2] =  0.0;
+        // element[e] -> normal = v/norm(v);
+    // }  
+ }
+//  cout << "Generated "<<element.Size()<< " trimesh elements. "<<endl;  
+//  
+  m_v = m_w = make_double3(0.,0.,0.);
+  
+  cudaMemcpy(elnode, elnode_h, 3 * elemcount * sizeof(int), cudaMemcpyHostToDevice);
+  cudaMemcpy(centroid, centroid_h, elemcount * sizeof(double3), cudaMemcpyHostToDevice);
+  cudaMemcpy(normal, normal_h, elemcount * sizeof(double3), cudaMemcpyHostToDevice);
+
+  cudaMalloc((void **)&pplane , 	elemcount * sizeof (double));
+  cudaMalloc((void **)&nfar   , 	elemcount * sizeof (int));
+
+  delete node_h;
+  delete node_vh;
+  delete elnode_h;
+  delete centroid_h;
+  delete normal_h; 
+}
+
 //NOW THIS IS ZORIENTED, CHANGE TO EVERY PLANE
 inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens){
 
@@ -85,7 +182,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
       vi++;
 			// node.Push(new double3(v(0),v(1),v(2)));
 			// node_v.Push(new double3(0.,0.,0.));
-			//cout << "xyz: "<<x1 << ", "<<x2<<", "<<x3<<endl;
+			//cout << "xyz: "<<v.x << ", "<<v.y<<", "<<v.z<<endl;
 			x1+=dl;
 		}
 		x2+=dl;
@@ -103,7 +200,8 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 	cudaMalloc((void **)&centroid , 	elemcount * sizeof (double3));
 	cudaMalloc((void **)&normal 	, 	elemcount * sizeof (double3));
 	cudaMalloc((void **)&elnode 	, 	3 * elemcount * sizeof (int));	
-  int *elnode_h = new int[3*elemcount];
+  
+  int *elnode_h       = new int[3*elemcount];
   double3 *centroid_h = new double3[elemcount];
   double3 *normal_h   = new double3[elemcount];
 	
@@ -181,50 +279,52 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   delete normal_h;  
 }
 
-//TODO: CHANGE TRIMESH NAME
-TriMesh_d::TriMesh_d(NastranReader &nr, bool flipnormals){
-  //dimension = nr.dim;
-//  //Insert nodes
-//  for (int n=0;n<nr.node_count;n++){
-//    if (!flipnormals)
-//      node.Push(new Vec3_t(nr.node[3*n],nr.node[3*n+1],nr.node[3*n+2]));
-//    else 
-//      node.Push(new Vec3_t(nr.node[3*n+1],nr.node[3*n],nr.node[3*n+2]));
-//    
-//		node_v.Push(new Vec3_t(0.,0.,0.));
-//  }
-//  cout << "Generated "<<node.Size()<< " trimesh nodes. "<<endl;
-//  //cout << "Normals"<<endl;
-//  cout << "Writing elements..."<<endl;
-//  for (int e=0;e<nr.elem_count;e++){
-//    element.Push(new Element(nr.elcon[3*e],nr.elcon[3*e+1],nr.elcon[3*e+2]));		  
-//    Vec3_t v;
-//		if (dimension ==3) v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]] + *node[nr.elcon[3*e+2]] ) / 3. ;
-//    else               v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]])  / 2. ;
-//    element[e] -> centroid = v;
-//    //TODO: CHANGE FOR CALCNORMALS
-//    if (dimension==3){
-//      Vec3_t v1, v2;
-//      //In COUNTERCLOCKWISE
-//      v1 = *node[nr.elcon[3*e+1]] - *node[nr.elcon[3*e]];
-//      v2 = *node[nr.elcon[3*e+2]] - *node[nr.elcon[3*e]];
-//      element[e] ->normal = cross (v1,v2);
 
-//      element[e] ->normal /= Norm(element[e] ->normal);
-//      //cout << "v1 "<< v1<< ", v2 " <<v2<< ", normal "<<element[e]->normal <<endl;
-//    } else { //See calc normals
-//        Vec3_t u = *node [element[e]->node[1]] - *node [element[e]->node[0]];
-//        v[0] = -u[1];
-//        v[1] =  u[0];
-//        v[2] =  0.0;
-//        element[e] -> normal = v/norm(v);
-//    }
-//  }
-//  cout << "Generated "<<element.Size()<< " trimesh elements. "<<endl;  
-//  
-//  m_v = 0.;
-//  m_w = 0.;
-}
+// //TODO: CHANGE TRIMESH NAME
+// TriMesh_d::TriMesh_d(NastranReader &nr, bool flipnormals){
+  // //dimension = nr.dim;
+// //  //Insert nodes
+// //  for (int n=0;n<nr.node_count;n++){
+// //    if (!flipnormals)
+// //      node.Push(new Vec3_t(nr.node[3*n],nr.node[3*n+1],nr.node[3*n+2]));
+// //    else 
+// //      node.Push(new Vec3_t(nr.node[3*n+1],nr.node[3*n],nr.node[3*n+2]));
+// //    
+// //		node_v.Push(new Vec3_t(0.,0.,0.));
+// //  }
+// //  cout << "Generated "<<node.Size()<< " trimesh nodes. "<<endl;
+// //  //cout << "Normals"<<endl;
+// //  cout << "Writing elements..."<<endl;
+// //  for (int e=0;e<nr.elem_count;e++){
+// //    element.Push(new Element(nr.elcon[3*e],nr.elcon[3*e+1],nr.elcon[3*e+2]));		  
+// //    Vec3_t v;
+// //		if (dimension ==3) v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]] + *node[nr.elcon[3*e+2]] ) / 3. ;
+// //    else               v = ( *node[nr.elcon[3*e]] + *node[nr.elcon[3*e+1]])  / 2. ;
+// //    element[e] -> centroid = v;
+// //    //TODO: CHANGE FOR CALCNORMALS
+// //    if (dimension==3){
+// //      Vec3_t v1, v2;
+// //      //In COUNTERCLOCKWISE
+// //      v1 = *node[nr.elcon[3*e+1]] - *node[nr.elcon[3*e]];
+// //      v2 = *node[nr.elcon[3*e+2]] - *node[nr.elcon[3*e]];
+// //      element[e] ->normal = cross (v1,v2);
+
+// //      element[e] ->normal /= Norm(element[e] ->normal);
+// //      //cout << "v1 "<< v1<< ", v2 " <<v2<< ", normal "<<element[e]->normal <<endl;
+// //    } else { //See calc normals
+// //        Vec3_t u = *node [element[e]->node[1]] - *node [element[e]->node[0]];
+// //        v[0] = -u[1];
+// //        v[1] =  u[0];
+// //        v[2] =  0.0;
+// //        element[e] -> normal = v/norm(v);
+// //    }
+// //  }
+// //  cout << "Generated "<<element.Size()<< " trimesh elements. "<<endl;  
+// //  
+// //  m_v = 0.;
+// //  m_w = 0.;
+// }
+
 
 //This is done once, Since mesh is rigid
 //Calculate radius and plane coefficient
@@ -239,6 +339,8 @@ inline __device__ void TriMesh_d::CalcSpheres(){
       if (length(rv) > max) max = length(rv);
       nfar[e] = n;
     }
+    // printf("centroid %d %f %f %f\n", e,centroid[e].x,centroid[e].y,centroid[e].z);
+    // printf("nfar %d\n", nfar[e]);
     
     //element[e]-> radius[e] = max;	//Fraser Eq 3-136
     
@@ -269,12 +371,12 @@ inline __device__ void TriMesh_d::CalcNormals(){
     v = node [elnode[3*e+2]] - node [elnode[3*e]];
     w = cross(u,v);
     normal[e] = w/length(w);
-    // if (length(normal[e])<1.0e-3)
-      // printf("ERROR: ZERO normal. Calc error in element %d\n",e);
+    if (length(normal[e])<1.0e-3)
+      printf("ERROR: ZERO normal. Calc error in element %d\n",e);
     // if (abs(normal[e].y) >1.0e-5 || abs(normal[e].x) > 1.0e-5)
-      // printf("CalcNormal %d %.6e %.6e %.6e\n u %.6e %.6e %.6e \n v %.6e %.6e %.6e\n",e, normal[e].x,normal[e].y,normal[e].z,u.x,u.y,u.z,v.x,v.y,v.z);
-    normal[e].x = normal[e].y = 0.0;
-    normal[e].z = -1.0;
+    //printf("CalcNormal %d %.6e %.6e %.6e\n u %.6e %.6e %.6e \n v %.6e %.6e %.6e\n",e, normal[e].x,normal[e].y,normal[e].z,u.x,u.y,u.z,v.x,v.y,v.z);
+    // normal[e].x = normal[e].y = 0.0;
+    // normal[e].z = -1.0;
       // //printf("elnodes z coord %.6e %.6e %.6e\n", node[elnode[3*e]].z,node[elnode[3*e+1]].z,node[elnode[3*e+2]].z);
     // }
     //Fraser Eqn 3.34

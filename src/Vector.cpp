@@ -340,7 +340,6 @@ double & Vector::operator[](int i)
 	return x[i];
 }
 
-
 /// Define the + operator for Vector2D
 /*!	\param vect1 : vector1
 	\param vect2 : vector2
