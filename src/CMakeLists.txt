@@ -155,7 +155,7 @@ add_executable(WeldFormGPU
 
 #add_subdirectory (cuda)
 
-#TARGET_LINK_LIBRARIES (gpuweldform cuda)
+TARGET_LINK_LIBRARIES (WeldFormGPU cuda reader)
 
 #FOREACH(var ${EXES})
 #    ADD_EXECUTABLE        (${var} "${var}.cpp" #

@@ -351,7 +351,8 @@ int main(int argc, char **argv)
     } else if (domtype == "File"){ //DECIDE ACCORDING TO EXTENSION
         string filename = "";
         readValue(domblock[0]["fileName"], 	filename); 
-        cout << "Reading Particles Input file " << filename <<endl;     
+        cout << "Reading Particles Input file " << filename <<endl;  
+        ReadFromLSdyna(filename);
         
     }
       // else {

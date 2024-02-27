@@ -143,13 +143,6 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
   //// MATERIAL
   AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
   cudaDeviceSynchronize();
-	cout << "TEST MASS "<<endl;
-      CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
-      CudaHelper::GetPointer(nsearch.deviceData->d_NeighborWriteOffsets),
-      CudaHelper::GetPointer(nsearch.deviceData->d_Neighbors),		    
-      /*id,*/
-      totmass);
       
   //ONLY FOR TESTING 
   test_h = new double [particle_count];

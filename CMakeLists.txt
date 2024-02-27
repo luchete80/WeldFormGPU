@@ -56,6 +56,7 @@ endif()
 add_subdirectory("src")
 add_subdirectory("cuda_tests")
 add_subdirectory("LSDynaReader/src")
+include_directories("LSDynaReader/src")
 
 
 

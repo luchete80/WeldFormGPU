@@ -24,11 +24,8 @@
 
 "DomainBlocks": 
 [{
-	"type": "Cylinder",
-	"zoneId": 0,
-	"denseMode": 0,
-	"start": [ 0.0, 0.0, -0.028],
-	"dim": [0.3, 0.0, 0.616],
+	"type": "File",
+	"fileName" : "preforma.k",
 	"translation": [1.0, 0.0, 0.0],
 	"scale": [1, 1, 1]
 }],

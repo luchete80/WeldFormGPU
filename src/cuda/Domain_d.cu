@@ -226,7 +226,7 @@ void Domain_d::SetDimension(const int &particle_count){
   report_gpu_mem_();
 }
 
-void __host__ Domain_d::ReadFromNastran(string fName){
+void __host__ Domain_d::ReadFromLSdyna(string fName){
   lsdynaReader(fName.c_str());
 }
 
