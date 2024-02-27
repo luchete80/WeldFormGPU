@@ -9,7 +9,7 @@
 #include "Mesh.h"
 #include "cudautils.cuh"
 #include "Mesh.cuh"
-
+#include "lsdynaReader.h"
 //Else (offset)
 //Allocating from host
 namespace SPH {
@@ -227,7 +227,7 @@ void Domain_d::SetDimension(const int &particle_count){
 }
 
 void __host__ Domain_d::ReadFromLSdyna(string fName){
-  lsdynaReader(fName.c_str());
+  lsdynaReader reader(fName.c_str());
 }
 
 __host__ void Domain_d::SetFreePart(const Domain &dom){

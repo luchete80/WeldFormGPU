@@ -352,7 +352,7 @@ int main(int argc, char **argv)
         string filename = "";
         readValue(domblock[0]["fileName"], 	filename); 
         cout << "Reading Particles Input file " << filename <<endl;  
-        ReadFromLSdyna(filename);
+        dom_d->ReadFromLSdyna(filename);
         
     }
       // else {
