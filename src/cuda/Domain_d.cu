@@ -226,6 +226,10 @@ void Domain_d::SetDimension(const int &particle_count){
   report_gpu_mem_();
 }
 
+void __host__ Domain_d::ReadFromNastran(string fName){
+  lsdynaReader(fName.c_str());
+}
+
 __host__ void Domain_d::SetFreePart(const Domain &dom){
 	bool *k_ =  new bool[particle_count];
 	for (int i=0;i<particle_count;i++){

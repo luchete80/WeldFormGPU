@@ -18,7 +18,7 @@
 # PersianSPH; if not, see <http://www.gnu.org/licenses/>                            #
 #####################################################################################
 
-CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED (VERSION 2.8.12)
 
 PROJECT                (New_Test)
 cmake_policy(SET CMP0054 NEW) #elseif
@@ -47,13 +47,15 @@ include_directories("D:/Luciano/Numerico/Libs/hdf5-1.12.0_install_mswin/include"
 link_directories("D:/Luciano/Numerico/Libs/blitz-0.9_install_mswin/lib")
 link_directories("D:/Luciano/Numerico/CompactNSearch_bin_nmake_release")
 
-include_directories("Source")
+include_directories("src")
+include_directories("src/LSDynaReader")
 include_directories("External")
 
 endif()
 
 add_subdirectory("src")
 add_subdirectory("cuda_tests")
+add_subdirectory("LSDynaReader/src")
 
 
 

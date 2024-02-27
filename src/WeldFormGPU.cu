@@ -348,6 +348,11 @@ int main(int argc, char **argv)
           // dom.AddCylUniformLength(0, L[0]/2.,L[2], r, rho, h);
           
       // }
+    } else if (domtype == "File"){ //DECIDE ACCORDING TO EXTENSION
+        string filename = "";
+        readValue(domblock[0]["fileName"], 	filename); 
+        cout << "Reading Particles Input file " << filename <<endl;     
+        
     }
       // else {
         // cout << "..."<<endl;
