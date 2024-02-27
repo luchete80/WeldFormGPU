@@ -48,7 +48,7 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
         if (ID[j]!=contact_surf_id){  //EXCLUDE RIGID PAIRS!
           normal[i] += m[j] * xij; 
           // if (i==0)
-          // printf("particle %d Nb %d xij: %f %f %f mj %f\n", i, j, xij.x, xij.y, xij.z, m[j]);
+          //printf("particle %d Nb %d xij: %f %f %f mj %.6e\n", i, j, xij.x, xij.y, xij.z, m[j]);
           nbcount_corr++;
         }
 

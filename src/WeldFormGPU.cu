@@ -621,13 +621,17 @@ int main(int argc, char **argv)
 	cout << "done."<<endl;
   
   bool mass_ok = true;
+  double totmass = 0.;
 	double *m =  new double [dom.Particles.size()];
 	for (size_t a=0; a<dom.Particles.size(); a++){
 		m[a] = dom.Particles[a]->Mass;
+		totmass +=m[a];
     if (m[a] < 1.0e-10 && a<dom_d->first_fem_particle_idx) mass_ok = false;
 	}
   if (!mass_ok) cout << "-----WARNING ---- some particles have ZERO MASS"<<endl;
+  cout << "Total Mass: "<<totmass<<endl;
   cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
+  cudaMemcpy(&dom_d->totmass, &totmass, sizeof(double),cudaMemcpyHostToDevice);
   
   dom_d->SetShearModulus(G);	// 
   for (size_t a=0; a<dom.Particles.size(); a++) {

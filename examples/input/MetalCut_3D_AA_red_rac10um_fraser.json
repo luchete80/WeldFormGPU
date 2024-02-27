@@ -19,6 +19,7 @@
 "Materials":[ 
 {
 	"id": "Solid",
+	"type": "Bilinear",	
   "const": [300.0e6, 0.0],
   "thermalCond": 120.0,
   "thermalHeatCap": 0.8990,
