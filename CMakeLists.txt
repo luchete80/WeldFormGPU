@@ -53,10 +53,12 @@ include_directories("External")
 
 endif()
 
+include_directories("LSDynaReader/src")
+#BEFORE WELDFORM
+add_subdirectory("LSDynaReader/src") 
 add_subdirectory("src")
 add_subdirectory("cuda_tests")
-add_subdirectory("LSDynaReader/src")
-include_directories("LSDynaReader/src")
+
 
 
 

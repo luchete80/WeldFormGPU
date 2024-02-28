@@ -226,8 +226,8 @@ void Domain_d::SetDimension(const int &particle_count){
   report_gpu_mem_();
 }
 
-void __host__ Domain_d::ReadFromLSdyna(string fName){
-  lsdynaReader reader(fName.c_str());
+void __host__ Domain_d::ReadFromLSdyna(const char *fName){
+  lsdynaReader reader(fName);
 }
 
 __host__ void Domain_d::SetFreePart(const Domain &dom){

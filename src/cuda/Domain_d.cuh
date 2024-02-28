@@ -285,7 +285,7 @@ class Domain_d
 	void __host__ /*__device__*/ AddCylinderLength(int tag, Vector const & V, double Rxy, double Lz, 
         double r, double Density, double h, bool Fixed);
   
-  void __host__ ReadFromLSdyna(string fName);
+  void __host__ ReadFromLSdyna(const char * fName);
 	__host__ void SetDimension(const int &particle_count);//Called from kernel to assign with CUDA_MALLOC
 	__host__ void Set_h(const double &);
 	__host__ void ThermalSolve(const double &tf);
