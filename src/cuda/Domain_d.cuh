@@ -403,6 +403,8 @@ __device__ inline void UpdateDensity(double dt);
 }; 
 
 
+void ReadFromLSdyna(const char *fName, Domain_d *dom);
+
 inline void __global__ UpdateContactParticlesKernel(Domain_d *dom);
 
 __global__ void CheckData(Domain_d *dom);

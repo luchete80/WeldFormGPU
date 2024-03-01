@@ -12,6 +12,9 @@
 #include "lsdynaReader.h"
 //Else (offset)
 //Allocating from host
+
+using namespace LS_Dyna;
+
 namespace SPH {
 void Domain_d::SetDimension(const int &particle_count){
 	this->particle_count = particle_count;
@@ -228,6 +231,50 @@ void Domain_d::SetDimension(const int &particle_count){
 
 void __host__ Domain_d::ReadFromLSdyna(const char *fName){
   lsdynaReader reader(fName);
+  
+  particle_count = reader.m_elem_count_type[_SPH_];
+  cout << "Particles readed: "<< reader.m_elem_count_type[_SPH_]<<endl;
+  SetDimension(particle_count);
+
+
+	int size = particle_count * sizeof(double3);
+	cout << "Copying to device "<<particle_count<< " particle properties ..."<<endl;
+	//cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
+
+  
+  for (int i=0;i<reader.m_elem.size();i++) {
+    if (reader.m_elem[i].m_type == _SPH_){
+      LS_Dyna::ls_node n = reader.getElemNode(i,0);
+      //cout << "Node XYZ"<< n.m_x[0]<< ", "<<n.m_x[1]<< ", "<<n.m_x[2]<< ", "<<endl;
+      x_h[i] = make_double3(double(n.m_x[0]), double(n.m_x[1]), double(n.m_x[2]));
+    }
+  }
+  cout << "Done. "<<endl;
+  
+}
+
+void ReadFromLSdyna(const char *fName, Domain_d *dom) {
+  // lsdynaReader reader(fName);
+  // particle_count = reader.m_spc_nod.size();
+  // cout << "Particles readed: "<< reader.m_elem_count_type[_SPH_]<<endl;
+  // SetDimension(particle_count);
+
+	// double3 *x =  new double3 [particle_count];
+	// for (int i=0;i<particle_count;i++){
+
+		// //x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));
+	// }
+	// int size = particle_count * sizeof(double3);
+	// cout << "Copying to device "<<particle_count<< " particle properties ..."<<endl;
+	// //cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
+
+  
+  // for (int i=0;i<reader.m_elem.size();i++) {
+    // if (reader.m_elem[i].m_type == _SPH_){
+      // LS_Dyna::ls_node n = reader.getElemNode(i,0);
+      // //cout << "Node XYZ"<< n.m_x[0]<< ", "<<n.m_x[1]<< ", "<<n.m_x[2]<< ", "<<endl;
+    // }
+  // }  
 }
 
 __host__ void Domain_d::SetFreePart(const Domain &dom){

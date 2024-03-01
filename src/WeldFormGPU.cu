@@ -313,7 +313,7 @@ int main(int argc, char **argv)
 			// dom.DomMax(0) = L[i];
 			// dom.DomMin(0) = -L[i];
 		}		
-
+    
 
 		
 		// // inline void Domain::AddCylinderLength(int tag, Vec3_t const & V, double Rxy, double Lz, 
@@ -332,6 +332,7 @@ int main(int argc, char **argv)
 		if (domtype == "Box"){
       cout << "Adding Box ..."<<endl;      
 			dom.AddBoxLength(0 ,start, L.x , L.y,  L.z , r ,rho, h, 1 , 0 , false, false );		
+      dom_d->particle_count = dom.Particles.size(); ///// IN THE FUTURE DDOMAIN_D WILL MAKE 
 		}   else if (domtype == "Cylinder"){
       cout << "Adding Cylinder";      
 			// if (sym[0] && sym[1]){
@@ -344,6 +345,7 @@ int main(int argc, char **argv)
           cout << "Reserved "<<ComputeCylinderParticles (L.x/2., L.z, r)<<" particles."<<endl;
         cout << "Length " << L.x<<", "<< L.y<<", "<< L.z<<", "<<endl;
           dom.AddCylinderLength(0, start, L.x/2., L.z, r, rho, h, false);  /////// GENERATED AT HOST TO THEN COPY
+          dom_d->particle_count = dom.Particles.size(); ///// IN THE FUTURE DDOMAIN_D WILL MAKE 
         // else if (gridCS == "Cylindrical")
           // dom.AddCylUniformLength(0, L[0]/2.,L[2], r, rho, h);
           
@@ -353,32 +355,9 @@ int main(int argc, char **argv)
         readValue(domblock[0]["fileName"], 	filename); 
         cout << "Reading Particles Input file " << filename <<endl;  
         dom_d->ReadFromLSdyna(filename.c_str());
-        
+        //ReadFromLSdyna(filename.c_str(), dom_d);
     }
-      // else {
-        // cout << "..."<<endl;
-        // if ( gridCS == "Cartesian")
-          // dom.AddCylinderLength(0, start, L[0]/2., L[2], r, rho, h, false, sym[2]); 
-        // else if (gridCS == "Cylindrical")
-          // dom.AddCylUniformLength(0, L[0]/2.,L[2], r, rho, h);
-          
-      // }
-    // }
-
-        // cout <<"t  			= "<<timestep<<endl;
-        // cout <<"Cs 			= "<<Cs<<endl;
-        // cout <<"K  			= "<<E<<endl;
-        // cout <<"G  			= "<<nu<<endl;
-        // cout <<"Fy 			= "<<Fy<<endl;
-		// cout <<"dx 			= "<<dx<<endl;
-		// cout <<"h  			= "<<h<<endl;
-		// cout <<"-------------------------"<<endl;
-		// cout <<	"Dim: "<<dom.Dimension<<endl;				
-
-    // for (int i=0;i<3;i++) {//TODO: Increment by Start Vector
-			// dom.DomMax(0) = L[i];
-			// dom.DomMin(0) = -L[i];
-		// }		
+	
 
 		cout << "Particle count: "<<dom.Particles.size()<<endl;
 
@@ -430,7 +409,8 @@ int main(int argc, char **argv)
     // gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
 
     //BEFORE CONTACT
-    dom_d->solid_part_count = dom.Particles.size();  //AFTER SET DIMENSION
+
+    dom_d->solid_part_count = dom_d->particle_count;  //AFTER SET DIMENSION
   
     cout << "Set contact to ";
     if (contact){
@@ -465,7 +445,7 @@ int main(int argc, char **argv)
 
       double hfac = 1.1;	//Used only for Neighbour search radius cutoff
       ////// first_fem_particle_idx BEFORE CREATING PARTICLES
-      dom_d->first_fem_particle_idx = dom.Particles.size(); // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+      dom_d->first_fem_particle_idx = dom_d->particle_count; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
       cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx <<endl;
       int id;
       readValue(rigbodies[0]["zoneId"],id);
@@ -574,8 +554,6 @@ int main(int argc, char **argv)
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
 	double3 *x =  new double3 [dom.Particles.size()];
 	for (int i=0;i<dom.Particles.size();i++){
-		//cout <<"i; "<<i<<endl;
-		//x[i] = make_double3(dom.Particles[i]->x);
 		x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));
 	}
 	int size = dom.Particles.size() * sizeof(double3);
