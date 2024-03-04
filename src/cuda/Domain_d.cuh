@@ -156,7 +156,7 @@ class Domain_d
 
 	
 	/// TODO: PASS THIS TO PARTICLE DATA
-	double *rho, *m;	//Mass and density
+	double *rho, *m, *m_h;	//Mass and density, m_h is used from import
 	//THERMAL
 	double *T, *Ta, *Tb, *dTdt;
 	double *T_h;	//host (for finding max, writing)
@@ -254,6 +254,8 @@ class Domain_d
   
   
   bool thermal_solver;
+  
+  bool isdim_reserved;
 
 	// TODO, EACH RIGID PARTICLE SHOULD 
   int   *element; //ELEMENT OF TRIMESH FROM "RIGID" PARTICLE, ALL FIRST PARTICLES ARE ZERO
@@ -279,6 +281,7 @@ class Domain_d
   DFAC =0.2;
   contact = false;
   friction_sta = friction_dyn = 0.;
+  isdim_reserved = false;
   };
 	Domain_d(const int &particle_count);
   

@@ -234,21 +234,32 @@ void __host__ Domain_d::ReadFromLSdyna(const char *fName){
   
   particle_count = reader.m_elem_count_type[_SPH_];
   cout << "Particles readed: "<< reader.m_elem_count_type[_SPH_]<<endl;
-  SetDimension(particle_count);
+  //SetDimension(particle_count);
 
-
-	int size = particle_count * sizeof(double3);
-	cout << "Copying to device "<<particle_count<< " particle properties ..."<<endl;
-	//cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
-
+  isdim_reserved = true;
+  x_h =  new double3 [particle_count];
+  m_h =  new double [particle_count];
   
   for (int i=0;i<reader.m_elem.size();i++) {
     if (reader.m_elem[i].m_type == _SPH_){
       LS_Dyna::ls_node n = reader.getElemNode(i,0);
       //cout << "Node XYZ"<< n.m_x[0]<< ", "<<n.m_x[1]<< ", "<<n.m_x[2]<< ", "<<endl;
       x_h[i] = make_double3(double(n.m_x[0]), double(n.m_x[1]), double(n.m_x[2]));
+      m_h[i] = reader.m_elem[i].mass;
     }
   }
+	// int size = particle_count * sizeof(double3);
+
+	// cout << "Copying to device "<<particle_count<< " particle properties ..."<<endl;
+	// cudaMemcpy(x, x_t, size, cudaMemcpyHostToDevice);  
+
+  // for (int i=0;i<particle_count;i++){
+    // x_t[i] = make_double3(0.,0.,0.);
+  // }
+  // cudaMemcpy(v, x_t, size, cudaMemcpyHostToDevice);
+
+
+  
   cout << "Done. "<<endl;
   
 }
@@ -291,6 +302,8 @@ __host__ void Domain_d::SetID(const Domain &dom){
 	int *k_ =  new int[particle_count];
 	for (int i=0;i<particle_count;i++){
 		k_[i] = dom.Particles[i]->ID;
+    if (dom.Particles[i]->ID<0) printf("ERROR, NEGATIVE ID \n");
+    //cout << "ID: "<<dom.Particles[i]->ID;
 	}
   cout << "Copying "<<particle_count<<" particles id"<<endl;
 	int size = particle_count * sizeof(int);
@@ -588,18 +601,14 @@ __host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const double &hfac,
 	bool Fixed = false;	//Always are fixed ...
 	contact_surf_id = id;
 	trimesh = &mesh;
-	//TODO: MAKE SEVERAL ONE PER MESH
-  //cudaMalloc((void **)&element,       mesh.element.size() * sizeof (int));
-  
-	//for ( int e = 0; e < mesh.element.size(); e++ ){
+
+	// for ( int e = 0; e < mesh.element.size(); e++ ){
 		// Vector pos = mesh.element[e]->centroid;
-		// h = hfac * mesh.element[e]->radius;
-		// Particles.Push(new Particle(id,pos,Vector(0,0,0),0.0,Density,h,Fixed));
-		// Particles[first_fem_particle_idx + e] -> normal  = mesh.element[e] -> normal;
-		// Particles[first_fem_particle_idx + e] -> element = e; 
-	//}
-	// cout << Particles.size() - first_fem_particle_idx << "particles added with ID " << contact_surf_id <<endl;
-	// cout << first_fem_particle_idx << " is the first solid particle index."<<endl;
+		// double h = hfac * mesh.element[e]->radius;
+		// Particles.push_back(new Particle(id,pos,Vector(0,0,0),0.0,Density,h,Fixed));
+		// // Particles[first_fem_particle_idx + e] -> normal  = mesh.element[e] -> normal;
+		// // Particles[first_fem_particle_idx + e] -> element = e; 
+	// }
 }
 
 

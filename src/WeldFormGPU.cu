@@ -355,7 +355,19 @@ int main(int argc, char **argv)
         readValue(domblock[0]["fileName"], 	filename); 
         cout << "Reading Particles Input file " << filename <<endl;  
         dom_d->ReadFromLSdyna(filename.c_str());
-        //ReadFromLSdyna(filename.c_str(), dom_d);
+        
+        double tot_mass = 0.;
+        for (int p=0;p<dom_d->particle_count;p++){
+          double x,y,z;
+          x =dom_d->x_h[p].x;
+          y =dom_d->x_h[p].y;
+          z = dom_d->x_h[p].z;
+          dom.Particles.push_back(new SPH::Particle(0,Vector(x,y,z),Vector(0,0,0),0.0,rho,h,false));
+          dom.Particles[p]->Mass = dom_d->m_h[p];
+          tot_mass+=dom_d->m_h[p];
+        }
+        delete dom_d->x_h,dom_d->m_h;
+        cout << "Total Mass Readed from LS-Dyna: "<< tot_mass<<endl;
     }
 	
 
