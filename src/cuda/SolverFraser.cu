@@ -165,6 +165,8 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 			nsearch.find_neighbors();
 
 		}//ts_i == 0
+    
+    cudaMemcpy(ID_h, ID, sizeof(int) * particle_count, cudaMemcpyDeviceToHost);	
 	
 		//cout << "
 		

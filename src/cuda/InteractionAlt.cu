@@ -28,6 +28,7 @@ __device__ inline void Domain_d::CalcAccel(
 	if ( i < solid_part_count ) {
 	int Dimension = 3; //TODO, put in another 
 	int neibcount = particlenbcount[i];
+  //printf ("nbcount %d\n",neibcount);
 	const uint writeOffset = neighborWriteOffsets[i];
 	
 	//printf("Solving\n");
@@ -140,7 +141,7 @@ __device__ inline void Domain_d::CalcAccel(
 
 		// Locking the particle 1 for updating the properties
 		a[i] 		+= mj * ( 1.0/(di*di)*Sigmai + 1.0/(dj*dj)*Sigmaj + PIij /* TIij */) * (GK*xij);
-    
+      //printf("accel %f\n",a[i]);
     }//if != rigid surface
 		}//neibcount
 

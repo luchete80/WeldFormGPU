@@ -303,6 +303,7 @@ __host__ void Domain_d::SetID(const Domain &dom){
 	for (int i=0;i<particle_count;i++){
 		k_[i] = dom.Particles[i]->ID;
     if (dom.Particles[i]->ID<0) printf("ERROR, NEGATIVE ID \n");
+    this->ID_h[i] = dom.Particles[i]->ID;
     //cout << "ID: "<<dom.Particles[i]->ID;
 	}
   cout << "Copying "<<particle_count<<" particles id"<<endl;
