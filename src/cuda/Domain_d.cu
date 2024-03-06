@@ -50,11 +50,13 @@ void Domain_d::SetDimension(const int &particle_count){
 	u_h =  new double3 [particle_count];
 	a_h =  new double3 [particle_count];
   
-
+  h_h =  new double [particle_count];
+  
   
   normal_h = new double3 [particle_count];
   nb_h = new unsigned int [particle_count];
 	
+  if (realloc_ID) {delete [] ID_h;}
   ID_h =  new int    [particle_count];
 	
 	sigma_eq_h =  new double [particle_count];
@@ -248,16 +250,21 @@ void __host__ Domain_d::ReadFromLSdyna(const char *fName){
       m_h[i] = reader.m_elem[i].mass;
     }
   }
-	// int size = particle_count * sizeof(double3);
-
-	// cout << "Copying to device "<<particle_count<< " particle properties ..."<<endl;
-	// cudaMemcpy(x, x_t, size, cudaMemcpyHostToDevice);  
-
-  // for (int i=0;i<particle_count;i++){
-    // x_t[i] = make_double3(0.,0.,0.);
+  cout << "Reading "<<reader.m_set_nod.size()<< " sets."<<endl;
+  // if (reader.m_set_nod.size()>0) {
+    // realloc_ID = true;
+    // this->ID_h = new int [particle_count];
+    // cout << "Assigning "<<reader.m_set_nod.size()<<" IDs"<<endl;
+    // for (int p=0;p<particle_count;p++) {ID_h[p] = 0;}
+    // for (int s=0;s<reader.m_set_nod.size();s++){
+      // cout << "Set "<< s<< ", Reading "<<reader.m_set_nod[s].node.size()<< " nodes."<<endl; 
+      // for (int n=0;n<reader.m_set_nod[s].node.size();n++){      
+        // //cout << "Node "<<n << ", pos "<<reader.m_set_nod[s].node[n]<<endl;
+        // ID_h[reader.m_set_nod[s].node[n]] = reader.m_set_nod[s].id;
+      // }
+    // }
   // }
-  // cudaMemcpy(v, x_t, size, cudaMemcpyHostToDevice);
-
+ 
 
   
   cout << "Done. "<<endl;
@@ -511,12 +518,12 @@ Domain_d::~Domain_d(){
 void Domain_d::WriteCSV(char const * FileKey){
 	FILE *f = fopen(FileKey,"w");;
 	
-	fprintf(f, "ID, X, Y, Z, posX,posY,posZ,Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain, Nb, ContNb, CFx, CFy, CFz, Nx, Ny, Nz\n");
+	fprintf(f, "ID, X, Y, Z, posX,posY,posZ,Ux, Uy, Uz, Vx, Vy, Vz, Ax, Ay, Az, rho, p, SigmaEq, Pl_Strain, Nb, ContNb, CFx, CFy, CFz, Nx, Ny, Nz, h\n");
 
 	// for (size_t i=0; i<Particles.Size(); i++)	//Like in Domain::Move
   double ppl;
 	for (int i=0; i<particle_count; i++) {
-		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %d, %d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e\n", 
+		fprintf(f,"%d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %d, %d, %.6e, %.6e, %.6e, %.6e, %.6e, %.6e, %6e\n", 
 							ID_h[i],
               x_h[i].x,x_h[i].y,x_h[i].z, 
               x_h[i].x,x_h[i].y,x_h[i].z, 
@@ -531,7 +538,8 @@ void Domain_d::WriteCSV(char const * FileKey){
             nb_h[i],
             contneib_count_h[i],
             contforce_h[i].x,contforce_h[i].y,contforce_h[i].z,
-            normal_h[i].x,normal_h[i].y,normal_h[i].z
+            normal_h[i].x,normal_h[i].y,normal_h[i].z,
+            h_h[i]
             );
 		//Particles[i]->CalculateEquivalentStress();		//If XML output is active this is calculated twice
 		//oss << Particles[i]->Sigma_eq<< ", "<< Particles[i]->pl_strain <<endl;

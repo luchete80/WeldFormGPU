@@ -995,6 +995,7 @@ int Domain::AssignZone(Vector &start, Vector &end, int &id){
         included = false;
     }
     if (included){
+      cout << "particle "<<a<< ",ID "<<id<<endl;
       Particles[a]->ID=id;
       Particles[a]->not_write_surf_ID = true;		      
       partcount++;

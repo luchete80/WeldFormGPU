@@ -68,3 +68,6 @@
 20240227 - Added totmass calc
          - Adding Johnson Cook material
 20240304 - Added Mass reading, and assign temp positions
+20240305 - Working LSDyna importing
+         - Added Automatic Smoothing length initial calc
+         - Begining to read node sets from LSDyna File

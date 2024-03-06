@@ -123,7 +123,7 @@ class Domain_d
 	cuNSearch::cuNSearchDeviceData nb_device_data;
 	
 	//SPH
-	double *h;
+	double *h, *h_h;
 	double *SumKernel;
 	
 	double h_glob;	//Initial h
@@ -142,6 +142,8 @@ class Domain_d
 	//Time things
 	bool isfirst_step;
 	int step = 0;
+  
+  bool realloc_ID;
 
 	double    	Time;        //Current time of simulation at each solving step
 	double    	deltat;    	//Time Step
@@ -282,6 +284,7 @@ class Domain_d
   contact = false;
   friction_sta = friction_dyn = 0.;
   isdim_reserved = false;
+  realloc_ID = false;
   };
 	Domain_d(const int &particle_count);
   

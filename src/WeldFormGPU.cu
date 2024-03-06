@@ -216,7 +216,8 @@ int main(int argc, char **argv)
 
     double dx,r,h;
     bool h_update = false;
-		double hfactor;
+    double hfactor = 0.0;
+    r = dx = 0.0; //If not set, h is calculated from mass and density
     
     cout << "Reading Config section ... "<<endl;
 		readValue(config["particleRadius"], r);
@@ -256,6 +257,15 @@ int main(int argc, char **argv)
 		G= E / (2.* (1.+nu));
 
 		dx 	= 2.*r;
+    bool h_fixed = false;
+    h  = dx*hfactor; //Very important
+    if (h>0.0) {
+      cout << "Smoothing Length forced to: " << h <<endl;
+      h_fixed = true;
+    } else {
+      cout << "Smoothing length calculated from Mass and density"<<endl;
+    }
+
     h	= dx*hfactor; //Very important
     Cs	= sqrt(K/rho);
     
@@ -364,6 +374,8 @@ int main(int argc, char **argv)
           z = dom_d->x_h[p].z;
           dom.Particles.push_back(new SPH::Particle(0,Vector(x,y,z),Vector(0,0,0),0.0,rho,h,false));
           dom.Particles[p]->Mass = dom_d->m_h[p];
+          //if (!h_fixed) dom.Particles[p]->h = pow(dom.Particles[p]->Mass/rho,0.33333) * 1.2; ////// THIS CRASHES
+          //if (dom_d->realloc_ID)dom.Particles[p]->ID = dom_d->ID_h[p];
           tot_mass+=dom_d->m_h[p];
         }
         delete dom_d->x_h,dom_d->m_h;
@@ -670,15 +682,20 @@ int main(int argc, char **argv)
   bool mass_ok = true;
   double totmass = 0.;
 	double *m =  new double [dom.Particles.size()];
+  //double *h_ = new double [dom.Particles.size()];
 	for (size_t a=0; a<dom.Particles.size(); a++){
 		m[a] = dom.Particles[a]->Mass;
 		totmass +=m[a];
     if (m[a] < 1.0e-10 && a<dom_d->first_fem_particle_idx) mass_ok = false;
+    //if (!h_fixed) h_[a] = dom.Particles[a]->h;
 	}
+  //delete m, h_;
   if (!mass_ok) cout << "-----WARNING ---- some particles have ZERO MASS"<<endl;
   cout << "Total Mass: "<<totmass<<endl;
   cudaMemcpy(dom_d->m, m, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);	
   cudaMemcpy(&dom_d->totmass, &totmass, sizeof(double),cudaMemcpyHostToDevice);
+  // if (!h_fixed)
+    // cudaMemcpy(dom_d->h, h_, dom.Particles.size() * sizeof(double), cudaMemcpyHostToDevice);
   
   dom_d->SetShearModulus(G);	// 
   for (size_t a=0; a<dom.Particles.size(); a++) {
