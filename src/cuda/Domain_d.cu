@@ -251,20 +251,26 @@ void __host__ Domain_d::ReadFromLSdyna(const char *fName){
     }
   }
   cout << "Reading "<<reader.m_set_nod.size()<< " sets."<<endl;
-  // if (reader.m_set_nod.size()>0) {
-    // realloc_ID = true;
-    // this->ID_h = new int [particle_count];
-    // cout << "Assigning "<<reader.m_set_nod.size()<<" IDs"<<endl;
-    // for (int p=0;p<particle_count;p++) {ID_h[p] = 0;}
-    // for (int s=0;s<reader.m_set_nod.size();s++){
-      // cout << "Set "<< s<< ", Reading "<<reader.m_set_nod[s].node.size()<< " nodes."<<endl; 
-      // for (int n=0;n<reader.m_set_nod[s].node.size();n++){      
-        // //cout << "Node "<<n << ", pos "<<reader.m_set_nod[s].node[n]<<endl;
-        // ID_h[reader.m_set_nod[s].node[n]] = reader.m_set_nod[s].id;
-      // }
-    // }
-  // }
- 
+  if (reader.m_set_nod.size()>0) {
+    realloc_ID = true;
+    this->ID_h = new int [particle_count];
+    cout << "Assigning "<<reader.m_set_nod.size()<<" IDs"<<endl;
+    for (int p=0;p<particle_count;p++) {ID_h[p] = 0;}
+    for (int s=0;s<reader.m_set_nod.size();s++){
+      cout << "Set "<< s<< ", Reading "<<reader.m_set_nod[s].node.size()<< " nodes."<<endl; 
+      for (int n=0;n<reader.m_set_nod[s].node.size();n++){      
+        //cout << "Node "<<n << ", pos "<<reader.m_set_nod[s].node[n]<<endl;
+
+        if (reader.m_set_nod[s].node[n]>= particle_count){
+          cout << "ERROR. Node "<<n << ", pos "<<reader.m_set_nod[s].node[n]<<endl;
+        } else {
+        ID_h[reader.m_set_nod[s].node[n]] = reader.m_set_nod[s].id;          
+        }
+        //ID_h[n]=0;
+      }
+    }
+  }
+  //delete ID_h;
 
   
   cout << "Done. "<<endl;
