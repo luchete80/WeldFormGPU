@@ -375,7 +375,7 @@ int main(int argc, char **argv)
           dom.Particles.push_back(new SPH::Particle(0,Vector(x,y,z),Vector(0,0,0),0.0,rho,h,false));
           dom.Particles[p]->Mass = dom_d->m_h[p];
           //if (!h_fixed) dom.Particles[p]->h = pow(dom.Particles[p]->Mass/rho,0.33333) * 1.2; ////// THIS CRASHES
-          //if (dom_d->realloc_ID)dom.Particles[p]->ID = dom_d->ID_h[p];
+          if (dom_d->realloc_ID)dom.Particles[p]->ID = dom_d->ID_h[p];
           tot_mass+=dom_d->m_h[p];
         }
         delete dom_d->x_h,dom_d->m_h;

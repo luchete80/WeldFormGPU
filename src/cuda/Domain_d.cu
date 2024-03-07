@@ -260,12 +260,13 @@ void __host__ Domain_d::ReadFromLSdyna(const char *fName){
       cout << "Set "<< s<< ", Reading "<<reader.m_set_nod[s].node.size()<< " nodes."<<endl; 
       for (int n=0;n<reader.m_set_nod[s].node.size();n++){      
         //cout << "Node "<<n << ", pos "<<reader.m_set_nod[s].node[n]<<endl;
-
-        if (reader.m_set_nod[s].node[n]>= particle_count){
-          cout << "ERROR. Node "<<n << ", pos "<<reader.m_set_nod[s].node[n]<<endl;
-        } else {
-        ID_h[reader.m_set_nod[s].node[n]] = reader.m_set_nod[s].id;          
-        }
+		int elpos = reader.m_node[reader.m_set_nod[s].node[n]].id_sph_el;
+		//cout << "elpos: "<<elpos<<endl;
+        // if (reader.m_set_nod[s].node[n]>= particle_count){
+          // cout << "ERROR. Node "<<n << ", pos "<<reader.m_set_nod[s].node[n]<<endl;
+        // } else {
+        ID_h[elpos] = reader.m_set_nod[s].id;          
+        //}
         //ID_h[n]=0;
       }
     }

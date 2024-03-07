@@ -70,4 +70,6 @@
 20240304 - Added Mass reading, and assign temp positions
 20240305 - Working LSDyna importing
          - Added Automatic Smoothing length initial calc
-         - Begining to read node sets from LSDyna File
+         - Begining to read node sets from LSDyna F
+20240307 - Working reading nodesets from LSDyna
+
