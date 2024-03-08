@@ -337,7 +337,7 @@ inline __device__ void TriMesh_d::CalcNormals(){
 	}
 }
 
-inline __device__ void TriMesh_d::CalcCentroids(){
+inline __host__ __device__ void TriMesh_d::CalcCentroids(){
   int e = threadIdx.x + blockDim.x*blockIdx.x;
   if (e < elemcount)
     centroid[e] = ( node[elnode[3*e]] + node[elnode[3*e+1]] + node[elnode[3*e+2]]) / 3.; 
@@ -370,6 +370,22 @@ inline __device__ void TriMesh_d::CheckNormals(){
   if (e < elemcount){
     printf("%d %f %f %f\n", e, normal[e].x,normal[e].y,normal[e].z);
   }  
+}
+
+//////////////////// ONLY FOR MOVING AT START
+inline __host__ __device__ void TriMesh_d::Move(const double3 &v){
+	//Seems to be More accurate to do this by node vel
+	//This is used by normals
+
+	for (int n=0;n<nodecount;n++){
+		node[n] += v;
+	} 
+  printf("calc centroids\n");
+  CalcCentroids();
+  //cout << "calc normals"<<endl;
+  CalcNormals();        //From node positions
+  //cout << "generate plane coeffs"<<endl;
+  UpdatePlaneCoeff();   //pplane
 }
 
 };

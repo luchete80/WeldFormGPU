@@ -30,13 +30,14 @@ class TriMesh_d{
   void SetVel(const double3 &v) {m_v = v;} //Like in WeldForm CPU version
 	inline void ApplyConstVel(const double3 &v);
 	inline void CalcCentroidVelFromNodes();
-	inline __device__ void UpdatePlaneCoeff();
+	inline __host__ __device__ void UpdatePlaneCoeff();
 	inline void UpdatePos(const double &dt);
 	inline __device__ void Move(double dt);
-  inline __device__ void CalcNormals();
-	inline __device__ void CalcSpheres();
+  inline __host__ __device__ void CalcNormals();
+	inline __host__ __device__ void CalcSpheres();
 	inline __device__ void CalcCentroids();
   inline __device__ void CheckNormals();
+  inline __host__ __device__ void Move(const double3 &v);
   
   
 };

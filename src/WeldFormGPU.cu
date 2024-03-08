@@ -379,7 +379,7 @@ int main(int argc, char **argv)
           tot_mass+=dom_d->m_h[p];
         }
         delete dom_d->x_h,dom_d->m_h;
-        cout << "Total Mass Readed from LS-Dyna: "<< tot_mass<<endl;
+        printf( "Total Mass Readed from LS-Dyna: %fn", tot_mass);
     }
 	
 
@@ -456,15 +456,22 @@ int main(int argc, char **argv)
         mesh[0]->AxisPlaneMesh(2, false, start, Vector(start.x + dim.x,start.y + dim.y , start.z),dens);
         mesh_d/*[0]*/->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
       } else if (rigbody_type == "File"){
+
+        Vector md = 0.0;
         string filename = "";
         readValue(rigbodies[0]["fileName"], 	filename); 
+        readVector(rigbodies[0]["moveDir"],md);       
+        //readValue(rigbodies[0]["scaleFactor"],scalefactor);           
         cout << "Reading Mesh input file " << filename <<endl;
         NastranReader reader((char*) filename.c_str());
         mesh_d->ReadFromNastran(reader,false);
+        //mesh_d->Move(make_double3(md[0],md[1],md[2]));
         //mesh_d = New
         //mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
         mesh.push_back (new SPH::TriMesh);
         mesh[0]->ReadFromNastran(reader, false);
+        
+        mesh[0]->Move(md); //TODO: DELETE
       }
 
       double hfac = 1.1;	//Used only for Neighbour search radius cutoff

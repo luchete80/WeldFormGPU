@@ -59,6 +59,8 @@ class TriMesh{
   void CalcNormals();
   void CalcSpheres();
 	void CalcCentroids();
+  void Scale(const double &f);
+  void Move(const Vector &v);
 };
 
 };
