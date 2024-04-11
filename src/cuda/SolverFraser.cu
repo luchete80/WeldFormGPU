@@ -210,6 +210,11 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 		);
     cudaDeviceSynchronize(); //REQUIRED!!!!
     
+    
+    if (dom_bid_type == AxiSymm_3D){
+      ApplyAxiSymmBCKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
+    }
+    
     if (contact){
       CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),

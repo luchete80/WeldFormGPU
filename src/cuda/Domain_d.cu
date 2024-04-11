@@ -627,6 +627,30 @@ __host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const double &hfac,
 	// }
 }
 
+__device__ void Domain_d::ApplyAxiSymmBC(int bc_1, int bc_2){ //Apply to all particles or only to BCs. If Not all (!=-1), 
+		int i = threadIdx.x + blockDim.x*blockIdx.x;
+  if (i<particle_count){
+    //if ID==2 
+    if (ID[i]==2 || ID[i]==3){
+      double alpha = atan(x[i].y/x[i].x); //TODO: SAVE IT AT THE BEGINING
+      double beta_a  = atan(a[i].y/a[i].x);
+      printf("Part %d, ax, ay \n", i, a[i].x,a[i].y);
+      printf("alpha %.6e , beta %.6e \n", alpha, beta_a);
+      double mod = cos(beta_a - alpha);
+      a[i].x = mod * cos(alpha);
+      a[i].y = mod * sin(alpha);
+      printf( "corrected acc axy %.6e %.6e\n",a[i].x ,a[i].y);
+    } else if (ID[i] == 4){
+      a[i].x = a[i].y = 0.0;
+    }
+  }
+}
+
+
+
+__global__ void ApplyAxiSymmBCKernel(Domain_d *dom){
+  dom->ApplyAxiSymmBC();
+}
 
 // THIS SHOULD BE DONE
 	// if (deltatint>deltatmin)

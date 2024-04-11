@@ -64,6 +64,8 @@ class TriMesh;
 class TriMesh_d;
 class Boundary;
 
+enum domain_bid_type {PlaneStress=0, PlaneStrain=1, AxiSymm_2D =2, AxiSymm_3D =2};
+
 /******************************************/
 /* CELL STRUCT LEADING TO ARRAY OF STRUCT */
 /******************************************/
@@ -142,6 +144,8 @@ class Domain_d
 	//Time things
 	bool isfirst_step;
 	int step = 0;
+  
+  domain_bid_type  dom_bid_type;
   
   bool realloc_ID;
 
@@ -503,6 +507,8 @@ __global__ inline void SetVelKernel(Domain_d *dom, double3 v);
 __global__ inline void UpdateVelKernel(Domain_d *dom, double dt);
 __global__ inline void UpdatePosKernel(Domain_d *dom, double dt);
 __global__ inline void UpdatePosFraserKernel(Domain_d *dom, double dt);
+
+__global__ void ApplyAxiSymmBCKernel(Domain_d *dom);
 
 	/* const double &Dimension*/
 

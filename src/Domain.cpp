@@ -1154,6 +1154,9 @@ void Domain::AddCylUniformLength(int tag, double Rxy, double Lz,
             
           xp =  /*r +*/ ri * cos (alphai*dalpha);
           yp =  /*r +*/ ri * sin (alphai*dalpha);
+          if ((abs (xp) < r/10) && (abs (yp) < r/10)){
+            id = 4;
+          }
           cout << "XY "<<xp << ", " << yp <<endl;
           Particles.push_back(new Particle(id,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,false));            
         

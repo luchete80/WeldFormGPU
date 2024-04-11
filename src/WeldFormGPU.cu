@@ -360,6 +360,7 @@ int main(int argc, char **argv)
           dom.AddCylUniformLength(0, L.x/2.0, L.z, 
 																				r, rho, h, M_PI/4.0, 1); 
           dom_d->particle_count = dom.Particles.size(); ///// IN THE FUTURE DDOMAIN_D WILL MAKE 
+          dom_d->dom_bid_type = AxiSymm_3D;
         // else if (gridCS == "Cylindrical")
           // dom.AddCylUniformLength(0, L[0]/2.,L[2], r, rho, h);
           
