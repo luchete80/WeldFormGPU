@@ -389,7 +389,7 @@ __device__ inline void UpdateDensity(double dt);
   
  ////////////////////////
 	
-
+  __device__ void ApplyAxiSymmBC(int bc_1 = -1, int bc_2 = -1); //Apply to all particles or only to BCs. If Not all (!=-1), 
 
 	__device__ void WholeVelocity();
   
@@ -405,6 +405,9 @@ __device__ inline void UpdateDensity(double dt);
                                         const uint *neighborWriteOffsets,
                                         const uint *neighbors,
                                         int KernelType);
+
+  void AddCylUniformLength    (int tag, double Rxy, double Lz, 
+																				double r, double Density, double h);
     
 }; 
 

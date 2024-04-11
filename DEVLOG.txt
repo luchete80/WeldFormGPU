@@ -72,4 +72,6 @@
          - Added Automatic Smoothing length initial calc
          - Begining to read node sets from LSDyna F
 20240307 - Working reading nodesets from LSDyna
-
+---------------------------------------------------------------
+20240411 - Added Uniform Cyl Length (for axiSymm problems)
+         - Added Example of Compression with LS-Dyna File

@@ -72,6 +72,9 @@ class Domain
 	// Destructor
 	~Domain();
 
+  void AddCylUniformLength    (int tag, double Rxy, double Lz, double r, double Density, double h, double ang = 2.0 * M_PI, int rows = 1);   
+  void AddCylSliceUniformLength(int tag, double Rxy, double ang, double Lz, 
+																				double r, double Density, double h);
 	// Domain Part
 	void __host__ __device__ AddSingleParticle	(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed);		//Add one particle
 	void __host__ /*__device__ */ AddBoxLength				(int tag, Vector const &V, double Lx, double Ly, double Lz,double r, double Density,

@@ -354,7 +354,11 @@ int main(int argc, char **argv)
         // if ( gridCS == "Cartesian")
           cout << "Reserved "<<ComputeCylinderParticles (L.x/2., L.z, r)<<" particles."<<endl;
         cout << "Length " << L.x<<", "<< L.y<<", "<< L.z<<", "<<endl;
-          dom.AddCylinderLength(0, start, L.x/2., L.z, r, rho, h, false);  /////// GENERATED AT HOST TO THEN COPY
+          //dom.AddCylinderLength(0, start, L.x/2., L.z, r, rho, h, false);  /////// GENERATED AT HOST TO THEN COPY
+//void Domain::AddCylUniformLength(int tag, double Rxy, double Lz, 
+//																				double r, double Density, double h) 
+          dom.AddCylUniformLength(0, L.x/2.0, L.z, 
+																				r, rho, h, M_PI/4.0, 1); 
           dom_d->particle_count = dom.Particles.size(); ///// IN THE FUTURE DDOMAIN_D WILL MAKE 
         // else if (gridCS == "Cylindrical")
           // dom.AddCylUniformLength(0, L[0]/2.,L[2], r, rho, h);
