@@ -1136,7 +1136,7 @@ void Domain::AddCylUniformLength(int tag, double Rxy, double Lz,
         if (ri == 0.) {tgcount =1; dalpha = 0.;}
         else {
 
-          tgcount = (ceil)((2.*M_PI* ri )/(2. * r));  
+          tgcount = (ceil)((ang * ri )/(2. * r));  
           dalpha = ang / (tgcount);         
 
         }
