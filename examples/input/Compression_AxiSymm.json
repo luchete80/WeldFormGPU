@@ -1,14 +1,14 @@
 {
 "Configuration":
 {
-	"particleRadius": 0.0075, 
+	"particleRadius": 0.002, 
 	"hFactor": 1.2,
   "cflMethod": 1,
   "cflFactor": 0.7,
   "autoTS": [false,false,false],
   "kernelGradCorr": true,  
   "simTime": 0.01,
-  "outTime": 1.0e-6,
+  "outTime": 1.0e-4,
   "solver": "Mech-LeapFrog"
 }
 ,
@@ -26,6 +26,7 @@
 "DomainBlocks": 
 [{
 	"type": "Cylinder",
+  "sliceAngle" : 1.0,
 	"zoneId": 0,
 	"denseMode": 0,
 	"start": [ 0.0, 0.0, -0.028],
@@ -38,7 +39,7 @@
 {
 	"id": 5,
 	"start":[-1.0,-1.0, -0.03],
-	"end": 	[ 1.0, 1.0, 0.0000]
+	"end": 	[ 1.0, 1.0, 0.03]
 },
 {
 	"id": 6,

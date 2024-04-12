@@ -64,7 +64,7 @@ class TriMesh;
 class TriMesh_d;
 class Boundary;
 
-enum domain_bid_type {PlaneStress=0, PlaneStrain=1, AxiSymm_2D =2, AxiSymm_3D =2};
+enum domain_bid_type {None = 0, PlaneStress=1, PlaneStrain=2, AxiSymm_2D =3, AxiSymm_3D =4};
 
 /******************************************/
 /* CELL STRUCT LEADING TO ARRAY OF STRUCT */
@@ -289,6 +289,7 @@ class Domain_d
   friction_sta = friction_dyn = 0.;
   isdim_reserved = false;
   realloc_ID = false;
+  dom_bid_type = None;
   };
 	Domain_d(const int &particle_count);
   

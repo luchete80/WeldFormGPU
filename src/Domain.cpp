@@ -995,7 +995,7 @@ int Domain::AssignZone(Vector &start, Vector &end, int &id){
         included = false;
     }
     if (included){
-      cout << "particle "<<a<< ",ID "<<id<<endl;
+      //cout << "particle "<<a<< ",ID "<<id<<endl;
       Particles[a]->ID=id;
       Particles[a]->not_write_surf_ID = true;		      
       partcount++;
@@ -1069,7 +1069,7 @@ int ComputeCylinderParticles( double Rxy, double Lz, double r) {
 
 // ROWS are BC (internal)
 void Domain::AddCylUniformLength(int tag, double Rxy, double Lz, 
-																				double r, double Density, double h, double ang, int rows) {
+																				double r, double Density, double h, double ang, int rows, double r_i) {
 	//Util::Stopwatch stopwatch;
 	std::cout << "\n--------------Generating particles by CylinderBoxLength with defined length of particles-----------" << std::endl;
 
@@ -1129,8 +1129,7 @@ void Domain::AddCylUniformLength(int tag, double Rxy, double Lz,
     //First increment is in radius
 		while (zp <= ( z0 + Lz - r)) {
       int rcount = 0; //Used only for ghost count
-      for (double ri = 0. ; ri < Rxy; ri += 2.*r){
-        //cout << "ri "<<ri<<endl;
+      for (double ri = r_i ; ri < Rxy; ri += 2.*r){
         
         double dalpha;
         if (ri == 0.) {tgcount =1; dalpha = 0.;}
@@ -1157,7 +1156,7 @@ void Domain::AddCylUniformLength(int tag, double Rxy, double Lz,
           if ((abs (xp) < r/10) && (abs (yp) < r/10)){
             id = 4;
           }
-          cout << "XY "<<xp << ", " << yp <<endl;
+          //cout << "XY "<<xp << ", " << yp <<endl;
           Particles.push_back(new Particle(id,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,false));            
         
           part_count++;
@@ -1166,6 +1165,7 @@ void Domain::AddCylUniformLength(int tag, double Rxy, double Lz,
       } //alpha
 			k++;
 			zp += 2.0 * r;
+      //cout << "z "<< zp <<endl;
 		}
 
 		double Vol = M_PI * Rxy * Rxy * Lz;		

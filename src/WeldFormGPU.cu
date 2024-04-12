@@ -174,7 +174,7 @@ int main(int argc, char **argv)
     report_gpu_mem();
     gpuErrchk(cudaMallocManaged(&dom_d, sizeof(SPH::Domain_d)) );
     report_gpu_mem();
-  
+    dom_d->dom_bid_type = None;
 		dom.Dimension	= 3;
 		
 		// string kernel;
@@ -311,6 +311,7 @@ int main(int argc, char **argv)
 		string domtype = "Box";
     int matID;
     string gridCS = "Cartesian";
+    double slice_ang = 2.0000001 * M_PI;
     bool sym[] = {false,false,false};
 		readValue(domblock[0]["id"], 	id);
 		readVector(domblock[0]["start"], 	start);
@@ -318,6 +319,7 @@ int main(int argc, char **argv)
 		cout << "Reading Domain type" << endl; readValue(domblock[0]["type"], 	domtype); //0: Box
     cout << "Reading Domain mat id" << endl;  readValue(domblock[0]["matID"], 	matID); //0: Box
     cout << "Grid Coordinate System" << endl;  readValue(domblock[0]["gridCoordSys"], 	gridCS); //0: Box
+    cout << "Slice Angle " << endl;  readValue(domblock[0]["sliceAngle"], 	slice_ang); //0: Box
     readBoolVector(domblock[0]["sym"], 	sym); //0: Box
      for (int i=0;i<3;i++) {//TODO: Increment by Start Vector
 			// dom.DomMax(0) = L[i];
@@ -351,20 +353,33 @@ int main(int argc, char **argv)
       // }
       // else {
         // cout << "..."<<endl;
-        // if ( gridCS == "Cartesian")
+        if ( gridCS == "Cartesian"){
           cout << "Reserved "<<ComputeCylinderParticles (L.x/2., L.z, r)<<" particles."<<endl;
         cout << "Length " << L.x<<", "<< L.y<<", "<< L.z<<", "<<endl;
-          //dom.AddCylinderLength(0, start, L.x/2., L.z, r, rho, h, false);  /////// GENERATED AT HOST TO THEN COPY
+          dom.AddCylinderLength(0, start, L.x/2., L.z, r, rho, h, false);  /////// GENERATED AT HOST TO THEN COPY
 //void Domain::AddCylUniformLength(int tag, double Rxy, double Lz, 
 //																				double r, double Density, double h) 
-          dom.AddCylUniformLength(0, L.x/2.0, L.z, 
-																				r, rho, h, M_PI/4.0, 1); 
-          dom_d->particle_count = dom.Particles.size(); ///// IN THE FUTURE DDOMAIN_D WILL MAKE 
-          dom_d->dom_bid_type = AxiSymm_3D;
-        // else if (gridCS == "Cylindrical")
+          // dom.AddCylUniformLength(0, L.x/2.0, L.z, 
+																				// r, rho, h, M_PI/16.0, 1, L.x/4.0); 
+
+          // dom.AddCylUniformLength(0, L.x/2.0, L.z, 
+																				// r, rho, h); 
+
+
+        }else if (gridCS == "Cylindrical"){
           // dom.AddCylUniformLength(0, L[0]/2.,L[2], r, rho, h);
-          
-      // }
+          if (slice_ang==2.0 * M_PI){
+          dom.AddCylUniformLength(0, L.x/2.0, L.z, 
+																				r, rho, h); 
+          } else {
+            dom.AddCylUniformLength(0, L.x/2.0, L.z, 
+																				r, rho, h, M_PI/16.0, 1, L.x/4.0); 
+            dom_d->dom_bid_type = AxiSymm_3D;
+          }          
+       }//Cylindrical
+        dom_d->particle_count = dom.Particles.size(); ///// IN THE FUTURE DDOMAIN_D WILL MAKE 
+        
+        
     } else if (domtype == "File"){ //DECIDE ACCORDING TO EXTENSION
         string filename = "";
         readValue(domblock[0]["fileName"], 	filename); 
@@ -398,10 +413,10 @@ int main(int argc, char **argv)
 			readValue(zone["id"], 		zoneid);
 			readVector(zone["start"], 	vstart);
 			readVector(zone["end"], 	vend);
-      //cout << "Zone id "<<zoneid<<endl;
-			// cout << "Dimensions: "<<endl;
-			//cout << "start"<< vstart(0)<<"; "<< vstart(1)<<"; "<< vstart(2)<<"; "<<endl;
-			//cout << "end"<< vend(0)<<"; "<< vend(1)<<"; "<< vend(2)<<"; "<<endl;
+      cout << "Zone id "<<zoneid<<endl;
+			cout << "Dimensions: "<<endl;
+			cout << "start"<< vstart(0)<<"; "<< vstart(1)<<"; "<< vstart(2)<<"; "<<endl;
+			cout << "end"<< vend(0)<<"; "<< vend(1)<<"; "<< vend(2)<<"; "<<endl;
       
 			int partcount =dom.AssignZone(vstart,vend,zoneid); ////IN DEVICE DOMAINf
       std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
