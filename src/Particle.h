@@ -28,6 +28,8 @@
 #define TH_BC_CONVECTION	1
 #define TH_BC_CONDUCTION	2
 
+enum Ghost_Type {Symmetric = 0, Periodic = 1, Mirror_XYZ = 2 };
+
 namespace SPH {
 
 	class Particle
@@ -142,7 +144,13 @@ namespace SPH {
 		int 	Nb;
 		
 		//omp_lock_t my_lock;		///< Open MP lock
-
+    
+        //SYMMETRY AND GHOST
+    int     inner_mirr_part;       //NEW: SYMMETRIC PARTICLE 
+    bool    is_ghost;      
+    int     ghost_plane_axis;      //Assuming is cartesian
+		bool    impose_vel;
+    Ghost_Type ghost_type;
 
 		// Constructor
 		Particle						(int Tag, Vector const & x0, Vector const & v0, double Mass0, double Density0, double h0, bool Fixed=false);

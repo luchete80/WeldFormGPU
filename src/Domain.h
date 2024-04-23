@@ -76,6 +76,10 @@ class Domain
 																				double r, double Density, double h, 
                                         double ang = 2.0*M_PI, int rows = 1, double r_i = 0.0);
 
+	//Cylinder Slice 
+	void AddXYSymCylinderLength(int tag, double Rxy, double Lz, 
+								double r, double Density, double h, bool Fixed, bool symlength = false);
+                
 	// Domain Part
 	void __host__ __device__ AddSingleParticle	(int tag, Vector const & x, double Mass, double Density, double h, bool Fixed);		//Add one particle
 	void __host__ /*__device__ */ AddBoxLength				(int tag, Vector const &V, double Lx, double Ly, double Lz,double r, double Density,
@@ -264,7 +268,8 @@ private:
 	double					deltat;					//Time Step
 	double					deltatmin;			//Minimum Time Step
 	double					deltatint;			//Initial Time Step
-  
+
+	std::vector<std::pair<size_t,size_t> > GhostPairs;	//If used  
 
 
 };

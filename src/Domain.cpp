@@ -790,7 +790,7 @@ inline void Domain::ClearNbData(){
 	// for ( int e = 0; e < mesh.element.size(); e++ ){
 		// Vector pos = mesh.element[e]->centroid;
 		// h = hfac * mesh.element[e]->radius;
-		// Particles.Push(new Particle(id,pos,Vector(0,0,0),0.0,Density,h,Fixed));
+		// Particles.push_back(new Particle(id,pos,Vector(0,0,0),0.0,Density,h,Fixed));
 		// Particles[first_fem_particle_idx + e] -> normal  = mesh.element[e] -> normal;
 		// Particles[first_fem_particle_idx + e] -> element = e; 
 	// }
@@ -968,7 +968,7 @@ inline void Domain::ClearNbData(){
 
 void Domain::AddTrimeshParticles(const TriMesh &mesh, const float &hfac, const int &id){
 	
-	// first_fem_particle_idx = Particles.Size();
+	// first_fem_particle_idx = Particles.size();
 	double Density =0.;
 	// double h;
 	bool Fixed = false;	//Always are fixed ...
@@ -982,7 +982,7 @@ void Domain::AddTrimeshParticles(const TriMesh &mesh, const float &hfac, const i
 		// Particles[first_fem_particle_idx + e] -> normal  = mesh.element[e] -> normal;
 		// Particles[first_fem_particle_idx + e] -> element = e; 
 	}
-	// cout << Particles.Size() - first_fem_particle_idx << "particles added with ID " << contact_surf_id <<endl;
+	// cout << Particles.size() - first_fem_particle_idx << "particles added with ID " << contact_surf_id <<endl;
 	// cout << first_fem_particle_idx << " is the first solid particle index."<<endl;
 }
 
@@ -1169,7 +1169,7 @@ void Domain::AddCylUniformLength(int tag, double Rxy, double Lz,
 		}
 
 		double Vol = M_PI * Rxy * Rxy * Lz;		
-		//double Mass = Vol * Density / (Particles.Size()-PrePS);
+		//double Mass = Vol * Density / (Particles.size()-PrePS);
 		double Mass = Vol * Density /Particles.size();
 		
 		cout << "Total Particle count: " << Particles.size() <<endl;
@@ -1188,6 +1188,231 @@ void Domain::AddCylUniformLength(int tag, double Rxy, double Lz,
 		}
 
 	}//Dim 3
+
+	R = r;									
+}
+
+
+//////////////////////////////////////
+// HERE PARTICLE DISTRIBUTION IS RADIAL (DIFFERENT FROM PREVIOUS )
+void Domain::AddXYSymCylinderLength(int tag, double Rxy, double Lz, 
+																				double r, double Density, double h, bool Fixed, bool symlength) {
+	//Util::Stopwatch stopwatch;
+	std::cout << "\n--------------Generating particles by CylinderBoxLength with XY SYMM AND GHOST part defined length of particles-----------" << std::endl;
+
+	size_t PrePS = Particles.size();
+	double xp,yp;
+	size_t i,j;
+	double qin = 0.03;
+	srand(100);
+	
+	double Lx, Ly;
+	
+	//Particles are tried to be aligned 
+	int numpartxy = 1;	//MAX ON EACH EDGE
+	//PARTCILES ARE NOT ALIGNED WITH AXIS; BUT SYMMETRIC ON EACH QUADRANT
+	//MIN CONFIG IS 4 PARTICLES; ALWAYS NUM PARTICLES IS PAIR
+	numpartxy = calcHalfPartCount(r, Rxy, 1);
+	
+
+	//yp=pos;
+	int numypart,numxpart;
+	int xinc,yinc;
+	
+	int id_part=0;
+	int ghost_rows = 3;
+	
+	double z0;
+	if (symlength) 	z0 = r;
+	else						z0 = -Lz/2. + r; //CHECK: -Lz/2. - r or -Lz/2.?
+	
+	int part_per_row=0;
+  std::vector <int> symm_x;
+  std::vector <int> symm_y;
+  int x_ghost_per_row = 0;
+  if (Dimension==3) {
+    	//Cubic packing
+		double zp;
+		size_t k=0;
+		zp = z0;
+		//Calculate row count for non ghost particles
+		while (zp <= (z0+Lz -r)){
+			k++; zp += 2.0 * r;			
+		}
+		//cout << "Particle Row count: "<< k << endl;
+		int last_nonghostrow = k;
+		k = 0;zp = z0;
+
+		while (zp <= ( z0 + Lz - r)) {
+			j = 0;
+			//yp = - r - (2.*r*(numpartxy - 1) ); //First increment is radius, following ones are 2r
+			yp = r; //First increment is radius, following ones are 2r
+			//cout << "y Extreme: "<<yp<<endl;
+			
+			numypart = numpartxy;	//And then diminish by 2 on each y increment
+			yinc = 1;	//particle row from the axis
+			//cout << "y max particles: "<<numypart<<endl;
+			for (j=0;j<numypart;j++){ //DY INCREMENT
+				//cout << "y inc: "<<yinc<<endl;
+				numxpart = calcHalfPartCount(r, Rxy, yinc);
+				//cout << "xpart: "<< numxpart<<endl;
+				//xp = - r - (2.*r*(numxpart - 1) ); //First increment is radius, following ones are 2r
+				xp = r; //First increment is radius, following ones are 2r
+				for (i=0; i < numxpart;i++) { //DX INCREMENT
+					//if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
+					//	else    
+					Particles.push_back(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));
+          if ( i < ghost_rows ){ //X PLANE SYMMETRY
+            symm_x.push_back(id_part);
+            if (k==0) x_ghost_per_row++;
+            //if (k==0) 
+            //  Particles[id_part]->ID = id_part; //ONLY FOR TESTING IN PARAVIEW!
+          }
+          if ( j < ghost_rows) { //Y PLANE SYMMETRY
+            symm_y.push_back(id_part);
+            //if (k==0) 
+            //  Particles[id_part]->ID = id_part; //ONLY FOR TESTING IN PARAVIEW!
+					}
+          if (zp == z0)
+						part_per_row++;
+					
+					id_part++;
+					xp += 2.*r;
+				}
+				yp += 2.*r;
+				yinc +=1;
+
+			}
+			k++;
+			zp += 2.0 * r;
+		}
+			cout << "Particles per row: "<<part_per_row<<endl;
+    cout << " symmetric particles x, y :"<< symm_x.size()<<", "<<symm_y.size()<<endl;
+		//TODO: CONVERT THIS IN A QUARTER CYL SECTOR FUNCTION 
+		//Is it convenient to allocate these particles at the end? 		
+		//Allocate Symmetry particles, begining from x, y and z
+		cout << "Creating ghost particles"<<endl;
+    
+    
+    ///// X AND Y PLANE //////////
+    ///// HERE INSERT EACH 2 DIFFERENT SET OF X AND Y GHOST PARTICLES
+    // AT THE SAME TIME (GHOST Y PLANE (X DIR INCREMENT) STRAIGHT AND GHOST X PLANE (Y INCREMENT) IS TRANSPOSED)
+		zp = z0; k= 0;
+		//cout << "zmax"<<( z0 + Lz - r)<<endl;
+    int sym_y_count = 0;
+    int sym_x_count;
+		while (zp <= ( z0 + Lz - r)) {
+
+			numypart = numpartxy;	//And then diminish by 2 on each y increment
+			yinc = 1;	//particle row from the axis
+			//cout << "y particles: "<<numypart<<endl;
+			for (j=0; j < ghost_rows ; j++){//DY INCREMENT 
+				xp = r;
+				yp = - r - 2*r*(yinc -1); //First increment is radius, following ones are 2r			
+				numxpart = calcHalfPartCount(r, Rxy, yinc);
+				//cout << "x particles: "<<numypart<<endl;
+        sym_x_count = x_ghost_per_row *k + j;
+        //THE INCREMENTS ARE IN X, i.e. PARALLEL TO Y PLANE
+				for (i=0; i < numxpart;i++) { //DX INCREMENT
+					//if (random) Particles.push_back(new Particle(tag,Vector((x + qin*r*double(rand())/RAND_MAX),(y+ qin*r*double(rand())/RAND_MAX),(z+ qin*r*double(rand())/RAND_MAX)),Vector(0,0,0),0.0,Density,h,Fixed));
+					//	else    
+					Particles.push_back(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed)); //First insert on y plane 
+					Particles.push_back(new Particle(tag,Vector(yp,xp,zp),Vector(0,0,0),0.0,Density,h,Fixed)); //Transpose for x plane
+
+          //if (k==0) 
+          //  Particles[id_part  ]->ID = symm_y[sym_y_count]; //ONLY FOR TESTING IN PARAVIEW!  
+          //SYMMETRY ON Y PLANE IS ALTERNATED ON INDICES
+          //if (k==0) 
+          //  Particles[id_part+1]->ID = symm_x[sym_x_count]; //ONLY FOR TESTING IN PARAVIEW!           
+          
+					Particles[id_part  ]->inner_mirr_part = symm_y[sym_y_count];
+					Particles[id_part+1]->inner_mirr_part = symm_x[sym_x_count];
+          
+          GhostPairs.push_back(std::make_pair(symm_y[sym_y_count],id_part  ));
+          GhostPairs.push_back(std::make_pair(symm_x[sym_x_count],id_part+1));
+          
+          Particles[id_part  ]-> ghost_type = Mirror_XYZ;
+          
+          Particles[id_part  ]->ghost_plane_axis = 1;
+          Particles[id_part+1]->ghost_plane_axis = 0;
+          Particles[id_part  ]->is_ghost = true;
+          Particles[id_part+1]->is_ghost = true;
+          
+          Particles[id_part  ]->not_write_surf_ID = true; //TO NOT BE WRITTEN BY OUTER SURFACE CALC
+          Particles[id_part+1]->not_write_surf_ID = true; //TO NOT BE WRITTEN BY OUTER SURFACE CALC
+          //ONLY FOR TESTING SYMMETRY PLANES!
+          //Particles[id_part  ]->ID = 1; //ONLY FOR TESTING IN PARAVIEW!  
+          //Particles[id_part+1]->ID = 0; //ONLY FOR TESTING IN PARAVIEW!   
+					
+          id_part+=2;
+					xp += 2.*r;
+          sym_y_count++;
+          sym_x_count+=ghost_rows;
+				}//x rows
+				yinc++;
+			}//y rows
+			k++;
+			zp += 2.0 * r;	
+			//cout << "zp " <<zp<<endl;
+		}
+		
+    //// Z PLANE, BOTTOM COORDINATE /////
+    cout << "inserting z particles"<<endl;
+    zp = z0 - 2.0*r;
+		//Insert ghost pairs relation
+		if (symlength){
+      //// Z PLANE, BOTTOM COORDINATE /////
+      cout << "Inserting z ghost particles at z bottom..."<<endl;
+      //z Symm particles
+      int sym_part;
+      int part = 0;
+      id_part = Particles.size(); //REDUNDANT
+
+      for (int zinc = 0; zinc < ghost_rows ;zinc++){
+        for (int xy = 0; xy < part_per_row;xy++){
+          xp = Particles[part]->x(0);
+          yp = Particles[part]->x(1);
+          //zp = Particles[part]->x(2);
+          Particles.push_back(new Particle(tag,Vector(xp,yp,zp),Vector(0,0,0),0.0,Density,h,Fixed));				
+          Particles[id_part]->inner_mirr_part = part;
+          //Particles[id_part]->ID = -50;
+          //cout << "part , sym"<<part<<", "<<id_part<<endl;
+          Particles[id_part]->ghost_plane_axis = 2;
+          Particles[id_part]->not_write_surf_ID = true; //TO NOT BE WRITTEN BY OUTER SURFACE CALC
+          Particles[id_part  ]->is_ghost = true;
+          //ONLY FOR TESTING SYMMETRY PLANES!
+          //Particles[id_part]->ID = Particles[id_part]->ghost_plane_axis; //ONLY FOR TESTING IN PARAVIEW!   
+          GhostPairs.push_back(std::make_pair(part,id_part));
+          
+          id_part++;
+          part++;
+        }
+        zp -= 2.0*r;
+      }
+		////// PARALLELIZE!
+		}
+    
+		
+		double Vol = M_PI * Rxy * Rxy * Lz;		
+		//double Mass = Vol * Density / (Particles.size()-PrePS);
+		double Mass = Vol * Density /Particles.size();
+		
+		cout << "Total Particle count: " << Particles.size() <<endl;
+		cout << "Particle mass: " << Mass <<endl;
+
+		#pragma omp parallel for num_threads(Nproc)
+		#ifdef __GNUC__
+		for (size_t i=0; i<Particles.size(); i++)	//Like in Domain::Move
+		#else
+		for (int i=0; i<Particles.size(); i++)//Like in Domain::Move
+		#endif
+		{
+			Particles[i]->Mass = Mass;
+		}
+
+	}//Dim 3
+  
+  //part_count = Particles.size();
 
 	R = r;									
 }
