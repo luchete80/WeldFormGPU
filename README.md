@@ -14,7 +14,11 @@ Has been exclusively adapted to solid mechaincs, and it includes:
 
 Is hevaily based on Kirk Fraser [Thesis](https://constellation.uqac.ca/4246/1/Fraser_uqac_0862D_10345.pdf) and [works](https://pdfs.semanticscholar.org/b09e/8c8023d56b130cc6fa5314cb66bce364df8e.pdf) on SPH model of FSW
 
-
+## Requirements
+# GPU Version
+1) Solver executables. Check which version corresponds to your GPU [here]. 
+2) Visual Studio Runtime Libraries [here] (https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
+3) CUDA runtime libraries.
 ## Building Instructions
 
 1) Install Visual Studio Community [2019](https://visualstudio.microsoft.com/es/vs/older-downloads/) (Not tested on 2022 yet) 
