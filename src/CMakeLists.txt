@@ -1,6 +1,6 @@
 SET(BUILD_GPU ON)
 
-
+if (BUILD_GPU)
 project (gpuweldform LANGUAGES CXX CUDA)
 project (testcuns LANGUAGES CXX CUDA)
 include_directories(${PROJECT_SOURCE_DIR})
@@ -11,6 +11,8 @@ include_directories(cuNSearch/Utils)
 
 link_directories(${CUNSEARCH_LIB_DIR})
 link_directories(${cuNSearch_BINARY_DIR})
+
+
 # target_link_libraries (gpuweldform cuNSearch )
 
 #set (CMAKE_CXX_FLAGS "-fopenmp")
@@ -29,6 +31,17 @@ set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --fmad=false --prec-sqrt=true --ftz=fa
 
 # FROM --use_fast_math implies --ftz=true --prec-div=false --prec-sqrt=false --fmad=true.
 # https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
+
+
+set_source_files_properties(Domain_d.C Matrices.C Mechanical.C Solver.C Tensor.C main.C  main_1_elem_3d.C
+                            WeldFormFEM.C include/*.h 
+                            PROPERTIES LANGUAGE CUDA)
+                            
+                            
+else ()
+
+endif()
+
 
 SET(EXES
 
