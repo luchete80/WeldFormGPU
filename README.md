@@ -1,4 +1,5 @@
 WeldFormGPU is the GPU version of [WeldForm](https://github.com/luchete80/WeldForm)
+This is being migrated to be the CPU / GPU solver.
 
 ## Features
 Has been exclusively adapted to solid mechaincs, and it includes:
