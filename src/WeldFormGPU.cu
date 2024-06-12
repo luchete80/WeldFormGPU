@@ -117,15 +117,17 @@ void UserAcc(SPH::Domain_d & domi) {
     
   if (domi.contact){
     for (int bc=0;bc<domi.bConds.size();bc++){
+      for (int m=0;m<domi.trimesh_count;m++){
 //      for (int m=0;m<domi.trimesh.size();m++){
+
 //        if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
 //          if (domi.bConds[bc].valueType == 0) { ///constant
 //            domi.trimesh[m]->SetVel(domi.bConds[bc].value);
 //            domi.trimesh[m]->SetRotAxisVel(domi.bConds[bc].value_ang);
 //          }//BCOND 
-        if (domi.trimesh->id == domi.bConds[bc].zoneId)
+        if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
           if (domi.bConds[bc].valueType == 0) { ///constant
-            domi.trimesh->SetVel(domi.bConds[bc].value);
+            domi.trimesh[m]->SetVel(domi.bConds[bc].value);
             //domi.trimesh->SetRotAxisVel(domi.bConds[bc].value_ang);
           }//BCOND 
                     
@@ -142,7 +144,7 @@ void UserAcc(SPH::Domain_d & domi) {
 //          }
       //}//mesh
     }//bcs
-    
+    }//trimesh
   }//contact
 }
 
@@ -176,6 +178,8 @@ int main(int argc, char **argv)
     report_gpu_mem();
     dom_d->dom_bid_type = None;
 		dom.Dimension	= 3;
+    
+    dom_d->trimesh_count = 0;
 		
 		// string kernel;
     double ts;
@@ -458,6 +462,7 @@ int main(int argc, char **argv)
   
     cout << "Set contact to ";
     if (contact){
+      dom_d->trimesh_count = 1; //TODO: CHANGE TO SEVERAL CONTACT SURFACES
       cout << "true."<<endl;
   		dom_d->contact = true; //ATTENTION: SetDimension sets contact to OFF so...
       cout << "Reading contact mesh..."<<endl;
@@ -504,7 +509,7 @@ int main(int argc, char **argv)
       dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
 
 			//BEFORE ALLOCATING 
-			dom_d->trimesh = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+			dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
 			mesh_d->id = id;
 			if (dom_d->trimesh ==NULL)
 				cout << "ERROR. No mesh defined"<<endl;

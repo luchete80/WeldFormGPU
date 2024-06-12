@@ -127,9 +127,10 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
   if (contact){
     pcount = solid_part_count;
     //THIS IS DONE OUTSIDE MAIN LOOP IN WELDFORM CPU VERSION
-    if (this->trimesh != NULL){
+    for (int m=0;m<trimesh_count;m++)
+    if (this->trimesh[m] != NULL){
       printf("Calculating plane coefficients...\n");
-      CalcSpheresKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh);
+      CalcSpheresKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh[m]);
       cudaDeviceSynchronize();
     }
     else printf("MESH NOT DEFINED\n");
@@ -275,17 +276,21 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 		cudaDeviceSynchronize();
     
     if (contact){
-      if (this->trimesh != NULL){
-      MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh, deltat);
-      cudaDeviceSynchronize();
-      } else {
-        cout << "No contact mesh defined."<<endl;
+      for (int m=0;m<trimesh_count;m++){
+        if (this->trimesh[m] != NULL){
+        MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh[m], deltat);
+        cudaDeviceSynchronize();
+        } else {
+          cout << "No contact mesh defined."<<endl;
+        }
       }
     }
     
     if (contact) {
-      UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this);
-      cudaDeviceSynchronize();
+      for (int m=0;m<trimesh_count;m++){
+        UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this, m);
+        cudaDeviceSynchronize();
+      }
     }
       
 		if (isfirst_step) isfirst_step = false;

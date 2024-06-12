@@ -54,31 +54,31 @@ const uint *neighbors){
   }// i < fem index
 }
 
-inline void __global__ UpdateContactParticlesKernel(Domain_d *dom){
-  dom->UpdateContactParticles();
+inline void __global__ UpdateContactParticlesKernel(Domain_d *dom, int mesh_id){
+  dom->UpdateContactParticles(mesh_id);
 }
 
 //inline void __device__ Domain_d::UpdateContactParticles(){
   // for (int m=0; m<trimesh.size();m++){
-    // for ( int e = 0; e < trimesh[m]->element.Size(); e++ ){
+    // for ( int e = 0; e < trimesh[mid]->element.Size(); e++ ){
       // Vec3_t v = 0.;
       // for (int en = 0;en<3;en++)
-        // v += *trimesh[m] -> node_v[trimesh[m]->element[e] ->node[en]];
+        // v += *trimesh[mid] -> node_v[trimesh[mid]->element[e] ->node[en]];
       // Particles[first_fem_particle_idx[m] + e] -> v = 
       // Particles[first_fem_particle_idx[m] + e] -> va = 
       // Particles[first_fem_particle_idx[m] + e] -> vb = v/3.;
       // Particles[first_fem_particle_idx[m] + e] -> a = 0.; 
-      // Particles[first_fem_particle_idx[m] + e] -> normal  = trimesh[m]->element[e] -> normal;
+      // Particles[first_fem_particle_idx[m] + e] -> normal  = trimesh[mid]->element[e] -> normal;
       // //cout << "v "<< v/3.<<", n "<<Particles[first_fem_particle_idx + e] -> normal<<endl;
     // } 
   // }
 //}
 
 //TODO: CHANGE TO SEVERAL CONTACT SURFACES 
-inline void __device__ Domain_d::UpdateContactParticles(){
+inline void __device__ Domain_d::UpdateContactParticles(int mesh_id){
 
   int e = threadIdx.x + blockDim.x*blockIdx.x;	
-  if (e < trimesh->elemcount) {
+  if (e < trimesh[mesh_id]->elemcount) {
     //printf("UPDATING e %d\n",e);
     //int e = element[i];
     double3 vv = make_double3(0.);
@@ -86,7 +86,7 @@ inline void __device__ Domain_d::UpdateContactParticles(){
       //printf("particle %d \n",i);
       //printf ("node %d \n",trimesh->elnode[3*e+en]);
       // if (trimesh->elnode[3*e+en] < trimesh->nodecount )
-      vv += trimesh -> node_v[trimesh->elnode[3*e+en]];
+      vv += trimesh[mesh_id] -> node_v[trimesh[mesh_id]->elnode[3*e+en]];
       // else 
         // printf("error \n");
     }
@@ -96,7 +96,7 @@ inline void __device__ Domain_d::UpdateContactParticles(){
     a [first_fem_particle_idx + e] = make_double3(0.);
     // if (length(normal[e])<1.0e-3)
       // printf("UPDATING ERROR ZERO mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
-    normal[first_fem_particle_idx + e] = trimesh -> normal[e];
+    normal[first_fem_particle_idx + e] = trimesh[mesh_id] -> normal[e];
     //printf("mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
   }
 }
@@ -134,7 +134,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
 	int inside_pairs = 0;
   //printf("test\n");
   if (i < first_fem_particle_idx ) {  //i particle is from SOLID domain, j are always rigid 
-
+    int mid = mesh_id[i];
     
     contforce[i] = make_double3(0.); //RESET
     // CONTACT OFFSET IS FIX BY NOW
@@ -181,7 +181,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       //printf("xpred %f %f %f\n", x_pred.x, x_pred.y, x_pred.z);
       //printf ("pplane: %f", trimesh->pplane[e]);
       
-      normal[j] = trimesh->normal[e];
+      normal[j] = trimesh[mid]->normal[e];
       // normal[j] = make_double3(0.0,0.0,-1.0);
       
       // if (length(normal[j])<1.0e-3)
@@ -190,7 +190,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       // trimesh->normal[e].x,trimesh->normal[e].y,trimesh->normal[e].z);
       //normal[j] = make_double3(0.,0.,-1.);
       
-      double dist = dot (normal[j],x_pred)  - trimesh->pplane[e];
+      double dist = dot (normal[j],x_pred)  - trimesh[mid]->pplane[e];
       //double dist = dot (normal[j],x[i])  - trimesh->pplane[e];
       //printf("normal j %d %f %f %f\n", j, normal[j].x, normal[j].y, normal[j].z);
       //printf("OUTSIDE part %d pplane %f,dist %.5e, h %f\n", i, trimesh->pplane[e], dist, h[i]);
@@ -219,8 +219,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
             // double crit = dot (cross ( *trimesh->node[e -> node[j]] - *trimesh->node[e -> node[i]],
                                                                 // Qj  - *trimesh->node[e -> node[i]]),
                               // normal[j]);
-            double crit = dot (cross ( trimesh->node[trimesh->elnode[3*e+n]] - trimesh->node[trimesh->elnode[3*e+l]],
-                                                                Qj  - trimesh->node[trimesh->elnode[3*e+l]]),
+            double crit = dot (cross ( trimesh[mid]->node[trimesh[mid]->elnode[3*e+n]] - trimesh[mid]->node[trimesh[mid]->elnode[3*e+l]],
+                                                                Qj  - trimesh[mid]->node[trimesh[mid]->elnode[3*e+l]]),
                               normal[j]);
             if (crit < 0.0) inside = false;
             l++;

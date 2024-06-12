@@ -163,6 +163,8 @@ void Domain_d::SetDimension(const int &particle_count){
   cudaMalloc((void **)&contneib_offs,   particle_count * sizeof (int));
   cudaMalloc((void **)&contforce,       particle_count * sizeof (double3));
   
+  cudaMalloc((void **)&mesh_id,         particle_count * sizeof (int));
+  
   contforce_h = new double3 [particle_count];
   
   //////////////////////////
@@ -616,8 +618,10 @@ __host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const double &hfac,
 	double h;
 	bool Fixed = false;	//Always are fixed ...
 	contact_surf_id = id;
-	trimesh = &mesh;
-
+  
+	trimesh[trimesh_count] = &mesh;
+  trimesh_count++;
+  
 	// for ( int e = 0; e < mesh.element.size(); e++ ){
 		// Vector pos = mesh.element[e]->centroid;
 		// double h = hfac * mesh.element[e]->radius;

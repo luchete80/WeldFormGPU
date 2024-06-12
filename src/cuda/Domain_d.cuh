@@ -265,7 +265,9 @@ class Domain_d
 
 	// TODO, EACH RIGID PARTICLE SHOULD 
   int   *element; //ELEMENT OF TRIMESH FROM "RIGID" PARTICLE, ALL FIRST PARTICLES ARE ZERO
-  TriMesh_d *trimesh;
+  TriMesh_d **trimesh;
+  int trimesh_count;
+  int *mesh_id; //particle mesh ID
 	
   /////////////////////////////////////////
   //////////// ENERGY THINGS //////////////
@@ -402,7 +404,7 @@ __device__ inline void UpdateDensity(double dt);
   void __device__ inline CalcContactForces(/* int i*/);
   __host__ void AddTrimeshParticles(TriMesh_d &mesh, const double &hfac, const int &id);
   
-  inline void __device__ UpdateContactParticles();  
+  inline void __device__ UpdateContactParticles(int mesh_id);  
   
   // ENERGY 
   void __device__ inline CalcIntEnergy();
@@ -419,7 +421,7 @@ __device__ inline void UpdateDensity(double dt);
 
 void ReadFromLSdyna(const char *fName, Domain_d *dom);
 
-inline void __global__ UpdateContactParticlesKernel(Domain_d *dom);
+inline void __global__ UpdateContactParticlesKernel(Domain_d *dom, int mesh_id);
 
 __global__ void CheckData(Domain_d *dom);
 
