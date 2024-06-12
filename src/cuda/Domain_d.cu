@@ -397,6 +397,7 @@ __global__ void AssignTrimeshIDKernel(Domain_d *dom, int id, int start, int end)
 
 __device__ void Domain_d::AssignTrimeshAddress(int id, TriMesh_d *mesh){
   this->trimesh[id]=mesh;
+  printf( "Added mesh node count %d\n",trimesh[0]->nodecount);
 }
 
 __global__ void AssignTrimeshAddressKernel(Domain_d *dom, int id, TriMesh_d *mesh){ //Assign particle data to material array to zero arra
