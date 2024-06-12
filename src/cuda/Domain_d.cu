@@ -384,6 +384,26 @@ __global__ void AssignMatAddressKernel(Domain_d *dom){
   dom->AssignMatAddress(i);
 }
 
+///////// TODO: Chage to pointer directly instead of int
+__device__ void Domain_d::AssignTrimeshID(int i, int id, int start, int end){
+  if (i> start && i < end)
+    mesh_id[i] = id;
+}
+
+__global__ void AssignTrimeshIDKernel(Domain_d *dom, int id, int start, int end){
+  int i = threadIdx.x + blockDim.x*blockIdx.x;
+  dom->AssignTrimeshID(i, id, start, end);
+}
+
+__device__ void Domain_d::AssignTrimeshAddress(int id, TriMesh_d *mesh){
+  this->trimesh[id]=mesh;
+}
+
+__global__ void AssignTrimeshAddressKernel(Domain_d *dom, int id, TriMesh_d *mesh){ //Assign particle data to material array to zero arra
+
+  dom->AssignTrimeshAddress(id, mesh);
+}
+
 void Domain_d::Set_h(const double &k){
 	double *k_ =  new double[particle_count];
 	for (int i=0;i<particle_count;i++){
@@ -610,6 +630,7 @@ __host__ void Domain_d::AdaptiveTimeStep(){
 	}
 }
 
+///// NOT USED ///////
 //If this is called, all particle has to be reallocated
 __host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const double &hfac, const int &id){
 	

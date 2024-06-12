@@ -509,7 +509,14 @@ int main(int argc, char **argv)
       dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
 
 			//BEFORE ALLOCATING 
-			dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+      cout << "Allocating ..."<<endl;
+      cudaMalloc((void**)&dom_d->trimesh, 1 * sizeof(SPH::TriMesh_d*));
+      cout << "Assigning "<<endl;
+      AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,0,mesh_d);
+      cudaDeviceSynchronize();
+      
+			//dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+      cout << "Assigned "<<endl;
 			mesh_d->id = id;
 			if (dom_d->trimesh ==NULL)
 				cout << "ERROR. No mesh defined"<<endl;
@@ -608,13 +615,17 @@ int main(int argc, char **argv)
 		 
   //SPH::Domain	dom;
 	//double3 *x =  (double3 *)malloc(dom.Particles.size());
-	double3 *x =  new double3 [dom.Particles.size()];
+	double3 *x    =  new double3 [dom.Particles.size()];
+	int     *mid  =  new int [dom.Particles.size()];  
+  
 	for (int i=0;i<dom.Particles.size();i++){
 		x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));
-	}
+    mid[i] = 0;
+  }
 	int size = dom.Particles.size() * sizeof(double3);
 	cout << "Copying to device "<<dom.Particles.size() << " particle properties ..."<<endl;
 	cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
+  cudaMemcpy(dom_d->mesh_id, mid, size, cudaMemcpyHostToDevice);
 
 
 	for (int i=0;i<dom.Particles.size();i++){

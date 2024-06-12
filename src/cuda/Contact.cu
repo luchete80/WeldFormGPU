@@ -134,7 +134,6 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
 	int inside_pairs = 0;
   //printf("test\n");
   if (i < first_fem_particle_idx ) {  //i particle is from SOLID domain, j are always rigid 
-    int mid = mesh_id[i];
     
     contforce[i] = make_double3(0.); //RESET
     // CONTACT OFFSET IS FIX BY NOW
@@ -152,7 +151,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       if (ID[j] != contact_surf_id)
         printf("CONTACT, j particle, %d on CONTACT SURFACE\n", i);
       
-      
+      int mid = mesh_id[j];      
       
       double3 xij;
       double K;

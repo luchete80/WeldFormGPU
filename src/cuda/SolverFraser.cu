@@ -144,6 +144,11 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
   //// MATERIAL
   AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
   cudaDeviceSynchronize();
+  
+  cout << "Asigning mesh address..."<<endl;
+  AssignTrimeshIDKernel<<<blocksPerGrid,threadsPerBlock >>>(this,0,first_fem_particle_idx, particle_count);
+  cudaDeviceSynchronize();
+  cout << "Ok."<<endl;
       
   //ONLY FOR TESTING 
   test_h = new double [particle_count];
