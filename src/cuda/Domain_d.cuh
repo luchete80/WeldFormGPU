@@ -539,6 +539,14 @@ __global__ inline void CalcSpheresKernel(Domain_d *dom, int m) {
   
 }
 
+__global__ inline void MeshUpdateKernel(Domain_d *dom, int m, double dt){
+  
+  dom->trimesh[m]->Move(dt);
+  dom->trimesh[m]->CalcCentroids();
+  dom->trimesh[m]->CalcNormals();
+  dom->trimesh[m]->UpdatePlaneCoeff(); 
+}
+
 }; // namespace SPH
 
 

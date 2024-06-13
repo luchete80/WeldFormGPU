@@ -223,7 +223,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     if (dom_bid_type == AxiSymm_3D){
       ApplyAxiSymmBCKernel	<<<blocksPerGrid,threadsPerBlock >>>(this);
     }
-    
+    cout << "contact "<<endl;
     if (contact){
       CalculateSurfaceKernel<<<blocksPerGrid,threadsPerBlock >>>(this,
       CudaHelper::GetPointer(nsearch.deviceData->d_NeighborCounts),
@@ -249,7 +249,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
       );
       cudaDeviceSynchronize();
     }
-    
+    cout << "ok "<<endl;
 
 					
 		//TODO: CHANGE this to an interleaved reduction or something like that (see #84)
@@ -283,17 +283,20 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     CalcIntEnergyKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
 		cudaDeviceSynchronize();
     
+    cout << "moving mesh"<<endl;
     if (contact){
       for (int m=0;m<trimesh_count;m++){
-        if (this->trimesh[m] != NULL){
-        MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh[m], deltat);
+        //if (this->trimesh[m] != NULL){
+        //OLD! SINCE trimesh is a vector, Calling this from host crashes
+        //MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh[m], deltat);
+        MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this, m, deltat);
         cudaDeviceSynchronize();
-        } else {
-          cout << "No contact mesh defined."<<endl;
-        }
+        // } else {
+          // cout << "No contact mesh defined."<<endl;
+        // }
       }
     }
-    
+    cout << "ok "<<endl;
     if (contact) {
       for (int m=0;m<trimesh_count;m++){
         UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this, m);
