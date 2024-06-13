@@ -29,7 +29,7 @@
 #include "cuda/SolverFraser.cu"
 
 #include "cuda/Mesh.cuh"
-#include "cuda/Mesh.cu"
+//#include "cuda/Mesh.cu"
 #include "cuda/Boundary_Condition.cuh"
 #include "NastranReader.h" 
 

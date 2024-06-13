@@ -48,7 +48,8 @@
 #include "cuNSearchDeviceData.h"
 
 #include "Material.cuh"
-
+#include "Mesh.h"
+#include "Mesh.cuh"
 //C++ Enum used for easiness of coding in the input files
 
 //enum Viscosity_Eq_Type { Morris=0, Shao=1, Incompressible_Full=2, Takeda=3 };
@@ -520,6 +521,7 @@ __global__ inline void UpdatePosFraserKernel(Domain_d *dom, double dt);
 
 __global__ void ApplyAxiSymmBCKernel(Domain_d *dom);
 
+
 	/* const double &Dimension*/
 
 // /*inline*/ __host__ void StartAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
@@ -531,8 +533,14 @@ __global__ void ApplyAxiSymmBCKernel(Domain_d *dom);
 // /*inline*/ __host__ void LastComputeAcceleration(Domain_d &sd); // This is the buffer function which calls the kernel
 // __global__ void LastComputeAccelerationKernel(Domain_d &sd);
 
+
+__global__ inline void CalcSpheresKernel(Domain_d *dom, int m) {
+  dom->trimesh[m]->CalcSpheres();
+  
+}
+
 }; // namespace SPH
 
-#include "Mesh.h"
+
 
 #endif // SPH_DOMAIN_H

@@ -78,3 +78,4 @@
 ---------------------------------------------------------------
 20240612 - Added Code for several contact meshes.
          - Is remaining the assign of mesh ID and resizing thing.
+20240613 - Fixed Mesh Calc Spheres (now array indices are called from kernel)

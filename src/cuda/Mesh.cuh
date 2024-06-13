@@ -1,6 +1,15 @@
 #ifndef _MESH_CUH_
 #define _MESH_CUH_
 
+#ifndef __CUDACC__
+#include <cmath>
+#endif
+
+#include "cuda_runtime.h"
+
+#include "NastranReader.h"
+
+
 namespace SPH{
 
 struct elem_data{
@@ -43,9 +52,12 @@ class TriMesh_d{
 };
 
 __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt);
+
 __global__ inline void CalcSpheresKernel(TriMesh_d *mesh_d);
 
 __global__ inline void CheckNormalsKernel(TriMesh_d *mesh_d);
 };//SPH
+
+#include "Mesh.cu"
 
 #endif

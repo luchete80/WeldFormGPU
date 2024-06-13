@@ -131,7 +131,8 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     cout << "m "<< m << endl; 
     //if (this->trimesh[m] != NULL){
       printf("Calculating plane coefficients...\n");
-      CalcSpheresKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh[m]);
+      //CalcSpheresKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh[m]);
+      CalcSpheresKernel<<<blocksPerGrid,threadsPerBlock >>>(this,m);
       cudaDeviceSynchronize();
     // }
     // else printf("MESH NOT DEFINED\n");
