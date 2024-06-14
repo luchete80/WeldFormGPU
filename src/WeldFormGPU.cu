@@ -120,7 +120,7 @@ void UserAcc(SPH::Domain_d & domi) {
       for (int m=0;m<domi.trimesh_count;m++){
         int id;
         getTrimeshIDKernel<<<1,1>>>(&domi,m,&id);
-        //cout << "mesh id "<<id<<endl;
+        cout << "mesh id "<<id<<endl;
         // if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
         // //if ( (getTrimeshIDKernel<<<1,1>>>(&domi,m)) == domi.bConds[bc].zoneId)
           // if (domi.bConds[bc].valueType == 0) { ///constant

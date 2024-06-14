@@ -64,7 +64,7 @@
 },
 {
 	"zoneId": 	3,
-	"valueType": 	1,
+	"valueType": 	0,
   "amplitudeId" : 1,
   "amplitudeFactor": 1.0,
 	"value": 		[ 0.0, 0.0, -10.0]

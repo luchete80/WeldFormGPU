@@ -570,7 +570,7 @@ __device__ void Domain_d::ApplyBCVel(int bcid,
 																		double3 bcv){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;	
 	if ( i < particle_count ) {	
-		//printf("particle %d bc \n",i);
+		//printf("particle %d BC ID %d bcv %f %f %f \n",i, bcid, bcv.x, bcv.y,bcv.z);
 		if (ID[i]==bcid){
 			a[i]		= make_double3(0.0);
 			v[i]		= bcv;
