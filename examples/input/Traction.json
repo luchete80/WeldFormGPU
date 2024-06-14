@@ -59,13 +59,13 @@
 "BoundaryConditions": [
 {
 	"zoneId": 	1,
-	"valuetype": 	"Constant",
+	"valuetype": 	0,
 	"value": 		[ 0.0, 0.0, 0.0],
 	"free": 		true
 },
 {
 	"ZoneId": 		2,
-	"valuetype": 	"Constant",
+	"valuetype": 	0,
 	"value": 		[ 0.0, 0.0, -0.1]
 },
 {
