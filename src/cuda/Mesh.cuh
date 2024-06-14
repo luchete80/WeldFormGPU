@@ -36,7 +36,7 @@ class TriMesh_d{
 	TriMesh_d(){}
 	void ReadFromNastran(NastranReader &nr, bool flipnormals = false);
 	inline void AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens);
-  void SetVel(const double3 &v) {m_v = v;} //Like in WeldForm CPU version
+  void __device__ __host__ SetVel(const double3 &v) {m_v = v;} //Like in WeldForm CPU version
 	inline void ApplyConstVel(const double3 &v);
 	inline void CalcCentroidVelFromNodes();
 	inline __host__ __device__ void UpdatePlaneCoeff();

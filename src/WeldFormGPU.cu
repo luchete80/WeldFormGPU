@@ -118,30 +118,19 @@ void UserAcc(SPH::Domain_d & domi) {
   if (domi.contact){
     for (int bc=0;bc<domi.bConds.size();bc++){
       for (int m=0;m<domi.trimesh_count;m++){
-//      for (int m=0;m<domi.trimesh.size();m++){
+        int id;
+        getTrimeshIDKernel<<<1,1>>>(&domi,m,&id);
+        //cout << "mesh id "<<id<<endl;
+        // if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
+        // //if ( (getTrimeshIDKernel<<<1,1>>>(&domi,m)) == domi.bConds[bc].zoneId)
+          // if (domi.bConds[bc].valueType == 0) { ///constant
+            // //OLD, when trimesh was not a vector
+            // //domi.trimesh[m]->SetVel(domi.bConds[bc].value);
+            
+            // SetMeshVelKernel<<<1,1>>>(&domi,m, domi.bConds[bc].value);
+            // //domi.trimesh->SetRotAxisVel(domi.bConds[bc].value_ang);
+          // }//BCOND 
 
-//        if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
-//          if (domi.bConds[bc].valueType == 0) { ///constant
-//            domi.trimesh[m]->SetVel(domi.bConds[bc].value);
-//            domi.trimesh[m]->SetRotAxisVel(domi.bConds[bc].value_ang);
-//          }//BCOND 
-        if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
-          if (domi.bConds[bc].valueType == 0) { ///constant
-            domi.trimesh[m]->SetVel(domi.bConds[bc].value);
-            //domi.trimesh->SetRotAxisVel(domi.bConds[bc].value_ang);
-          }//BCOND 
-                    
-//          else if (domi.bConds[bc].valueType == 1) {///amplitude
-//            for (int i=0;i<domi.amps.size();i++)
-//              if(domi.amps[i].id == domi.bConds[bc].ampId){
-//                double val = domi.bConds[bc].ampFactor * domi.amps[i].getValAtTime(domi.getTime());
-//                Vec3_t vec = val * domi.bConds[bc].value;
-//                //cout << "Time, vec"<<domi.getTime()<< ", "<<vec<<endl;
-//                domi.trimesh[m]->SetVel(vec);
-//              }
-// 				// readValue(bc["amplitudeId"], 		bcon.ampId);
-//				// readValue(bc["amplitudeFactor"], 	bcon.ampFactor);           
-//          }
       //}//mesh
     }//bcs
     }//trimesh
@@ -561,7 +550,9 @@ int main(int argc, char **argv)
 			// amps.push_back(amp);
 			// //std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
 		// }
-
+    
+    int bc_count = 0;
+    std::vector<boundaryCondition> bcondvec;
 		for (auto& bc : bcs) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
 			// MaterialData* data = new MaterialData();
 			int zoneid,valuetype,var,ampid;
@@ -586,9 +577,18 @@ int main(int argc, char **argv)
 				
 			readValue(bc["free"], 	bcon.free);
 			dom_d->bConds.push_back(bcon);
+      bcondvec.push_back(bcon);
+      bc_count++;
 			
       std::cout<< "BCs "<<  ", Zone ID: "<<bcon.zoneId<<", Value :" <<bcon.value.x<<", "<<bcon.value.y<<", "<<bcon.value.z<<std::endl;
 		}//Boundary Conditions
+    //dom_d->bConds
+
+    // boundaryCondition *bConds_h    =  new boundaryCondition [bc_count];
+    // for (int b=0;b<bc_count;b++)
+      // bConds_h[b] = bcondvec[b];
+    // cudaMalloc((void**)&dom_d->bConds, bc_count * sizeof(boundaryCondition ));
+    // cudaMemcpy(dom_d->bConds, bConds_h, bc_count * sizeof(boundaryCondition), cudaMemcpyHostToDevice);
 		
 		// double IniTemp = 0.;
 		// for (auto& ic : ics){

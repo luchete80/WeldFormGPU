@@ -278,6 +278,7 @@ class Domain_d
   
   ////////////////////////////////////////
   /////////// BC_s ///////////////////////
+  /////// TODO: MOVE TO DEVICE!
   std::vector <boundaryCondition> bConds;  //NEW, For BCond
   
 	/////////////////////////////////////////
@@ -540,11 +541,22 @@ __global__ inline void CalcSpheresKernel(Domain_d *dom, int m) {
 }
 
 __global__ inline void MeshUpdateKernel(Domain_d *dom, int m, double dt){
-  
+  printf("node coutn %d\n",dom->trimesh[0]->nodecount );
   dom->trimesh[m]->Move(dt);
   dom->trimesh[m]->CalcCentroids();
   dom->trimesh[m]->CalcNormals();
   dom->trimesh[m]->UpdatePlaneCoeff(); 
+}
+
+__global__ inline void SetMeshVelKernel(Domain_d *dom, int m, double3 value) {
+  dom->trimesh[m]->SetVel(value);
+  
+}
+
+__global__ inline void getTrimeshIDKernel(Domain_d *dom, int m, int *id) {
+  //cudaMemcpy(id, &dom->trimesh[m]->id, sizeof (int), cudaMemcpyDeviceToHost);
+  *id = dom->trimesh[m]->id;
+  printf ("kernel mesh id %d\n", dom->trimesh[m]->id);
 }
 
 }; // namespace SPH
