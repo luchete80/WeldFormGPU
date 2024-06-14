@@ -29,6 +29,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --fmad=false --prec-sqrt=true --ftz=false --prec-div=true")
 # set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --use_fast_math=false")
 
+
 # FROM --use_fast_math implies --ftz=true --prec-div=false --prec-sqrt=false --fmad=true.
 # https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html
 
@@ -170,6 +171,8 @@ add_executable(WeldFormGPU
 #add_subdirectory (cuda)
 
 TARGET_LINK_LIBRARIES (WeldFormGPU cuda  lsdynareader )
+
+set_property(TARGET WeldFormGPU PROPERTY CUDA_ARCHITECTURES 75)
 
 #FOREACH(var ${EXES})
 #    ADD_EXECUTABLE        (${var} "${var}.cpp" #
