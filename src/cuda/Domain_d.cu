@@ -375,8 +375,11 @@ __global__ void CheckData(Domain_d *dom){
 }
 
 __device__ void Domain_d::AssignMatAddress(int i){
-  if (i< solid_part_count)
+  if (i< solid_part_count){
     mat[i] = &materials[0];
+  
+    //printf("part %d mat E%f\n", i, materials[0].Elastic().E());
+  }
 }
 
 __global__ void AssignMatAddressKernel(Domain_d *dom){

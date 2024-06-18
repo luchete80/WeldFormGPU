@@ -665,14 +665,16 @@ int main(int argc, char **argv)
   // } else                              printf("ERROR: Invalid material type.");
     
 ////// MATERIAL  
-  Material_ *material_h = (Material_ *)malloc(dom_d->solid_part_count * sizeof(Material_ *)); 
+  //Material_ *material_h = (Material_ *)malloc(dom_d->solid_part_count * sizeof(Material_ *)); 
   
 
   
   Elastic_ el(E,nu);
   cout << "Mat type  "<<mattype<<endl;
+  cout << "E: "<<E<<endl;
+  Material_ *material_h  = new Material_(el);
   if      (mattype == "Bilinear")    {
-    Material_ *material_h  = new Material_(el);
+
     Ep = E*c[0]/(E-c[0]);		                              //only constant is tangent modulus
     material_h->SetEp(Ep);
     cout << "Material Constants, Et: "<<c[0]<<endl;
@@ -713,7 +715,10 @@ int main(int argc, char **argv)
     Fy = CalcJohnsonCookYieldStress(0.0,0.0,0.0,material_h);
   } else                              
   	printf("ERROR: Invalid material type.");
-
+  
+  cout << "Elastic Properties "<<endl;
+  cout << "Young Modulus: "<<material_h->elastic_m.E()<<endl;
+  
     cudaMalloc((void**)&dom_d->materials, 1 * sizeof(Material_ ));
     cudaMemcpy(dom_d->materials, material_h, 1 * sizeof(Material_), cudaMemcpyHostToDevice);
 	

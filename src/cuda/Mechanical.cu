@@ -520,6 +520,7 @@ __device__ void Domain_d::StressStrainOne(int i) {
       //printf(")
     } else if       (mat[i]->Material_model == BILINEAR ) {
       Ep = mat[i]->Elastic().E()*mat[i]->Et/(mat[i]->Elastic().E()-mat[i]->Et);
+      printf("material E %f\n", mat[i]->Elastic().E());
     }
     if (Ep<0) Ep = 1.0 * mat[i]->Elastic().E();
         
@@ -528,8 +529,10 @@ __device__ void Domain_d::StressStrainOne(int i) {
     //printf("Particle %d, dep %.1e, sigtrial %.1e\n",i,dep,sig_trial);
       sigma_eq[i] = sigma_y[i];
 
-      if (mat[i]->Material_model == BILINEAR )
+      if (mat[i]->Material_model == BILINEAR ){
         sigma_y[i] += dep*Ep;
+        printf("sigma y %f, Ep %f \n", sigma_y[i], Ep);
+      }
     }//plastic
 
 
