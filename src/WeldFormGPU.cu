@@ -453,72 +453,82 @@ int main(int argc, char **argv)
   
     cout << "Set contact to ";
     if (contact){
-      dom_d->trimesh_count = 1; //TODO: CHANGE TO SEVERAL CONTACT SURFACES
+      dom_d->trimesh_count = rigbodies.size(); //TODO: CHANGE TO SEVERAL CONTACT SURFACES
       cout << "true."<<endl;
       cout << "Rigid body Count: " << rigbodies.size() << endl;
   		dom_d->contact = true; //ATTENTION: SetDimension sets contact to OFF so...
       cout << "Reading contact mesh..."<<endl;
-      SPH::TriMesh_d *mesh_d;
-      gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
       
-      //TODO: CONVERT TO ARRAY std::vector<SPH::TriMesh_d> *mesh_d;
-      //TODO: CHANGE TO EVERY DIRECTION
-      int dens = 10;
-      readValue(rigbodies[0]["partSide"],dens);
-      if (rigbody_type == "Plane"){
-        // TODO: CHECK IF MESH IS NOT DEFINED
-        //mesh_d.push_back(new TriMesh);
-				cout << "Mesh Dimensions: "<< dim.x <<", "<<dim.y<< ", "<<dim.z<<endl;
-        mesh.push_back(new TriMesh);
-        mesh[0]->AxisPlaneMesh(2, false, start, Vector(start.x + dim.x,start.y + dim.y , start.z),dens);
-        mesh_d/*[0]*/->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
-      } else if (rigbody_type == "File"){
+      ///// ORGINAL
+      // SPH::TriMesh_d *mesh_d;
+      // gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+      
+      std::vector<SPH::TriMesh_d *> mesh_d;
+      mesh_d.resize(rigbodies.size());
+      //For m
+      
+      for (int m=0;m<rigbodies.size();m++){
+        gpuErrchk(cudaMallocManaged(&mesh_d[m], sizeof(SPH::TriMesh_d)) );      
+        //TODO: CONVERT TO ARRAY std::vector<SPH::TriMesh_d> *mesh_d;
+        //TODO: CHANGE TO EVERY DIRECTION
+        int dens = 10;
+        readValue(rigbodies[m]["partSide"],dens);
+        if (rigbody_type == "Plane"){
+          // TODO: CHECK IF MESH IS NOT DEFINED
+          //mesh_d.push_back(new TriMesh);
+          cout << "Mesh Dimensions: "<< dim.x <<", "<<dim.y<< ", "<<dim.z<<endl;
+          mesh.push_back(new TriMesh);
+          mesh[m]->AxisPlaneMesh(2, false, start, Vector(start.x + dim.x,start.y + dim.y , start.z),dens);
+          mesh_d[m]->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
+        } else if (rigbody_type == "File"){
 
-        Vector md = 0.0;
-        string filename = "";
-        readValue(rigbodies[0]["fileName"], 	filename); 
-        readVector(rigbodies[0]["moveDir"],md);       
-        //readValue(rigbodies[0]["scaleFactor"],scalefactor);           
-        cout << "Reading Mesh input file " << filename <<endl;
-        NastranReader reader((char*) filename.c_str());
-        mesh_d->ReadFromNastran(reader,false);
-        //mesh_d->Move(make_double3(md[0],md[1],md[2]));
-        //mesh_d = New
-        //mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
-        mesh.push_back (new SPH::TriMesh);
-        mesh[0]->ReadFromNastran(reader, false);
+          Vector md = 0.0;
+          string filename = "";
+          readValue(rigbodies[m]["fileName"], 	filename); 
+          readVector(rigbodies[m]["moveDir"],md);       
+          //readValue(rigbodies[0]["scaleFactor"],scalefactor);           
+          cout << "Reading Mesh input file " << filename <<endl;
+          NastranReader reader((char*) filename.c_str());
+          mesh_d[m]->ReadFromNastran(reader,false);
+          //mesh_d->Move(make_double3(md[0],md[1],md[2]));
+          //mesh_d = New
+          //mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
+          mesh.push_back (new SPH::TriMesh);
+          mesh[m]->ReadFromNastran(reader, false);
+          
+          mesh[m]->Move(md); //TODO: DELETE
+        }
         
-        mesh[0]->Move(md); //TODO: DELETE
-      }
-      
-      double hfac = 1.1;	//Used only for Neighbour search radius cutoff
-      ////// first_fem_particle_idx BEFORE CREATING PARTICLES
-      dom_d->first_fem_particle_idx = dom_d->particle_count; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
-      cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx <<endl;
-      //int id;
-      readValue(rigbodies[0]["zoneId"],id);
-      dom.AddTrimeshParticles(*mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
-      dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
+        double hfac = 1.1;	//Used only for Neighbour search radius cutoff
+        ////// first_fem_particle_idx BEFORE CREATING PARTICLES
+        dom_d->first_fem_particle_idx = dom_d->particle_count; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+        cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx <<endl;
+        //int id;
+        readValue(rigbodies[m]["zoneId"],id);
+        dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
+        dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
 
-			//BEFORE ALLOCATING 
-      cout << "Allocating ..."<<endl;
-      cudaMalloc((void**)&dom_d->trimesh, 1 * sizeof(SPH::TriMesh_d*));
-      cout << "Assigning "<<endl;
-      AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,0,mesh_d);
-      cudaDeviceSynchronize();
-      
-      SetMeshVelKernel<<<1,1>>>(dom_d,0, make_double3(0.,0.,-1.0));
-      cudaDeviceSynchronize();
+        //BEFORE ALLOCATING 
+        cout << "Allocating ..."<<endl;
+        cudaMalloc((void**)&dom_d->trimesh, 1 * sizeof(SPH::TriMesh_d*));
+        cout << "Assigning "<<endl;
+        AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,0,mesh_d[m]);
+        cudaDeviceSynchronize();
+        
+        SetMeshVelKernel<<<1,1>>>(dom_d,m, make_double3(0.,0.,-1.0));
+        cudaDeviceSynchronize();
 
 
-      int id;
-      //getTrimeshIDKernel<<<1,1>>>(dom_d,0,&id);
-      //cudaDeviceSynchronize();
-			//dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
-      cout << "Assigned "<<endl;
-			mesh_d->id = id;
-			if (dom_d->trimesh ==NULL)
-				cout << "ERROR. No mesh defined"<<endl;
+        int id;
+        //getTrimeshIDKernel<<<1,1>>>(dom_d,0,&id);
+        //cudaDeviceSynchronize();
+        //dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
+        cout << "Assigned "<<endl;
+        mesh_d[m]->id = id;
+        if (dom_d->trimesh ==NULL)
+          cout << "ERROR. No mesh defined"<<endl;
+        
+      }//MESH m
 				
       double penaltyfac = 0.5;
       std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
