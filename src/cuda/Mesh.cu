@@ -261,6 +261,7 @@ inline __device__ void TriMesh_d::Move(double dt){
   if ( n < nodecount ){
     double3 vr 	= cross(m_w, node[n]);
     node_v[n] = m_v + vr;
+    //printf("Noe %d, vel x %f y %f z %f \n", n, m_v.x,m_v.y, m_v.z);
     // for (int i=0;i<3;i++) {
       // if      ((*node[n])(i) < min(i)) min[i] = (*node[n])(i);
       // else if ((*node[n])(i) > max(i)) max[i] = (*node[n])(i);

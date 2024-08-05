@@ -119,8 +119,9 @@ void UserAcc(SPH::Domain_d & domi) {
     for (int bc=0;bc<domi.bConds.size();bc++){
       for (int m=0;m<domi.trimesh_count;m++){
         int id;
-        getTrimeshIDKernel<<<1,1>>>(&domi,m,&id);
-        cudaDeviceSynchronize();
+        // THIS IS NOT WORKING
+        // getTrimeshIDKernel<<<1,1>>>(&domi,m,&id);
+        // cudaDeviceSynchronize();
         //cout << "mesh id "<<id<<endl;
         // if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
         // //if ( (getTrimeshIDKernel<<<1,1>>>(&domi,m)) == domi.bConds[bc].zoneId)
@@ -505,6 +506,8 @@ int main(int argc, char **argv)
       AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,0,mesh_d);
       cudaDeviceSynchronize();
       
+      SetMeshVelKernel<<<1,1>>>(dom_d,0, make_double3(0.,0.,-1.0));
+      cudaDeviceSynchronize();
 			//dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
       cout << "Assigned "<<endl;
 			mesh_d->id = id;
