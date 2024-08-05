@@ -286,9 +286,10 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
       for (int m=0;m<trimesh_count;m++){
         //if (this->trimesh[m] != NULL){
         //OLD! SINCE trimesh is a vector, Calling this from host crashes
+        MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this, m , deltat);
         //MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh[m], deltat);
         //cout << "moving mesh "<<m <<endl;
-        MeshUpdateKernel<<<1,1 >>>(this, m, deltat);
+        //MeshUpdateKernel<<<1,1 >>>(this, m, deltat);
         cudaDeviceSynchronize();
         // } else {
           // cout << "No contact mesh defined."<<endl;

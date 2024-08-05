@@ -541,7 +541,7 @@ __global__ inline void CalcSpheresKernel(Domain_d *dom, int m) {
 }
 
 __global__ inline void MeshUpdateKernel(Domain_d *dom, int m, double dt){
-  printf("node coutn %d\n",dom->trimesh[0]->nodecount );
+  //printf("node coutn %d\n",dom->trimesh[0]->nodecount );
   dom->trimesh[m]->Move(dt);
   dom->trimesh[m]->CalcCentroids();
   dom->trimesh[m]->CalcNormals();

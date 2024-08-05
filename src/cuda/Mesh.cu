@@ -256,7 +256,7 @@ inline __host__ __device__ void TriMesh_d::CalcCentroids(){
 }
 
 inline __device__ void TriMesh_d::Move(double dt){
-  printf("node count %d\n", nodecount);
+  //printf("node count %d\n", nodecount);
 	int n = threadIdx.x + blockDim.x*blockIdx.x; //Parallelize by node 
   if ( n < nodecount ){
     double3 vr 	= cross(m_w, node[n]);

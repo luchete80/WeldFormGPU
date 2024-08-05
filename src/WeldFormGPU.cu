@@ -120,14 +120,15 @@ void UserAcc(SPH::Domain_d & domi) {
       for (int m=0;m<domi.trimesh_count;m++){
         int id;
         getTrimeshIDKernel<<<1,1>>>(&domi,m,&id);
-        cout << "mesh id "<<id<<endl;
+        cudaDeviceSynchronize();
+        //cout << "mesh id "<<id<<endl;
         // if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
         // //if ( (getTrimeshIDKernel<<<1,1>>>(&domi,m)) == domi.bConds[bc].zoneId)
           // if (domi.bConds[bc].valueType == 0) { ///constant
             // //OLD, when trimesh was not a vector
             // //domi.trimesh[m]->SetVel(domi.bConds[bc].value);
             
-            // SetMeshVelKernel<<<1,1>>>(&domi,m, domi.bConds[bc].value);
+            //SetMeshVelKernel<<<1,1>>>(&domi,m, domi.bConds[bc].value);
             // //domi.trimesh->SetRotAxisVel(domi.bConds[bc].value_ang);
           // }//BCOND 
 
