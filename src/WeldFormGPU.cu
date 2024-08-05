@@ -455,6 +455,7 @@ int main(int argc, char **argv)
     if (contact){
       dom_d->trimesh_count = 1; //TODO: CHANGE TO SEVERAL CONTACT SURFACES
       cout << "true."<<endl;
+      cout << "Rigid body Count: " << rigbodies.size() << endl;
   		dom_d->contact = true; //ATTENTION: SetDimension sets contact to OFF so...
       cout << "Reading contact mesh..."<<endl;
       SPH::TriMesh_d *mesh_d;
@@ -489,12 +490,12 @@ int main(int argc, char **argv)
         
         mesh[0]->Move(md); //TODO: DELETE
       }
-
+      
       double hfac = 1.1;	//Used only for Neighbour search radius cutoff
       ////// first_fem_particle_idx BEFORE CREATING PARTICLES
       dom_d->first_fem_particle_idx = dom_d->particle_count; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
       cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx <<endl;
-      int id;
+      //int id;
       readValue(rigbodies[0]["zoneId"],id);
       dom.AddTrimeshParticles(*mesh[0], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
       dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
@@ -508,6 +509,11 @@ int main(int argc, char **argv)
       
       SetMeshVelKernel<<<1,1>>>(dom_d,0, make_double3(0.,0.,-1.0));
       cudaDeviceSynchronize();
+
+
+      int id;
+      //getTrimeshIDKernel<<<1,1>>>(dom_d,0,&id);
+      //cudaDeviceSynchronize();
 			//dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
       cout << "Assigned "<<endl;
 			mesh_d->id = id;
