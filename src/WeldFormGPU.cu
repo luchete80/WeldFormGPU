@@ -563,8 +563,8 @@ int main(int argc, char **argv)
         AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,m,mesh_d[m]);
         cudaDeviceSynchronize();
         
-        SetMeshVelKernel<<<1,1>>>(dom_d,m, make_double3(0.,0.,-1.0));
-        cudaDeviceSynchronize();
+        // SetMeshVelKernel<<<1,1>>>(dom_d,m, make_double3(0.,0.,-1.0));
+        // cudaDeviceSynchronize();
         
         //SetMeshIDKernel<<<1,1>>>(dom_d,m, id);
         //cudaDeviceSynchronize();
