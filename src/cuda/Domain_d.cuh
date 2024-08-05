@@ -553,9 +553,15 @@ __global__ inline void SetMeshVelKernel(Domain_d *dom, int m, double3 value) {
   
 }
 
+__global__ inline void SetMeshIDKernel(Domain_d *dom, int m, int id) {
+  dom->trimesh[m]->SetID(id);
+  
+}
+
 __global__ inline void getTrimeshIDKernel(Domain_d *dom, int m, int *id) {
   //cudaMemcpy(id, &dom->trimesh[m]->id, sizeof (int), cudaMemcpyDeviceToHost);
-  *id = dom->trimesh[m]->id;
+  //*id = dom->trimesh[m]->id;
+  //dom->trimesh[m]->GetID(id);
   printf ("kernel mesh id %d\n", dom->trimesh[m]->id);
 }
 

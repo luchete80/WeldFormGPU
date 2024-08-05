@@ -450,6 +450,41 @@ int main(int argc, char **argv)
     //BEFORE CONTACT
 
     dom_d->solid_part_count = dom_d->particle_count;  //AFTER SET DIMENSION
+
+    int bc_count = 0;
+    std::vector<boundaryCondition> bcondvec;
+		for (auto& bc : bcs) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
+			// MaterialData* data = new MaterialData();
+			int zoneid,valuetype,var,ampid;
+
+			double ampfactor;
+			bool free=true;
+			SPH::boundaryCondition bcon;
+      bcon.type = 0;        //DEFAULT: VELOCITY
+      bcon.valueType = 0;   //DEFAULT: CONSTANT
+      bcon.value_ang = make_double3 (0.0);
+			readValue(bc["zoneId"], 	bcon.zoneId);
+      //type 0 means velocity vc
+			readValue(bc["valueType"], 	bcon.valueType);
+			if (bcon.valueType == 0){//Constant
+        readVector(bc["value"], 	      bcon.value);      //Or value linear
+        readVector(bc["valueAng"], 	    bcon.value_ang);  //Or Angular value
+      } else 
+        if ( bcon.valueType == 1){ //Amplitude
+				readValue(bc["amplitudeId"], 		bcon.ampId);
+				readValue(bc["amplitudeFactor"], 	bcon.ampFactor);
+			}
+				
+			readValue(bc["free"], 	bcon.free);
+			dom_d->bConds.push_back(bcon);
+      bcondvec.push_back(bcon);
+      bc_count++;
+			
+      std::cout<< "BCs "<<  ", Zone ID: "<<bcon.zoneId<<", Value :" <<bcon.value.x<<", "<<bcon.value.y<<", "<<bcon.value.z<<std::endl;
+		}//Boundary Conditions
+    //dom_d->bConds
+
+
   
     cout << "Set contact to ";
     if (contact){
@@ -466,9 +501,21 @@ int main(int argc, char **argv)
       std::vector<SPH::TriMesh_d *> mesh_d;
       mesh_d.resize(rigbodies.size());
       //For m
-      
+      cudaMalloc((void**)&dom_d->trimesh, rigbodies.size()* sizeof(SPH::TriMesh_d*));
+        
       for (int m=0;m<rigbodies.size();m++){
-        gpuErrchk(cudaMallocManaged(&mesh_d[m], sizeof(SPH::TriMesh_d)) );      
+
+    if (readValue(rigbodies[m]["type"],rigbody_type))
+      double3 dim;
+    
+      readVector(rigbodies[m]["start"], 	start);       
+      readVector(rigbodies[m]["dim"], 	dim); 
+      bool flipnormals = false;
+      readValue(rigbodies[m]["flipNormals"],flipnormals);
+
+      gpuErrchk(cudaMallocManaged(&mesh_d[m], sizeof(SPH::TriMesh_d)) );   
+
+        
         //TODO: CONVERT TO ARRAY std::vector<SPH::TriMesh_d> *mesh_d;
         //TODO: CHANGE TO EVERY DIRECTION
         int dens = 10;
@@ -503,28 +550,58 @@ int main(int argc, char **argv)
         ////// first_fem_particle_idx BEFORE CREATING PARTICLES
         dom_d->first_fem_particle_idx = dom_d->particle_count; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
         cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx <<endl;
-        //int id;
+
         readValue(rigbodies[m]["zoneId"],id);
         dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
         dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
-
+        
+        mesh_d[m]->id = id;
+        
         //BEFORE ALLOCATING 
         cout << "Allocating ..."<<endl;
-        cudaMalloc((void**)&dom_d->trimesh, 1 * sizeof(SPH::TriMesh_d*));
         cout << "Assigning "<<endl;
-        AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,0,mesh_d[m]);
+        AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,m,mesh_d[m]);
         cudaDeviceSynchronize();
         
         SetMeshVelKernel<<<1,1>>>(dom_d,m, make_double3(0.,0.,-1.0));
         cudaDeviceSynchronize();
-
-
-        int id;
-        //getTrimeshIDKernel<<<1,1>>>(dom_d,0,&id);
+        
+        //SetMeshIDKernel<<<1,1>>>(dom_d,m, id);
         //cudaDeviceSynchronize();
+
+        int id_int;
+        getTrimeshIDKernel<<<1,1>>>(dom_d,m,&id_int);
+        cout << "MESH ID: "<<id_int<<endl;
+        cudaDeviceSynchronize();
+        //CRASHES
+        //cudaMemcpy(&id_int, &dom_d->trimesh[m]->id, sizeof (int), cudaMemcpyDeviceToHost);
+        
+
+        for (int bc=0;bc<dom_d->bConds.size();bc++){
+            if (id == dom_d->bConds[bc].zoneId){
+              if (dom_d->bConds[bc].valueType == 0) { ///constant
+            // //OLD, when trimesh was not a vector
+            // //domi.trimesh[m]->SetVel(domi.bConds[bc].value);
+              SetMeshVelKernel<<<1,1>>>(dom_d,m, dom_d->bConds[bc].value);
+              cudaDeviceSynchronize();  
+                cout << "Mesh ID " << id << ", "<< "Velocity set to : "
+                                            <<dom_d->bConds[bc].value.x 
+                                            <<", " <<dom_d->bConds[bc].value.y 
+                                            <<", " << dom_d->bConds[bc].value.z<<endl;
+              }
+            }
+        }
+        // THIS IS NOT WORKING
+        // getTrimeshIDKernel<<<1,1>>>(&domi,m,&id);
+        // cudaDeviceSynchronize();
+        //cout << "mesh id "<<id<<endl;
+        // if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
+        
+        
+        cout << "Surf id int: "<<id_int<<endl;
         //dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
         cout << "Assigned "<<endl;
-        mesh_d[m]->id = id;
+        
         if (dom_d->trimesh ==NULL)
           cout << "ERROR. No mesh defined"<<endl;
         
@@ -571,39 +648,6 @@ int main(int argc, char **argv)
 			// //std::cout<< "Zone "<<zoneid<< ", particle count: "<<partcount<<std::	endl;
 		// }
     
-    int bc_count = 0;
-    std::vector<boundaryCondition> bcondvec;
-		for (auto& bc : bcs) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
-			// MaterialData* data = new MaterialData();
-			int zoneid,valuetype,var,ampid;
-
-			double ampfactor;
-			bool free=true;
-			SPH::boundaryCondition bcon;
-      bcon.type = 0;        //DEFAULT: VELOCITY
-      bcon.valueType = 0;   //DEFAULT: CONSTANT
-      bcon.value_ang = make_double3 (0.0);
-			readValue(bc["zoneId"], 	bcon.zoneId);
-      //type 0 means velocity vc
-			readValue(bc["valueType"], 	bcon.valueType);
-			if (bcon.valueType == 0){//Constant
-        readVector(bc["value"], 	      bcon.value);      //Or value linear
-        readVector(bc["valueAng"], 	    bcon.value_ang);  //Or Angular value
-      } else 
-        if ( bcon.valueType == 1){ //Amplitude
-				readValue(bc["amplitudeId"], 		bcon.ampId);
-				readValue(bc["amplitudeFactor"], 	bcon.ampFactor);
-			}
-				
-			readValue(bc["free"], 	bcon.free);
-			dom_d->bConds.push_back(bcon);
-      bcondvec.push_back(bcon);
-      bc_count++;
-			
-      std::cout<< "BCs "<<  ", Zone ID: "<<bcon.zoneId<<", Value :" <<bcon.value.x<<", "<<bcon.value.y<<", "<<bcon.value.z<<std::endl;
-		}//Boundary Conditions
-    //dom_d->bConds
-
     // boundaryCondition *bConds_h    =  new boundaryCondition [bc_count];
     // for (int b=0;b<bc_count;b++)
       // bConds_h[b] = bcondvec[b];
