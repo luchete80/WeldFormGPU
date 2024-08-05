@@ -148,12 +148,13 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
   AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
   cudaDeviceSynchronize();
   
-  cout << "Asigning mesh address..."<<endl;
-  for (int m=0;m<trimesh_count;m++){
-    AssignTrimeshIDKernel<<<blocksPerGrid,threadsPerBlock >>>(this,0,first_fem_particle_idx, particle_count);
-    cudaDeviceSynchronize();
-  }
-  cout << "Ok."<<endl;
+  // cout << "Asigning mesh address..."<<endl;
+  // for (int m=0;m<trimesh_count;m++){
+    // //AssignTrimeshIDKernel(Domain_d *dom, int id, int start, int end){
+    // AssignTrimeshIDKernel<<<blocksPerGrid,threadsPerBlock >>>(this,0,first_fem_particle_idx, particle_count);
+    // cudaDeviceSynchronize();
+  // }
+  // cout << "Ok."<<endl;
       
   //ONLY FOR TESTING 
   test_h = new double [particle_count];

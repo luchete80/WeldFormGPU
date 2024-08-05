@@ -502,10 +502,13 @@ int main(int argc, char **argv)
       mesh_d.resize(rigbodies.size());
       //For m
       cudaMalloc((void**)&dom_d->trimesh, rigbodies.size()* sizeof(SPH::TriMesh_d*));
-        
-      for (int m=0;m<rigbodies.size();m++){
 
-    if (readValue(rigbodies[m]["type"],rigbody_type))
+      ////// first_fem_particle_idx BEFORE CREATING PARTICLES
+      dom_d->first_fem_particle_idx = new int[rigbodies.size()]; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+       
+      for (int m=0;m<rigbodies.size();m++){
+       
+      if (readValue(rigbodies[m]["type"],rigbody_type))
       double3 dim;
     
       readVector(rigbodies[m]["start"], 	start);       
@@ -547,8 +550,7 @@ int main(int argc, char **argv)
         }
         
         double hfac = 1.1;	//Used only for Neighbour search radius cutoff
-        ////// first_fem_particle_idx BEFORE CREATING PARTICLES
-        dom_d->first_fem_particle_idx = dom_d->particle_count; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+
         cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx <<endl;
 
         readValue(rigbodies[m]["zoneId"],id);
@@ -560,12 +562,16 @@ int main(int argc, char **argv)
         //BEFORE ALLOCATING 
         cout << "Allocating ..."<<endl;
         cout << "Assigning "<<endl;
+
         AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,m,mesh_d[m]);
         cudaDeviceSynchronize();
         
-        // SetMeshVelKernel<<<1,1>>>(dom_d,m, make_double3(0.,0.,-1.0));
-        // cudaDeviceSynchronize();
-        
+
+
+        AssignTrimeshIDKernel<<<blocksPerGrid,threadsPerBlock >>>(dom_d, id, dom_d->first_particle_idx[m], dom_d->particle_count);
+        cudaDeviceSynchronize();
+
+        cout << "Ok."<<endl;
         //SetMeshIDKernel<<<1,1>>>(dom_d,m, id);
         //cudaDeviceSynchronize();
 
@@ -602,8 +608,9 @@ int main(int argc, char **argv)
         //dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
         cout << "Assigned "<<endl;
         
-        if (dom_d->trimesh ==NULL)
+        if (dom_d->trimesh[m] ==NULL)
           cout << "ERROR. No mesh defined"<<endl;
+
         
       }//MESH m
 				

@@ -31,7 +31,7 @@ const uint *neighborWriteOffsets,
 const uint *neighbors){
   
   int i = threadIdx.x + blockDim.x*blockIdx.x;	
-  if (i < first_fem_particle_idx ) {
+  if (i < first_fem_particle_idx[0] ) {
     contneib_count[i] = 0;
     int neibcount = particlenbcount[i];
     const uint writeOffset = neighborWriteOffsets[i];
@@ -92,11 +92,11 @@ inline void __device__ Domain_d::UpdateContactParticles(int mesh_id){
     }
     
     //printf(" particle %d , v %f %f %f \n", e, vv.x, vv.y, vv.z);
-    v [first_fem_particle_idx + e] = vv/3.;
-    a [first_fem_particle_idx + e] = make_double3(0.);
+    v [first_fem_particle_idx[mesh_id] + e] = vv/3.;
+    a [first_fem_particle_idx[mesh_id] + e] = make_double3(0.);
     // if (length(normal[e])<1.0e-3)
       // printf("UPDATING ERROR ZERO mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
-    normal[first_fem_particle_idx + e] = trimesh[mesh_id] -> normal[e];
+    normal[first_fem_particle_idx[mesh_id] + e] = trimesh[mesh_id] -> normal[e];
     //printf("mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
   }
 }
@@ -133,7 +133,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
 	double min_contact_force = 1000.;
 	int inside_pairs = 0;
   //printf("test\n");
-  if (i < first_fem_particle_idx ) {  //i particle is from SOLID domain, j are always rigid 
+  if (i < first_fem_particle_idx[0] ) {  //i particle is from SOLID domain, j are always rigid 
     
     contforce[i] = make_double3(0.); //RESET
     // CONTACT OFFSET IS FIX BY NOW
@@ -158,7 +158,7 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       //int e = element[j]; //Index of mesh Element associated with node
       
       //TODO: MAKE ONE PER MESH
-      int e = j - first_fem_particle_idx;
+      int e = j - first_fem_particle_idx[mid];
       //printf ("Element e %d\n", e);
       // Summing the smoothed pressure, velocity and stress for fixed particles from neighbour particles
       //IT IS CONVENIENT TO FIX SINCE FSMPairs are significantly smaller
