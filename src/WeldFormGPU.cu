@@ -500,8 +500,8 @@ int main(int argc, char **argv)
       std::vector<SPH::TriMesh_d *> mesh_d;
       mesh_d.resize(rigbodies.size());
       //For m
-      cudaMalloc((void**)&dom_d->trimesh, rigbodies.size()* sizeof(SPH::TriMesh_d*));
-
+      cudaMalloc((void**)&dom_d->trimesh,         rigbodies.size()* sizeof(SPH::TriMesh_d*));
+      cudaMalloc((void**)&dom_d->contact_surf_id, rigbodies.size()* sizeof(int));      
       ////// first_fem_particle_idx BEFORE CREATING PARTICLES
       dom_d->first_fem_particle_idx = new int[rigbodies.size()]; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
        
@@ -550,12 +550,11 @@ int main(int argc, char **argv)
         
         double hfac = 1.1;	//Used only for Neighbour search radius cutoff
 
-        cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx <<endl;
+        cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx[m] <<endl;
         
         dom_d->first_fem_particle_idx[m] = dom_d->particle_count; //Before Update
         readValue(rigbodies[m]["zoneId"],id);
         dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
-        dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
         
         mesh_d[m]->id = id;
         

@@ -80,3 +80,5 @@
          - Is remaining the assign of mesh ID and resizing thing.
 20240613 - Fixed Mesh Calc Spheres (now array indices are called from kernel)
 20240618 - FIXED no material reading from input (Material_h was wrong) 
+---------------------------------------------------------------
+20240806 - Adding several things related to Multiple contact surfaces.

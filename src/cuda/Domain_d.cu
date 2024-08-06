@@ -642,7 +642,7 @@ __host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const double &hfac,
 	double Density =0.;
 	double h;
 	bool Fixed = false;	//Always are fixed ...
-	contact_surf_id = id;
+	contact_surf_id[trimesh_count] = id;
   
 	trimesh[trimesh_count] = &mesh;
   trimesh_count++;

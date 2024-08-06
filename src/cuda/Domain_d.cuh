@@ -233,7 +233,8 @@ class Domain_d
 	////////////////////////////////////
 	/////// CONTACT THINGS /////////////
 	////////////////////////////////////
-  int id_free_surf, contact_surf_id;
+  int id_free_surf;
+  int *contact_surf_id;
   bool *not_write_surf_ID; //Necesary in all particles?
   bool contact;
   double totmass;

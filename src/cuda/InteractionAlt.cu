@@ -47,7 +47,8 @@ __device__ inline void Domain_d::CalcAccel(
         bool pass = true;    
     if (contact){
       pass = false;
-      if (ID[j] != contact_surf_id && ID[i] != contact_surf_id) pass = true;
+      for (int mc=0;mc<trimesh_count;mc++)
+      if (ID[j] != contact_surf_id[mc] && ID[i] != contact_surf_id[mc]) pass = true;
     }   
     
     if (pass){
@@ -185,7 +186,8 @@ __device__ inline void Domain_d::CalcDensInc(
         bool pass = true;    
     if (contact){
       pass = false;
-      if (ID[j] != contact_surf_id && ID[i] != contact_surf_id) pass = true;
+      for (int mc=0;mc<trimesh_count;mc++)
+        if (ID[j] != contact_surf_id[mc] && ID[i] != contact_surf_id[mc]) pass = true;
     }    
     if (pass){
 		//double h	= partdata->h[i]+P2->h)/2;
@@ -283,7 +285,8 @@ __device__ /*__forceinline__*/inline void Domain_d::CalcRateTensors(const uint *
     bool pass = true;    
     if (contact){
       pass = false;
-      if (ID[j] != contact_surf_id ) pass = true;
+      for (int mc=0;mc<trimesh_count;mc++)
+        if (ID[j] != contact_surf_id[mc] ) pass = true;
     }    
     if (pass){
 

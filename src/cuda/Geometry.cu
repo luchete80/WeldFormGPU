@@ -45,13 +45,14 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
         int j = neighbors[writeOffset + k];
         //double h	= partdata->h[i]+P2->h)/2;
         double3 xij = x[i] - x[j];
-        if (ID[j]!=contact_surf_id){  //EXCLUDE RIGID PAIRS!
-          normal[i] += m[j] * xij; 
+        for (int mc=0;mc<trimesh_count;mc++){
+          if (ID[j]!=contact_surf_id[mc]){  //EXCLUDE RIGID PAIRS!
+            normal[i] += m[j] * xij; 
           // if (i==0)
           //printf("particle %d Nb %d xij: %f %f %f mj %.6e\n", i, j, xij.x, xij.y, xij.z, m[j]);
           nbcount_corr++;
+          }
         }
-
       }//
 
       // if (i==0)

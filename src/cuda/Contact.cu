@@ -40,16 +40,17 @@ const uint *neighbors){
       int j = neighbors[writeOffset + k];
       double3 xij = x[i]-x[j];
       //double h = h[i] + h[j];  //not necessary to take average
-
-      if ( (ID[i] == id_free_surf && ID[j] == contact_surf_id) /*||
-           (ID[j] == id_free_surf && ID[i] == contact_surf_id) */) {
-        /////if ( norm (Particles[P1]->x - Particles[P2]->x) < ( Particles[P1]->h + Particles[P2]->h ) ){ //2* cutoff being cutoff (h1+h2)/2
-        if ( length(xij) < 2.*h[i] ){
-          contneib_part[MAX_NB_COUNT*i + contneib_count[i]] = j;
-          contneib_count[i]++;
-          if (contneib_count[i]>MAX_NB_COUNT) printf("ERROR, MAX CONTACT NB COUNT REACHED, %d counted\n",contneib_count);
-        }
-      } //IDs OK
+      for (int mc=0;mc<trimesh_count;mc++){
+        if ( (ID[i] == id_free_surf && ID[j] == contact_surf_id[mc]) /*||
+             (ID[j] == id_free_surf && ID[i] == contact_surf_id) */) {
+          /////if ( norm (Particles[P1]->x - Particles[P2]->x) < ( Particles[P1]->h + Particles[P2]->h ) ){ //2* cutoff being cutoff (h1+h2)/2
+          if ( length(xij) < 2.*h[i] ){
+            contneib_part[MAX_NB_COUNT*i + contneib_count[i]] = j;
+            contneib_count[i]++;
+            if (contneib_count[i]>MAX_NB_COUNT) printf("ERROR, MAX CONTACT NB COUNT REACHED, %d counted\n",contneib_count);
+          }
+        } //IDs OK
+      } //mesh idx
     }//for k neighbours
   }// i < fem index
 }
@@ -148,8 +149,8 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       int j = contneib_part[i*MAX_NB_COUNT+k];
       //printf("j neib %d: \n",j);
       //int j = neighbors[writeOffset + k];
-      if (ID[j] != contact_surf_id)
-        printf("CONTACT, j particle, %d on CONTACT SURFACE\n", i);
+      // if (ID[j] != contact_surf_id)
+        // printf("CONTACT, j particle, %d on CONTACT SURFACE\n", i);
       
       int mid = mesh_id[j];      
       
