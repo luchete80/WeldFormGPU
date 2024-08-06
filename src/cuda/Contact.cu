@@ -29,7 +29,7 @@ const uint *neighbors) {
 __device__ inline void Domain_d::CalcContactNb(const uint *particlenbcount,
 const uint *neighborWriteOffsets,
 const uint *neighbors){
-  
+  //printf("searching nbs less than index %d\n",first_fem_particle_idx[0] );
   int i = threadIdx.x + blockDim.x*blockIdx.x;	
   if (i < first_fem_particle_idx[0] ) {
     contneib_count[i] = 0;

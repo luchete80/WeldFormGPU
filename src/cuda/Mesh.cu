@@ -160,6 +160,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
 	//// MESH GENERATION END
 	cout << endl<<"Done. Creating normals"<<endl;
   cout << "elem count "<<elemcount<<endl;
+  cout << "Setting normals"<<endl;
 	for (int e = 0; e < elemcount; e++){ 
 		double f=-1.;
     normal_h[e].x = normal_h[e].y = normal_h[e].z = 0.0;
@@ -189,6 +190,7 @@ inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const
   delete elnode_h;
   delete centroid_h;
   delete normal_h;  
+  cout << "Done creating mesh"<<endl;
 }
 
 //This is done once, Since mesh is rigid

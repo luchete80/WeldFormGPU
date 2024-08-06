@@ -90,7 +90,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
 	
 	bool is_yielding = false;
 	double max_pl_strain = 0.;
-  cout << "First Rigid Contact Particle: "<<first_fem_particle_idx[0]<<endl;
+  cout << "First Rigid Contact Particle: "<<solid_part_count<<endl;
   cout << "Contact set to ";
   if (!contact) cout << "OFF. "<<endl;
   else 				  cout << "ON.  "<<endl;

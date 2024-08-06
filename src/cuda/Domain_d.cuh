@@ -250,6 +250,7 @@ class Domain_d
 	double 	  *cont_stiff;
 	double3   *contforce, *contforce_h;	//SOA
   int       *first_fem_particle_idx;
+  int       first_fem_particle_idx_0; //First, located on host/device
   int       solid_part_count;
 	double    contact_force_factor;
 	double    PFAC,DFAC;

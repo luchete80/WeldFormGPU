@@ -450,7 +450,7 @@ int main(int argc, char **argv)
     //BEFORE CONTACT
 
     dom_d->solid_part_count = dom_d->particle_count;  //AFTER SET DIMENSION
-
+    
     int bc_count = 0;
     std::vector<boundaryCondition> bcondvec;
 		for (auto& bc : bcs) { //TODO: CHECK IF DIFFERENTS ZONES OVERLAP
@@ -487,6 +487,7 @@ int main(int argc, char **argv)
 
   
     cout << "Set contact to ";
+    int solid_part_count = dom_d->solid_part_count;
     if (contact){
       cout << "true."<<endl;
       cout << "Rigid body Count: " << rigbodies.size() << endl;
@@ -501,9 +502,11 @@ int main(int argc, char **argv)
       mesh_d.resize(rigbodies.size());
       //For m
       cudaMalloc((void**)&dom_d->trimesh,         rigbodies.size()* sizeof(SPH::TriMesh_d*));
-      cudaMalloc((void**)&dom_d->contact_surf_id, rigbodies.size()* sizeof(int));      
+      cudaMalloc((void**)&dom_d->contact_surf_id, rigbodies.size()* sizeof(int));     
+      cudaMalloc((void**)&dom_d->first_fem_particle_idx, rigbodies.size()* sizeof(int));       
       ////// first_fem_particle_idx BEFORE CREATING PARTICLES
-      dom_d->first_fem_particle_idx = new int[rigbodies.size()]; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+      //dom_d->first_fem_particle_idx = new int[rigbodies.size()]; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
+      dom_d->first_fem_particle_idx_0 = dom_d->particle_count;
        
       for (int m=0;m<rigbodies.size();m++){
        
@@ -529,6 +532,7 @@ int main(int argc, char **argv)
           mesh.push_back(new TriMesh);
           mesh[m]->AxisPlaneMesh(2, false, start, Vector(start.x + dim.x,start.y + dim.y , start.z),dens);
           mesh_d[m]->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
+          cout << "Done creating Device and host meshes" <<endl;
         } else if (rigbody_type == "File"){
 
           Vector md = 0.0;
@@ -550,9 +554,7 @@ int main(int argc, char **argv)
         
         double hfac = 1.1;	//Used only for Neighbour search radius cutoff
 
-        cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx[m] <<endl;
         
-        dom_d->first_fem_particle_idx[m] = dom_d->particle_count; //Before Update
         readValue(rigbodies[m]["zoneId"],id);
         dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
         
@@ -791,7 +793,7 @@ int main(int argc, char **argv)
 	for (size_t a=0; a<dom.Particles.size(); a++){
 		m[a] = dom.Particles[a]->Mass;
 		totmass +=m[a];
-    if (m[a] < 1.0e-10 && a<dom_d->first_fem_particle_idx[0]) mass_ok = false;
+    if (m[a] < 1.0e-10 && a< dom_d->solid_part_count) mass_ok = false;
     //if (!h_fixed) h_[a] = dom.Particles[a]->h;
 	}
   //delete m, h_;
@@ -822,8 +824,8 @@ int main(int argc, char **argv)
   ///////////////////////////////// IF CONTACT 
   ////////////////////////////////////////////
   int nwcount = 0;
-  bool *not_write = new bool[dom_d->first_fem_particle_idx[0]];
-  for (int i=0;i< dom_d->first_fem_particle_idx[0];i++){
+  bool *not_write = new bool[solid_part_count];
+  for (int i=0;i< solid_part_count;i++){
     not_write[i] = false;
     if (dom.Particles[i]->ID != 0){
       not_write[i] = true;
@@ -833,7 +835,7 @@ int main(int argc, char **argv)
   }
   cout << "Set "<<nwcount<<" particles fixed ID"<<endl;
   
-  cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx[0] * sizeof(bool), cudaMemcpyHostToDevice);
+  cudaMemcpy(dom_d->not_write_surf_ID, not_write, solid_part_count * sizeof(bool), cudaMemcpyHostToDevice);
   delete not_write;
   
     /////////////////////////////////////////////////////////////////////////////////////////////////
