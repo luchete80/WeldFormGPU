@@ -302,8 +302,14 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
     }
 
     if (contact) {
-      for (int m=0;m<trimesh_count;m++){
-        UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this, m);
+      // int N = particle_count;
+      // threadsPerBlock = 256; //Or BlockSize
+      // blocksPerGrid =				// Or gridsize
+      // (N + threadsPerBlock - 1) / threadsPerBlock;
+      //printf ("trimesh count %d \n",trimesh_count);
+      for (int mc=0;mc<trimesh_count;mc++){
+        //printf ("call\n");
+        UpdateContactParticlesKernel<<< blocksPerGrid,threadsPerBlock >>>(this, mc);
         cudaDeviceSynchronize();
       }
     }

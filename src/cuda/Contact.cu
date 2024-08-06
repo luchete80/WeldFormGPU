@@ -77,8 +77,11 @@ inline void __global__ UpdateContactParticlesKernel(Domain_d *dom, int mesh_id){
 
 //TODO: CHANGE TO SEVERAL CONTACT SURFACES 
 inline void __device__ Domain_d::UpdateContactParticles(int mesh_id){
-
+  
+  //printf("mesh elem count %d \n",  trimesh[mesh_id]->elemcount);
   int e = threadIdx.x + blockDim.x*blockIdx.x;	
+  //printf("elemn %d\n", e);
+  
   if (e < trimesh[mesh_id]->elemcount) {
     //printf("UPDATING e %d\n",e);
     //int e = element[i];

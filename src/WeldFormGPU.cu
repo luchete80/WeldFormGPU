@@ -162,6 +162,8 @@ int main(int argc, char **argv)
 		SPH::Domain	dom; //TODO: DELETE THIS AND PASS TO DOMAIN
     SPH::Domain_d *dom_d;
     std::vector<TriMesh *> mesh; ////// TODO: ALLOW FOR MULTIPLE MESH CONTACT
+    //std::vector<SPH::TriMesh_d *> mesh_d;
+    
     SPH::TriMesh_d *mesh_d;
     
     report_gpu_mem();
@@ -445,7 +447,6 @@ int main(int argc, char **argv)
         // throw new Fatal("ERROR: Contact Plane Surface should have one null dimension");
     // }
 
-    // gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
 
     //BEFORE CONTACT
 
@@ -496,11 +497,13 @@ int main(int argc, char **argv)
       
       ///// ORGINAL
       // SPH::TriMesh_d *mesh_d;
-      // gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+      //gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
+      cudaMalloc((void**)&dom_d->trimesh,         rigbodies.size()* sizeof(SPH::TriMesh_d));
+      //mesh_d.resize(rigbodies.size());
       
-      std::vector<SPH::TriMesh_d *> mesh_d;
-      mesh_d.resize(rigbodies.size());
+      
       //For m
+      gpuErrchk(cudaMallocManaged(&mesh_d, rigbodies.size()*sizeof(SPH::TriMesh_d)) );
       cudaMalloc((void**)&dom_d->trimesh,         rigbodies.size()* sizeof(SPH::TriMesh_d*));
       cudaMalloc((void**)&dom_d->contact_surf_id, rigbodies.size()* sizeof(int));     
       cudaMalloc((void**)&dom_d->first_fem_particle_idx, rigbodies.size()* sizeof(int));   
@@ -522,7 +525,7 @@ int main(int argc, char **argv)
       bool flipnormals = false;
       readValue(rigbodies[m]["flipNormals"],flipnormals);
 
-      gpuErrchk(cudaMallocManaged(&mesh_d[m], sizeof(SPH::TriMesh_d)) );   
+      //gpuErrchk(cudaMallocManaged(&mesh_d[m], sizeof(SPH::TriMesh_d)) );   
 
         
         //TODO: CONVERT TO ARRAY std::vector<SPH::TriMesh_d> *mesh_d;
@@ -535,7 +538,8 @@ int main(int argc, char **argv)
           cout << "Mesh Dimensions: "<< dim.x <<", "<<dim.y<< ", "<<dim.z<<endl;
           mesh.push_back(new TriMesh);
           mesh[m]->AxisPlaneMesh(2, false, start, Vector(start.x + dim.x,start.y + dim.y , start.z),dens);
-          mesh_d[m]->AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
+          cout << "Creating Device mesh"<< endl;
+          mesh_d[m].AxisPlaneMesh(2, false, start, make_double3(start.x + dim.x,start.y + dim.y , start.z),dens);
           cout << "Done creating Device and host meshes" <<endl;
         } else if (rigbody_type == "File"){
 
@@ -546,7 +550,7 @@ int main(int argc, char **argv)
           //readValue(rigbodies[0]["scaleFactor"],scalefactor);           
           cout << "Reading Mesh input file " << filename <<endl;
           NastranReader reader((char*) filename.c_str());
-          mesh_d[m]->ReadFromNastran(reader,false);
+          mesh_d[m].ReadFromNastran(reader,false);
           //mesh_d->Move(make_double3(md[0],md[1],md[2]));
           //mesh_d = New
           //mesh.push_back (new SPH::TriMesh(reader,flipnormals ));
@@ -562,14 +566,14 @@ int main(int argc, char **argv)
         readValue(rigbodies[m]["zoneId"],id);
         dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
         
-        mesh_d[m]->id = id;
-        AddTrimeshParticlesKernel<<<1,1>>>(dom_d, mesh_d[m], hfac, id);
+        mesh_d[m].id = id;
+        AddTrimeshParticlesKernel<<<1,1>>>(dom_d, &mesh_d[m], hfac, id);
         
         //BEFORE ALLOCATING 
         cout << "Allocating ..."<<endl;
         cout << "Assigning "<<endl;
 
-        AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,m,mesh_d[m]);
+        AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,m,&mesh_d[m]);
         cudaDeviceSynchronize();
        
 
