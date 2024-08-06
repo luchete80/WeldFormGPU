@@ -91,7 +91,7 @@ inline void __device__ Domain_d::UpdateContactParticles(int mesh_id){
         // printf("error \n");
     }
     
-    //printf(" particle %d , v %f %f %f \n", e, vv.x, vv.y, vv.z);
+    printf(" particle %d , v %f %f %f \n", e, vv.x, vv.y, vv.z);
     v [first_fem_particle_idx[mesh_id] + e] = vv/3.;
     a [first_fem_particle_idx[mesh_id] + e] = make_double3(0.);
     // if (length(normal[e])<1.0e-3)

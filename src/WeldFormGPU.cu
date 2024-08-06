@@ -488,7 +488,6 @@ int main(int argc, char **argv)
   
     cout << "Set contact to ";
     if (contact){
-      dom_d->trimesh_count = rigbodies.size(); //TODO: CHANGE TO SEVERAL CONTACT SURFACES
       cout << "true."<<endl;
       cout << "Rigid body Count: " << rigbodies.size() << endl;
   		dom_d->contact = true; //ATTENTION: SetDimension sets contact to OFF so...
@@ -552,7 +551,8 @@ int main(int argc, char **argv)
         double hfac = 1.1;	//Used only for Neighbour search radius cutoff
 
         cout << "First Contact Mesh Partcicle: "<<dom_d->first_fem_particle_idx <<endl;
-
+        
+        dom_d->first_fem_particle_idx[m] = dom_d->particle_count; //Before Update
         readValue(rigbodies[m]["zoneId"],id);
         dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
         dom_d->contact_surf_id = id; //TODO: MAKE SEVERAL OF THESE SURFACES
@@ -565,11 +565,7 @@ int main(int argc, char **argv)
 
         AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,m,mesh_d[m]);
         cudaDeviceSynchronize();
-        
-
-
-        AssignTrimeshIDKernel<<<blocksPerGrid,threadsPerBlock >>>(dom_d, id, dom_d->first_particle_idx[m], dom_d->particle_count);
-        cudaDeviceSynchronize();
+       
 
         cout << "Ok."<<endl;
         //SetMeshIDKernel<<<1,1>>>(dom_d,m, id);
@@ -597,22 +593,13 @@ int main(int argc, char **argv)
               }
             }
         }
-        // THIS IS NOT WORKING
-        // getTrimeshIDKernel<<<1,1>>>(&domi,m,&id);
-        // cudaDeviceSynchronize();
-        //cout << "mesh id "<<id<<endl;
-        // if (domi.trimesh[m]->id == domi.bConds[bc].zoneId)
-        
         
         cout << "Surf id int: "<<id_int<<endl;
         //dom_d->trimesh[0] = mesh_d; //TODO: CHECK WHY ADDRESS IS LOST
         cout << "Assigned "<<endl;
         
-        if (dom_d->trimesh[m] ==NULL)
-          cout << "ERROR. No mesh defined"<<endl;
-
-        
       }//MESH m
+      cout << "Assigning contact params"<<endl;
 				
       double penaltyfac = 0.5;
       std::vector<double> fric_sta(1), fric_dyn(1), heat_cond(1);
@@ -805,7 +792,7 @@ int main(int argc, char **argv)
 	for (size_t a=0; a<dom.Particles.size(); a++){
 		m[a] = dom.Particles[a]->Mass;
 		totmass +=m[a];
-    if (m[a] < 1.0e-10 && a<dom_d->first_fem_particle_idx) mass_ok = false;
+    if (m[a] < 1.0e-10 && a<dom_d->first_fem_particle_idx[0]) mass_ok = false;
     //if (!h_fixed) h_[a] = dom.Particles[a]->h;
 	}
   //delete m, h_;
@@ -836,10 +823,10 @@ int main(int argc, char **argv)
   ///////////////////////////////// IF CONTACT 
   ////////////////////////////////////////////
   int nwcount = 0;
-  bool *not_write = new bool[dom_d->first_fem_particle_idx];
-  for (int i=0;i< dom_d->first_fem_particle_idx;i++){
+  bool *not_write = new bool[dom_d->first_fem_particle_idx[0]];
+  for (int i=0;i< dom_d->first_fem_particle_idx[0];i++){
     not_write[i] = false;
-    if (dom.Particles[i]->ID!=0){
+    if (dom.Particles[i]->ID != 0){
       not_write[i] = true;
       //cout << "ID "<<dom.Particles[i]->ID <<endl;
       nwcount++;
@@ -847,7 +834,7 @@ int main(int argc, char **argv)
   }
   cout << "Set "<<nwcount<<" particles fixed ID"<<endl;
   
-  cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx * sizeof(bool), cudaMemcpyHostToDevice);
+  cudaMemcpy(dom_d->not_write_surf_ID, not_write, dom_d->first_fem_particle_idx[0] * sizeof(bool), cudaMemcpyHostToDevice);
   delete not_write;
   
     /////////////////////////////////////////////////////////////////////////////////////////////////

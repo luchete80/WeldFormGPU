@@ -638,7 +638,7 @@ __host__ void Domain_d::AdaptiveTimeStep(){
 //If this is called, all particle has to be reallocated
 __host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const double &hfac, const int &id){
 	
-	first_fem_particle_idx = particle_count;
+	first_fem_particle_idx[trimesh_count] = particle_count;
 	double Density =0.;
 	double h;
 	bool Fixed = false;	//Always are fixed ...
