@@ -367,7 +367,7 @@ __device__ inline void UpdateDensity(double dt);
   
   __device__ void AssignMatAddress(int i); //Assign particle data to material array to zero array
   
-  __device__ void AssignTrimeshID(int i, int id, int start, int end); //Assign particle data to material array to zero array
+  __device__ void AssignTrimeshID(int i, int id, m/*, int start, int end*/); //Assign particle data to material array to zero array
   __device__ void AssignTrimeshAddress(int id, TriMesh_d *mesh); //Assign particle data to material array to zero array
   
 	__device__ /*__forceinline__*/inline void CalcRateTensors(const uint *particlenbcount,
@@ -375,7 +375,7 @@ __device__ inline void UpdateDensity(double dt);
                             	const uint *neighbors);
 
 	__device__ /*__forceinline__*/inline void CalculateSurface(const uint *particlenbcount,
-                            	const uint *neighborWriteOffsets,
+                            	const uint *neighborWriteOffsefts,
                             	const uint *neighbors,
 
                             	/*const int &id, */const double &totmass);
@@ -409,7 +409,7 @@ __device__ inline void UpdateDensity(double dt);
   
   //Contact things 
   void __device__ inline CalcContactForces(/* int i*/);
-  __host__ void AddTrimeshParticles(TriMesh_d &mesh, const double &hfac, const int &id);
+  __host__ __device__ void AddTrimeshParticles(TriMesh_d *mesh, double hfac, int id);
   
   inline void __device__ UpdateContactParticles(int mesh_id);  
   
@@ -433,7 +433,7 @@ inline void __global__ UpdateContactParticlesKernel(Domain_d *dom, int mesh_id);
 __global__ void CheckData(Domain_d *dom);
 
 __global__ void AssignMatAddressKernel(Domain_d *dom/*, Material_ *mat*/);
-__global__ void AssignTrimeshIDKernel(Domain_d *dom, int id, int start, int end); //Assign particle data to material array to zero arra
+__global__ void AssignTrimeshIDKernel(Domain_d *dom, int id, int m/*-, int start, int end*/); //Assign particle data to material array to zero arra
 
 __global__ void AssignTrimeshAddressKernel(Domain_d *dom, int id, TriMesh_d *mesh); //Assign particle data to material array to zero arra
   
@@ -567,6 +567,7 @@ __global__ inline void getTrimeshIDKernel(Domain_d *dom, int m, int *id) {
   printf ("kernel mesh id %d\n", dom->trimesh[m]->id);
 }
 
+__global__ void AddTrimeshParticlesKernel(Domain_d *dom, TriMesh_d* mesh, double hfac, int id);
 }; // namespace SPH
 
 

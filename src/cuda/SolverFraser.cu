@@ -151,7 +151,8 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
   cout << "Asigning mesh address..."<<endl;
   for (int m=0;m<trimesh_count;m++){
     //AssignTrimeshIDKernel(Domain_d *dom, int id, int start, int end){
-    AssignTrimeshIDKernel<<<blocksPerGrid,threadsPerBlock >>>(this,m,first_fem_particle_idx[m], trimesh[m]->elemcount);
+    //Takes the id from the mesh
+    AssignTrimeshIDKernel<<<blocksPerGrid,threadsPerBlock >>>(this,m/*,first_fem_particle_idx[m], trimesh[m]->elemcount*/);
     cudaDeviceSynchronize();
   }
   cout << "Ok."<<endl;

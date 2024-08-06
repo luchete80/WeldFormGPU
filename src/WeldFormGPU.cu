@@ -503,10 +503,14 @@ int main(int argc, char **argv)
       //For m
       cudaMalloc((void**)&dom_d->trimesh,         rigbodies.size()* sizeof(SPH::TriMesh_d*));
       cudaMalloc((void**)&dom_d->contact_surf_id, rigbodies.size()* sizeof(int));     
-      cudaMalloc((void**)&dom_d->first_fem_particle_idx, rigbodies.size()* sizeof(int));       
+      cudaMalloc((void**)&dom_d->first_fem_particle_idx, rigbodies.size()* sizeof(int));   
+
+      //dom_d->trimesh = new SPH::TriMesh_d* [rigbodies.size()];
+      
       ////// first_fem_particle_idx BEFORE CREATING PARTICLES
       //dom_d->first_fem_particle_idx = new int[rigbodies.size()]; // TODO: THIS SHOULD BE DONE AUTOMATICALLY
       dom_d->first_fem_particle_idx_0 = dom_d->particle_count;
+      //cout << "Max Solid Part Count "<< dom_d->first_fem_particle_idx_0;
        
       for (int m=0;m<rigbodies.size();m++){
        
@@ -559,6 +563,7 @@ int main(int argc, char **argv)
         dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
         
         mesh_d[m]->id = id;
+        AddTrimeshParticlesKernel<<<1,1>>>(dom_d, mesh_d[m], hfac, id);
         
         //BEFORE ALLOCATING 
         cout << "Allocating ..."<<endl;

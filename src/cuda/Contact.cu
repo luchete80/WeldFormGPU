@@ -44,7 +44,7 @@ const uint *neighbors){
         if ( (ID[i] == id_free_surf && ID[j] == contact_surf_id[mc]) /*||
              (ID[j] == id_free_surf && ID[i] == contact_surf_id) */) {
           /////if ( norm (Particles[P1]->x - Particles[P2]->x) < ( Particles[P1]->h + Particles[P2]->h ) ){ //2* cutoff being cutoff (h1+h2)/2
-          if ( length(xij) < 2.*h[i] ){
+          if ( length(xij) < 2.*h[i] ){   
             contneib_part[MAX_NB_COUNT*i + contneib_count[i]] = j;
             contneib_count[i]++;
             if (contneib_count[i]>MAX_NB_COUNT) printf("ERROR, MAX CONTACT NB COUNT REACHED, %d counted\n",contneib_count);

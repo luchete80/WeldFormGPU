@@ -30,7 +30,7 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
 	//id_free_surf = id;
 
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
-	
+	printf ("calc surf on max id %d\n", first_fem_particle_idx[0] );
 	if ( i < first_fem_particle_idx[0] ) { //In Contact Surface Particles, normal are updated different way
     normal[i] = make_double3(0.,0.,0.);
 

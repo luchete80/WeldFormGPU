@@ -303,4 +303,5 @@ inline __host__ __device__ void TriMesh_d::Move(const double3 &v){
   UpdatePlaneCoeff();   //pplane
 }
 
+
 };

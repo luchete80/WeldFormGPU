@@ -388,14 +388,14 @@ __global__ void AssignMatAddressKernel(Domain_d *dom){
 }
 
 ///////// TODO: Chage to pointer directly instead of int
-__device__ void Domain_d::AssignTrimeshID(int i, int id, int start, int end){
-  if (i> start && i < end)
+__device__ void Domain_d::AssignTrimeshID(int i, int id, m/*, int start, int end*/){
+  if (i> first_fem_particle_idx[m] && i < first_fem_particle_idx[m]+trimesh[m]->elemcount)
     mesh_id[i] = id;
 }
 
-__global__ void AssignTrimeshIDKernel(Domain_d *dom, int id, int start, int end){
+__global__ void AssignTrimeshIDKernel(Domain_d *dom, int id, int m/*, int start, int end*/){
   int i = threadIdx.x + blockDim.x*blockIdx.x;
-  dom->AssignTrimeshID(i, id, start, end);
+  dom->AssignTrimeshID(i, id, m/*start, end*/);
 }
 
 __device__ void Domain_d::AssignTrimeshAddress(int id, TriMesh_d *mesh){
@@ -636,7 +636,7 @@ __host__ void Domain_d::AdaptiveTimeStep(){
 
 ///// NOT USED ///////
 //If this is called, all particle has to be reallocated
-__host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const double &hfac, const int &id){
+__device__ void Domain_d::AddTrimeshParticles(TriMesh_d* mesh, double hfac, int id){
 
 	first_fem_particle_idx[trimesh_count] = particle_count;
 	printf("First Rigid particle of mesh %d:",first_fem_particle_idx[trimesh_count]);
@@ -645,7 +645,7 @@ __host__ void Domain_d::AddTrimeshParticles(TriMesh_d &mesh, const double &hfac,
 	bool Fixed = false;	//Always are fixed ...
 	contact_surf_id[trimesh_count] = id;
   
-	trimesh[trimesh_count] = &mesh;
+	trimesh[trimesh_count] = mesh;
   trimesh_count++;
   
 	// for ( int e = 0; e < mesh.element.size(); e++ ){
@@ -687,6 +687,10 @@ __device__ void Domain_d::ApplyAxiSymmBC(int bc_1, int bc_2){ //Apply to all par
 
 __global__ void ApplyAxiSymmBCKernel(Domain_d *dom){
   dom->ApplyAxiSymmBC();
+}
+
+__global__ void AddTrimeshParticlesKernel(Domain_d *dom, TriMesh_d* mesh, double hfac, int id){
+  dom->AddTrimeshParticles(mesh, hfac, id);
 }
 
 // THIS SHOULD BE DONE
