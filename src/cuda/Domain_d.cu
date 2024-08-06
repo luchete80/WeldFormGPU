@@ -389,8 +389,10 @@ __global__ void AssignMatAddressKernel(Domain_d *dom){
 
 ///////// TODO: Chage to pointer directly instead of int
 __device__ void Domain_d::AssignTrimeshID(int i, int m/*, int start, int end*/){
-  if (i> first_fem_particle_idx[m] && i < first_fem_particle_idx[m]+trimesh[m]->elemcount)
+  if (i> first_fem_particle_idx[m] && i < first_fem_particle_idx[m]+trimesh[m]->elemcount){
     mesh_id[i] = trimesh[m]->id;
+    //printf("ID %d\n",trimesh[m]->id);
+  }
 }
 
 __global__ void AssignTrimeshIDKernel(Domain_d *dom, int m/*, int start, int end*/){
