@@ -366,8 +366,8 @@ __device__ inline void UpdateDensity(double dt);
   __device__ inline void SetVel(double3 v);
   
   __device__ void AssignMatAddress(int i); //Assign particle data to material array to zero array
-  
-  __device__ void AssignTrimeshID(int i, int id, m/*, int start, int end*/); //Assign particle data to material array to zero array
+    
+  __device__ void AssignTrimeshID(int i, int  m/*, int start, int end*/); //Assign particle data to material array to zero array
   __device__ void AssignTrimeshAddress(int id, TriMesh_d *mesh); //Assign particle data to material array to zero array
   
 	__device__ /*__forceinline__*/inline void CalcRateTensors(const uint *particlenbcount,
@@ -433,7 +433,7 @@ inline void __global__ UpdateContactParticlesKernel(Domain_d *dom, int mesh_id);
 __global__ void CheckData(Domain_d *dom);
 
 __global__ void AssignMatAddressKernel(Domain_d *dom/*, Material_ *mat*/);
-__global__ void AssignTrimeshIDKernel(Domain_d *dom, int id, int m/*-, int start, int end*/); //Assign particle data to material array to zero arra
+__global__ void AssignTrimeshIDKernel(Domain_d *dom, int m/*-, int start, int end*/); //Assign particle data to material array to zero arra
 
 __global__ void AssignTrimeshAddressKernel(Domain_d *dom, int id, TriMesh_d *mesh); //Assign particle data to material array to zero arra
   

@@ -388,14 +388,14 @@ __global__ void AssignMatAddressKernel(Domain_d *dom){
 }
 
 ///////// TODO: Chage to pointer directly instead of int
-__device__ void Domain_d::AssignTrimeshID(int i, int id, m/*, int start, int end*/){
+__device__ void Domain_d::AssignTrimeshID(int i, int m/*, int start, int end*/){
   if (i> first_fem_particle_idx[m] && i < first_fem_particle_idx[m]+trimesh[m]->elemcount)
-    mesh_id[i] = id;
+    mesh_id[i] = trimesh[m]->id;
 }
 
-__global__ void AssignTrimeshIDKernel(Domain_d *dom, int id, int m/*, int start, int end*/){
+__global__ void AssignTrimeshIDKernel(Domain_d *dom, int m/*, int start, int end*/){
   int i = threadIdx.x + blockDim.x*blockIdx.x;
-  dom->AssignTrimeshID(i, id, m/*start, end*/);
+  dom->AssignTrimeshID(i, m/*start, end*/);
 }
 
 __device__ void Domain_d::AssignTrimeshAddress(int id, TriMesh_d *mesh){
@@ -403,9 +403,11 @@ __device__ void Domain_d::AssignTrimeshAddress(int id, TriMesh_d *mesh){
   printf( "Added mesh node count %d\n",trimesh[0]->nodecount);
 }
 
+//// id is the position (index) of the array
 __global__ void AssignTrimeshAddressKernel(Domain_d *dom, int id, TriMesh_d *mesh){ //Assign particle data to material array to zero arra
 
   dom->AssignTrimeshAddress(id, mesh);
+  //dom->AssignTrimeshIDKernel(id)
 }
 
 void Domain_d::Set_h(const double &k){
