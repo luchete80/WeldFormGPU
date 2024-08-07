@@ -153,7 +153,7 @@ __global__ inline void UpdateVelKernel(Domain_d *dom, double dt) {
 
 __device__ inline void Domain_d::SetVel(double3 vi){
 	int i = threadIdx.x + blockDim.x*blockIdx.x;
-	if ( i < particle_count ) {
+	if ( i < solid_part_count ) {
     	v[i] = vi;   
   }
 }

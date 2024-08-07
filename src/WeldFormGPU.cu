@@ -567,13 +567,16 @@ int main(int argc, char **argv)
         dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
         
         mesh_d[m].id = id;
+        cout << "mesh id "<<mesh_d[m].id<<endl;
         AddTrimeshParticlesKernel<<<1,1>>>(dom_d, &mesh_d[m], hfac, id);
-        
+        gpuErrchk( cudaPeekAtLastError() );
+        cudaDeviceSynchronize();
         //BEFORE ALLOCATING 
         cout << "Allocating ..."<<endl;
         cout << "Assigning "<<endl;
 
         AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,m,&mesh_d[m]);
+        gpuErrchk( cudaPeekAtLastError() );
         cudaDeviceSynchronize();
        
 
@@ -582,9 +585,9 @@ int main(int argc, char **argv)
         //cudaDeviceSynchronize();
 
         int id_int;
-        getTrimeshIDKernel<<<1,1>>>(dom_d,m,&id_int);
-        cout << "MESH ID: "<<id_int<<endl;
-        cudaDeviceSynchronize();
+        // getTrimeshIDKernel<<<1,1>>>(dom_d,m,&id_int);
+        // cout << "MESH ID: "<<id_int<<endl;
+        //cudaDeviceSynchronize();
         //CRASHES
         //cudaMemcpy(&id_int, &dom_d->trimesh[m]->id, sizeof (int), cudaMemcpyDeviceToHost);
         
@@ -802,7 +805,9 @@ int main(int argc, char **argv)
 	for (size_t a=0; a<dom.Particles.size(); a++){
 		m[a] = dom.Particles[a]->Mass;
 		totmass +=m[a];
-    if (m[a] < 1.0e-10 && a< dom_d->solid_part_count) mass_ok = false;
+    if (m[a] < 1.0e-10 && a< dom_d->solid_part_count) {
+      mass_ok = false;
+    }
     //if (!h_fixed) h_[a] = dom.Particles[a]->h;
 	}
   //delete m, h_;

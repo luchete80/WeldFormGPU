@@ -78,7 +78,6 @@ inline void __global__ UpdateContactParticlesKernel(Domain_d *dom, int mesh_id){
 //TODO: CHANGE TO SEVERAL CONTACT SURFACES 
 inline void __device__ Domain_d::UpdateContactParticles(int mesh_id){
   
-  //printf("mesh elem count %d \n",  trimesh[mesh_id]->elemcount);
   int e = threadIdx.x + blockDim.x*blockIdx.x;	
   //printf("elemn %d\n", e);
   
@@ -95,9 +94,10 @@ inline void __device__ Domain_d::UpdateContactParticles(int mesh_id){
         // printf("error \n");
     }
     
-    printf(" particle %d , v %f %f %f \n", e, vv.x, vv.y, vv.z);
+
     v [first_fem_particle_idx[mesh_id] + e] = vv/3.;
     a [first_fem_particle_idx[mesh_id] + e] = make_double3(0.);
+    //printf(" particle %d , v %f %f %f \n", e, vv.x, vv.y, vv.z);
     // if (length(normal[e])<1.0e-3)
       // printf("UPDATING ERROR ZERO mesh normal, %f %f %f\n", trimesh -> normal[e].x , trimesh -> normal[e].y, trimesh -> normal[e].z);
     normal[first_fem_particle_idx[mesh_id] + e] = trimesh[mesh_id] -> normal[e];

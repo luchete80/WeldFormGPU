@@ -22,6 +22,8 @@
 #define TAU		0.005
 #define VMAX	10.0
 
+
+
 using namespace std;
 namespace SPH{
   
@@ -148,11 +150,11 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
   AssignMatAddressKernel<<<blocksPerGrid,threadsPerBlock >>>(this);
   cudaDeviceSynchronize();
   
-  cout << "Asigning mesh address..."<<endl;
+  cout << "Assigning mesh ID..."<<endl;
   for (int m=0;m<trimesh_count;m++){
     //AssignTrimeshIDKernel(Domain_d *dom, int id, int start, int end){
     //Takes the id from the mesh
-    AssignTrimeshIDKernel<<<blocksPerGrid,threadsPerBlock >>>(this,m/*,first_fem_particle_idx[m], trimesh[m]->elemcount*/);
+    AssignTrimeshIDKernel<<<1,1 >>>(this,m/*,first_fem_particle_idx[m], trimesh[m]->elemcount*/);
     cudaDeviceSynchronize();
   }
   cout << "Ok."<<endl;
@@ -291,6 +293,7 @@ void Domain_d::MechFraserSolve(const double &tf, const double &dt_out){
         //if (this->trimesh[m] != NULL){
         //OLD! SINCE trimesh is a vector, Calling this from host crashes
         MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this, m , deltat);
+        //gpuErrchk( cudaPeekAtLastError() );
         //MeshUpdateKernel<<<blocksPerGrid,threadsPerBlock >>>(this->trimesh[m], deltat);
         //cout << "moving mesh "<<m <<endl;
         //MeshUpdateKernel<<<1,1 >>>(this, m, deltat);

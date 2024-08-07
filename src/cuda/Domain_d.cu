@@ -391,7 +391,7 @@ __global__ void AssignMatAddressKernel(Domain_d *dom){
 __device__ void Domain_d::AssignTrimeshID(int i, int m/*, int start, int end*/){
   if (i> first_fem_particle_idx[m] && i < first_fem_particle_idx[m]+trimesh[m]->elemcount){
     mesh_id[i] = trimesh[m]->id;
-    //printf("ID %d\n",trimesh[m]->id);
+    printf("ID %d\n",trimesh[m]->id);
   }
 }
 
@@ -407,7 +407,8 @@ __device__ void Domain_d::AssignTrimeshAddress(int id, TriMesh_d *mesh){
 
 //// id is the position (index) of the array
 __global__ void AssignTrimeshAddressKernel(Domain_d *dom, int id, TriMesh_d *mesh){ //Assign particle data to material array to zero arra
-
+  //dom->trimesh[id]=mesh;
+  //printf( "Added mesh node count %d\n",dom->trimesh[id]->nodecount);
   dom->AssignTrimeshAddress(id, mesh);
   //dom->AssignTrimeshIDKernel(id)
 }
