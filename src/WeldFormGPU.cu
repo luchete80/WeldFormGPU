@@ -485,10 +485,12 @@ int main(int argc, char **argv)
 		}//Boundary Conditions
     //dom_d->bConds
 
-
-  
+    std::vector<int> mesh_id(dom_d->particle_count);
+    for (int p=0;p<dom.Particles.size();p++) mesh_id[p]=0; //THIS HAS TO BE CHANGED, ONLKY TO RIGID PARTICLES
+    
     cout << "Set contact to ";
     int solid_part_count = dom_d->solid_part_count;
+    int last_pcount = dom_d->solid_part_count;;
     if (contact){
       cout << "true."<<endl;
       cout << "Rigid body Count: " << rigbodies.size() << endl;
@@ -566,7 +568,7 @@ int main(int argc, char **argv)
         readValue(rigbodies[m]["zoneId"],id);
         dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
         
-        mesh_d[m].id = id;
+        mesh_d[m].id = id; //ERROR; IS POSITION OR ID??? Check Also AssignTrimeshID Kernel
         cout << "mesh id "<<mesh_d[m].id<<endl;
         AddTrimeshParticlesKernel<<<1,1>>>(dom_d, &mesh_d[m], hfac, id);
         gpuErrchk( cudaPeekAtLastError() );
@@ -590,7 +592,10 @@ int main(int argc, char **argv)
         //cudaDeviceSynchronize();
         //CRASHES
         //cudaMemcpy(&id_int, &dom_d->trimesh[m]->id, sizeof (int), cudaMemcpyDeviceToHost);
-        
+        //ADDING MESH ID
+        cout << "added particles count"<<dom.Particles.size() - last_pcount<<"with mesh_id ="<< m <<endl;
+        for (int p=last_pcount;p<dom.Particles.size();p++) mesh_id.push_back(m);
+        last_pcount = dom.Particles.size();
 
         for (int bc=0;bc<dom_d->bConds.size();bc++){
             if (id == dom_d->bConds[bc].zoneId){
@@ -691,9 +696,10 @@ int main(int argc, char **argv)
   
 	for (int i=0;i<dom.Particles.size();i++){
 		x[i] = make_double3(double(dom.Particles[i]->x(0)), double(dom.Particles[i]->x(1)), double(dom.Particles[i]->x(2)));
-    mid[i] = 0;
+    mid[i] = mesh_id[i];
   }
 	int size = dom.Particles.size() * sizeof(double3);
+  int size_int = dom.Particles.size() * sizeof(int);
 	cout << "Copying to device "<<dom.Particles.size() << " particle properties ..."<<endl;
 	cudaMemcpy(dom_d->x, x, size, cudaMemcpyHostToDevice);
   cudaMemcpy(dom_d->mesh_id, mid, size, cudaMemcpyHostToDevice);

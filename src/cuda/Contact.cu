@@ -30,24 +30,28 @@ __device__ inline void Domain_d::CalcContactNb(const uint *particlenbcount,
 const uint *neighborWriteOffsets,
 const uint *neighbors){
   //printf("searching nbs less than index %d\n",first_fem_particle_idx[0] );
-  int i = threadIdx.x + blockDim.x*blockIdx.x;	
+  int i = threadIdx.x + blockDim.x*blockIdx.x;
+  //printf("searching before part %d\n",first_fem_particle_idx[0] )	;
   if (i < first_fem_particle_idx[0] ) {
     contneib_count[i] = 0;
     int neibcount = particlenbcount[i];
     const uint writeOffset = neighborWriteOffsets[i];
-    
+    //printf ("neibcount %d\n", neibcount);
     for (int k=0;k < neibcount;k++) { //Or size
       int j = neighbors[writeOffset + k];
       double3 xij = x[i]-x[j];
       //double h = h[i] + h[j];  //not necessary to take average
+      //printf("trimesh_count %d\n", trimesh_count);
       for (int mc=0;mc<trimesh_count;mc++){
         if ( (ID[i] == id_free_surf && ID[j] == contact_surf_id[mc]) /*||
              (ID[j] == id_free_surf && ID[i] == contact_surf_id) */) {
+          //printf("ID i j, %d %d\n", ID[i], ID[j]);
           /////if ( norm (Particles[P1]->x - Particles[P2]->x) < ( Particles[P1]->h + Particles[P2]->h ) ){ //2* cutoff being cutoff (h1+h2)/2
           if ( length(xij) < 2.*h[i] ){   
             contneib_part[MAX_NB_COUNT*i + contneib_count[i]] = j;
             contneib_count[i]++;
             if (contneib_count[i]>MAX_NB_COUNT) printf("ERROR, MAX CONTACT NB COUNT REACHED, %d counted\n",contneib_count);
+            //printf("contnaib found\n");
           }
         } //IDs OK
       } //mesh idx

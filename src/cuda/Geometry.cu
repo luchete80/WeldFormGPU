@@ -68,7 +68,7 @@ void __device__ inline Domain_d::CalculateSurface(const uint *particlenbcount,
       if ( length(normal[i]) >= 0.25 * h[i] && nbcount_corr <= 46) {//3-114 Fraser {
         if (!not_write_surf_ID[i]){
           ID[i] = id_free_surf; //THIS CRASH IS ASSIGNED BY PARAMETER
-          ////printf("particle %d normal : %f %f %f , nb %d\n", i, normal[i].x, normal[i].y, normal[i].z, nbcount_corr);
+          //printf("particle %d normal : %f %f %f , nb %d\n", i, normal[i].x, normal[i].y, normal[i].z, nbcount_corr);
           //surf_part++;
         }
       }
