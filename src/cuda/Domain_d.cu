@@ -390,8 +390,8 @@ __global__ void AssignMatAddressKernel(Domain_d *dom){
 ///////// TODO: Chage to pointer directly instead of int
 __device__ void Domain_d::AssignTrimeshID(int i, int m/*, int start, int end*/){
   if (i> first_fem_particle_idx[m] && i < first_fem_particle_idx[m]+trimesh[m]->elemcount){
-    mesh_id[i] = trimesh[m]->id;
-    printf("ID %d\n",trimesh[m]->id);
+    //mesh_id[i] = trimesh[m]->id;
+    //printf("ID %d\n",trimesh[m]->id);
   }
 }
 
@@ -650,7 +650,7 @@ __device__ void Domain_d::AddTrimeshParticles(TriMesh_d* mesh, double hfac, int 
 	bool Fixed = false;	//Always are fixed ...
 	contact_surf_id[trimesh_count] = id;
   
-	trimesh[trimesh_count] = mesh;
+	trimesh[trimesh_count] = mesh; ////NOT USEFUL
   trimesh_count++;
   
 	// for ( int e = 0; e < mesh.element.size(); e++ ){

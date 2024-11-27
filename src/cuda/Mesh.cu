@@ -43,6 +43,34 @@ __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt) {
   mesh_d->UpdatePlaneCoeff(); 
 }
 
+inline void TriMesh_d::addMesh(TriMesh_d* m){
+  
+  int ei = this->elemcount;
+  int ni = this->nodecount;
+  for (int n=0;n<nodecount;n++){
+    m->node[ni+n]       = m->node[n];
+    m->node_v[ni+n]     = m->node[_vn];
+  }
+
+  for (int n=0;n<elemcount;n++){
+  
+  
+  }
+}
+
+
+void TriMesh_d::setDim(int nodecount, int elemcount){
+  
+  cudaMalloc((void **)&node   , 	nodecount * sizeof (double3));
+  cudaMalloc((void **)&node_v , 	nodecount * sizeof (double3));  
+	cudaMalloc((void **)&centroid , 	elemcount * sizeof (double3));
+	cudaMalloc((void **)&normal 	, 	elemcount * sizeof (double3));
+	cudaMalloc((void **)&elnode 	, 	3 * elemcount * sizeof (int));	  
+  cudaMalloc((void **)&pplane , 	elemcount * sizeof (double));
+  cudaMalloc((void **)&nfar   , 	elemcount * sizeof (int));  
+  
+}
+
 
 //NOW THIS IS ZORIENTED, CHANGE TO EVERY PLANE
 inline void TriMesh_d::AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens){

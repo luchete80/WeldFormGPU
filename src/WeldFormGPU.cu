@@ -166,6 +166,8 @@ int main(int argc, char **argv)
     
     SPH::TriMesh_d *mesh_d;
     
+    SPH::TriMesh_d *unifmesh_d;
+    
     report_gpu_mem();
     gpuErrchk(cudaMallocManaged(&dom_d, sizeof(SPH::Domain_d)) );
     report_gpu_mem();
@@ -491,6 +493,13 @@ int main(int argc, char **argv)
     cout << "Set contact to ";
     int solid_part_count = dom_d->solid_part_count;
     int last_pcount = dom_d->solid_part_count;;
+    
+    
+    /////////////////////////////////////////// MESH READING /////////////////////////////////////
+    ////////THIS IS FOR FLATTEN MESH
+    int tot_node_count = 0;
+    int tot_elem_count = 0;
+    
     if (contact){
       cout << "true."<<endl;
       cout << "Rigid body Count: " << rigbodies.size() << endl;
@@ -500,7 +509,7 @@ int main(int argc, char **argv)
       ///// ORGINAL
       // SPH::TriMesh_d *mesh_d;
       //gpuErrchk(cudaMallocManaged(&mesh_d, sizeof(SPH::TriMesh_d)) );
-      cudaMalloc((void**)&dom_d->trimesh,         rigbodies.size()* sizeof(SPH::TriMesh_d));
+      //cudaMalloc((void**)&dom_d->trimesh,         rigbodies.size()* sizeof(SPH::TriMesh_d));
       //mesh_d.resize(rigbodies.size());
       
       
@@ -561,15 +570,20 @@ int main(int argc, char **argv)
           
           mesh[m]->Move(md); //TODO: DELETE
         }
-        
+        tot_node_count += mesh_d[m].nodecount;
+        tot_elem_count += mesh_d[m].elemcount;
+                
         double hfac = 1.1;	//Used only for Neighbour search radius cutoff
 
         
         readValue(rigbodies[m]["zoneId"],id);
-        dom.AddTrimeshParticles(*mesh[m], hfac, id); //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
+        dom.AddTrimeshParticles(*mesh[m], hfac, id); 
+        //AddTrimeshParticles(const TriMesh &mesh, hfac, const int &id){
         
-        mesh_d[m].id = id; //ERROR; IS POSITION OR ID??? Check Also AssignTrimeshID Kernel
-        cout << "mesh id "<<mesh_d[m].id<<endl;
+        //mesh_d[m].id = id; //ERROR; IS POSITION OR ID??? Check Also AssignTrimeshID Kernel
+        //cout << "mesh id "<<mesh_d[m].id<<endl;
+        
+        
         AddTrimeshParticlesKernel<<<1,1>>>(dom_d, &mesh_d[m], hfac, id);
         gpuErrchk( cudaPeekAtLastError() );
         cudaDeviceSynchronize();
@@ -617,6 +631,21 @@ int main(int argc, char **argv)
         cout << "Assigned "<<endl;
         
       }//MESH m
+      
+      cout << "Node count: %d, Elem count \n"<< tot_node_count<<", "<<tot_elem_count<<endl;
+      
+      //NOW CREATES THE MESH
+      gpuErrchk(cudaMallocManaged(&unifmesh_d, rigbodies.size()*sizeof(SPH::TriMesh_d)) );     
+      //cudaMalloc((void**)unifmesh_d,         sizeof(SPH::TriMesh_d*));
+      unifmesh_d->setDim(tot_node_count,tot_elem_count);
+      
+      for (int m=0;m<rigbodies.size();m++){
+        //unifmesh_d = ;
+        
+      }
+      
+      
+      
       cout << "Assigning contact params"<<endl;
 				
       double penaltyfac = 0.5;

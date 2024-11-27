@@ -234,7 +234,7 @@ class Domain_d
 	/////// CONTACT THINGS /////////////
 	////////////////////////////////////
   int id_free_surf;
-  int *contact_surf_id;
+  int *contact_surf_id; //PARTICLES, WHICH BELONGS TO A SURFACE 
   bool *not_write_surf_ID; //Necesary in all particles?
   bool contact;
   double totmass;
@@ -554,17 +554,18 @@ __global__ inline void SetMeshVelKernel(Domain_d *dom, int m, double3 value) {
   dom->trimesh[m]->SetVel(value);
   
 }
-
+/*
 __global__ inline void SetMeshIDKernel(Domain_d *dom, int m, int id) {
   dom->trimesh[m]->SetID(id);
   
 }
+*/
 
 __global__ inline void getTrimeshIDKernel(Domain_d *dom, int m, int *id) {
   //cudaMemcpy(id, &dom->trimesh[m]->id, sizeof (int), cudaMemcpyDeviceToHost);
   //*id = dom->trimesh[m]->id;
   //dom->trimesh[m]->GetID(id);
-  printf ("kernel mesh id %d\n", dom->trimesh[m]->id);
+  //printf ("kernel mesh id %d\n", dom->trimesh[m]->id);
 }
 
 __global__ void AddTrimeshParticlesKernel(Domain_d *dom, TriMesh_d* mesh, double hfac, int id);
