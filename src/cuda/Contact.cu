@@ -42,6 +42,7 @@ const uint *neighbors){
       double3 xij = x[i]-x[j];
       //double h = h[i] + h[j];  //not necessary to take average
       //printf("trimesh_count %d\n", trimesh_count);
+      //printf("ID i j, %d %d\n", ID[i], ID[j]);
       for (int mc=0;mc<trimesh_count;mc++){
         if ( (ID[i] == id_free_surf && ID[j] == contact_surf_id[mc]) /*||
              (ID[j] == id_free_surf && ID[i] == contact_surf_id) */) {
@@ -57,6 +58,7 @@ const uint *neighbors){
       } //mesh idx
     }//for k neighbours
   }// i < fem index
+  //printf ("contneib_count %d\n", contneib_count[i]);
 }
 
 inline void __global__ UpdateContactParticlesKernel(Domain_d *dom, int mesh_id){
@@ -200,9 +202,9 @@ void __device__ inline Domain_d::CalcContactForcesWang(const uint *particlenbcou
       double dist = dot (normal[j],x_pred)  - trimesh[mid]->pplane[e];
       //double dist = dot (normal[j],x[i])  - trimesh->pplane[e];
       //printf("normal j %d %f %f %f\n", j, normal[j].x, normal[j].y, normal[j].z);
-      //printf("OUTSIDE part %d pplane %f,dist %.5e, h %f\n", i, trimesh->pplane[e], dist, h[i]);
+      //printf("OUTSIDE part %d pplane %f,dist %.5e, h %f\n", i, trimesh[mid]->pplane[e], dist, h[i]);
       if (dist < h[i] ) {
-        //printf ("INSIDE part %d pplane %f, dist: %f, h %f \n", i,trimesh->pplane[e],dist, h[i]);
+        //printf ("INSIDE part %d pplane %f, dist: %f, h %f \n", i,trimesh[mid]->pplane[e],dist, h[i]);
         //printf("INSIDE part %d dist %\n", i,dist);
         
         // double deltat_cont = ( h[i] + pplane - dot (normal[j],	x[i]) ) / (-delta_);								//Eq 3-142 
