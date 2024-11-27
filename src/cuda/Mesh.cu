@@ -49,12 +49,15 @@ inline void TriMesh_d::addMesh(TriMesh_d* m){
   int ni = this->nodecount;
   for (int n=0;n<nodecount;n++){
     m->node[ni+n]       = m->node[n];
-    m->node_v[ni+n]     = m->node[_vn];
+    m->node_v[ni+n]     = m->node_v[n];
   }
 
-  for (int n=0;n<elemcount;n++){
-  
-  
+  for (int e=0;e<elemcount;e++){
+    m->centroid[e+ei] =  m->centroid[e];
+    m->normal[e+ei]   =  m->normal[e];
+    m->elnode[e+ei]   =  m->elnode[e];
+    m->pplane[e+ei]   =  m->pplane[e];
+    m->nfar[e+ei]     =  m->nfar[e];
   }
 }
 

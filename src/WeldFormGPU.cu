@@ -632,6 +632,11 @@ int main(int argc, char **argv)
         
       }//MESH m
       
+      /////////////////////////////////////////////////////////////
+      ////////////////////// FLATTEN FOR SEVERAL SRFACES /////////
+      //////////////////////// SEVERAL DEVICE POINTERS WTH ERRORS/////
+      
+      
       cout << "Node count: %d, Elem count \n"<< tot_node_count<<", "<<tot_elem_count<<endl;
       
       //NOW CREATES THE MESH
@@ -641,7 +646,8 @@ int main(int argc, char **argv)
       
       for (int m=0;m<rigbodies.size();m++){
         //unifmesh_d = ;
-        
+        addMeshKernel<<<1,1>>>(unifmesh_d,&mesh_d[m]);
+        cudaDeviceSynchronize();
       }
       
       

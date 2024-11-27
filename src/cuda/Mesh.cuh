@@ -50,7 +50,7 @@ class TriMesh_d{
   inline __device__ void CheckNormals();
   inline __host__ __device__ void Move(const double3 &v);
   inline void setDim(int nodecount, int elemcount);
-  inline void addMesh(TriMesh_d* m);  
+  inline __device__ void addMesh(TriMesh_d* m);  
   
 };
 
@@ -59,6 +59,10 @@ class TriMesh_d{
 __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt);
 
 __global__ inline void CalcSpheresKernel(TriMesh_d *mesh_d);
+
+__global__ inline void addMeshKernel(TriMesh_d *mesh_1,TriMesh_d *mesh_2){
+  mesh_1->addMesh(mesh_2);
+}
 
 };//SPH
 
