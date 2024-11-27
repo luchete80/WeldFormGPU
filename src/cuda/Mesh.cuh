@@ -37,6 +37,9 @@ class TriMesh_d{
 	void ReadFromNastran(NastranReader &nr, bool flipnormals = false);
 	inline void AxisPlaneMesh(const int &axis, bool positaxisorent, const double3 p1, const double3 p2,  const int &dens);
   void __device__ __host__ SetVel(const double3 &v) {m_v = v;} //Like in WeldForm CPU version
+  
+  void __device__ __host__ SetNodesVel(int n, const double3 &v) {node_v[n] = v;} //Like in WeldForm CPU version
+  
   //void __device__ __host__ SetID(int i) {id = i;} //Like in WeldForm CPU version
   //void __device__ __host__ GetID(int *i) {*i=id;} //Like in WeldForm CPU version
 	inline void ApplyConstVel(const double3 &v);
@@ -54,7 +57,12 @@ class TriMesh_d{
   
 };
 
-
+__global__ inline void SetNodesVelKernel(TriMesh_d *mesh_d,const double3 &v){
+    //int i = threadIdx.x + blockDim.x*blockIdx.x;
+    for (int i=0;mesh_d->nodecount;i++)
+    //if (i<mesh_d->nodecount)
+      mesh_d->node_v[i] = v;
+  }
 
 __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt);
 

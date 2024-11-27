@@ -554,6 +554,12 @@ __global__ inline void SetMeshVelKernel(Domain_d *dom, int m, double3 value) {
   dom->trimesh[m]->SetVel(value);
   
 }
+__global__ inline void SetMeshNodesVelKernel(Domain_d *dom, int m, double3 value) {
+  //int i = threadIdx.x + blockDim.x*blockIdx.x;
+  //dom->trimesh[m]->SetNodesVel(value);
+  
+}
+
 /*
 __global__ inline void SetMeshIDKernel(Domain_d *dom, int m, int id) {
   dom->trimesh[m]->SetID(id);

@@ -614,6 +614,10 @@ int main(int argc, char **argv)
         for (int bc=0;bc<dom_d->bConds.size();bc++){
             if (id == dom_d->bConds[bc].zoneId){
               if (dom_d->bConds[bc].valueType == 0) { ///constant
+
+
+            //SetNodesVelKernel<<<1,1>>>(&mesh_d[m],dom_d->bConds[bc].value);
+            //cudaDeviceSynchronize();   
             // //OLD, when trimesh was not a vector
             // //domi.trimesh[m]->SetVel(domi.bConds[bc].value);
               SetMeshVelKernel<<<1,1>>>(dom_d,m, dom_d->bConds[bc].value);
@@ -622,6 +626,12 @@ int main(int argc, char **argv)
                                             <<dom_d->bConds[bc].value.x 
                                             <<", " <<dom_d->bConds[bc].value.y 
                                             <<", " << dom_d->bConds[bc].value.z<<endl;
+              
+              //AFTER SET VEL WHICH SETS m_V
+              
+              
+              
+
               }
             }
         }
@@ -640,9 +650,9 @@ int main(int argc, char **argv)
       cout << "Node count: %d, Elem count \n"<< tot_node_count<<", "<<tot_elem_count<<endl;
       
       //NOW CREATES THE MESH
-      gpuErrchk(cudaMallocManaged(&unifmesh_d, rigbodies.size()*sizeof(SPH::TriMesh_d)) );     
+      //gpuErrchk(cudaMallocManaged(&unifmesh_d, rigbodies.size()*sizeof(SPH::TriMesh_d)) );     
       //cudaMalloc((void**)unifmesh_d,         sizeof(SPH::TriMesh_d*));
-      unifmesh_d->setDim(tot_node_count,tot_elem_count);
+      //unifmesh_d->setDim(tot_node_count,tot_elem_count);
       
       for (int m=0;m<rigbodies.size();m++){
         //unifmesh_d = ;

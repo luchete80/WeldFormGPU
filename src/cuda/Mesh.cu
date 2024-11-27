@@ -292,13 +292,14 @@ inline __device__ void TriMesh_d::Move(double dt){
   //printf("node count %d\n", nodecount);
 	int n = threadIdx.x + blockDim.x*blockIdx.x; //Parallelize by node 
   if ( n < nodecount ){
+    
     double3 vr 	= cross(m_w, node[n]);
-    node_v[n] = m_v + vr;
-    //printf("Noe %d, vel x %f y %f z %f \n", n, m_v.x,m_v.y, m_v.z);
-    // for (int i=0;i<3;i++) {
-      // if      ((*node[n])(i) < min(i)) min[i] = (*node[n])(i);
-      // else if ((*node[n])(i) > max(i)) max[i] = (*node[n])(i);
-    // } 
+    //// FOR THE NEW FLATTENED MESH IS NT ANYMORE AN SCALAR M_V
+    node_v[n] = m_v + vr; //MUST BE DELETED, SET PREVIOUSLY
+    
+    //printf("NODE V: %f %f %f \n",node_v[n].x, node_v[n].y, node_v[n].z);
+    
+
 
     node[n] += (node_v[n])*dt;
     //printf("after \n");
