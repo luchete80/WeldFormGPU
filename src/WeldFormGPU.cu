@@ -650,9 +650,12 @@ int main(int argc, char **argv)
       cout << "Node count: %d, Elem count \n"<< tot_node_count<<", "<<tot_elem_count<<endl;
       
       //NOW CREATES THE MESH
-      gpuErrchk(cudaMallocManaged(&unifmesh_d, rigbodies.size()*sizeof(SPH::TriMesh_d)) );     
-      cudaMalloc((void**)unifmesh_d,         sizeof(SPH::TriMesh_d*));
-      unifmesh_d->setDim(tot_node_count,tot_elem_count);
+      //gpuErrchk(cudaMallocManaged(&unifmesh_d, rigbodies.size()*sizeof(SPH::TriMesh_d)) );     
+      cudaMalloc((void**)&unifmesh_d,         sizeof(SPH::TriMesh_d*));
+      //unifmesh_d->setDim(tot_node_count,tot_elem_count);
+      setDimKernel<<<1,1>>>(unifmesh_d,tot_node_count,tot_elem_count);
+
+
       
       for (int m=0;m<rigbodies.size();m++){
         //unifmesh_d = ;

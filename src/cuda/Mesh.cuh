@@ -52,7 +52,7 @@ class TriMesh_d{
 	inline __device__ void CalcCentroids();
   inline __device__ void CheckNormals();
   inline __host__ __device__ void Move(const double3 &v);
-  inline void setDim(int nodecount, int elemcount);
+  inline void __device__ setDim(int nodecount, int elemcount);
   inline __device__ void addMesh(TriMesh_d* m);  
   
 };
@@ -64,6 +64,9 @@ __global__ inline void SetNodesVelKernel(TriMesh_d *mesh_d,const double3 &v){
       mesh_d->node_v[i] = v;
   }
 
+__global__ inline void setDimKernel(TriMesh_d *m, int nc, int ne){
+    m->setDim(nc,ne);
+  }
 __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt);
 
 __global__ inline void CalcSpheresKernel(TriMesh_d *mesh_d);
