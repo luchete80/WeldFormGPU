@@ -43,7 +43,7 @@ __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt) {
   mesh_d->UpdatePlaneCoeff(); 
 }
 
-inline void TriMesh_d::addMesh(TriMesh_d* m){
+inline __device__ void TriMesh_d::addMesh(TriMesh_d* m){
   
   //int ei = this->elemcount;
   //int ni = this->nodecount;
