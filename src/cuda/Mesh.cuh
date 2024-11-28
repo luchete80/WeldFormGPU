@@ -52,8 +52,8 @@ class TriMesh_d{
 	inline __device__ void CalcCentroids();
   inline __device__ void CheckNormals();
   inline __host__ __device__ void Move(const double3 &v);
-  inline void __device__ setDim(int nodecount, int elemcount);
-  inline __device__ void addMesh(TriMesh_d* m);  
+  inline void setDim(int nodecount, int elemcount);
+  inline __device__ void addMesh(TriMesh_d* m,int ni=0, int ei=0 );  
   inline __device__ void setNodesVel(double3 v);
   
 };
@@ -66,15 +66,13 @@ __global__ inline void SetNodesVelKernel(TriMesh_d *mesh_d,const double3 v){
     mesh_d->setNodesVel(v);
   }
 
-__global__ inline void setDimKernel(TriMesh_d *m, int nc, int ne){
-    m->setDim(nc,ne);
-  }
+
 __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt);
 
 __global__ inline void CalcSpheresKernel(TriMesh_d *mesh_d);
 
-__global__ inline void addMeshKernel(TriMesh_d *mesh_1,TriMesh_d *mesh_2){
-  mesh_1->addMesh(mesh_2);
+__global__ inline void addMeshKernel(TriMesh_d *mesh_1,TriMesh_d *mesh_2, int ni, int ei){
+  mesh_1->addMesh(mesh_2, ni, ei);
 }
 
 };//SPH

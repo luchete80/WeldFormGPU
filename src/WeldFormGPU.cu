@@ -652,27 +652,32 @@ int main(int argc, char **argv)
       
       cout << "Node count: %d, Elem count \n"<< tot_node_count<<", "<<tot_elem_count<<endl;
       
-      //NOW CREATES THE MESH
-      //gpuErrchk(cudaMallocManaged(&unifmesh_d, rigbodies.size()*sizeof(SPH::TriMesh_d)) );     
-      cudaMalloc((void**)&unifmesh_d,         sizeof(SPH::TriMesh_d));
-      //unifmesh_d->setDim(tot_node_count,tot_elem_count);
-      setDimKernel<<<1,1>>>(unifmesh_d,tot_node_count,tot_elem_count);
+      //NOW CREATES THE MESH   
+      gpuErrchk(cudaMallocManaged(&unifmesh_d, sizeof(SPH::TriMesh_d)) );
+      report_gpu_mem();
+
       
-      //cudaMalloc((void**)&unifmesh_d->node, tot_node_count*sizeof(double3));
+      //ALLOCATION DOES NOT WORK AS A FUNCTION DEVICE!!!
+      //setDimKernel<<<1,1>>>(unifmesh_d,tot_node_count,tot_elem_count);
+      unifmesh_d->setDim(tot_node_count,tot_elem_count);
 
 
-      /*
+
+      int ni,ei;
+      ni = ei = 0;
       for (int m=0;m<rigbodies.size();m++){
         //unifmesh_d = ;
-        addMeshKernel<<<1,1>>>(unifmesh_d,&mesh_d[m]);
+        addMeshKernel<<<1,1>>>(unifmesh_d,&mesh_d[m], ni, ei);
         cudaDeviceSynchronize();
+        ni += unifmesh_d->nodecount; //Access attention
+        ei += unifmesh_d->elemcount; //Access attention
       }
-      */
+      
       
       //CHANGING ADDRESS
-      //AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,0,unifmesh_d);
+      AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,0,unifmesh_d);
       //gpuErrchk( cudaPeekAtLastError() );
-      //cudaDeviceSynchronize();
+      cudaDeviceSynchronize();
       
       
       //// DELETE PREVIOUS MESHES

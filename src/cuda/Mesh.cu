@@ -43,32 +43,33 @@ __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt) {
   mesh_d->UpdatePlaneCoeff(); 
 }
 
-inline __device__ void TriMesh_d::addMesh(TriMesh_d* m){
+inline __device__ void TriMesh_d::addMesh(TriMesh_d* m, int ni, int ei){
   
   //int ei = this->elemcount;
   //int ni = this->nodecount;
-  int ei =0;
-  int ni=0;
+
   if (nodecount==0 || elemcount ==0)
   printf("ERROR. ELEM COUNT OR NODECOUNT null\n");
   //if ()
   //printf("Node count: %d, Elem count: %d\n", ni,ei);
-  node[0]=make_double3(0,0,0);
-  /*
+  //node[0]=make_double3(0,0,0);
+  
   for (int n=0;n<m->nodecount;n++){
-    node[ni+n]       = m->node[n];
+    node  [ni+n]     = m->node[n];
     node_v[ni+n]     = m->node_v[n];
   }
-  */
-/*
+  
+
   for (int e=0;e<m->elemcount;e++){
-    centroid[e+ei] =  m->centroid[e];
-    normal[e+ei]   =  m->normal[e];
-    elnode[e+ei]   =  m->elnode[e];
-    pplane[e+ei]   =  m->pplane[e];
-    nfar[e+ei]     =  m->nfar[e];
+    centroid[e+ei]   =  m->centroid[e];
+    normal  [e+ei]   =  m->normal[e];
+    for (int ne=0;ne<3;ne++)
+      elnode  [3*ei + 3*e+ne]   =  ni + m->elnode[3*e+ne];
+    
+    pplane  [e+ei]   =  m->pplane[e];
+    nfar    [e+ei]   =  m->nfar[e];
   }
-  */
+  
   //DO NOT CHANGE THIS!
   //nodecount += m->nodecount;
   //elemcount += m->elemcount;
