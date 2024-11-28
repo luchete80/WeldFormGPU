@@ -584,6 +584,8 @@ int main(int argc, char **argv)
         //cout << "mesh id "<<mesh_d[m].id<<endl;
         
         
+        
+        ////ONLY FOR CHANGIND THINGS, NOT ALLOCATING
         AddTrimeshParticlesKernel<<<1,1>>>(dom_d, &mesh_d[m], hfac, id);
         gpuErrchk( cudaPeekAtLastError() );
         cudaDeviceSynchronize();
@@ -673,6 +675,7 @@ int main(int argc, char **argv)
         ei += unifmesh_d->elemcount; //Access attention
       }
       
+      dom_d->trimesh_count = 1;
       
       //CHANGING ADDRESS
       AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,0,unifmesh_d);

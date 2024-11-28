@@ -64,7 +64,7 @@ inline __device__ void TriMesh_d::addMesh(TriMesh_d* m, int ni, int ei){
     centroid[e+ei]   =  m->centroid[e];
     normal  [e+ei]   =  m->normal[e];
     for (int ne=0;ne<3;ne++)
-      elnode  [3*ei + 3*e+ne]   =  ni + m->elnode[3*e+ne];
+      elnode  [3*ei + 3*e+ne]   =  m->elnode[ni + 3*e+ne];
     
     pplane  [e+ei]   =  m->pplane[e];
     nfar    [e+ei]   =  m->nfar[e];

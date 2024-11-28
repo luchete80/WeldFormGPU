@@ -651,7 +651,11 @@ __device__ void Domain_d::AddTrimeshParticles(TriMesh_d* mesh, double hfac, int 
 	contact_surf_id[trimesh_count] = id;
   
 	trimesh[trimesh_count] = mesh; ////NOT USEFUL
+  
+  
+  ////// NOT ANYMORE (ONLY ONE MESH)
   trimesh_count++;
+  //trimesh_count = 1;
   
 	// for ( int e = 0; e < mesh.element.size(); e++ ){
 		// Vector pos = mesh.element[e]->centroid;
