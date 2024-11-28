@@ -615,18 +615,21 @@ int main(int argc, char **argv)
             if (id == dom_d->bConds[bc].zoneId){
               if (dom_d->bConds[bc].valueType == 0) { ///constant
 
-
-            //SetNodesVelKernel<<<1,1>>>(&mesh_d[m],dom_d->bConds[bc].value);
-            //cudaDeviceSynchronize();   
+            //NEW FORMAT, ASSIGNING node_v directly
+            SetNodesVelKernel<<<1,1>>>(&mesh_d[m],dom_d->bConds[bc].value);
+            cudaDeviceSynchronize();   
             // //OLD, when trimesh was not a vector
             // //domi.trimesh[m]->SetVel(domi.bConds[bc].value);
+            
+            
+            /*
               SetMeshVelKernel<<<1,1>>>(dom_d,m, dom_d->bConds[bc].value);
               cudaDeviceSynchronize();  
                 cout << "Mesh ID " << id << ", "<< "Velocity set to : "
                                             <<dom_d->bConds[bc].value.x 
                                             <<", " <<dom_d->bConds[bc].value.y 
                                             <<", " << dom_d->bConds[bc].value.z<<endl;
-              
+              */
               //AFTER SET VEL WHICH SETS m_V
               
               
@@ -651,18 +654,28 @@ int main(int argc, char **argv)
       
       //NOW CREATES THE MESH
       //gpuErrchk(cudaMallocManaged(&unifmesh_d, rigbodies.size()*sizeof(SPH::TriMesh_d)) );     
-      cudaMalloc((void**)&unifmesh_d,         sizeof(SPH::TriMesh_d*));
+      cudaMalloc((void**)&unifmesh_d,         sizeof(SPH::TriMesh_d));
       //unifmesh_d->setDim(tot_node_count,tot_elem_count);
       setDimKernel<<<1,1>>>(unifmesh_d,tot_node_count,tot_elem_count);
-
-
       
+      //cudaMalloc((void**)&unifmesh_d->node, tot_node_count*sizeof(double3));
+
+
+      /*
       for (int m=0;m<rigbodies.size();m++){
         //unifmesh_d = ;
         addMeshKernel<<<1,1>>>(unifmesh_d,&mesh_d[m]);
         cudaDeviceSynchronize();
       }
+      */
       
+      //CHANGING ADDRESS
+      //AssignTrimeshAddressKernel<<<1,1 >>>(dom_d,0,unifmesh_d);
+      //gpuErrchk( cudaPeekAtLastError() );
+      //cudaDeviceSynchronize();
+      
+      
+      //// DELETE PREVIOUS MESHES
       
       
       cout << "Assigning contact params"<<endl;

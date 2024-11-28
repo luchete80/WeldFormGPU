@@ -54,14 +54,16 @@ class TriMesh_d{
   inline __host__ __device__ void Move(const double3 &v);
   inline void __device__ setDim(int nodecount, int elemcount);
   inline __device__ void addMesh(TriMesh_d* m);  
+  inline __device__ void setNodesVel(double3 v);
   
 };
 
-__global__ inline void SetNodesVelKernel(TriMesh_d *mesh_d,const double3 &v){
-    //int i = threadIdx.x + blockDim.x*blockIdx.x;
-    for (int i=0;mesh_d->nodecount;i++)
-    //if (i<mesh_d->nodecount)
-      mesh_d->node_v[i] = v;
+__global__ inline void SetNodesVelKernel(TriMesh_d *mesh_d,const double3 v){
+    
+    //for (int i=0;mesh_d->nodecount;i++)
+    //  mesh_d->node_v[i] = v;
+      
+    mesh_d->setNodesVel(v);
   }
 
 __global__ inline void setDimKernel(TriMesh_d *m, int nc, int ne){

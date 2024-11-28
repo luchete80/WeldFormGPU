@@ -45,34 +45,59 @@ __global__ inline void MeshUpdateKernel(TriMesh_d *mesh_d, double dt) {
 
 inline void TriMesh_d::addMesh(TriMesh_d* m){
   
-  int ei = this->elemcount;
-  int ni = this->nodecount;
-  for (int n=0;n<nodecount;n++){
-    m->node[ni+n]       = m->node[n];
-    m->node_v[ni+n]     = m->node_v[n];
+  //int ei = this->elemcount;
+  //int ni = this->nodecount;
+  int ei =0;
+  int ni=0;
+  if (nodecount==0 || elemcount ==0)
+  printf("ERROR. ELEM COUNT OR NODECOUNT null\n");
+  //if ()
+  //printf("Node count: %d, Elem count: %d\n", ni,ei);
+  node[0]=make_double3(0,0,0);
+  /*
+  for (int n=0;n<m->nodecount;n++){
+    node[ni+n]       = m->node[n];
+    node_v[ni+n]     = m->node_v[n];
   }
+  */
+/*
+  for (int e=0;e<m->elemcount;e++){
+    centroid[e+ei] =  m->centroid[e];
+    normal[e+ei]   =  m->normal[e];
+    elnode[e+ei]   =  m->elnode[e];
+    pplane[e+ei]   =  m->pplane[e];
+    nfar[e+ei]     =  m->nfar[e];
+  }
+  */
+  //DO NOT CHANGE THIS!
+  //nodecount += m->nodecount;
+  //elemcount += m->elemcount;
+  printf("New Mesh Node count: %d, Elem count: %d\n", this->nodecount,this->elemcount);
 
-  for (int e=0;e<elemcount;e++){
-    m->centroid[e+ei] =  m->centroid[e];
-    m->normal[e+ei]   =  m->normal[e];
-    m->elnode[e+ei]   =  m->elnode[e];
-    m->pplane[e+ei]   =  m->pplane[e];
-    m->nfar[e+ei]     =  m->nfar[e];
-  }
 }
 
 
-void TriMesh_d::setDim(int nodecount, int elemcount){
-  
-  cudaMalloc((void **)&node   , 	nodecount * sizeof (double3));
-  cudaMalloc((void **)&node_v , 	nodecount * sizeof (double3));  
-	cudaMalloc((void **)&centroid , 	elemcount * sizeof (double3));
-	cudaMalloc((void **)&normal 	, 	elemcount * sizeof (double3));
-	cudaMalloc((void **)&elnode 	, 	3 * elemcount * sizeof (int));	  
-  cudaMalloc((void **)&pplane , 	elemcount * sizeof (double));
-  cudaMalloc((void **)&nfar   , 	elemcount * sizeof (int));  
-  
+void TriMesh_d::setDim(int nc, int ec){
+  printf("SET MESH DIMENSION TO NC: %d EC: %d\n",nc,ec);
+  cudaMalloc((void **)&node   , 	nc * sizeof (double3));
+  cudaMalloc((void **)&node_v , 	nc * sizeof (double3));  
+	cudaMalloc((void **)&centroid , 	ec * sizeof (double3));
+	cudaMalloc((void **)&normal 	, 	ec * sizeof (double3));
+	cudaMalloc((void **)&elnode 	, 	3 * ec * sizeof (int));	  
+  cudaMalloc((void **)&pplane , 	ec * sizeof (double));
+  cudaMalloc((void **)&nfar   , 	ec * sizeof (int));  
+
+  nodecount = nc;
+  elemcount = ec;
+    
 }
+
+__device__ void TriMesh_d::setNodesVel(double3 v){
+  for (int i=0;i<nodecount;i++)
+  //if (i<mesh_d->nodecount)
+    node_v[i] = v;
+}
+
 
 
 //NOW THIS IS ZORIENTED, CHANGE TO EVERY PLANE
@@ -295,7 +320,7 @@ inline __device__ void TriMesh_d::Move(double dt){
     
     double3 vr 	= cross(m_w, node[n]);
     //// FOR THE NEW FLATTENED MESH IS NT ANYMORE AN SCALAR M_V
-    node_v[n] = m_v + vr; //MUST BE DELETED, SET PREVIOUSLY
+    ///node_v[n] = m_v + vr; //MUST BE DELETED, SET PREVIOUSLY
     
     //printf("NODE V: %f %f %f \n",node_v[n].x, node_v[n].y, node_v[n].z);
     
