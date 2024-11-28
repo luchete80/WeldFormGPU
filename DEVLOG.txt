@@ -83,4 +83,6 @@
 ---------------------------------------------------------------
 20240806 - Adding several things related to Multiple contact surfaces.
          - READY TO TEST SEVERAL SURFACES CONTACT!!
-         
+---------------------------------------------------------------
+20241128 - SEVERAL SURFACES CONTACT INITIAL APPROACH CHANGED DUE TO ACCESS ERRORS.
+         - Now is flatten main array (only one mesh object with all surfaces)
